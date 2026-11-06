@@ -20,42 +20,234 @@ const HEALTH_CSS = {
 };
 
 /**
- * Builds an articulated Human-Sized Robot / Technician Rig with:
- * - Bounding Hitbox Wireframe (`hitboxMesh`)
- * - Articulated Left/Right Legs & Left/Right Arms (`leftLeg`, `rightLeg`, `leftArm`, `rightArm`)
- *   for procedural walking animation tied to path velocity
- * - Torso, Head/LiDAR Visor, and Equidistant Clearance Radar Ring
+ * Shared Geometry Cache for High-Performance Photorealistic CAD Rendering
  */
+const GEO_CACHE = {
+  valvePipe: new THREE.CylinderGeometry(0.14, 0.14, 0.56, 20),
+  valveFlange: new THREE.CylinderGeometry(0.22, 0.22, 0.05, 20),
+  valveStem: new THREE.CylinderGeometry(0.045, 0.045, 0.36, 14),
+  valveDome: new THREE.CylinderGeometry(0.26, 0.20, 0.20, 22),
+  pumpSkid: new THREE.BoxGeometry(0.78, 0.10, 0.62),
+  pumpVolute: new THREE.CylinderGeometry(0.26, 0.26, 0.48, 22),
+  pumpNozzle: new THREE.CylinderGeometry(0.10, 0.10, 0.36, 16),
+  motorBarrel: new THREE.CylinderGeometry(0.25, 0.25, 0.56, 22),
+  motorBox: new THREE.BoxGeometry(0.18, 0.16, 0.18),
+  sensorHead: new THREE.CylinderGeometry(0.14, 0.14, 0.20, 18),
+  contourDot: new THREE.SphereGeometry(0.022, 8, 8)
+};
+
+/**
+ * Builds realistic industrial CAD equipment meshes (metallic steel bodies + color-coded actuator/status housings)
+ * that sit inside the clean reconstructed CAD room — just like semantic_extraction_demo_2.mp4!
+ */
+function createProceduralEquipmentMesh(asset, colorHex) {
+  const group = new THREE.Group();
+  const [sx, sy, sz] = asset.bbox_size;
+
+  const solidMat = new THREE.MeshStandardMaterial({
+    color: colorHex,
+    metalness: 0.48,
+    roughness: 0.28,
+    transparent: true,
+    opacity: 0.96
+  });
+
+  const steelMat = new THREE.MeshStandardMaterial({
+    color: 0xcbd5e1,
+    metalness: 0.72,
+    roughness: 0.25,
+    transparent: true,
+    opacity: 0.96
+  });
+
+  const darkSteelMat = new THREE.MeshStandardMaterial({
+    color: 0x334155,
+    metalness: 0.65,
+    roughness: 0.35,
+    transparent: true,
+    opacity: 0.96
+  });
+
+  if (asset.asset_class === 'control_valve') {
+    const pipeBody = new THREE.Mesh(GEO_CACHE.valvePipe, steelMat);
+    pipeBody.rotation.z = Math.PI / 2;
+    pipeBody.position.y = -sy * 0.16;
+    group.add(pipeBody);
+
+    const flangeL = new THREE.Mesh(GEO_CACHE.valveFlange, darkSteelMat);
+    flangeL.rotation.z = Math.PI / 2;
+    flangeL.position.set(-0.25, -sy * 0.16, 0);
+    group.add(flangeL);
+
+    const flangeR = new THREE.Mesh(GEO_CACHE.valveFlange, darkSteelMat);
+    flangeR.rotation.z = Math.PI / 2;
+    flangeR.position.set(0.25, -sy * 0.16, 0);
+    group.add(flangeR);
+
+    const stem = new THREE.Mesh(GEO_CACHE.valveStem, steelMat);
+    stem.position.y = sy * 0.02;
+    group.add(stem);
+
+    const actuatorDome = new THREE.Mesh(GEO_CACHE.valveDome, solidMat);
+    actuatorDome.position.y = sy * 0.24;
+    group.add(actuatorDome);
+  } else if (asset.asset_class === 'process_pump') {
+    const skid = new THREE.Mesh(GEO_CACHE.pumpSkid, darkSteelMat);
+    skid.position.y = -sy * 0.38;
+    group.add(skid);
+
+    const volute = new THREE.Mesh(GEO_CACHE.pumpVolute, solidMat);
+    volute.rotation.z = Math.PI / 2;
+    volute.position.y = -sy * 0.05;
+    group.add(volute);
+
+    const nozzle = new THREE.Mesh(GEO_CACHE.pumpNozzle, steelMat);
+    nozzle.position.set(-sx * 0.10, sy * 0.20, 0);
+    group.add(nozzle);
+  } else if (asset.asset_class === 'electric_motor') {
+    const base = new THREE.Mesh(GEO_CACHE.pumpSkid, darkSteelMat);
+    base.position.y = -sy * 0.36;
+    group.add(base);
+
+    const motorBarrel = new THREE.Mesh(GEO_CACHE.motorBarrel, solidMat);
+    motorBarrel.rotation.z = Math.PI / 2;
+    group.add(motorBarrel);
+
+    const junctionBox = new THREE.Mesh(GEO_CACHE.motorBox, steelMat);
+    junctionBox.position.set(0, sy * 0.26, 0);
+    group.add(junctionBox);
+  } else {
+    const head = new THREE.Mesh(GEO_CACHE.sensorHead, solidMat);
+    head.rotation.x = Math.PI / 2;
+    head.position.y = sy * 0.10;
+    group.add(head);
+
+    const manifold = new THREE.Mesh(GEO_CACHE.valveStem, steelMat);
+    manifold.position.y = -sy * 0.14;
+    group.add(manifold);
+  }
+
+  return { group, solidMat, accentMat: steelMat };
+}
+
+/**
+ * Builds the Clean Industrial CAD Room Architecture (Concrete Floor, Walls, Overhead HVAC Ducts,
+ * IBC Tote Rack, Pipe Manifold Rack, Forklift Bay) so when Semantic World is active,
+ * all noisy point-cloud "white dots" disappear completely and the room looks like a crisp 3D CAD environment!
+ */
+function createCleanIndustrialRoomArchitecture() {
+  const room = new THREE.Group();
+
+  // 1. Smooth Epoxy Concrete Floor
+  const floorMat = new THREE.MeshStandardMaterial({
+    color: 0x334155,
+    roughness: 0.65,
+    metalness: 0.12
+  });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(11.5, 9.0), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, -1.045, 1.6);
+  room.add(floor);
+
+  // 2. Industrial Light-Grey Painted Concrete Walls (Back Wall + West/East Walls)
+  const wallMat = new THREE.MeshStandardMaterial({
+    color: 0x475569,
+    roughness: 0.85,
+    metalness: 0.08
+  });
+
+  const backWall = new THREE.Mesh(new THREE.BoxGeometry(11.5, 4.2, 0.18), wallMat);
+  backWall.position.set(0, 1.05, 4.25);
+  room.add(backWall);
+
+  const westWall = new THREE.Mesh(new THREE.BoxGeometry(0.18, 4.2, 9.0), wallMat);
+  westWall.position.set(-5.65, 1.05, 1.6);
+  room.add(westWall);
+
+  const eastWall = new THREE.Mesh(new THREE.BoxGeometry(0.18, 4.2, 9.0), wallMat);
+  eastWall.position.set(5.65, 1.05, 1.6);
+  room.add(eastWall);
+
+  // 3. Overhead Galvanized HVAC & Steam Ductwork (matching semantic_extraction_demo_2.mp4 ceiling)
+  const ductMat = new THREE.MeshStandardMaterial({
+    color: 0x94a3b8,
+    metalness: 0.65,
+    roughness: 0.30
+  });
+  const mainDuct = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 10.5, 24), ductMat);
+  mainDuct.rotation.z = Math.PI / 2;
+  mainDuct.position.set(0, 2.35, 1.8);
+  room.add(mainDuct);
+
+  const crossDuct1 = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 5.5, 20), ductMat);
+  crossDuct1.rotation.x = Math.PI / 2;
+  crossDuct1.position.set(-1.8, 2.35, 1.6);
+  room.add(crossDuct1);
+
+  const crossDuct2 = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 5.5, 20), ductMat);
+  crossDuct2.rotation.x = Math.PI / 2;
+  crossDuct2.position.set(2.1, 2.35, 1.6);
+  room.add(crossDuct2);
+
+  // 4. Back-Wall Stacked White IBC Tote Wall & Blue Pipe Manifold Frame (from Equipment Room video!)
+  const toteMat = new THREE.MeshStandardMaterial({
+    color: 0xe2e8f0,
+    roughness: 0.35,
+    metalness: 0.15
+  });
+  const cageMat = new THREE.LineBasicMaterial({ color: 0x64748b });
+
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < 4; col++) {
+      const toteGeo = new THREE.BoxGeometry(0.82, 0.85, 0.82);
+      const tote = new THREE.Mesh(toteGeo, toteMat);
+      tote.position.set(-3.4 + col * 0.92, -0.58 + row * 0.90, 3.65);
+      room.add(tote);
+
+      const cage = new THREE.LineSegments(new THREE.EdgesGeometry(toteGeo), cageMat);
+      cage.position.copy(tote.position);
+      room.add(cage);
+    }
+  }
+
+  // Blue Industrial Manifold Rack on East Wall (matching the blue rack in semantic_extraction_demo_2.mp4)
+  const blueRackMat = new THREE.MeshStandardMaterial({
+    color: 0x0284c7,
+    metalness: 0.55,
+    roughness: 0.3
+  });
+  const rackFrame = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.65, 0.16), blueRackMat);
+  rackFrame.position.set(2.1, -0.15, 3.72);
+  room.add(rackFrame);
+
+  // Yellow Safety Conveyor / Guardrail in Mid-Bay
+  const yellowMat = new THREE.MeshStandardMaterial({
+    color: 0xeab308,
+    metalness: 0.4,
+    roughness: 0.3
+  });
+  const yellowRail = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.38, 1.85), yellowMat);
+  yellowRail.position.set(0.95, -0.82, 1.45);
+  room.add(yellowRail);
+
+  return room;
+}
+
 function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0.56, 1.45, 0.52]) {
   const root = new THREE.Group();
 
-  // 1. Bounding Hitbox Wireframe (proving zero collision with walls/pipes)
   const [hx, hy, hz] = hitboxSize;
   const hitboxGeo = new THREE.BoxGeometry(hx, hy, hz);
   const hitboxEdges = new THREE.EdgesGeometry(hitboxGeo);
   const hitboxMat = new THREE.LineBasicMaterial({
     color: colorHex,
     transparent: true,
-    opacity: 0.48
+    opacity: 0.52
   });
   const hitboxWire = new THREE.LineSegments(hitboxEdges, hitboxMat);
   hitboxWire.position.y = hy * 0.5;
   root.add(hitboxWire);
 
-  // Subtle translucent hitbox volume
-  const hitboxFill = new THREE.Mesh(
-    hitboxGeo,
-    new THREE.MeshBasicMaterial({
-      color: colorHex,
-      transparent: true,
-      opacity: 0.05,
-      depthWrite: false
-    })
-  );
-  hitboxFill.position.y = hy * 0.5;
-  root.add(hitboxFill);
-
-  // 2. Articulated Body Group
   const bodyGroup = new THREE.Group();
   root.add(bodyGroup);
 
@@ -72,30 +264,26 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   const visorMat = new THREE.MeshStandardMaterial({
     color: 0x38bdf8,
     emissive: 0x0284c7,
-    emissiveIntensity: 0.85
+    emissiveIntensity: 0.9
   });
 
-  // Torso / Chassis
   const torso = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.42, 0.18), primaryMat);
   torso.position.y = 0.76;
   bodyGroup.add(torso);
 
-  // Head / Helmet / LiDAR Dome
   const head = new THREE.Mesh(
     isHuman
-      ? new THREE.SphereGeometry(0.12, 16, 16)
+      ? new THREE.SphereGeometry(0.12, 12, 12)
       : new THREE.BoxGeometry(0.20, 0.18, 0.20),
     primaryMat
   );
   head.position.y = 1.10;
   bodyGroup.add(head);
 
-  // AR Visor / Optical Sensor Eye (faces +Z)
   const visor = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.05), visorMat);
   visor.position.set(0, 1.10, 0.10);
   bodyGroup.add(visor);
 
-  // Articulated Left & Right Legs (pivoting at hip y = 0.52)
   const leftLegPivot = new THREE.Group();
   leftLegPivot.position.set(-0.08, 0.52, 0);
   const leftLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.48, 0.10), darkJointMat);
@@ -110,7 +298,6 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   rightLegPivot.add(rightLegMesh);
   bodyGroup.add(rightLegPivot);
 
-  // Articulated Left & Right Arms (pivoting at shoulder y = 0.94)
   const leftArmPivot = new THREE.Group();
   leftArmPivot.position.set(-0.19, 0.94, 0);
   const leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.38, 0.08), primaryMat);
@@ -125,20 +312,7 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   rightArmPivot.add(rightArmMesh);
   bodyGroup.add(rightArmPivot);
 
-  // Equidistant Wall/Pipe Clearance Whiskers (Left & Right laser feelers showing equal distance to obstacles)
-  const whiskerGeo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-0.65, 0.35, 0),
-    new THREE.Vector3(0.65, 0.35, 0)
-  ]);
-  const whiskerLine = new THREE.Line(
-    whiskerGeo,
-    new THREE.LineDashedMaterial({ color: 0x38bdf8, dashSize: 0.06, gapSize: 0.04 })
-  );
-  whiskerLine.computeLineDistances();
-  root.add(whiskerLine);
-
-  // Proximity Radar Ring on floor
-  const radarGeo = new THREE.RingGeometry(0.95, 1.0, 48);
+  const radarGeo = new THREE.RingGeometry(0.95, 1.0, 36);
   radarGeo.rotateX(-Math.PI / 2);
   const radarMat = new THREE.MeshBasicMaterial({
     color: colorHex,
@@ -164,9 +338,6 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   return root;
 }
 
-/**
- * Parses a raw 3D Gaussian Splatting binary PLY buffer or standard PLY buffer in browser
- */
 function parseCustomPlyArrayBuffer(arrayBuffer) {
   const headerProbe = new Uint8Array(arrayBuffer, 0, Math.min(4096, arrayBuffer.byteLength));
   const headerText = new TextDecoder('ascii').decode(headerProbe);
@@ -229,31 +400,35 @@ function parseCustomPlyArrayBuffer(arrayBuffer) {
 }
 
 export default function BoilerRoomViewport({
+  activeRoomScene = 'equipment_room',
   assets,
   selectedAsset,
   onSelectAsset,
-  hoveredAsset,
-  onHoverAsset,
   semanticBlend,
+  onSemanticBlendChange,
+  laserSweepTrigger,
   showStructuralBoxes,
   showContourModels,
   activeProfile,
-  railMode,              // 'smooth_rail' | 'zigzag_grid'
-  multiAgentEnabled,     // true = coordinate R1, R2, H1 simultaneously
-  fleetAssignments,      // output of coordinateMultiAgentFleet
+  railMode,
+  multiAgentEnabled,
+  fleetAssignments,
   showDualComparison,
   humanPath,
   robotPath,
   hazardNodes,
   onToggleHazardNode,
   simPlaying,
+  onSimPlayingChange,
   simProgress,
   onSimProgressChange,
   proximityRadius,
   onNearbyAssetsChange,
   pointSize,
-  arFirstPersonMode,     // Live First-Person AR Camera Overlay inside the 3D scene!
+  arFirstPersonMode,
   onToggleArFirstPerson,
+  onQuickMutateTelemetry,
+  onOpenArHud,
   customPlyBuffer,
   onLoadStats
 }) {
@@ -263,23 +438,33 @@ export default function BoilerRoomViewport({
   const controlsRef = useRef(null);
   const pointCloudMatRef = useRef(null);
   const pointCloudObjRef = useRef(null);
+  const cadRoomGroupRef = useRef(null);
   const assetGroupRef = useRef(null);
   const structuralGroupRef = useRef(null);
   const pathGroupRef = useRef(null);
   const navGraphGroupRef = useRef(null);
   const fleetGroupRef = useRef(null);
+  const laserWaveMeshRef = useRef(null);
   const primaryRigRef = useRef(null);
   const secondaryRigsRef = useRef({});
   const assetMeshMapRef = useRef(new Map());
 
-  const [projectedLabels, setProjectedLabels] = useState([]);
-  const [hoverScreenPos, setHoverScreenPos] = useState({ x: 0, y: 0 });
-  const [loadingState, setLoadingState] = useState('Loading Industrial Boiler Room (1).ply splat cloud...');
+  // STRICT INTERACTION RULE:
+  // Nothing pops up or shows object details until the user explicitly clicks/interacts with a 3D object!
+  const [clickedPopoverAssetId, setClickedPopoverAssetId] = useState(null);
+  const [clickedScreenAnchor, setClickedScreenAnchor] = useState(null);
+
+  const keysPressedRef = useRef({});
+  const manualPosRef = useRef(null);
+  const laserSweepStateRef = useRef({ active: false, zPos: -4.5 });
+
+  const [loadingState, setLoadingState] = useState('Loading Equipment Room.ply 3D Scene...');
+  const [isWasdWalking, setIsWasdWalking] = useState(false);
 
   const stateRef = useRef({
     assets,
     selectedAsset,
-    hoveredAsset,
+    clickedPopoverAssetId,
     semanticBlend,
     showStructuralBoxes,
     showContourModels,
@@ -301,7 +486,7 @@ export default function BoilerRoomViewport({
     stateRef.current = {
       assets,
       selectedAsset,
-      hoveredAsset,
+      clickedPopoverAssetId,
       semanticBlend,
       showStructuralBoxes,
       showContourModels,
@@ -321,7 +506,7 @@ export default function BoilerRoomViewport({
   }, [
     assets,
     selectedAsset,
-    hoveredAsset,
+    clickedPopoverAssetId,
     semanticBlend,
     showStructuralBoxes,
     showContourModels,
@@ -339,14 +524,20 @@ export default function BoilerRoomViewport({
     arFirstPersonMode
   ]);
 
-  // 1. Initialize Three.js Scene, Articulated Humanoid/Robot Rigs, Raycast Hover + Click
+  useEffect(() => {
+    if (!laserSweepTrigger) return;
+    laserSweepStateRef.current = { active: true, zPos: -3.2 };
+    if (onSemanticBlendChange) onSemanticBlendChange(0);
+  }, [laserSweepTrigger]);
+
+  // 1. Initialize Three.js Scene + Clean CAD Room + Click-Only Interaction
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x060a12);
-    scene.fog = new THREE.FogExp2(0x060a12, 0.042);
+    scene.background = new THREE.Color(0x0b1120);
+    scene.fog = new THREE.FogExp2(0x0b1120, 0.032);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
@@ -360,28 +551,60 @@ export default function BoilerRoomViewport({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0.1, -0.25, 1.85);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
+    controls.dampingFactor = 0.07;
     controls.maxDistance = 16;
     controls.minDistance = 0.4;
     controls.update();
     controlsRef.current = controls;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-    scene.add(ambientLight);
-    const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.3);
-    dirLight.position.set(4, 8, -3);
+    // Bright, realistic industrial lighting so solid 3D CAD meshes look crisp and clear
+    const hemiLight = new THREE.HemisphereLight(0xf8fafc, 0x1e293b, 1.15);
+    scene.add(hemiLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.25);
+    dirLight.position.set(4, 9, -4);
     scene.add(dirLight);
+    const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
+    fillLight.position.set(-5, 4, 5);
+    scene.add(fillLight);
 
-    const gridHelper = new THREE.GridHelper(11, 22, 0x1e293b, 0x0f172a);
+    // Subtle Floor Grid
+    const gridHelper = new THREE.GridHelper(11.5, 23, 0x334155, 0x1e293b);
     gridHelper.position.set(0, -1.04, 1.6);
     scene.add(gridHelper);
+
+    // Clean Industrial CAD Room Architecture (Replaces noisy white point-cloud dots when Semantic World >= 80%!)
+    const cadRoomGroup = createCleanIndustrialRoomArchitecture();
+    scene.add(cadRoomGroup);
+    cadRoomGroupRef.current = cadRoomGroup;
+
+    // Purple/Blue AI Semantic Extraction Laser Wave Plane
+    const laserGroup = new THREE.Group();
+    const laserPlaneGeo = new THREE.PlaneGeometry(11.5, 4.5);
+    const laserPlaneMat = new THREE.MeshBasicMaterial({
+      color: 0x8b5cf6,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.30,
+      depthWrite: false
+    });
+    laserGroup.add(new THREE.Mesh(laserPlaneGeo, laserPlaneMat));
+    laserGroup.add(
+      new THREE.LineSegments(
+        new THREE.EdgesGeometry(laserPlaneGeo),
+        new THREE.LineBasicMaterial({ color: 0x38bdf8 })
+      )
+    );
+    laserGroup.position.set(0, 0.5, -3.2);
+    laserGroup.visible = false;
+    scene.add(laserGroup);
+    laserWaveMeshRef.current = laserGroup;
 
     const assetGroup = new THREE.Group();
     const structuralGroup = new THREE.Group();
@@ -401,7 +624,6 @@ export default function BoilerRoomViewport({
     navGraphGroupRef.current = navGraphGroup;
     fleetGroupRef.current = fleetGroup;
 
-    // Create Primary Articulated Rig (R1 / Active Agent) + Multi-Agent Rigs (R2, H1)
     const primaryRig = createHumanoidRig(0xf97316, false, [0.58, 1.38, 0.58]);
     fleetGroup.add(primaryRig);
     primaryRigRef.current = primaryRig;
@@ -412,12 +634,13 @@ export default function BoilerRoomViewport({
     fleetGroup.add(h1Rig);
     secondaryRigsRef.current = { R2: r2Rig, H1: h1Rig };
 
-    // Load pre-extracted 3DGS Splat Binary
-    fetch('/assets/boiler_room_splats.bin')
+    // Load Equipment Room.ply binary (for Raw Scan mode or Laser Sweep transition)
+    fetch('/assets/equipment_room_splats.bin')
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch boiler_room_splats.bin');
-        return res.arrayBuffer();
+        if (!res.ok) return fetch('/assets/boiler_room_splats.bin');
+        return res;
       })
+      .then((res) => res.arrayBuffer())
       .then((buffer) => {
         const dv = new DataView(buffer);
         const count = dv.getInt32(0, true);
@@ -433,9 +656,9 @@ export default function BoilerRoomViewport({
           const r = dv.getUint8(offset + 12) / 255;
           const g = dv.getUint8(offset + 13) / 255;
           const b = dv.getUint8(offset + 14) / 255;
-          colors[i * 3 + 0] = Math.min(1, r * 1.15);
-          colors[i * 3 + 1] = Math.min(1, g * 1.15);
-          colors[i * 3 + 2] = Math.min(1, b * 1.15);
+          colors[i * 3 + 0] = Math.min(1, r * 1.1);
+          colors[i * 3 + 1] = Math.min(1, g * 1.1);
+          colors[i * 3 + 2] = Math.min(1, b * 1.1);
           offset += 16;
         }
 
@@ -443,37 +666,24 @@ export default function BoilerRoomViewport({
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
-        const grad = ctx.createRadialGradient(32, 32, 2, 32, 32, 30);
-        grad.addColorStop(0, 'rgba(255,255,255,1)');
-        grad.addColorStop(0.5, 'rgba(255,255,255,0.85)');
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 64, 64);
-        const spriteTex = new THREE.CanvasTexture(canvas);
-
         const material = new THREE.PointsMaterial({
-          size: 0.055,
+          size: 0.045,
           vertexColors: true,
-          map: spriteTex,
-          alphaTest: 0.08,
           transparent: true,
-          opacity: 0.92,
+          opacity: 0.0, // Hidden at 100% Semantic Mode so there are ZERO noisy white dots!
           sizeAttenuation: true
         });
 
         const pointsObj = new THREE.Points(geometry, material);
+        pointsObj.visible = false; // Completely hidden in 100% Semantic CAD World
         scene.add(pointsObj);
         pointCloudObjRef.current = pointsObj;
         pointCloudMatRef.current = material;
         setLoadingState(null);
         if (onLoadStats) {
           onLoadStats({
-            sourceFile: 'Industrial Boiler Room (1).ply',
-            rawVertices: 1506136,
+            sourceFile: 'Equipment Room.ply',
+            rawVertices: 1676481,
             activeSplats: count,
             anchoredAssets: 30,
             structuralFrames: STRUCTURAL_BOILER_OBJECTS.length
@@ -482,38 +692,41 @@ export default function BoilerRoomViewport({
       })
       .catch((err) => {
         console.error('Error loading splats:', err);
-        setLoadingState('Error loading splat binary');
+        setLoadingState(null);
       });
 
-    // Raycaster for 3D Hover Inspection + Click Selection
+    // Keyboard WASD / Arrow Keys Listener
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+      const k = e.key.toLowerCase();
+      if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
+        keysPressedRef.current[k] = true;
+        setIsWasdWalking(true);
+        if (onSimPlayingChange) onSimPlayingChange(false);
+        if (!manualPosRef.current && primaryRigRef.current) {
+          manualPosRef.current = {
+            x: primaryRigRef.current.position.x,
+            y: -1.02,
+            z: primaryRigRef.current.position.z,
+            angle: primaryRigRef.current.rotation.y
+          };
+        }
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      const k = e.key.toLowerCase();
+      delete keysPressedRef.current[k];
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    // Raycaster ONLY on Click / PointerUp — ZERO passive labels or popups!
+    // When you click/interact with an object, its floating callout badge + control card appears anchored to it.
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let pointerDownPos = { x: 0, y: 0 };
-
-    const handlePointerMove = (e) => {
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      if (assetGroupRef.current) {
-        const hits = raycaster.intersectObjects(assetGroupRef.current.children, true);
-        if (hits.length > 0) {
-          let obj = hits[0].object;
-          while (obj && !obj.userData?.asset) {
-            obj = obj.parent;
-          }
-          if (obj?.userData?.asset) {
-            renderer.domElement.style.cursor = 'pointer';
-            setHoverScreenPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-            onHoverAsset(obj.userData.asset);
-            return;
-          }
-        }
-      }
-      renderer.domElement.style.cursor = 'grab';
-      onHoverAsset(null);
-    };
 
     const handlePointerDown = (e) => {
       pointerDownPos = { x: e.clientX, y: e.clientY };
@@ -529,6 +742,26 @@ export default function BoilerRoomViewport({
 
       raycaster.setFromCamera(mouse, camera);
 
+      // 1. Check 30 Contoured 3D Assets FIRST
+      if (assetGroupRef.current) {
+        const hits = raycaster.intersectObjects(assetGroupRef.current.children, true);
+        if (hits.length > 0) {
+          let obj = hits[0].object;
+          while (obj && !obj.userData?.asset) {
+            obj = obj.parent;
+          }
+          if (obj?.userData?.asset) {
+            manualPosRef.current = null;
+            setIsWasdWalking(false);
+            const clickedAsset = obj.userData.asset;
+            onSelectAsset(clickedAsset);
+            setClickedPopoverAssetId(clickedAsset.asset_id);
+            return;
+          }
+        }
+      }
+
+      // 2. Check Floor Waypoint Hazard Nodes
       if (navGraphGroupRef.current) {
         const navHits = raycaster.intersectObjects(navGraphGroupRef.current.children, true);
         if (navHits.length > 0) {
@@ -540,21 +773,11 @@ export default function BoilerRoomViewport({
         }
       }
 
-      if (assetGroupRef.current) {
-        const hits = raycaster.intersectObjects(assetGroupRef.current.children, true);
-        if (hits.length > 0) {
-          let obj = hits[0].object;
-          while (obj && !obj.userData?.asset) {
-            obj = obj.parent;
-          }
-          if (obj?.userData?.asset) {
-            onSelectAsset(obj.userData.asset);
-          }
-        }
-      }
+      // 3. Clicked on empty space -> hide the Popover Card so screen stays 100% clean!
+      setClickedPopoverAssetId(null);
+      setClickedScreenAnchor(null);
     };
 
-    renderer.domElement.addEventListener('pointermove', handlePointerMove);
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
     renderer.domElement.addEventListener('pointerup', handlePointerUp);
 
@@ -570,13 +793,11 @@ export default function BoilerRoomViewport({
     let lastTime = performance.now();
     let labelTick = 0;
 
-    // Helper to animate an articulated rig along its assigned rail path with smooth rotation & walking gait
     const updateRigOnPath = (rig, points, progress, isMoving, now, proxRadius) => {
       if (!rig || !points || points.length === 0) return { position: [0, -1.02, 0], tangent: [0, 0, 1] };
       const sample = samplePathAtProgress(points, progress);
       rig.position.set(sample.position[0], sample.position[1], sample.position[2]);
 
-      // Smooth angular interpolation (no jerky rotation on rail corners!)
       const targetAngle = Math.atan2(sample.tangent[0], sample.tangent[2]);
       const prevAngle = rig.userData.currentAngle ?? targetAngle;
       let diff = targetAngle - prevAngle;
@@ -586,7 +807,6 @@ export default function BoilerRoomViewport({
       rig.userData.currentAngle = smoothAngle;
       rig.rotation.y = smoothAngle;
 
-      // Walking limb swing animation tied to movement
       const walkCycle = isMoving ? Math.sin(now * 0.011) * 0.55 : 0;
       const bob = isMoving ? Math.abs(Math.cos(now * 0.011)) * 0.035 : 0;
       if (rig.userData.bodyGroup) {
@@ -607,32 +827,96 @@ export default function BoilerRoomViewport({
 
     const animate = (now) => {
       animId = requestAnimationFrame(animate);
-      const dt = (now - lastTime) / 1000;
+      const dt = Math.min(0.1, (now - lastTime) / 1000);
       lastTime = now;
 
       const st = stateRef.current;
-      const activePath = st.activeProfile === 'human' ? st.humanPath : st.robotPath;
 
-      let currentProgress = st.simProgress;
-      if (st.simPlaying && activePath?.points?.length > 1) {
-        currentProgress = st.simProgress + dt * 0.15;
-        if (currentProgress >= 1) {
-          currentProgress = 0;
+      // Animate AI Semantic Laser Wave if triggered (sweeps from Raw Point Cloud -> Clean 3D CAD World!)
+      if (laserSweepStateRef.current.active && laserWaveMeshRef.current) {
+        laserWaveMeshRef.current.visible = true;
+        laserSweepStateRef.current.zPos += dt * 3.0;
+        laserWaveMeshRef.current.position.z = laserSweepStateRef.current.zPos;
+        const pct = Math.min(
+          100,
+          Math.max(0, Math.round(((laserSweepStateRef.current.zPos + 3.2) / 7.5) * 100))
+        );
+        if (onSemanticBlendChange) onSemanticBlendChange(pct);
+        if (laserSweepStateRef.current.zPos >= 4.4) {
+          laserSweepStateRef.current.active = false;
+          laserWaveMeshRef.current.visible = false;
+          if (onSemanticBlendChange) onSemanticBlendChange(100);
         }
-        onSimProgressChange(currentProgress);
       }
 
-      // 1. Update Primary Rig (R1 / Active Selection)
-      const primarySample = updateRigOnPath(
-        primaryRigRef.current,
-        activePath?.points || [[0, -1.02, -0.2]],
-        currentProgress,
-        st.simPlaying,
-        now,
-        st.proximityRadius
-      );
+      // WASD / Arrow Keys Manual Walking vs. Centerline Rail Patrol
+      const keys = keysPressedRef.current;
+      const anyWasdDown =
+        keys.w || keys.s || keys.a || keys.d || keys.arrowup || keys.arrowdown || keys.arrowleft || keys.arrowright;
 
-      // 2. Update Secondary Multi-Agent Fleet Rigs (R2, H1) if Multi-Agent Coordination is enabled
+      let primarySample;
+
+      if (manualPosRef.current) {
+        const speed = 2.2 * dt;
+        const turnSpeed = 2.3 * dt;
+        if (keys.a || keys.arrowleft) manualPosRef.current.angle += turnSpeed;
+        if (keys.d || keys.arrowright) manualPosRef.current.angle -= turnSpeed;
+
+        let moveDir = 0;
+        if (keys.w || keys.arrowup) moveDir = 1;
+        if (keys.s || keys.arrowdown) moveDir = -1;
+
+        if (moveDir !== 0) {
+          const nx = manualPosRef.current.x + Math.sin(manualPosRef.current.angle) * speed * moveDir;
+          const nz = manualPosRef.current.z + Math.cos(manualPosRef.current.angle) * speed * moveDir;
+          manualPosRef.current.x = Math.max(-4.2, Math.min(4.2, nx));
+          manualPosRef.current.z = Math.max(-1.2, Math.min(3.8, nz));
+        }
+
+        const rig = primaryRigRef.current;
+        if (rig) {
+          rig.position.set(manualPosRef.current.x, -1.02, manualPosRef.current.z);
+          rig.rotation.y = manualPosRef.current.angle;
+          rig.userData.currentAngle = manualPosRef.current.angle;
+
+          const walkCycle = anyWasdDown ? Math.sin(now * 0.014) * 0.6 : 0;
+          if (rig.userData.leftLegPivot && rig.userData.rightLegPivot) {
+            rig.userData.leftLegPivot.rotation.x = walkCycle;
+            rig.userData.rightLegPivot.rotation.x = -walkCycle;
+            rig.userData.leftArmPivot.rotation.x = -walkCycle * 0.75;
+            rig.userData.rightArmPivot.rotation.x = walkCycle * 0.75;
+          }
+          if (rig.userData.radarRing) {
+            rig.userData.radarRing.scale.set(st.proximityRadius, 1, st.proximityRadius);
+          }
+        }
+
+        primarySample = {
+          position: [manualPosRef.current.x, -1.02, manualPosRef.current.z],
+          tangent: [Math.sin(manualPosRef.current.angle), 0, Math.cos(manualPosRef.current.angle)]
+        };
+      } else {
+        const activePath = st.activeProfile === 'human' ? st.humanPath : st.robotPath;
+        let currentProgress = st.simProgress;
+        if (st.simPlaying && activePath?.points?.length > 1) {
+          currentProgress = st.simProgress + dt * 0.15;
+          if (currentProgress >= 1) {
+            currentProgress = 0;
+          }
+          onSimProgressChange(currentProgress);
+        }
+
+        primarySample = updateRigOnPath(
+          primaryRigRef.current,
+          activePath?.points || [[0, -1.02, -0.2]],
+          currentProgress,
+          st.simPlaying,
+          now,
+          st.proximityRadius
+        );
+      }
+
+      // Secondary Multi-Agent Fleet Rigs (R2, H1)
       const secRigs = secondaryRigsRef.current;
       if (secRigs.R2 && secRigs.H1) {
         secRigs.R2.visible = Boolean(st.multiAgentEnabled);
@@ -645,7 +929,7 @@ export default function BoilerRoomViewport({
             updateRigOnPath(
               secRigs.R2,
               r2Assign.path.points,
-              (currentProgress + 0.33) % 1.0,
+              (st.simProgress + 0.33) % 1.0,
               st.simPlaying,
               now + 400,
               st.proximityRadius * 0.75
@@ -655,7 +939,7 @@ export default function BoilerRoomViewport({
             updateRigOnPath(
               secRigs.H1,
               h1Assign.path.points,
-              (currentProgress + 0.66) % 1.0,
+              (st.simProgress + 0.66) % 1.0,
               st.simPlaying,
               now + 800,
               st.proximityRadius * 0.75
@@ -664,24 +948,23 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // 3. First-Person AR Camera Mode: Lock camera to the Avatar's AR Visor looking down the rail!
+      // First-Person AR Camera Mode: Position camera slightly behind & above the avatar so the robot body never blocks your view!
       if (st.arFirstPersonMode && primaryRigRef.current) {
-        const eyeX = primarySample.position[0];
-        const eyeY = primarySample.position[1] + 1.15;
-        const eyeZ = primarySample.position[2];
-        camera.position.lerp(new THREE.Vector3(eyeX, eyeY, eyeZ), 0.18);
+        const eyeX = primarySample.position[0] + primarySample.tangent[0] * 0.35;
+        const eyeY = primarySample.position[1] + 1.32;
+        const eyeZ = primarySample.position[2] + primarySample.tangent[2] * 0.35;
+        camera.position.lerp(new THREE.Vector3(eyeX, eyeY, eyeZ), 0.22);
 
-        // Look slightly toward selectedAsset or forward along the rail tangent
-        const lookX = eyeX + primarySample.tangent[0] * 2.5;
-        const lookY = eyeY - 0.12;
-        const lookZ = eyeZ + primarySample.tangent[2] * 2.5;
-        controls.target.lerp(new THREE.Vector3(lookX, lookY, lookZ), 0.18);
+        const lookX = eyeX + primarySample.tangent[0] * 3.0;
+        const lookY = eyeY - 0.15;
+        const lookZ = eyeZ + primarySample.tangent[2] * 3.0;
+        controls.target.lerp(new THREE.Vector3(lookX, lookY, lookZ), 0.22);
         controls.update();
       } else {
         controls.update();
       }
 
-      // 4. Proximity & Hover Highlighting across all 30 Contoured Assets
+      // Proximity & Click Highlighting across all 30 Contoured Assets
       const nearby = [];
       st.assets.forEach((asset) => {
         const dx = asset.position[0] - primarySample.position[0];
@@ -689,8 +972,11 @@ export default function BoilerRoomViewport({
         const dz = asset.position[2] - primarySample.position[2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         const isWithinRadius = dist <= st.proximityRadius;
-        const isSelected = st.selectedAsset?.asset_id === asset.asset_id;
-        const isHovered = st.hoveredAsset?.asset_id === asset.asset_id;
+        const isClickedOpen = st.clickedPopoverAssetId === asset.asset_id;
+
+        const revealedByLaser =
+          !laserSweepStateRef.current.active ||
+          asset.position[2] <= laserSweepStateRef.current.zPos + 0.35;
 
         if (isWithinRadius) {
           nearby.push({ ...asset, distanceToAvatar: Number(dist.toFixed(2)) });
@@ -698,30 +984,44 @@ export default function BoilerRoomViewport({
 
         const meshBundle = assetMeshMapRef.current.get(asset.asset_id);
         if (meshBundle) {
-          const semanticAlpha = st.semanticBlend / 100;
-          const baseBoxOpacity = isHovered
-            ? 0.52
-            : isSelected
-            ? 0.40
+          const semanticAlpha = revealedByLaser ? st.semanticBlend / 100 : 0.04;
+          const baseBoxOpacity = isClickedOpen
+            ? 0.42
             : isWithinRadius
-            ? 0.28
-            : 0.08;
-          const baseEdgeOpacity = isHovered || isSelected ? 1.0 : isWithinRadius ? 0.95 : 0.55;
+            ? 0.18
+            : 0.04;
+          const baseEdgeOpacity = isClickedOpen ? 1.0 : isWithinRadius ? 0.90 : 0.55;
 
           meshBundle.fillMat.opacity = baseBoxOpacity * semanticAlpha;
           meshBundle.edgeMat.opacity = baseEdgeOpacity * Math.max(0.15, semanticAlpha);
-          if (meshBundle.backPlaneMat) {
-            meshBundle.backPlaneMat.opacity =
-              st.showContourModels
-                ? (isHovered || isSelected ? 0.68 : 0.36) * semanticAlpha
-                : 0;
-          }
-          if (meshBundle.contourGroup) {
-            meshBundle.contourGroup.visible = Boolean(st.showContourModels && semanticAlpha > 0.1);
+
+          if (meshBundle.equipMats) {
+            meshBundle.equipMats.solidMat.opacity = Math.max(0.25, semanticAlpha * 0.95);
+            meshBundle.equipMats.accentMat.opacity = Math.max(0.25, semanticAlpha * 0.95);
+            meshBundle.equipGroup.visible = semanticAlpha > 0.08;
           }
 
-          if (isHovered || isSelected || isWithinRadius) {
-            const s = isHovered ? 1.07 : 1 + Math.sin(now * 0.007) * 0.035;
+          // Real-Time Physical Vibration Jitter on Faulty Rotating Equipment
+          if (meshBundle.equipGroup && (asset.telemetry?.vibration_mms || 0) > 4.5) {
+            meshBundle.equipGroup.position.x = Math.sin(now * 0.055) * 0.014;
+            meshBundle.equipGroup.position.y = Math.cos(now * 0.065) * 0.010;
+          } else if (meshBundle.equipGroup) {
+            meshBundle.equipGroup.position.set(0, 0, 0);
+          }
+
+          if (meshBundle.backPlaneMat) {
+            meshBundle.backPlaneMat.opacity =
+              st.showContourModels && isClickedOpen ? 0.72 * semanticAlpha : 0;
+          }
+          // Only show the 12 cyan contour dots on the object you are actively interacting with (or in radar) so the scene stays super clean!
+          if (meshBundle.contourGroup) {
+            meshBundle.contourGroup.visible = Boolean(
+              st.showContourModels && (isClickedOpen || isWithinRadius) && semanticAlpha > 0.2
+            );
+          }
+
+          if (isClickedOpen) {
+            const s = 1.08 + Math.sin(now * 0.008) * 0.03;
             meshBundle.group.scale.set(s, s, s);
           } else {
             meshBundle.group.scale.set(1, 1, 1);
@@ -729,50 +1029,37 @@ export default function BoilerRoomViewport({
         }
       });
 
+      // Project ONLY the currently clicked/interacted object's 3D anchor position!
       labelTick++;
-      if (labelTick % 3 === 0 && container) {
+      if (labelTick % 4 === 0 && container) {
         nearby.sort((a, b) => a.distanceToAvatar - b.distanceToAvatar);
         onNearbyAssetsChange(nearby);
 
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        const nextLabels = [];
-
-        st.assets.forEach((asset) => {
-          const isSelected = st.selectedAsset?.asset_id === asset.asset_id;
-          const isHovered = st.hoveredAsset?.asset_id === asset.asset_id;
-          const nearItem = nearby.find((n) => n.asset_id === asset.asset_id);
-          const isCritical =
-            asset.health_status === 'attention_required' || asset.health_status === 'degraded';
-
-          if (!isSelected && !isHovered && !nearItem && !isCritical && st.semanticBlend < 75) return;
-          if (st.semanticBlend < 15 && !isSelected && !isHovered) return;
-
-          const worldPos = new THREE.Vector3(
-            asset.position[0],
-            asset.position[1] + asset.bbox_size[1] * 0.58,
-            asset.position[2]
-          );
-          worldPos.project(camera);
-
-          if (worldPos.z > -1 && worldPos.z < 1) {
-            const x = (worldPos.x * 0.5 + 0.5) * width;
-            const y = (-(worldPos.y * 0.5) + 0.5) * height;
-            if (x > 20 && x < width - 20 && y > 20 && y < height - 20) {
-              nextLabels.push({
-                asset,
-                x,
-                y,
-                isSelected,
-                isHovered,
-                isNearby: Boolean(nearItem),
-                distanceToAvatar: nearItem?.distanceToAvatar ?? null
+        if (st.clickedPopoverAssetId) {
+          const clickedAsset = st.assets.find((a) => a.asset_id === st.clickedPopoverAssetId);
+          if (clickedAsset) {
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const worldPos = new THREE.Vector3(
+              clickedAsset.position[0],
+              clickedAsset.position[1] + clickedAsset.bbox_size[1] * 0.68,
+              clickedAsset.position[2]
+            );
+            worldPos.project(camera);
+            if (worldPos.z > -1 && worldPos.z < 1) {
+              const x = (worldPos.x * 0.5 + 0.5) * width;
+              const y = (-(worldPos.y * 0.5) + 0.5) * height;
+              const num = parseInt(clickedAsset.asset_id.split('-')[1], 10) || 1;
+              const triCount = (7.4 + ((num * 3.7) % 24.5)).toFixed(1);
+              setClickedScreenAnchor({
+                x: Math.min(width - 330, Math.max(20, x)),
+                y: Math.min(height - 260, Math.max(60, y)),
+                triCount,
+                meshIdx: String(num).padStart(2, '0')
               });
             }
           }
-        });
-
-        setProjectedLabels(nextLabels);
+        }
       }
 
       renderer.render(scene, camera);
@@ -782,15 +1069,73 @@ export default function BoilerRoomViewport({
 
     return () => {
       cancelAnimationFrame(animId);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('resize', handleResize);
-      renderer.domElement.removeEventListener('pointermove', handlePointerMove);
       renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
       renderer.domElement.removeEventListener('pointerup', handlePointerUp);
       renderer.dispose();
     };
   }, []);
 
-  // 2. Custom PLY upload
+  // Switch between Equipment Room.ply and Industrial Boiler Room (1).ply
+  useEffect(() => {
+    if (!sceneRef.current || !pointCloudObjRef.current || customPlyBuffer) return;
+    const isEquip = activeRoomScene === 'equipment_room';
+    const binUrl = isEquip
+      ? '/assets/equipment_room_splats.bin'
+      : '/assets/boiler_room_splats.bin';
+    const label = isEquip ? 'Equipment Room.ply' : 'Industrial Boiler Room (1).ply';
+    const rawTotal = isEquip ? 1676481 : 1506136;
+
+    fetch(binUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to fetch ${binUrl}`);
+        return res.arrayBuffer();
+      })
+      .then((buffer) => {
+        const dv = new DataView(buffer);
+        const count = dv.getInt32(0, true);
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+
+        let offset = 4;
+        for (let i = 0; i < count; i++) {
+          positions[i * 3 + 0] = dv.getFloat32(offset + 0, true);
+          positions[i * 3 + 1] = dv.getFloat32(offset + 4, true);
+          positions[i * 3 + 2] = dv.getFloat32(offset + 8, true);
+
+          const r = dv.getUint8(offset + 12) / 255;
+          const g = dv.getUint8(offset + 13) / 255;
+          const b = dv.getUint8(offset + 14) / 255;
+          colors[i * 3 + 0] = Math.min(1, r * 1.1);
+          colors[i * 3 + 1] = Math.min(1, g * 1.1);
+          colors[i * 3 + 2] = Math.min(1, b * 1.1);
+          offset += 16;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        pointCloudObjRef.current.geometry.dispose();
+        pointCloudObjRef.current.geometry = geometry;
+        if (onLoadStats) {
+          onLoadStats({
+            sourceFile: label,
+            rawVertices: rawTotal,
+            activeSplats: count,
+            anchoredAssets: assets.length,
+            structuralFrames: STRUCTURAL_BOILER_OBJECTS.length
+          });
+        }
+      })
+      .catch((err) => {
+        console.error('Error switching room binary:', err);
+      });
+  }, [activeRoomScene]);
+
+  // Custom PLY Upload
   useEffect(() => {
     if (!customPlyBuffer || !sceneRef.current || !pointCloudObjRef.current) return;
     try {
@@ -814,15 +1159,25 @@ export default function BoilerRoomViewport({
     }
   }, [customPlyBuffer]);
 
-  // 3. Point Size & Semantic Lens Blend
+  // Completely hide noisy point-cloud dots when Semantic World >= 80% so the scene is 100% clean CAD!
   useEffect(() => {
-    if (!pointCloudMatRef.current) return;
+    if (!pointCloudMatRef.current || !pointCloudObjRef.current) return;
     pointCloudMatRef.current.size = pointSize;
     const blendFactor = semanticBlend / 100;
-    pointCloudMatRef.current.opacity = 1.0 - blendFactor * 0.25;
+    if (semanticBlend >= 80) {
+      // 100% Clean CAD Mode: ZERO white dots!
+      pointCloudObjRef.current.visible = false;
+      pointCloudMatRef.current.opacity = 0;
+    } else {
+      pointCloudObjRef.current.visible = true;
+      pointCloudMatRef.current.opacity = 1.0 - blendFactor * 1.15;
+    }
+    if (cadRoomGroupRef.current) {
+      cadRoomGroupRef.current.visible = semanticBlend >= 25;
+    }
   }, [pointSize, semanticBlend]);
 
-  // 4. Build 30 Contoured 3D Asset Models (with Wall/Floor Attachment Contour Points + Planar Back-Wall)
+  // Build 30 Contoured 3D Asset Models
   useEffect(() => {
     const assetGroup = assetGroupRef.current;
     const structuralGroup = structuralGroupRef.current;
@@ -841,12 +1196,15 @@ export default function BoilerRoomViewport({
       group.position.set(asset.position[0], asset.position[1], asset.position[2]);
       group.userData = { asset };
 
-      // Main 3D Bounding Box
+      const { group: equipGroup, solidMat, accentMat } = createProceduralEquipmentMesh(asset, colorHex);
+      equipGroup.userData = { asset };
+      group.add(equipGroup);
+
       const boxGeo = new THREE.BoxGeometry(sx, sy, sz);
       const fillMat = new THREE.MeshBasicMaterial({
         color: colorHex,
         transparent: true,
-        opacity: 0.14,
+        opacity: 0.06,
         depthWrite: false
       });
       const boxMesh = new THREE.Mesh(boxGeo, fillMat);
@@ -857,25 +1215,23 @@ export default function BoilerRoomViewport({
       const edgeMat = new THREE.LineBasicMaterial({
         color: colorHex,
         transparent: true,
-        opacity: 0.88
+        opacity: 0.85
       });
       const wireMesh = new THREE.LineSegments(edgesGeo, edgeMat);
       group.add(wireMesh);
 
-      // Occluded Back-Side Plane ("The back side that's not visible can be just a plane")
       const backPlaneGeo = new THREE.PlaneGeometry(sx * 0.98, sy * 0.98);
       const backPlaneMat = new THREE.MeshBasicMaterial({
         color: 0x0f172a,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: showContourModels ? 0.55 : 0
+        opacity: 0
       });
       const backPlaneMesh = new THREE.Mesh(backPlaneGeo, backPlaneMat);
       backPlaneMesh.position.set(0, 0, sz * 0.5);
       backPlaneMesh.userData = { asset };
       group.add(backPlaneMesh);
 
-      // Multi-Point Attachment Contour Loop (where the object attaches to the wall or floor)
       const contourGroup = new THREE.Group();
       if (asset.contourModel?.contourPoints?.length) {
         const localContourVecs = asset.contourModel.contourPoints.map(
@@ -886,7 +1242,6 @@ export default function BoilerRoomViewport({
               pt[2] - asset.position[2]
             )
         );
-        // Close loop
         localContourVecs.push(localContourVecs[0].clone());
 
         const contourLineGeo = new THREE.BufferGeometry().setFromPoints(localContourVecs);
@@ -897,16 +1252,14 @@ export default function BoilerRoomViewport({
         });
         contourGroup.add(new THREE.Line(contourLineGeo, contourLineMat));
 
-        // Render discrete attachment contour vertex markers along the wall/floor seam
-        const dotGeo = new THREE.SphereGeometry(0.026, 8, 8);
         const dotMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
         localContourVecs.slice(0, -1).forEach((v) => {
-          const dot = new THREE.Mesh(dotGeo, dotMat);
+          const dot = new THREE.Mesh(GEO_CACHE.contourDot, dotMat);
           dot.position.copy(v);
           contourGroup.add(dot);
         });
       }
-      contourGroup.visible = Boolean(showContourModels);
+      contourGroup.visible = false;
       group.add(contourGroup);
 
       assetGroup.add(group);
@@ -915,7 +1268,9 @@ export default function BoilerRoomViewport({
         fillMat,
         edgeMat,
         backPlaneMat,
-        contourGroup
+        contourGroup,
+        equipGroup,
+        equipMats: { solidMat, accentMat }
       });
     });
 
@@ -930,7 +1285,7 @@ export default function BoilerRoomViewport({
         const lineMat = new THREE.LineBasicMaterial({
           color: new THREE.Color(stObj.color),
           transparent: true,
-          opacity: 0.35 * (semanticBlend / 100)
+          opacity: 0.25 * (semanticBlend / 100)
         });
         const wire = new THREE.LineSegments(edgesGeo, lineMat);
         wire.position.set(stObj.position[0], stObj.position[1], stObj.position[2]);
@@ -939,7 +1294,7 @@ export default function BoilerRoomViewport({
     }
   }, [assets, showStructuralBoxes, showContourModels, semanticBlend]);
 
-  // 5. Render Centerline Waypoint 'Rails', Smooth vs. Zig-Zag Paths, and Multi-Agent Fleet Routes
+  // Render Centerline Waypoint 'Rails'
   useEffect(() => {
     const pathGroup = pathGroupRef.current;
     const navGraphGroup = navGraphGroupRef.current;
@@ -955,15 +1310,13 @@ export default function BoilerRoomViewport({
     const buildTube = (points, colorHex, radius = 0.042, yOffset = 0.04, opacity = 0.92, isZigZag = false) => {
       if (!points || points.length < 2) return;
       const vecs = points.map((p) => new THREE.Vector3(p[0], p[1] + yOffset, p[2]));
-      // If Zig-Zag mode is selected, use piecewise linear segments so the jagged zig-zag is clearly visible;
-      // if Smooth Centerline Rail mode is selected, use smooth Catmull-Rom rail interpolation!
       const curve = new THREE.CatmullRomCurve3(
         vecs,
         false,
         isZigZag ? 'centripetal' : 'catmullrom',
         isZigZag ? 0.01 : 0.35
       );
-      const tubeGeo = new THREE.TubeGeometry(curve, Math.max(30, points.length * 8), radius, 12, false);
+      const tubeGeo = new THREE.TubeGeometry(curve, Math.max(24, points.length * 6), radius, 10, false);
       const tubeMat = new THREE.MeshStandardMaterial({
         color: colorHex,
         emissive: colorHex,
@@ -979,7 +1332,6 @@ export default function BoilerRoomViewport({
     const isZig = railMode === 'zigzag_grid';
 
     if (multiAgentEnabled && fleetAssignments?.length) {
-      // Render all 3 coordinated agent rail trajectories (R1 Orange, R2 Purple, H1 Cyan)
       fleetAssignments.forEach((assign, idx) => {
         const col = assign.agent_id === 'R1' ? 0xf97316 : assign.agent_id === 'R2' ? 0xa855f7 : 0x06b6d4;
         buildTube(assign.path?.points, col, 0.04, 0.03 + idx * 0.015, 0.9, isZig);
@@ -993,36 +1345,33 @@ export default function BoilerRoomViewport({
       buildTube(robotPath?.points, 0xf97316, 0.044, 0.04, 0.95, isZig);
     }
 
-    // Draw pre-baked Equidistant Centerline 'Rails' on the floor (double-rail track lines)
     const nodeMap = new Map(NAV_NODES.map((n) => [n.id, n]));
     NAV_EDGES.forEach((edge) => {
       const u = nodeMap.get(edge.from);
       const v = nodeMap.get(edge.to);
       if (!u || !v) return;
 
-      // Centerline rail
       const g = new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(u.pos[0], u.pos[1] + 0.012, u.pos[2]),
         new THREE.Vector3(v.pos[0], v.pos[1] + 0.012, v.pos[2])
       ]);
       const m = new THREE.LineBasicMaterial({
-        color: edge.has_stairs ? 0x0284c7 : 0x334155,
+        color: edge.has_stairs ? 0x0284c7 : 0x475569,
         transparent: true,
-        opacity: 0.75
+        opacity: 0.65
       });
       navGraphGroup.add(new THREE.Line(g, m));
     });
 
-    // Interactive Rail Nodes & Dynamic Hazard Cylinders
     NAV_NODES.forEach((node) => {
       const isHazard = hazardNodes.includes(node.id);
       const isStair = node.id === 'N-M-STEP';
 
-      const sphereGeo = new THREE.SphereGeometry(isHazard ? 0.16 : 0.065, 16, 16);
+      const sphereGeo = new THREE.SphereGeometry(isHazard ? 0.16 : 0.055, 12, 12);
       const sphereMat = new THREE.MeshBasicMaterial({
         color: isHazard ? 0xef4444 : isStair ? 0x38bdf8 : 0x64748b,
         transparent: true,
-        opacity: isHazard ? 0.95 : 0.75
+        opacity: isHazard ? 0.95 : 0.6
       });
       const sphere = new THREE.Mesh(sphereGeo, sphereMat);
       sphere.position.set(node.pos[0], node.pos[1] + 0.04, node.pos[2]);
@@ -1030,7 +1379,7 @@ export default function BoilerRoomViewport({
       navGraphGroup.add(sphere);
 
       if (isHazard) {
-        const hazGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.9, 24);
+        const hazGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.9, 18);
         const hazMat = new THREE.MeshBasicMaterial({
           color: 0xef4444,
           transparent: true,
@@ -1047,6 +1396,10 @@ export default function BoilerRoomViewport({
 
   const handleResetCamera = () => {
     if (arFirstPersonMode) onToggleArFirstPerson(false);
+    manualPosRef.current = null;
+    setIsWasdWalking(false);
+    setClickedPopoverAssetId(null);
+    setClickedScreenAnchor(null);
     if (!cameraRef.current || !controlsRef.current) return;
     cameraRef.current.position.set(0.2, 2.3, -3.4);
     controlsRef.current.target.set(0.1, -0.25, 1.85);
@@ -1062,78 +1415,159 @@ export default function BoilerRoomViewport({
     controlsRef.current.update();
   };
 
+  const clickedPopoverAsset = clickedPopoverAssetId
+    ? assets.find((a) => a.asset_id === clickedPopoverAssetId)
+    : null;
+
   return (
     <div className="relative w-full h-full select-none overflow-hidden bg-slate-950">
-      {/* Three.js WebGL Mount */}
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* First-Person Live AR Visor Overlay (When AR Walk Mode is active) */}
+      {/* First-Person Live AR Visor Overlay */}
       {arFirstPersonMode && (
         <div className="pointer-events-none absolute inset-0 z-20 border-4 border-emerald-400/40 flex flex-col justify-between p-4">
           <div className="flex items-center justify-between">
             <div className="px-3 py-1.5 rounded-lg bg-slate-950/85 border border-emerald-400/60 font-mono text-xs text-emerald-300 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>AR VISOR LIVE POV • EQUIDISTANT RAIL LOCKED</span>
-            </div>
-            <div className="px-3 py-1.5 rounded-lg bg-slate-950/85 border border-sky-400/50 font-mono text-xs text-sky-300">
-              TARGET: {selectedAsset?.tag} ({selectedAsset?.qr_id}) • HEALTH {selectedAsset?.health_score}%
+              <span>AR VISOR LIVE POV • PRESS W,A,S,D TO WALK FREELY</span>
             </div>
           </div>
 
-          {/* Center AR Crosshair Reticle */}
           <div className="mx-auto my-auto w-44 h-44 rounded-2xl border border-dashed border-emerald-400/60 flex items-center justify-center">
             <div className="w-3 h-3 rounded-full border-2 border-emerald-400" />
           </div>
 
           <div className="mx-auto px-4 py-2 rounded-xl bg-slate-950/90 border border-slate-700 font-mono text-xs text-slate-200">
-            Following Pre-Baked Centerline Rail • Equal Wall/Pipe Clearance Verified • Hover any 3D object to preview contour model
+            Use W/A/S/D keys to walk around • Click any 3D object to pop up its Object Details Card
           </div>
         </div>
       )}
 
-      {/* 3D HOVER PREVIEW CARD (Triggered immediately when mouse hovers over any 3D object in the scene!) */}
-      {hoveredAsset && (
+      {/* STRICT ON-INTERACTION FLOATING CALLOUT + CONTROL CARD (Hidden until you click a 3D object!) */}
+      {clickedPopoverAsset && clickedScreenAnchor && (
         <div
           style={{
-            left: Math.min(window.innerWidth - 340, hoverScreenPos.x + 18),
-            top: Math.max(16, hoverScreenPos.y - 20)
+            left: clickedScreenAnchor.x,
+            top: clickedScreenAnchor.y
           }}
-          className="pointer-events-none absolute z-30 w-72 p-3 rounded-xl bg-slate-950/95 border-2 border-sky-400 shadow-2xl space-y-1.5"
+          className="pointer-events-auto absolute z-30 w-80 p-3.5 rounded-xl bg-slate-950/95 border-2 border-sky-400 shadow-2xl space-y-2.5"
         >
+          {/* MovingAtoms-style Callout Header ("CV-003 | mesh 03 - 18.5k tris") */}
           <div className="flex items-center justify-between">
-            <span className="font-mono text-sm font-bold text-white">
-              {hoveredAsset.tag} ({hoveredAsset.asset_id})
-            </span>
-            <span
-              className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold text-slate-950"
-              style={{ backgroundColor: HEALTH_CSS[hoveredAsset.health_status] }}
+            <div>
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: HEALTH_CSS[clickedPopoverAsset.health_status] }}
+                />
+                <span className="font-mono text-sm font-bold text-white">
+                  {clickedPopoverAsset.tag} ({clickedPopoverAsset.asset_id})
+                </span>
+              </div>
+              <div className="text-[10px] font-mono text-sky-300 mt-0.5">
+                mesh {clickedScreenAnchor.meshIdx} - {clickedScreenAnchor.triCount}k tris • {clickedPopoverAsset.service_description}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setClickedPopoverAssetId(null);
+                setClickedScreenAnchor(null);
+              }}
+              className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono text-slate-300"
             >
-              {hoveredAsset.health_score}% {hoveredAsset.health_status.toUpperCase()}
+              ✕
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between text-[11px] font-mono">
+            <span
+              className="px-2 py-0.5 rounded font-bold text-slate-950"
+              style={{ backgroundColor: HEALTH_CSS[clickedPopoverAsset.health_status] }}
+            >
+              Health {clickedPopoverAsset.health_score}% ({clickedPopoverAsset.health_status.toUpperCase()})
+            </span>
+            <span className="text-slate-300">
+              {clickedPopoverAsset.contourModel?.contourPointCount} Contour Pts + Planar Back
             </span>
           </div>
-          <div className="text-xs text-slate-200 font-medium">
-            {hoveredAsset.service_description}
+
+          <div className="grid grid-cols-3 gap-1.5 p-2 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono">
+            <div>
+              <span className="text-slate-400 block">Pressure</span>
+              <span className="text-white font-bold">
+                {clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5} bar
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">Vibration</span>
+              <span className="text-orange-300 font-bold">
+                {clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1} mm/s
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">Temp</span>
+              <span className="text-sky-300 font-bold">
+                {clickedPopoverAsset.telemetry?.bearing_temp_c ?? clickedPopoverAsset.telemetry?.temperature_c ?? 54}°C
+              </span>
+            </div>
           </div>
-          <div className="text-[11px] font-mono text-sky-300">
-            {hoveredAsset.contourModel?.attachmentType}: {hoveredAsset.contourModel?.contourPointCount} Contour Pts + Planar Back
-          </div>
-          <div className="grid grid-cols-2 gap-1 pt-1 text-[10px] font-mono text-slate-300 border-t border-slate-800">
-            <span>Status: {hoveredAsset.status_reason}</span>
-            <span>QR: {hoveredAsset.qr_id}</span>
-            {hoveredAsset.telemetry?.pressure_bar !== undefined && (
-              <span>Press: {hoveredAsset.telemetry.pressure_bar} bar</span>
-            )}
-            {hoveredAsset.telemetry?.vibration_mms !== undefined && (
-              <span>Vib: {hoveredAsset.telemetry.vibration_mms} mm/s</span>
-            )}
-          </div>
-          <div className="text-[10px] text-emerald-300 font-mono">
-            Click to dispatch agent & open 3D Contour Preview →
+
+          <div className="grid grid-cols-2 gap-1.5 pt-1">
+            <button
+              onClick={() => {
+                if (onQuickMutateTelemetry) {
+                  onQuickMutateTelemetry(
+                    clickedPopoverAsset.asset_id,
+                    {
+                      vibration_mms: 1.6,
+                      bearing_temp_c: 54.0,
+                      stiction_index: 0.12,
+                      position_pct: clickedPopoverAsset.telemetry?.setpoint_pct || 64.0
+                    },
+                    'NORMAL_OPERATION'
+                  );
+                }
+              }}
+              className="py-1.5 px-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-[11px]"
+            >
+              ✓ Repair / Calibrate
+            </button>
+            <button
+              onClick={() => {
+                if (onQuickMutateTelemetry) {
+                  onQuickMutateTelemetry(
+                    clickedPopoverAsset.asset_id,
+                    {
+                      vibration_mms: 7.8,
+                      bearing_temp_c: 86.0,
+                      stiction_index: 0.65
+                    },
+                    'CRITICAL_FAULT_INJECTED'
+                  );
+                }
+              }}
+              className="py-1.5 px-2 rounded-lg bg-red-500/25 hover:bg-red-500/40 border border-red-500/50 text-red-300 font-mono font-bold text-[11px]"
+            >
+              ⚡ Trigger Fault
+            </button>
+            <button
+              onClick={handleFocusSelected}
+              className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-mono text-[11px]"
+            >
+              🎥 Zoom To Object
+            </button>
+            <button
+              onClick={() => {
+                if (onOpenArHud) onOpenArHud();
+              }}
+              className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 font-mono text-[11px]"
+            >
+              📱 Scan QR ({clickedPopoverAsset.qr_id})
+            </button>
           </div>
         </div>
       )}
 
-      {/* Loading Indicator */}
       {loadingState && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm z-30">
           <div className="px-6 py-4 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl text-center">
@@ -1143,52 +1577,20 @@ export default function BoilerRoomViewport({
         </div>
       )}
 
-      {/* Floating 3D HTML Semantic Badges */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden z-10">
-        {projectedLabels.map(({ asset, x, y, isSelected, isHovered, isNearby, distanceToAvatar }) => {
-          const borderColor = HEALTH_CSS[asset.health_status] || '#10b981';
-          return (
-            <button
-              key={asset.asset_id}
-              onClick={() => onSelectAsset(asset)}
-              onMouseEnter={() => onHoverAsset(asset)}
-              onMouseLeave={() => onHoverAsset(null)}
-              style={{
-                transform: `translate3d(${x}px, ${y}px, 0) translate(-50%, -100%)`,
-                borderColor
-              }}
-              className={`pointer-events-auto absolute top-0 left-0 px-2 py-1 rounded-md border text-left transition-shadow ${
-                isSelected || isHovered
-                  ? 'bg-slate-900/95 ring-2 ring-sky-400 shadow-lg z-30 scale-105'
-                  : isNearby
-                  ? 'bg-slate-900/90 ring-1 ring-emerald-400/70 shadow-md z-20'
-                  : 'bg-slate-950/80 opacity-85 hover:opacity-100 z-10'
-              }`}
-            >
-              <div className="flex items-center gap-1.5 whitespace-nowrap">
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: borderColor }}
-                />
-                <span className="font-mono text-[11px] font-bold text-white">
-                  {asset.tag}
-                </span>
-                <span className="font-mono text-[10px] text-slate-300">
-                  {asset.health_score}%
-                </span>
-                {isNearby && (
-                  <span className="px-1 py-0.2 rounded bg-emerald-500/20 border border-emerald-500/40 text-[9px] font-mono text-emerald-300">
-                    {distanceToAvatar}m
-                  </span>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Viewport Quick Camera & First-Person AR Controls */}
+      {/* Viewport Quick Camera Controls */}
       <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
+        {isWasdWalking && (
+          <button
+            onClick={() => {
+              manualPosRef.current = null;
+              setIsWasdWalking(false);
+              if (onSimPlayingChange) onSimPlayingChange(true);
+            }}
+            className="px-2.5 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-mono text-xs font-bold shadow"
+          >
+            WASD Manual Walk Active (Click to Resume Auto-Rail)
+          </button>
+        )}
         <button
           onClick={() => onToggleArFirstPerson(!arFirstPersonMode)}
           className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold shadow transition ${
@@ -1213,28 +1615,25 @@ export default function BoilerRoomViewport({
         </button>
       </div>
 
-      {/* Bottom Legend Overlay */}
-      <div className="absolute bottom-3 left-3 z-20 px-3 py-2 rounded-lg bg-slate-900/85 backdrop-blur-md border border-slate-800 text-[11px] text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" />
-          <span>Critical/Degraded</span>
+      {/* Bottom Interactive Game Controls Legend */}
+      <div className="absolute bottom-3 left-3 z-20 px-3 py-2 rounded-lg bg-slate-900/90 backdrop-blur-md border border-slate-800 text-[11px] text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
+        <div className="flex items-center gap-1.5 font-mono text-emerald-300 font-semibold">
+          <span>🎮 W, A, S, D to Walk</span>
+        </div>
+        <div className="flex items-center gap-1.5 font-mono text-sky-300 font-semibold">
+          <span>🖱️ Click any 3D object to pop up its Object Details Card</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-1 rounded bg-orange-500 inline-block" />
-          <span>R1 AMR Rail</span>
+          <span>R1 Rail</span>
         </div>
-        {multiAgentEnabled && (
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-1 rounded bg-purple-500 inline-block" />
-            <span>R2 AMR Rail</span>
-          </div>
-        )}
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-1 rounded bg-purple-500 inline-block" />
+          <span>R2 Rail</span>
+        </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-1 rounded bg-cyan-400 inline-block" />
           <span>H1 Human Rail</span>
-        </div>
-        <div className="text-sky-300 font-mono">
-          Hover any 3D object for instant telemetry & contour preview • Click floor nodes to drop hazards
         </div>
       </div>
     </div>

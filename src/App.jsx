@@ -2,11 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
   AlertOctagon,
+  Award,
+  BookOpen,
   Bot,
   Box,
+  ChevronRight,
   Database,
   Eye,
   Footprints,
+  Gamepad2,
   GitMerge,
   Layers,
   Pause,
@@ -28,18 +32,18 @@ import {
   INITIAL_FLEET_AGENTS,
   coordinateMultiAgentFleet
 } from './utils/pathfinding.js';
+import { CHALLENGE_BRIEF_MISSIONS } from './data/challengeBriefMissions.js';
 import BoilerRoomViewport from './components/BoilerRoomViewport.jsx';
 import AssetInspectorPanel from './components/AssetInspectorPanel.jsx';
 import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopilotAndArHud.jsx';
 
 export default function App() {
-  // 1. Fast In-Memory Telemetry & Excel Data Pipeline
+  // 1. Fast In-Memory Telemetry & Excel Data Pipeline (Real-time environment active by default!)
   const [pipeline, setPipeline] = useState(() => createInitialDataPipeline());
-  const [liveStreaming, setLiveStreaming] = useState(false);
+  const [liveStreaming, setLiveStreaming] = useState(true);
 
-  // Selected & Hovered 3D Assets
-  const [selectedAssetId, setSelectedAssetId] = useState('ASSET-003'); // CV-003
-  const [hoveredAsset, setHoveredAsset] = useState(null);
+  // Selected 3D Asset
+  const [selectedAssetId, setSelectedAssetId] = useState('ASSET-003');
 
   const selectedAsset = useMemo(
     () =>
@@ -48,15 +52,16 @@ export default function App() {
     [pipeline.assets, selectedAssetId]
   );
 
-  // Feature 1: "Dumb Scan -> Semantic World" Lens & 3D Contour + Planar Back Models
-  const [semanticBlend, setSemanticBlend] = useState(92);
+  // Feature 1: "Dumb Scan -> Semantic World" Lens + AI Laser Sweep Wave (100% Clean CAD Default = ZERO white dots!)
+  const [semanticBlend, setSemanticBlend] = useState(100);
+  const [laserSweepTrigger, setLaserSweepTrigger] = useState(0);
   const [showStructuralBoxes, setShowStructuralBoxes] = useState(true);
   const [showContourModels, setShowContourModels] = useState(true);
   const [pointSize, setPointSize] = useState(0.055);
 
-  // Feature 2: Centerline Waypoint 'Rails', Smooth vs. Zig-Zag Comparison & Multi-Agent Fleet
-  const [activeProfile, setActiveProfile] = useState('robot'); // 'robot' | 'human'
-  const [railMode, setRailMode] = useState('smooth_rail'); // 'smooth_rail' | 'zigzag_grid'
+  // Feature 2: Centerline Waypoint 'Rails', Smooth vs. Zig-Zag & Multi-Agent Fleet
+  const [activeProfile, setActiveProfile] = useState('robot');
+  const [railMode, setRailMode] = useState('smooth_rail');
   const [multiAgentEnabled, setMultiAgentEnabled] = useState(true);
   const [showDualComparison, setShowDualComparison] = useState(true);
   const [hazardNodes, setHazardNodes] = useState([]);
@@ -65,28 +70,40 @@ export default function App() {
   const [proximityRadius, setProximityRadius] = useState(1.75);
   const [nearbyAssets, setNearbyAssets] = useState([]);
 
-  // Feature 4: Main AR Functionality (First-Person 3D AR Visor POV + Mobile QR AR HUD Modal)
+  // Feature 4: Main AR Functionality
   const [arFirstPersonMode, setArFirstPersonMode] = useState(false);
   const [isArHudOpen, setIsArHudOpen] = useState(false);
   const [checkedLotoSteps, setCheckedLotoSteps] = useState({});
   const [draftedWoBanner, setDraftedWoBanner] = useState(null);
 
+  // Interactive Game Campaign & Challenge Briefing Mission Director
+  const [activeStageId, setActiveStageId] = useState(1);
+  const [showMissionBar, setShowMissionBar] = useState(true);
+
+  const activeMission = useMemo(
+    () =>
+      CHALLENGE_BRIEF_MISSIONS.find((m) => m.stageId === activeStageId) ||
+      CHALLENGE_BRIEF_MISSIONS[0],
+    [activeStageId]
+  );
+
   // Left Sidebar Filter
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // File Uploads (.PLY and Excel/JSON Data Import)
+  // Active 3D Room PLY Selector ('equipment_room' = Equipment Room.ply, 'boiler_room' = Industrial Boiler Room (1).ply)
+  const [activeRoomScene, setActiveRoomScene] = useState('equipment_room');
+
   const fileInputRef = useRef(null);
   const [customPlyBuffer, setCustomPlyBuffer] = useState(null);
   const [sceneStats, setSceneStats] = useState({
-    sourceFile: 'Industrial Boiler Room (1).ply',
-    rawVertices: 1506136,
-    activeSplats: 121537,
+    sourceFile: 'Equipment Room.ply',
+    rawVertices: 1676481,
+    activeSplats: 269219,
     anchoredAssets: 30,
     structuralFrames: pipeline.structuralObjects.length
   });
 
-  // Live Telemetry Stream Interval (mutates in-memory arrays on the fly)
   useEffect(() => {
     if (!liveStreaming) return;
     const timer = setInterval(() => {
@@ -95,7 +112,6 @@ export default function App() {
     return () => clearInterval(timer);
   }, [liveStreaming]);
 
-  // Compute Centerline Rail A* Paths for Human & Robot
   const humanPath = useMemo(
     () =>
       computeAStarPath(
@@ -120,7 +136,6 @@ export default function App() {
     [selectedAsset, hazardNodes, railMode]
   );
 
-  // Compute Multi-Robot & Multi-Human Fleet Coordination (R1 -> Object A, R2 -> Object B, H1 -> Object C)
   const fleetAssignments = useMemo(
     () =>
       coordinateMultiAgentFleet(
@@ -133,7 +148,6 @@ export default function App() {
     [pipeline.assets, hazardNodes, railMode, selectedAsset]
   );
 
-  // Filtered Assets for Left Sidebar
   const filteredAssets = useMemo(() => {
     return pipeline.assets.filter((a) => {
       if (statusFilter === 'critical') {
@@ -191,6 +205,41 @@ export default function App() {
     });
   };
 
+  // Interactive Mission Action Executor (executes each Challenge Briefing stage when clicked!)
+  const handleExecuteMissionStage = (stage) => {
+    setActiveStageId(stage.stageId);
+    if (stage.targetAssetId) {
+      setSelectedAssetId(stage.targetAssetId);
+    }
+
+    if (stage.stageId === 1) {
+      // Trigger the Purple/Blue AI Semantic Laser Wave across the boiler room!
+      setArFirstPersonMode(false);
+      setShowContourModels(true);
+      setLaserSweepTrigger((t) => t + 1);
+    } else if (stage.stageId === 2) {
+      // Engage Centerline Rail Walk & Proximity Radar
+      setArFirstPersonMode(false);
+      setRailMode('smooth_rail');
+      setSimPlaying(true);
+      setProximityRadius(1.9);
+    } else if (stage.stageId === 3) {
+      // Focus P-002 -> CV-003 spatial coupling & start live telemetry stream
+      setArFirstPersonMode(false);
+      setLiveStreaming(true);
+    } else if (stage.stageId === 4) {
+      // Enable Multi-Robot Fleet R1, R2, H1 & drop dynamic floor hazard
+      setArFirstPersonMode(false);
+      setMultiAgentEnabled(true);
+      setHazardNodes(['N-S-EAST1', 'N-M-WEST1']);
+      setSimPlaying(true);
+    } else if (stage.stageId === 5) {
+      // Enter First-Person AR Visor Mode
+      setArFirstPersonMode(true);
+      setSimPlaying(true);
+    }
+  };
+
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -214,7 +263,6 @@ export default function App() {
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-100">
       {/* ==================== TOP COMMAND BAR ==================== */}
       <header className="h-14 shrink-0 px-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between gap-3 select-none">
-        {/* Brand & Pipeline Status */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-sky-500 flex items-center justify-center text-slate-950 font-black text-base shadow-lg">
             V
@@ -225,54 +273,99 @@ export default function App() {
                 Valmet SpatialSense
               </h1>
               <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                In-Memory Pipeline v{pipeline.version}
+                Interactive Challenge Walkthrough
               </span>
             </div>
             <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2">
               <span>{sceneStats.activeSplats.toLocaleString()} Splats</span>
               <span>•</span>
-              <span className="text-sky-300">30 Contoured 3D Assets</span>
+              <span className="text-sky-300">30 Reconstructed 3D Meshes</span>
               <span>•</span>
-              <span className="text-emerald-300">Centerline Waypoint Rails</span>
+              <span className="text-emerald-300">WASD + Centerline Rails</span>
             </div>
           </div>
         </div>
 
-        {/* Center Feature 1: "Dumb Scan -> Semantic World" Lens Slider */}
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
+        {/* Center Feature 1: 1-Click PLY Room Switcher + AI Laser Scan Wave + MovingAtoms Pipeline */}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
+          {/* Instant 1-Click Switcher between Equipment Room.ply and Industrial Boiler Room.ply */}
+          <div className="flex items-center rounded-lg bg-slate-900 p-0.5 border border-slate-800 text-[11px] font-mono">
+            <button
+              onClick={() => {
+                setCustomPlyBuffer(null);
+                setActiveRoomScene('equipment_room');
+              }}
+              className={`px-2 py-0.5 rounded transition ${
+                activeRoomScene === 'equipment_room'
+                  ? 'bg-emerald-500 text-slate-950 font-bold'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+              title="Switch to Equipment Room.ply (269,219 splats — matches the MovingAtoms demo video!)"
+            >
+              Equipment Room.ply
+            </button>
+            <button
+              onClick={() => {
+                setCustomPlyBuffer(null);
+                setActiveRoomScene('boiler_room');
+              }}
+              className={`px-2 py-0.5 rounded transition ${
+                activeRoomScene === 'boiler_room'
+                  ? 'bg-sky-500 text-slate-950 font-bold'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+              title="Switch to Industrial Boiler Room (1).ply (121,537 splats)"
+            >
+              Boiler Room.ply
+            </button>
+          </div>
+
           <button
-            onClick={() => setSemanticBlend(0)}
-            className={`text-xs font-mono px-2 py-0.5 rounded transition ${
-              semanticBlend < 15
-                ? 'bg-slate-800 text-white font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
+            onClick={() => setLaserSweepTrigger((t) => t + 1)}
+            className="px-2.5 py-1 rounded-lg bg-purple-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-1 shadow transition"
+            title="Run MovingAtoms-style AI Semantic Extraction Laser across the active PLY room"
           >
-            Raw Scan
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>MovingAtoms Laser</span>
           </button>
+
           <input
             type="range"
             min="0"
             max="100"
             value={semanticBlend}
             onChange={(e) => setSemanticBlend(Number(e.target.value))}
-            className="w-24 accent-emerald-400 cursor-pointer"
+            className="w-20 accent-emerald-400 cursor-pointer"
           />
-          <button
-            onClick={() => setSemanticBlend(100)}
-            className={`text-xs font-mono px-2 py-0.5 rounded transition ${
-              semanticBlend >= 85
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
+          <span className="text-xs font-mono text-emerald-300 font-semibold">
+            {semanticBlend}%
+          </span>
+
+          <a
+            href="https://movingatoms.ai/"
+            target="_blank"
+            rel="noreferrer"
+            className="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-sky-300"
+            title="Open MovingAtoms.ai (PLY Semantic 3D Mesh Extractor recommended by organizers)"
           >
-            Semantic ({semanticBlend}%)
-          </button>
+            movingatoms.ai ↗
+          </a>
         </div>
 
-        {/* Right Controls: Smooth Rail vs. Zig-Zag Toggle, Multi-Agent Fleet, AR HUD, Live Stream */}
+        {/* Right Controls */}
         <div className="flex items-center gap-2">
-          {/* Centerline Rail vs Zig-Zag Pathfinding Comparison Toggle */}
+          <button
+            onClick={() => setShowMissionBar((b) => !b)}
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
+              showMissionBar
+                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                : 'bg-slate-950 border-slate-800 text-slate-300'
+            }`}
+          >
+            <Gamepad2 className="w-3.5 h-3.5" />
+            <span>Challenge Guide</span>
+          </button>
+
           <button
             onClick={() =>
               setRailMode((m) => (m === 'smooth_rail' ? 'zigzag_grid' : 'smooth_rail'))
@@ -282,27 +375,11 @@ export default function App() {
                 ? 'bg-sky-500/20 border-sky-500/50 text-sky-300 font-semibold'
                 : 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-semibold'
             }`}
-            title="Toggle between Pre-Baked Equidistant Centerline Rails (Smooth) and Naive Zig-Zag Grid Pathfinding"
           >
             <GitMerge className="w-3.5 h-3.5" />
-            <span>{railMode === 'smooth_rail' ? 'Rail: Smooth Centerline' : 'Path: Zig-Zag Grid'}</span>
+            <span>{railMode === 'smooth_rail' ? 'Rail: Smooth' : 'Path: Zig-Zag'}</span>
           </button>
 
-          {/* Live In-Memory Telemetry Stream Toggle */}
-          <button
-            onClick={() => setLiveStreaming((s) => !s)}
-            className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
-              liveStreaming
-                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-semibold'
-                : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
-            }`}
-            title="Stream real-time telemetry mutations into the fast in-memory array"
-          >
-            <Database className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{liveStreaming ? 'Live Stream: ON' : 'Live Stream'}</span>
-          </button>
-
-          {/* Dynamic Floor Hazard Button */}
           <button
             onClick={handleDropDemoHazard}
             className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
@@ -317,7 +394,6 @@ export default function App() {
             </span>
           </button>
 
-          {/* Open Mobile AR HUD */}
           <button
             onClick={() => setIsArHudOpen(true)}
             className="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-1.5 shadow"
@@ -326,7 +402,6 @@ export default function App() {
             <span>AR Scanner</span>
           </button>
 
-          {/* Load Custom PLY */}
           <input
             ref={fileInputRef}
             type="file"
@@ -337,7 +412,6 @@ export default function App() {
           <button
             onClick={() => fileInputRef.current?.click()}
             className="px-2.5 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-mono text-slate-300 flex items-center gap-1"
-            title="Load any .ply scan"
           >
             <Upload className="w-3.5 h-3.5 text-sky-400" />
             <span>.PLY</span>
@@ -345,11 +419,80 @@ export default function App() {
         </div>
       </header>
 
+      {/* ==================== INTERACTIVE CHALLENGE BRIEFING & MISSION CAMPAIGN BAR ==================== */}
+      {showMissionBar && (
+        <div className="bg-slate-900/90 border-b border-slate-800 px-4 py-2.5 flex flex-col gap-2 select-none">
+          {/* 5-Stage Progress Stepper */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {CHALLENGE_BRIEF_MISSIONS.map((m) => {
+                const isActive = m.stageId === activeStageId;
+                return (
+                  <button
+                    key={m.stageId}
+                    onClick={() => handleExecuteMissionStage(m)}
+                    className={`px-2.5 py-1 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
+                      isActive
+                        ? 'bg-sky-500/20 border-sky-400 text-white font-bold shadow'
+                        : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <span className="px-1.5 py-0.2 rounded bg-slate-800 text-sky-300 text-[10px]">
+                      {m.criterionWeight}
+                    </span>
+                    <span>{m.shortLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => {
+                const nextId = (activeStageId % CHALLENGE_BRIEF_MISSIONS.length) + 1;
+                const nextMission = CHALLENGE_BRIEF_MISSIONS.find((m) => m.stageId === nextId);
+                if (nextMission) handleExecuteMissionStage(nextMission);
+              }}
+              className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-1 shrink-0"
+            >
+              <span>Next Challenge Stage</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Active Stage Details & Reference to Official Challenge Brief */}
+          <div className="p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="text-xs font-bold text-white">
+                  {activeMission.criterionTitle}
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                  {activeMission.criterionWeight}
+                </span>
+              </div>
+              <div className="text-xs text-slate-200">
+                <strong>Interactive Walkthrough Action:</strong> {activeMission.missionGoal}
+              </div>
+              <div className="text-[11px] font-mono text-slate-400">
+                📄 {activeMission.referenceText}
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleExecuteMissionStage(activeMission)}
+              className="px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-mono font-bold text-xs shrink-0 shadow-lg"
+            >
+              {activeMission.actionButtonLabel}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ==================== MAIN 3-COLUMN WORKSPACE ==================== */}
       <div className="flex-1 flex overflow-hidden">
-        {/* LEFT SIDEBAR: Avatar Rig, Centerline Rails, Multi-Robot Fleet Coordinator & 30 Assets */}
+        {/* LEFT SIDEBAR */}
         <aside className="w-80 shrink-0 h-full bg-slate-900/95 border-r border-slate-800 flex flex-col overflow-hidden select-none">
-          {/* Rig & Waypoint Rail Controller */}
           <div className="p-3.5 border-b border-slate-800 bg-slate-950/60 space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
@@ -380,7 +523,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Walk / Scrub Slider */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSimPlaying((p) => !p)}
@@ -406,7 +548,7 @@ export default function App() {
               </span>
             </div>
 
-            {/* Multi-Robot & Multi-Human Fleet Coordination Panel */}
+            {/* Multi-Robot Fleet */}
             <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-1.5 text-xs font-semibold text-white cursor-pointer">
@@ -449,7 +591,6 @@ export default function App() {
               )}
             </div>
 
-            {/* Checkboxes for Contour Models & Structural Frames */}
             <div className="flex items-center justify-between gap-2 text-[11px]">
               <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
                 <input
@@ -472,7 +613,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Search & Status Filter */}
+          {/* Search & Filter */}
           <div className="p-3 border-b border-slate-800 space-y-2">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
@@ -507,11 +648,10 @@ export default function App() {
             </div>
           </div>
 
-          {/* Scrollable List of 30 Valmet Assets (with Hover Sync!) */}
+          {/* Scrollable List of 30 Valmet Assets */}
           <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
             {filteredAssets.map((asset) => {
               const isSelected = selectedAsset?.asset_id === asset.asset_id;
-              const isHovered = hoveredAsset?.asset_id === asset.asset_id;
               const isNear = nearbyAssets.some((n) => n.asset_id === asset.asset_id);
               const assignedAgent = multiAgentEnabled
                 ? fleetAssignments.find((f) => f.targetAsset?.asset_id === asset.asset_id)
@@ -521,10 +661,8 @@ export default function App() {
                 <button
                   key={asset.asset_id}
                   onClick={() => handleSelectAsset(asset)}
-                  onMouseEnter={() => setHoveredAsset(asset)}
-                  onMouseLeave={() => setHoveredAsset(null)}
                   className={`w-full p-2.5 rounded-xl border text-left transition flex items-start justify-between gap-2 ${
-                    isSelected || isHovered
+                    isSelected
                       ? 'bg-sky-500/15 border-sky-400 shadow-md'
                       : isNear
                       ? 'bg-emerald-500/10 border-emerald-500/40'
@@ -590,12 +728,13 @@ export default function App() {
         <main className="flex-1 flex flex-col h-full overflow-hidden">
           <div className="flex-1 relative overflow-hidden">
             <BoilerRoomViewport
+              activeRoomScene={activeRoomScene}
               assets={pipeline.assets}
               selectedAsset={selectedAsset}
               onSelectAsset={handleSelectAsset}
-              hoveredAsset={hoveredAsset}
-              onHoverAsset={setHoveredAsset}
               semanticBlend={semanticBlend}
+              onSemanticBlendChange={setSemanticBlend}
+              laserSweepTrigger={laserSweepTrigger}
               showStructuralBoxes={showStructuralBoxes}
               showContourModels={showContourModels}
               activeProfile={activeProfile}
@@ -608,6 +747,7 @@ export default function App() {
               hazardNodes={hazardNodes}
               onToggleHazardNode={handleToggleHazardNode}
               simPlaying={simPlaying}
+              onSimPlayingChange={setSimPlaying}
               simProgress={simProgress}
               onSimProgressChange={setSimProgress}
               proximityRadius={proximityRadius}
@@ -615,6 +755,8 @@ export default function App() {
               pointSize={pointSize}
               arFirstPersonMode={arFirstPersonMode}
               onToggleArFirstPerson={setArFirstPersonMode}
+              onQuickMutateTelemetry={handleMutateTelemetry}
+              onOpenArHud={() => setIsArHudOpen(true)}
               customPlyBuffer={customPlyBuffer}
               onLoadStats={setSceneStats}
             />
@@ -628,7 +770,7 @@ export default function App() {
           />
         </main>
 
-        {/* RIGHT SIDEBAR: Pre-Walk 3D Contour Viewer, "Why" Tree & In-Memory Telemetry Mutator */}
+        {/* RIGHT SIDEBAR */}
         <AssetInspectorPanel
           selectedAsset={selectedAsset}
           nearbyAssets={nearbyAssets}
@@ -643,7 +785,6 @@ export default function App() {
         />
       </div>
 
-      {/* Synced Mobile AR Field HUD Modal */}
       <MobileArFieldHudModal
         isOpen={isArHudOpen}
         onClose={() => setIsArHudOpen(false)}
