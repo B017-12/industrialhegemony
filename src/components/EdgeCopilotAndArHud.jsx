@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Bot,
+  Camera,
   Compass,
   QrCode,
   Send,
@@ -8,7 +9,7 @@ import {
   Sparkles,
   X
 } from 'lucide-react';
-import { PRESET_COPILOT_QUERIES, runEdgeCopilotQuery } from '../utils/copilotEngine';
+import { PRESET_COPILOT_QUERIES, runEdgeCopilotQuery } from '../utils/copilotEngine.js';
 
 export function EdgeCopilotDrawer({
   selectedAsset,
@@ -58,7 +59,6 @@ export function EdgeCopilotDrawer({
           </div>
         </div>
 
-        {/* Custom Query Input */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -70,7 +70,7 @@ export function EdgeCopilotDrawer({
             type="text"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
-            placeholder={`Ask about ${selectedAsset?.tag || 'assets'}, LOTO, A* routes, or DQ flags...`}
+            placeholder={`Ask about ${selectedAsset?.tag || 'assets'}, LOTO, A* rails, or DQ flags...`}
             className="w-full px-3 py-1 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-400"
           />
           <button
@@ -83,7 +83,7 @@ export function EdgeCopilotDrawer({
         </form>
       </div>
 
-      {/* Grounded Answer Output with Explicit Document & Asset Citations */}
+      {/* Grounded Answer Output */}
       {response && (
         <div className="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 flex flex-col md:flex-row items-start justify-between gap-4">
           <div className="space-y-1 flex-1">
@@ -121,7 +121,7 @@ export function EdgeCopilotDrawer({
 }
 
 /**
- * Synced Mobile AR Field HUD Modal (Feature 4: QR-SYN Marker Localization & Hands-Free LOTO)
+ * Synced Mobile AR Field HUD Modal (Main AR Functionality: QR Marker Scan + Live Telemetry + LOTO)
  */
 export function MobileArFieldHudModal({
   isOpen,
@@ -131,6 +131,8 @@ export function MobileArFieldHudModal({
   onToggleLotoStep,
   humanPath
 }) {
+  const [qrScanned, setQrScanned] = useState(true);
+
   if (!isOpen || !selectedAsset) return null;
 
   return (
@@ -141,20 +143,27 @@ export function MobileArFieldHudModal({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-mono text-xs font-bold text-emerald-300">
-              AR LOCALIZED • {selectedAsset.qr_id}
+              {qrScanned ? `AR LOCKED • ${selectedAsset.qr_id}` : 'SCANNING QR MARKER...'}
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setQrScanned((s) => !s)}
+              className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-sky-300"
+            >
+              Re-Scan QR
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Simulated Camera Viewfinder + 3D AR Wireframe Reticle */}
-        <div className="relative h-56 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-4 flex flex-col justify-between border-b border-slate-800 overflow-hidden">
-          {/* HUD Grid Lines */}
+        {/* Simulated AR Camera Viewfinder + 3D Contoured Asset Overlay */}
+        <div className="relative h-64 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-4 flex flex-col justify-between border-b border-slate-800 overflow-hidden">
           <div
             className="absolute inset-0 opacity-20 pointer-events-none"
             style={{
@@ -169,18 +178,29 @@ export function MobileArFieldHudModal({
               ANCHOR: {selectedAsset.anchor_id}
             </span>
             <span className="px-2 py-0.5 rounded bg-slate-950/90 border border-slate-700 text-slate-300">
-              POS: [{selectedAsset.position.map((n) => n.toFixed(2)).join(', ')}]
+              CONTOUR: {selectedAsset.contourModel?.contourPointCount || 12} PTS + PLANAR BACK
             </span>
           </div>
 
-          {/* Center AR Target Reticle */}
-          <div className="relative z-10 my-auto mx-auto px-5 py-3 rounded-xl border-2 border-dashed border-emerald-400/80 bg-slate-950/75 text-center">
-            <QrCode className="w-7 h-7 text-emerald-400 mx-auto mb-1" />
+          {/* Center AR Target Reticle with Live Telemetry Overlay */}
+          <div className="relative z-10 my-auto mx-auto px-5 py-3 rounded-xl border-2 border-dashed border-emerald-400/80 bg-slate-950/85 text-center space-y-1">
+            <QrCode className="w-7 h-7 text-emerald-400 mx-auto" />
             <div className="font-mono text-sm font-bold text-white">
               {selectedAsset.tag} ({selectedAsset.asset_id})
             </div>
             <div className="text-[11px] text-emerald-300 font-mono">
               Health {selectedAsset.health_score}/100 • {selectedAsset.status_reason}
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-1 text-[10px] font-mono text-sky-300">
+              {selectedAsset.telemetry?.pressure_bar !== undefined && (
+                <span>P: {selectedAsset.telemetry.pressure_bar} bar</span>
+              )}
+              {selectedAsset.telemetry?.vibration_mms !== undefined && (
+                <span>Vib: {selectedAsset.telemetry.vibration_mms} mm/s</span>
+              )}
+              {selectedAsset.telemetry?.bearing_temp_c !== undefined && (
+                <span>Temp: {selectedAsset.telemetry.bearing_temp_c}°C</span>
+              )}
             </div>
           </div>
 
@@ -188,7 +208,7 @@ export function MobileArFieldHudModal({
           <div className="relative z-10 flex items-center justify-between px-3 py-1.5 rounded-lg bg-slate-950/90 border border-slate-800 text-xs font-mono">
             <div className="flex items-center gap-1.5 text-cyan-300">
               <Compass className="w-4 h-4 animate-spin" style={{ animationDuration: '8s' }} />
-              <span>Dist to Tool Crib: {humanPath?.distanceMeters || 3.8}m</span>
+              <span>Centerline Rail to Tool Crib: {humanPath?.distanceMeters || 3.8}m</span>
             </div>
             <span className="text-slate-400">{selectedAsset.connectivity_profile}</span>
           </div>

@@ -30,10 +30,10 @@
     </div>
 
     <script type="module">
-      // Dynamically transpile and register the local modules from /src/ so zero-install mode runs the exact same codebase!
       async function bootApp() {
         const files = [
           '/src/data/valmetDataset.js',
+          '/src/utils/dataPipeline.js',
           '/src/utils/pathfinding.js',
           '/src/utils/copilotEngine.js',
           '/src/components/BoilerRoomViewport.jsx',
@@ -46,7 +46,6 @@
 
         for (const file of files) {
           let code = await fetch(file).then((r) => r.text());
-          // Rewrite relative imports to already-created blob URLs
           for (const [origPath, bUrl] of Object.entries(blobUrls)) {
             const baseName = origPath.split('/').pop().replace(/\.(jsx|js)$/, '');
             const regex = new RegExp(`(['"])(\\.\\.?\\/[\\w\\/.-]*\\/${baseName}|\\.\\/${baseName})(\\.(jsx|js))?\\1`, 'g');

@@ -1,58 +1,81 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
   AlertOctagon,
   Bot,
   Box,
+  Database,
   Eye,
   Footprints,
+  GitMerge,
   Layers,
   Pause,
   Play,
   QrCode,
   Radar,
-  RotateCcw,
   Search,
-  ShieldAlert,
-  Sliders,
-  Upload
+  Sparkles,
+  Upload,
+  Users
 } from 'lucide-react';
-import { VALMET_ASSETS, STRUCTURAL_BOILER_OBJECTS } from './data/valmetDataset';
-import { computeAStarPath } from './utils/pathfinding';
-import BoilerRoomViewport from './components/BoilerRoomViewport';
-import AssetInspectorPanel from './components/AssetInspectorPanel';
-import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopilotAndArHud';
+import {
+  createInitialDataPipeline,
+  updateAssetTelemetryInMemory,
+  simulateLiveTelemetryTick
+} from './utils/dataPipeline.js';
+import {
+  computeAStarPath,
+  INITIAL_FLEET_AGENTS,
+  coordinateMultiAgentFleet
+} from './utils/pathfinding.js';
+import BoilerRoomViewport from './components/BoilerRoomViewport.jsx';
+import AssetInspectorPanel from './components/AssetInspectorPanel.jsx';
+import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopilotAndArHud.jsx';
 
 export default function App() {
-  // Default selected asset: CV-003 (Faulty Feedwater Control Valve) or P-002 (Cavitating Pump)
-  const [selectedAsset, setSelectedAsset] = useState(
-    () => VALMET_ASSETS.find((a) => a.tag === 'CV-003') || VALMET_ASSETS[0]
+  // 1. Fast In-Memory Telemetry & Excel Data Pipeline
+  const [pipeline, setPipeline] = useState(() => createInitialDataPipeline());
+  const [liveStreaming, setLiveStreaming] = useState(false);
+
+  // Selected & Hovered 3D Assets
+  const [selectedAssetId, setSelectedAssetId] = useState('ASSET-003'); // CV-003
+  const [hoveredAsset, setHoveredAsset] = useState(null);
+
+  const selectedAsset = useMemo(
+    () =>
+      pipeline.assets.find((a) => a.asset_id === selectedAssetId) ||
+      pipeline.assets[0],
+    [pipeline.assets, selectedAssetId]
   );
 
-  // Feature 1: "Dumb Scan -> Semantic World" Lens Slider (0% = Raw Point Cloud, 100% = Full 3D Semantic World)
-  const [semanticBlend, setSemanticBlend] = useState(90);
+  // Feature 1: "Dumb Scan -> Semantic World" Lens & 3D Contour + Planar Back Models
+  const [semanticBlend, setSemanticBlend] = useState(92);
   const [showStructuralBoxes, setShowStructuralBoxes] = useState(true);
+  const [showContourModels, setShowContourModels] = useState(true);
   const [pointSize, setPointSize] = useState(0.055);
 
-  // Feature 2: Dual-Profile Obstacle-Aware 3D Pathfinding & Autonomous Robot Simulation
+  // Feature 2: Centerline Waypoint 'Rails', Smooth vs. Zig-Zag Comparison & Multi-Agent Fleet
   const [activeProfile, setActiveProfile] = useState('robot'); // 'robot' | 'human'
+  const [railMode, setRailMode] = useState('smooth_rail'); // 'smooth_rail' | 'zigzag_grid'
+  const [multiAgentEnabled, setMultiAgentEnabled] = useState(true);
   const [showDualComparison, setShowDualComparison] = useState(true);
-  const [hazardNodes, setHazardNodes] = useState([]); // Dynamic floor hazards
+  const [hazardNodes, setHazardNodes] = useState([]);
   const [simPlaying, setSimPlaying] = useState(true);
-  const [simProgress, setSimProgress] = useState(0.15);
+  const [simProgress, setSimProgress] = useState(0.18);
   const [proximityRadius, setProximityRadius] = useState(1.75);
   const [nearbyAssets, setNearbyAssets] = useState([]);
 
-  // Asset Directory Filter & Search (Left Sidebar)
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'critical' | 'watch' | 'healthy'
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Feature 3 & 4: Synced LOTO Checklist, Drafted Work Orders, Mobile AR HUD Modal
-  const [checkedLotoSteps, setCheckedLotoSteps] = useState({});
+  // Feature 4: Main AR Functionality (First-Person 3D AR Visor POV + Mobile QR AR HUD Modal)
+  const [arFirstPersonMode, setArFirstPersonMode] = useState(false);
   const [isArHudOpen, setIsArHudOpen] = useState(false);
+  const [checkedLotoSteps, setCheckedLotoSteps] = useState({});
   const [draftedWoBanner, setDraftedWoBanner] = useState(null);
 
-  // Custom PLY File Upload Support + Scene Stats
+  // Left Sidebar Filter
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // File Uploads (.PLY and Excel/JSON Data Import)
   const fileInputRef = useRef(null);
   const [customPlyBuffer, setCustomPlyBuffer] = useState(null);
   const [sceneStats, setSceneStats] = useState({
@@ -60,19 +83,29 @@ export default function App() {
     rawVertices: 1506136,
     activeSplats: 121537,
     anchoredAssets: 30,
-    structuralFrames: STRUCTURAL_BOILER_OBJECTS.length
+    structuralFrames: pipeline.structuralObjects.length
   });
 
-  // Compute real-time A* paths for both Human Technician and Wheeled Robot (AMR)
+  // Live Telemetry Stream Interval (mutates in-memory arrays on the fly)
+  useEffect(() => {
+    if (!liveStreaming) return;
+    const timer = setInterval(() => {
+      setPipeline((prev) => simulateLiveTelemetryTick(prev));
+    }, 1800);
+    return () => clearInterval(timer);
+  }, [liveStreaming]);
+
+  // Compute Centerline Rail A* Paths for Human & Robot
   const humanPath = useMemo(
     () =>
       computeAStarPath(
         'N-ENTRY',
         selectedAsset?.approach_point || [0, -1.02, 1.5],
         'human',
-        hazardNodes
+        hazardNodes,
+        railMode
       ),
-    [selectedAsset, hazardNodes]
+    [selectedAsset, hazardNodes, railMode]
   );
 
   const robotPath = useMemo(
@@ -81,14 +114,28 @@ export default function App() {
         'N-ENTRY',
         selectedAsset?.approach_point || [0, -1.02, 1.5],
         'robot',
-        hazardNodes
+        hazardNodes,
+        railMode
       ),
-    [selectedAsset, hazardNodes]
+    [selectedAsset, hazardNodes, railMode]
   );
 
-  // Filtered Asset List for Left Sidebar
+  // Compute Multi-Robot & Multi-Human Fleet Coordination (R1 -> Object A, R2 -> Object B, H1 -> Object C)
+  const fleetAssignments = useMemo(
+    () =>
+      coordinateMultiAgentFleet(
+        INITIAL_FLEET_AGENTS,
+        pipeline.assets,
+        hazardNodes,
+        railMode,
+        selectedAsset
+      ),
+    [pipeline.assets, hazardNodes, railMode, selectedAsset]
+  );
+
+  // Filtered Assets for Left Sidebar
   const filteredAssets = useMemo(() => {
-    return VALMET_ASSETS.filter((a) => {
+    return pipeline.assets.filter((a) => {
       if (statusFilter === 'critical') {
         if (a.health_status !== 'attention_required' && a.health_status !== 'degraded') return false;
       } else if (statusFilter === 'watch') {
@@ -108,7 +155,16 @@ export default function App() {
       }
       return true;
     });
-  }, [statusFilter, searchQuery]);
+  }, [pipeline.assets, statusFilter, searchQuery]);
+
+  const handleSelectAsset = (asset) => {
+    if (!asset) return;
+    setSelectedAssetId(asset.asset_id);
+  };
+
+  const handleMutateTelemetry = (assetId, patch, customReason = null) => {
+    setPipeline((prev) => updateAssetTelemetryInMemory(prev, assetId, patch, customReason));
+  };
 
   const handleToggleHazardNode = (nodeId) => {
     setHazardNodes((prev) =>
@@ -117,10 +173,7 @@ export default function App() {
   };
 
   const handleDropDemoHazard = () => {
-    // Drops or clears a dynamic forklift/steam hazard on the primary corridor node
-    setHazardNodes((prev) =>
-      prev.length > 0 ? [] : ['N-S-EAST1', 'N-M-WEST1']
-    );
+    setHazardNodes((prev) => (prev.length > 0 ? [] : ['N-S-EAST1', 'N-M-WEST1']));
   };
 
   const handleToggleLotoStep = (stepKey) => {
@@ -160,10 +213,10 @@ export default function App() {
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-100">
       {/* ==================== TOP COMMAND BAR ==================== */}
-      <header className="h-14 shrink-0 px-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between gap-4 select-none">
-        {/* Brand & Loaded PLY Status */}
+      <header className="h-14 shrink-0 px-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between gap-3 select-none">
+        {/* Brand & Pipeline Status */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-sky-500 flex items-center justify-center text-slate-950 font-black text-base shadow-lg shadow-emerald-500/20">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-sky-500 flex items-center justify-center text-slate-950 font-black text-base shadow-lg">
             V
           </div>
           <div>
@@ -172,25 +225,21 @@ export default function App() {
                 Valmet SpatialSense
               </h1>
               <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                Since AI 2026 Prototype
+                In-Memory Pipeline v{pipeline.version}
               </span>
             </div>
             <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2">
-              <span>PLY: {sceneStats.sourceFile}</span>
+              <span>{sceneStats.activeSplats.toLocaleString()} Splats</span>
               <span>•</span>
-              <span className="text-sky-300">
-                {sceneStats.activeSplats.toLocaleString()} 3DGS Splats
-              </span>
+              <span className="text-sky-300">30 Contoured 3D Assets</span>
               <span>•</span>
-              <span className="text-emerald-300">
-                {sceneStats.anchoredAssets} Valmet Assets + {sceneStats.structuralFrames} Structural Frames
-              </span>
+              <span className="text-emerald-300">Centerline Waypoint Rails</span>
             </div>
           </div>
         </div>
 
-        {/* Center Feature 1 Control: "Dumb Scan -> Semantic World" Lens Slider */}
-        <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
+        {/* Center Feature 1: "Dumb Scan -> Semantic World" Lens Slider */}
+        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
           <button
             onClick={() => setSemanticBlend(0)}
             className={`text-xs font-mono px-2 py-0.5 rounded transition ${
@@ -199,7 +248,7 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Raw 3D Scan
+            Raw Scan
           </button>
           <input
             type="range"
@@ -207,8 +256,7 @@ export default function App() {
             max="100"
             value={semanticBlend}
             onChange={(e) => setSemanticBlend(Number(e.target.value))}
-            className="w-28 accent-emerald-400 cursor-pointer"
-            title="Slide between Raw Unindexed Point Cloud (0%) and Full Semantic AI World (100%)"
+            className="w-24 accent-emerald-400 cursor-pointer"
           />
           <button
             onClick={() => setSemanticBlend(100)}
@@ -218,39 +266,41 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Semantic World ({semanticBlend}%)
+            Semantic ({semanticBlend}%)
           </button>
         </div>
 
-        {/* Right Controls: Dual-Profile Routing Toggle, Hazard Dropper, Custom PLY Upload */}
+        {/* Right Controls: Smooth Rail vs. Zig-Zag Toggle, Multi-Agent Fleet, AR HUD, Live Stream */}
         <div className="flex items-center gap-2">
-          {/* Human vs Robot Profile Selector */}
-          <div className="flex items-center rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-xs font-mono">
-            <button
-              onClick={() => setActiveProfile('human')}
-              className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition ${
-                activeProfile === 'human'
-                  ? 'bg-cyan-500 text-slate-950 font-bold'
-                  : 'text-cyan-300 hover:bg-slate-900'
-              }`}
-              title="Human Technician Profile: Can climb catwalk steps & traverse 0.7m pipe alleys"
-            >
-              <Footprints className="w-3.5 h-3.5" />
-              <span>Human ({humanPath.distanceMeters}m)</span>
-            </button>
-            <button
-              onClick={() => setActiveProfile('robot')}
-              className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition ${
-                activeProfile === 'robot'
-                  ? 'bg-orange-500 text-slate-950 font-bold'
-                  : 'text-orange-300 hover:bg-slate-900'
-              }`}
-              title="Wheeled AMR Robot Profile: Rejects stairs, requires >=1.1m flat aisle clearance"
-            >
-              <Bot className="w-3.5 h-3.5" />
-              <span>AMR Robot ({robotPath.distanceMeters}m)</span>
-            </button>
-          </div>
+          {/* Centerline Rail vs Zig-Zag Pathfinding Comparison Toggle */}
+          <button
+            onClick={() =>
+              setRailMode((m) => (m === 'smooth_rail' ? 'zigzag_grid' : 'smooth_rail'))
+            }
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
+              railMode === 'smooth_rail'
+                ? 'bg-sky-500/20 border-sky-500/50 text-sky-300 font-semibold'
+                : 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-semibold'
+            }`}
+            title="Toggle between Pre-Baked Equidistant Centerline Rails (Smooth) and Naive Zig-Zag Grid Pathfinding"
+          >
+            <GitMerge className="w-3.5 h-3.5" />
+            <span>{railMode === 'smooth_rail' ? 'Rail: Smooth Centerline' : 'Path: Zig-Zag Grid'}</span>
+          </button>
+
+          {/* Live In-Memory Telemetry Stream Toggle */}
+          <button
+            onClick={() => setLiveStreaming((s) => !s)}
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
+              liveStreaming
+                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-semibold'
+                : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
+            }`}
+            title="Stream real-time telemetry mutations into the fast in-memory array"
+          >
+            <Database className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{liveStreaming ? 'Live Stream: ON' : 'Live Stream'}</span>
+          </button>
 
           {/* Dynamic Floor Hazard Button */}
           <button
@@ -260,17 +310,23 @@ export default function App() {
                 ? 'bg-red-500/20 border-red-500/50 text-red-300 font-semibold'
                 : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
             }`}
-            title="Drop or Clear Dynamic Floor Obstruction to test real-time A* rerouting"
           >
             <AlertOctagon className="w-3.5 h-3.5 text-red-400" />
             <span>
-              {hazardNodes.length > 0
-                ? `Clear Hazards (${hazardNodes.length})`
-                : 'Drop Floor Hazard'}
+              {hazardNodes.length > 0 ? `Hazards (${hazardNodes.length})` : 'Drop Hazard'}
             </span>
           </button>
 
-          {/* Load Custom PLY File */}
+          {/* Open Mobile AR HUD */}
+          <button
+            onClick={() => setIsArHudOpen(true)}
+            className="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-1.5 shadow"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            <span>AR Scanner</span>
+          </button>
+
+          {/* Load Custom PLY */}
           <input
             ref={fileInputRef}
             type="file"
@@ -280,32 +336,51 @@ export default function App() {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-2.5 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-mono text-slate-300 flex items-center gap-1.5"
-            title="Load any local .ply file directly from disk"
+            className="px-2.5 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-mono text-slate-300 flex items-center gap-1"
+            title="Load any .ply scan"
           >
             <Upload className="w-3.5 h-3.5 text-sky-400" />
-            <span>Load .PLY</span>
+            <span>.PLY</span>
           </button>
         </div>
       </header>
 
       {/* ==================== MAIN 3-COLUMN WORKSPACE ==================== */}
       <div className="flex-1 flex overflow-hidden">
-        {/* LEFT SIDEBAR: 30 Valmet Anchored Assets + Simulation & Proximity Controls */}
+        {/* LEFT SIDEBAR: Avatar Rig, Centerline Rails, Multi-Robot Fleet Coordinator & 30 Assets */}
         <aside className="w-80 shrink-0 h-full bg-slate-900/95 border-r border-slate-800 flex flex-col overflow-hidden select-none">
-          {/* Autonomous Navigation & Proximity Radar Controller */}
-          <div className="p-3.5 border-b border-slate-800 bg-slate-950/60 space-y-3">
+          {/* Rig & Waypoint Rail Controller */}
+          <div className="p-3.5 border-b border-slate-800 bg-slate-950/60 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
                 <Radar className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Robot Patrol & Proximity</span>
+                <span>Rig & Centerline Rails</span>
               </span>
-              <span className="text-[11px] font-mono text-emerald-400">
-                A* {activeProfile === 'human' ? humanPath.computeTimeMs : robotPath.computeTimeMs}ms
-              </span>
+              <div className="flex items-center gap-1 text-[10px] font-mono">
+                <button
+                  onClick={() => setActiveProfile('robot')}
+                  className={`px-1.5 py-0.5 rounded ${
+                    activeProfile === 'robot'
+                      ? 'bg-orange-500 text-slate-950 font-bold'
+                      : 'bg-slate-900 text-orange-300'
+                  }`}
+                >
+                  AMR ({robotPath.distanceMeters}m)
+                </button>
+                <button
+                  onClick={() => setActiveProfile('human')}
+                  className={`px-1.5 py-0.5 rounded ${
+                    activeProfile === 'human'
+                      ? 'bg-cyan-500 text-slate-950 font-bold'
+                      : 'bg-slate-900 text-cyan-300'
+                  }`}
+                >
+                  Human ({humanPath.distanceMeters}m)
+                </button>
+              </div>
             </div>
 
-            {/* Play / Pause / Scrub Path Simulation */}
+            {/* Walk / Scrub Slider */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSimPlaying((p) => !p)}
@@ -325,57 +400,65 @@ export default function App() {
                   setSimProgress(Number(e.target.value));
                 }}
                 className="w-full accent-emerald-400 cursor-pointer"
-                title="Scrub Avatar / Robot position along the collision-free 3D path"
               />
               <span className="font-mono text-[11px] text-slate-300 w-9 text-right">
                 {Math.round(simProgress * 100)}%
               </span>
             </div>
 
-            {/* Proximity Radius & Visual Layer Toggles */}
-            <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
-              <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                <div className="flex justify-between text-slate-400 mb-1">
-                  <span>Proximity Radius</span>
-                  <span className="font-mono text-emerald-300">{proximityRadius.toFixed(1)}m</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.8"
-                  max="3.2"
-                  step="0.1"
-                  value={proximityRadius}
-                  onChange={(e) => setProximityRadius(Number(e.target.value))}
-                  className="w-full accent-emerald-400 cursor-pointer"
-                />
+            {/* Multi-Robot & Multi-Human Fleet Coordination Panel */}
+            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-white cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={multiAgentEnabled}
+                    onChange={(e) => setMultiAgentEnabled(e.target.checked)}
+                    className="accent-emerald-400"
+                  />
+                  <span>Multi-Robot Fleet (R1, R2, H1)</span>
+                </label>
+                <span className="text-[10px] font-mono text-emerald-400">Zero Conflict</span>
               </div>
 
-              <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                <div className="flex justify-between text-slate-400 mb-1">
-                  <span>Splat Size</span>
-                  <span className="font-mono text-sky-300">{pointSize.toFixed(3)}</span>
+              {multiAgentEnabled && (
+                <div className="space-y-1 pt-1">
+                  {fleetAssignments.map((assign) => (
+                    <button
+                      key={assign.agent_id}
+                      onClick={() => handleSelectAsset(assign.targetAsset)}
+                      className="w-full px-2 py-1 rounded bg-slate-950 hover:bg-slate-800 border border-slate-800 flex items-center justify-between text-[10px] font-mono transition"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: assign.color }}
+                        />
+                        <span className="font-bold text-white">{assign.agent_id}</span>
+                        <span className="text-slate-400">→</span>
+                        <span className="text-sky-300 font-bold">
+                          {assign.targetAsset?.tag}
+                        </span>
+                      </span>
+                      <span className="text-emerald-300">
+                        {assign.path?.distanceMeters}m rail
+                      </span>
+                    </button>
+                  ))}
                 </div>
-                <input
-                  type="range"
-                  min="0.020"
-                  max="0.110"
-                  step="0.005"
-                  value={pointSize}
-                  onChange={(e) => setPointSize(Number(e.target.value))}
-                  className="w-full accent-sky-400 cursor-pointer"
-                />
-              </div>
+              )}
             </div>
 
+            {/* Checkboxes for Contour Models & Structural Frames */}
             <div className="flex items-center justify-between gap-2 text-[11px]">
               <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={showDualComparison}
-                  onChange={(e) => setShowDualComparison(e.target.checked)}
+                  checked={showContourModels}
+                  onChange={(e) => setShowContourModels(e.target.checked)}
                   className="accent-sky-400"
                 />
-                <span>Show Dual Paths</span>
+                <span>Contour + Back Plane</span>
               </label>
               <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
                 <input
@@ -384,12 +467,12 @@ export default function App() {
                   onChange={(e) => setShowStructuralBoxes(e.target.checked)}
                   className="accent-sky-400"
                 />
-                <span>Structural 3D Frames</span>
+                <span>Structural Frames</span>
               </label>
             </div>
           </div>
 
-          {/* Filter & Search Bar for the 30 Valmet Builder Pack Assets */}
+          {/* Search & Status Filter */}
           <div className="p-3 border-b border-slate-800 space-y-2">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
@@ -397,17 +480,17 @@ export default function App() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter 30 Valmet assets (e.g. CV-003, P-002)..."
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-400"
+                placeholder="Search 30 contoured assets..."
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-400"
               />
             </div>
 
             <div className="grid grid-cols-4 gap-1 text-[11px] font-mono">
               {[
                 { key: 'all', label: 'All (30)' },
-                { key: 'critical', label: 'Fault (6)' },
-                { key: 'watch', label: 'Watch (4)' },
-                { key: 'healthy', label: 'OK (20)' }
+                { key: 'critical', label: 'Fault' },
+                { key: 'watch', label: 'Watch' },
+                { key: 'healthy', label: 'OK' }
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -424,18 +507,25 @@ export default function App() {
             </div>
           </div>
 
-          {/* Scrollable List of 30 Valmet Assets */}
+          {/* Scrollable List of 30 Valmet Assets (with Hover Sync!) */}
           <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
             {filteredAssets.map((asset) => {
               const isSelected = selectedAsset?.asset_id === asset.asset_id;
+              const isHovered = hoveredAsset?.asset_id === asset.asset_id;
               const isNear = nearbyAssets.some((n) => n.asset_id === asset.asset_id);
+              const assignedAgent = multiAgentEnabled
+                ? fleetAssignments.find((f) => f.targetAsset?.asset_id === asset.asset_id)
+                : null;
+
               return (
                 <button
                   key={asset.asset_id}
-                  onClick={() => setSelectedAsset(asset)}
+                  onClick={() => handleSelectAsset(asset)}
+                  onMouseEnter={() => setHoveredAsset(asset)}
+                  onMouseLeave={() => setHoveredAsset(null)}
                   className={`w-full p-2.5 rounded-xl border text-left transition flex items-start justify-between gap-2 ${
-                    isSelected
-                      ? 'bg-sky-500/15 border-sky-400 shadow-md shadow-sky-500/10'
+                    isSelected || isHovered
+                      ? 'bg-sky-500/15 border-sky-400 shadow-md'
                       : isNear
                       ? 'bg-emerald-500/10 border-emerald-500/40'
                       : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
@@ -454,9 +544,17 @@ export default function App() {
                       <span className="font-mono text-[10px] text-slate-400">
                         {asset.asset_id}
                       </span>
+                      {assignedAgent && (
+                        <span
+                          className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold text-slate-950"
+                          style={{ backgroundColor: assignedAgent.color }}
+                        >
+                          {assignedAgent.agent_id}
+                        </span>
+                      )}
                       {isNear && (
-                        <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[9px]">
-                          IN RADAR
+                        <span className="px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[9px]">
+                          RADAR
                         </span>
                       )}
                     </div>
@@ -464,7 +562,7 @@ export default function App() {
                       {asset.service_description}
                     </div>
                     <div className="text-[10px] font-mono text-slate-400 mt-0.5">
-                      {asset.area_name} • {asset.status_reason}
+                      {asset.contourModel?.contourPointCount} Contour Pts • {asset.status_reason}
                     </div>
                   </div>
 
@@ -492,12 +590,18 @@ export default function App() {
         <main className="flex-1 flex flex-col h-full overflow-hidden">
           <div className="flex-1 relative overflow-hidden">
             <BoilerRoomViewport
-              assets={VALMET_ASSETS}
+              assets={pipeline.assets}
               selectedAsset={selectedAsset}
-              onSelectAsset={setSelectedAsset}
+              onSelectAsset={handleSelectAsset}
+              hoveredAsset={hoveredAsset}
+              onHoverAsset={setHoveredAsset}
               semanticBlend={semanticBlend}
               showStructuralBoxes={showStructuralBoxes}
+              showContourModels={showContourModels}
               activeProfile={activeProfile}
+              railMode={railMode}
+              multiAgentEnabled={multiAgentEnabled}
+              fleetAssignments={fleetAssignments}
               showDualComparison={showDualComparison}
               humanPath={humanPath}
               robotPath={robotPath}
@@ -509,12 +613,13 @@ export default function App() {
               proximityRadius={proximityRadius}
               onNearbyAssetsChange={setNearbyAssets}
               pointSize={pointSize}
+              arFirstPersonMode={arFirstPersonMode}
+              onToggleArFirstPerson={setArFirstPersonMode}
               customPlyBuffer={customPlyBuffer}
               onLoadStats={setSceneStats}
             />
           </div>
 
-          {/* Bottom Grounded Offline Edge AI Copilot Drawer */}
           <EdgeCopilotDrawer
             selectedAsset={selectedAsset}
             humanPath={humanPath}
@@ -523,16 +628,18 @@ export default function App() {
           />
         </main>
 
-        {/* RIGHT SIDEBAR: Context-Aware Maintenance "Why" & Valmet Dataset Inspector */}
+        {/* RIGHT SIDEBAR: Pre-Walk 3D Contour Viewer, "Why" Tree & In-Memory Telemetry Mutator */}
         <AssetInspectorPanel
           selectedAsset={selectedAsset}
           nearbyAssets={nearbyAssets}
-          onSelectAsset={setSelectedAsset}
+          onSelectAsset={handleSelectAsset}
           checkedLotoSteps={checkedLotoSteps}
           onToggleLotoStep={handleToggleLotoStep}
           onOpenArHud={() => setIsArHudOpen(true)}
           onDraftWorkOrder={handleDraftWorkOrder}
           draftedWoBanner={draftedWoBanner}
+          onMutateTelemetry={handleMutateTelemetry}
+          pipelineMeta={pipeline}
         />
       </div>
 
