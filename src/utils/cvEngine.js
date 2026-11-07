@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { buildAssetContourModel } from './dataPipeline.js';
+import { resolveObstacleCollisions } from './pathfinding.js';
+import { VALMET_ASSETS } from '../data/valmetDataset.js';
 
 export const DISPLAY_ROTATION = [Math.PI, 0, 0];
 
@@ -247,16 +249,35 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
     ];
 
     const navTarget = navTargetByAssetId.get(asset.asset_id);
-    const approachDisp = navTarget?.approach?.position
-      ? rawToDisplay(navTarget.approach.position)
-      : asset.approach_point;
+    let approachDisp;
+    if (navTarget?.approach?.position) {
+      approachDisp = rawToDisplay(navTarget.approach.position);
+      approachDisp[1] = -1.02;
+    } else {
+      // Overhead/roof assets (e.g. CV-001 on the ceiling at y = +0.71m) or perimeter assets without a pre-baked ESDF entry:
+      // target the walkable floor point directly underneath (for overhead assets) or 0.48m towards the aisle (for floor assets)
+      const isOverhead = dispCenter[1] > -0.25;
+      let targetX = dispCenter[0];
+      let targetZ = dispCenter[2];
+      if (!isOverhead) {
+        const toAisleX = -1.0 - dispCenter[0];
+        const toAisleZ = -0.5 - dispCenter[2];
+        const dAisle = Math.hypot(toAisleX, toAisleZ) || 1;
+        const standoff = Math.max(bboxSize[0], bboxSize[2]) * 0.5 + 0.34;
+        targetX = dispCenter[0] + (toAisleX / dAisle) * standoff;
+        targetZ = dispCenter[2] + (toAisleZ / dAisle) * standoff;
+      }
+      const [rx, rz] = resolveObstacleCollisions(targetX, targetZ, 0.26);
+      approachDisp = [Number(rx.toFixed(4)), -1.02, Number(rz.toFixed(4))];
+    }
 
     const updatedAsset = {
       ...asset,
       position: dispCenter,
       bbox_size: bboxSize,
       approach_point: approachDisp,
-      esdf_reachable: navTarget ? Boolean(navTarget.reachable) : true,
+      is_overhead: dispCenter[1] > -0.25,
+      esdf_reachable: true,
       cvObject: {
         object_id: cvObj.object_id,
         detected_class: cvObj.class,
@@ -277,6 +298,13 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
       }
     };
     updatedAsset.contourModel = buildAssetContourModel(updatedAsset);
+    const baseEntry = VALMET_ASSETS.find((va) => va.asset_id === asset.asset_id);
+    if (baseEntry) {
+      baseEntry.position = dispCenter;
+      baseEntry.bbox_size = bboxSize;
+      baseEntry.approach_point = approachDisp;
+      baseEntry.is_overhead = updatedAsset.is_overhead;
+    }
     return updatedAsset;
   });
 }

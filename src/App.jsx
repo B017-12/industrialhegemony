@@ -118,10 +118,30 @@ export default function App() {
   useEffect(() => {
     if (!cvSceneObjects?.objects?.length) return;
     setCvNavigationData(cvSceneObjects, navTargets, navData);
-    setPipeline((prev) => ({
-      ...prev,
-      assets: syncAssetsWithCvObjects(prev.assets, cvSceneObjects, evidenceFrames, navTargets)
-    }));
+    setPipeline((prev) => {
+      const syncedAssets = syncAssetsWithCvObjects(
+        prev.assets,
+        cvSceneObjects,
+        evidenceFrames,
+        navTargets
+      );
+      setExerciseWorkers((prevWorkers) => {
+        let nextW = prevWorkers;
+        for (const w of prevWorkers) {
+          if (w.state === 'WALKING_TO_FAULT' && w.targetAssetId) {
+            const targetAsset = syncedAssets.find((a) => a.asset_id === w.targetAssetId);
+            if (targetAsset) {
+              nextW = assignWorkerToAsset(nextW, w.id, targetAsset, hazardNodes, railMode);
+            }
+          }
+        }
+        return nextW;
+      });
+      return {
+        ...prev,
+        assets: syncedAssets
+      };
+    });
   }, [cvSceneObjects, evidenceFrames, navTargets, navData]);
 
   // Avatar routes: equal-clearance rail routes from the backend replan (default) or Ahmad's precomputed ESDF paths
@@ -439,6 +459,28 @@ export default function App() {
     setExerciseMode(true);
     setExerciseWorkers((prev) =>
       assignWorkerToAsset(prev, workerId, asset, hazardNodes, railMode)
+    );
+  };
+
+  const handleManualUpdateWorkerPose = (workerId, nextX, nextZ, nextAngle, manualControl = true) => {
+    if (!workerId) return;
+    setExerciseWorkers((prev) =>
+      prev.map((w) => {
+        if (w.id !== workerId) return w;
+        if (!manualControl) {
+          return {
+            ...w,
+            manualControl: false
+          };
+        }
+        return {
+          ...w,
+          manualControl: true,
+          pos: [nextX, -1.02, nextZ],
+          position: [nextX, -1.02, nextZ],
+          angle: nextAngle
+        };
+      })
     );
   };
 
@@ -1641,6 +1683,8 @@ export default function App() {
           onSelectWorker={setSelectedWorkerId}
           onAddWorker={handleAddWorker}
           onDeleteWorker={handleDeleteWorker}
+          onAssignWorkerToFault={handleAssignWorkerToFault}
+          onManualUpdateWorkerPose={handleManualUpdateWorkerPose}
           onInjectRandomFault={handleInjectRandomFault}
           autoDispatch={autoDispatch}
           onToggleAutoDispatch={setAutoDispatch}
