@@ -1295,8 +1295,8 @@ export default function BoilerRoomViewport({
 
       raycaster.setFromCamera(mouse, camera);
 
-      // 0. Check Exercise Mode Workers FIRST
-      if (stateRef.current.exerciseMode && exerciseGroupRef.current) {
+      // 0. Check Exercise Mode Workers FIRST (only when workers are visible in Technical Mode)
+      if (stateRef.current.showWorkers && stateRef.current.exerciseMode && exerciseGroupRef.current) {
         const workerHits = raycaster.intersectObjects(exerciseGroupRef.current.children, true);
         if (workerHits.length > 0) {
           let wObj = workerHits[0].object;
@@ -1566,6 +1566,7 @@ export default function BoilerRoomViewport({
       const isTechWorkersVisible = Boolean(st.showWorkers);
       if (fleetGroupRef.current) fleetGroupRef.current.visible = false;
       if (pathGroupRef.current) pathGroupRef.current.visible = false;
+      if (navGraphGroupRef.current) navGraphGroupRef.current.visible = isTechWorkersVisible;
       if (exerciseGroupRef.current) exerciseGroupRef.current.visible = isTechWorkersVisible;
       if (exercisePathGroupRef.current) exercisePathGroupRef.current.visible = isTechWorkersVisible;
 
@@ -2038,8 +2039,8 @@ export default function BoilerRoomViewport({
       }
 
       if (arTrafficGateRef.current) {
-        arTrafficGateRef.current.visible = Boolean(st.arFirstPersonMode);
-        if (st.arFirstPersonMode) {
+        arTrafficGateRef.current.visible = Boolean(st.showWorkers && st.arFirstPersonMode);
+        if (st.showWorkers && st.arFirstPersonMode) {
           const gateX = primarySample.position[0] + primarySample.tangent[0] * 1.15;
           const gateZ = primarySample.position[2] + primarySample.tangent[2] * 1.15;
           arTrafficGateRef.current.position.set(gateX, -1.02, gateZ);
@@ -3081,65 +3082,6 @@ export default function BoilerRoomViewport({
     <main className="viewport">
       <div ref={mountRef} className="viewport-canvas" />
 
-      {/* Simulation Exercise Mode Instruction Banner */}
-      {showWorkers && exerciseMode && !arFirstPersonMode && (
-        <div className={`exercise-banner ${exercisePaused ? 'paused' : ''}`}>
-          <div className="row" style={{ gap: '6px', flexWrap: 'wrap' }}>
-            <span className={`status ${exercisePaused ? 'medium' : 'info'}`}>
-              {exercisePaused ? 'TIME PAUSED — BATCH FAULT SETUP' : 'SIMULATION EXERCISE · 3DGS + CV'}
-            </span>
-            <span className="mono muted" style={{ marginLeft: 'auto' }}>
-              {exerciseWorkers.filter((w) => w.state === 'STANDBY').length}/{exerciseWorkers.length} at line
-            </span>
-          </div>
-          <div className="exercise-banner-sub">
-            {exercisePaused
-              ? 'Time is frozen. Click multiple equipment OBBs and inject faults (or assign workers in Alerts), then click Resume Time to dispatch all units together.'
-              : 'Photoreal 3DGS (.spz) with CV-detected 3D OBBs. Inject faults on components; standby technicians walk out using right-hand traffic rules, repair, and return.'}
-          </div>
-          <div className="row" style={{ gap: '5px', marginTop: '5px', flexWrap: 'wrap' }}>
-            {onToggleExercisePaused && (
-              <button
-                className={`btn btn-sm ${exercisePaused ? 'btn-primary' : ''}`}
-                onClick={() => onToggleExercisePaused(!exercisePaused)}
-                title="Freeze simulation time to inject multiple faults at once"
-              >
-                {exercisePaused ? <Play size={12} /> : <Pause size={12} />}
-                <span>{exercisePaused ? 'Resume Time' : 'Pause Time'}</span>
-              </button>
-            )}
-            {onInjectRandomFault && (
-              <button className="btn btn-sm btn-danger" onClick={onInjectRandomFault}>
-                <Zap size={12} />
-                <span>Inject Random Fault</span>
-              </button>
-            )}
-            {onAddWorker && (
-              <>
-                <button className="btn btn-sm" onClick={() => onAddWorker('human')}>
-                  <Plus size={12} />
-                  <span>+ Technician</span>
-                </button>
-                <button className="btn btn-sm" onClick={() => onAddWorker('robot')}>
-                  <Plus size={12} />
-                  <span>+ AMR</span>
-                </button>
-              </>
-            )}
-            {selectedWorkerId && onDeleteWorker && (
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() => onDeleteWorker(selectedWorkerId)}
-                title="Remove selected worker (Delete key)"
-              >
-                <Trash2 size={12} />
-                <span>Remove {selectedWorkerId} [Del]</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* 2D Floating Repair Progress & Worker Traffic / Selection Badges */}
       {showWorkers &&
         exerciseMode &&
@@ -3454,135 +3396,6 @@ export default function BoilerRoomViewport({
           onSwitchToTechnicianMode={!showWorkers ? onSwitchToTechnicianMode : null}
         />
       )}
-      {/* On-Click Unbound CV Object Popover (with 1-Click 3D Splat Separation & Move Controls) */}
-      {clickedUnboundCvObj && !clickedPopoverAsset && (
-        <div
-          style={{
-            right: 16,
-            bottom: 52,
-            background: 'rgba(6, 16, 26, 0.94)',
-            border: '1.5px solid #00f2ff',
-            boxShadow: '0 0 24px rgba(0, 242, 255, 0.35)',
-            color: '#ecfeff',
-            width: '340px'
-          }}
-          className="vp-popover"
-        >
-          <div className="vp-popover-head" style={{ borderBottom: '1px solid rgba(0,242,255,0.25)' }}>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div className="row" style={{ gap: '6px', flexWrap: 'wrap' }}>
-                <span className="mono" style={{ fontWeight: 800, color: '#00f2ff', fontSize: '13px' }}>
-                  {clickedUnboundCvObj.label || humanize(clickedUnboundCvObj.class)}
-                </span>
-                <span className="mono" style={{ fontSize: '11px', color: '#94a3b8' }}>
-                  {clickedUnboundCvObj.object_id}
-                </span>
-                <span
-                  className="mono"
-                  style={{
-                    fontSize: '10px',
-                    padding: '1px 6px',
-                    borderRadius: '3px',
-                    background: 'rgba(0,242,255,0.16)',
-                    border: '1px solid rgba(0,242,255,0.45)',
-                    color: '#00f2ff'
-                  }}
-                >
-                  {Math.round((clickedUnboundCvObj.class_confidence || 0.75) * 100)}% CV
-                </span>
-              </div>
-              <div className="mono" style={{ fontSize: '11px', marginTop: '3px', color: '#94a3b8' }}>
-                {(clickedUnboundCvObj.splat_count || 0).toLocaleString()} splats ·{' '}
-                {(clickedUnboundCvObj.voxel_count || 0).toLocaleString()} voxels · Movable 3D Splat Object
-              </div>
-            </div>
-            <button
-              className="btn btn-sm btn-icon"
-              style={{ background: 'transparent', color: '#94a3b8', border: '1px solid rgba(148,163,184,0.3)' }}
-              onClick={() => setClickedUnboundCvObj(null)}
-            >
-              <X size={14} />
-            </button>
-          </div>
-          <div className="vp-popover-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {EVIDENCE_PHOTO_MAP[clickedUnboundCvObj.object_id] && (
-              <img
-                src={EVIDENCE_PHOTO_MAP[clickedUnboundCvObj.object_id]}
-                alt={clickedUnboundCvObj.object_id}
-                style={{ width: '100%', height: '95px', objectFit: 'cover', borderRadius: '3px' }}
-              />
-            )}
-            <div
-              style={{
-                padding: '8px',
-                borderRadius: '4px',
-                background: 'rgba(0, 242, 255, 0.08)',
-                border: '1px solid rgba(0, 242, 255, 0.3)'
-              }}
-            >
-              <div className="row" style={{ justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span className="mono" style={{ fontSize: '10px', color: '#00f2ff', fontWeight: 700 }}>
-                  ✥ SEPARATE & MOVE 3D OBJECT SPLATS
-                </span>
-                <button
-                  onClick={() => {
-                    setMoveMode((m) => !m);
-                    setMoveSelectedId(clickedUnboundCvObj.object_id);
-                  }}
-                  style={{
-                    fontSize: '10px',
-                    padding: '2px 7px',
-                    borderRadius: '3px',
-                    border: '1px solid #00f2ff',
-                    background: moveMode ? '#00f2ff' : 'transparent',
-                    color: moveMode ? '#04121d' : '#00f2ff',
-                    fontFamily: 'var(--mono)',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
-                >
-                  {moveMode ? 'Drag Mode: ON' : 'Enable 3D Drag'}
-                </button>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px' }}>
-                {[
-                  { label: '◀ Left', dx: -0.6, dz: 0 },
-                  { label: '▲ Fwd', dx: 0, dz: 0.6 },
-                  { label: '▼ Back', dx: 0, dz: -0.6 },
-                  { label: 'Right ▶', dx: 0.6, dz: 0 },
-                  { label: '↺ Reset', reset: true }
-                ].map((b) => (
-                  <button
-                    key={b.label}
-                    onClick={() => {
-                      if (!onMoveCvObject) return;
-                      const oid = clickedUnboundCvObj.object_id;
-                      const cur = objectMoves?.[oid] || { dx: 0, dz: 0 };
-                      if (b.reset) {
-                        onMoveCvObject(oid, 0, 0);
-                      } else {
-                        onMoveCvObject(oid, cur.dx + b.dx, cur.dz + b.dz);
-                      }
-                    }}
-                    style={{
-                      padding: '5px 3px',
-                      borderRadius: '3px',
-                      border: '1px solid rgba(0,242,255,0.4)',
-                      background: 'rgba(15, 23, 42, 0.85)',
-                      color: '#ecfeff',
-                      fontSize: '10px',
-                      fontFamily: 'var(--mono)',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {b.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {loadingState && (
         <div className="vp-loading">
@@ -3644,112 +3457,6 @@ export default function BoilerRoomViewport({
             )}
           </div>
         </>
-      )}
-
-      {/* Top-right Viewport Camera & 3DGS/CV Toolbar */}
-      {showWorkers && (
-      <div className="vp-toolbar">
-        {onViewModeChange && (
-          <>
-            <button
-              className={viewMode === 'splat' ? 'on' : ''}
-              onClick={() => onViewModeChange('splat')}
-              title="Photoreal 3D Gaussian Splatting (.spz) + CV OBB Wireframes"
-            >
-              3DGS Scan (.spz)
-            </button>
-            <button
-              className={viewMode === 'hybrid' ? 'on' : ''}
-              onClick={() => onViewModeChange('hybrid')}
-              title="Hybrid: Photoreal 3DGS Scan + Extracted 3D CAD Equipment"
-            >
-              Hybrid 3DGS+CAD
-            </button>
-            <button
-              className={viewMode === 'cad' ? 'on' : ''}
-              onClick={() => onViewModeChange('cad')}
-              title="Clean 3D CAD Facility Reconstruction"
-            >
-              Clean CAD
-            </button>
-          </>
-        )}
-
-        {onToggleCeilingCutaway && viewMode !== 'cad' && (
-          <button
-            className={ceilingCutaway ? 'on' : ''}
-            onClick={() => onToggleCeilingCutaway(!ceilingCutaway)}
-            title="Automatically cut away ceiling splats when viewing from above"
-          >
-            Ceiling Cutaway
-          </button>
-        )}
-
-        {onToggleShowAllCvDetections && (
-          <button
-            className={showAllCvDetections ? 'on' : ''}
-            onClick={() => onToggleShowAllCvDetections(!showAllCvDetections)}
-            title="Toggle between showing only the 30 bound Valmet asset OBBs vs all 441 CV-detected OBBs"
-          >
-            {showAllCvDetections ? 'All 441 CV OBBs: ON' : '30 Bound OBBs'}
-          </button>
-        )}
-
-        <button
-          className={moveMode ? 'on' : ''}
-          onClick={() => {
-            setMoveMode((m) => !m);
-            if (!moveMode && onToggleShowAllCvDetections && !showAllCvDetections) {
-              onToggleShowAllCvDetections(true);
-            }
-          }}
-          style={{
-            borderColor: moveMode ? '#00f2ff' : undefined,
-            background: moveMode ? '#0891b2' : undefined,
-            color: moveMode ? '#fff' : undefined,
-            fontWeight: moveMode ? 700 : undefined
-          }}
-          title="Click & drag any 3D object (Forklift, IBC Tote, Crated Unit, Workbench, Pump, Valve) to separate and move its 3D Gaussian Splats in real time"
-        >
-          {moveMode ? '✥ Move Objects: ON (Drag 3D)' : '✥ Move Objects'}
-        </button>
-
-        {Object.keys(objectMoves || {}).length > 0 && onResetCvMoves && (
-          <button
-            onClick={() => onResetCvMoves()}
-            style={{ borderColor: '#f59e0b', color: '#b45309', fontWeight: 600 }}
-            title="Reset all moved 3D objects back to their original scanned positions"
-          >
-            Reset Moves ({Object.keys(objectMoves).length})
-          </button>
-        )}
-
-        {onToggleExercisePaused && (
-          <button
-            className={exercisePaused ? 'on' : ''}
-            onClick={() => onToggleExercisePaused(!exercisePaused)}
-            title="Pause or resume simulation time to batch multiple faults"
-          >
-            {exercisePaused ? 'â–¶ Resume' : 'â¸ Pause'}
-          </button>
-        )}
-
-        <button
-          className={arFirstPersonMode ? 'on' : ''}
-          onClick={() => onToggleArFirstPerson(!arFirstPersonMode)}
-        >
-          {arFirstPersonMode ? 'Exit 1st-Person AR' : '1st-Person AR'}
-        </button>
-        <button onClick={handleFocusSelected}>
-          Focus {selectedAsset?.tag || 'Asset'}
-        </button>
-        <button onClick={handleInteriorCamera} title="Jump inside the 3DGS room scan">
-          Interior View
-        </button>
-        <button onClick={handleResetCamera} title="Top-down overview with automatic ceiling cutaway">
-          Overview
-        </button>
-      </div>
       )}
 
       {/* Bottom-left 2D Floor Occupancy & ESDF Minimap (ported from ahmad_branch) */}
@@ -4023,28 +3730,6 @@ export default function BoilerRoomViewport({
             );
           })()}
         </div>
-      )}
-
-      {/* Bottom-left Compact Legend */}
-      {showWorkers && (
-      <div className="vp-chip bottom-left">
-        <span>
-          <kbd>W</kbd>
-          <kbd>A</kbd>
-          <kbd>S</kbd>
-          <kbd>D</kbd> Drive Technician
-        </span>
-        <span>·</span>
-        <span>Click 3D OBB to inspect</span>
-        {exerciseMode && (
-          <>
-            <span>·</span>
-            <span>
-              Click worker + <kbd>Del</kbd> to remove
-            </span>
-          </>
-        )}
-      </div>
       )}
     </main>
   );

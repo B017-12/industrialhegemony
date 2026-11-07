@@ -480,9 +480,6 @@ export default function App() {
         if (found.cvObject?.object_id) {
           setSelectedCvObjectId(found.cvObject.object_id);
         }
-        if (appMode === 'technician') {
-          setIsRightPanelOpen(true);
-        }
       }
       return;
     }
@@ -490,9 +487,6 @@ export default function App() {
       setSelectedAssetId(assetOrId.asset_id);
       if (assetOrId.cvObject?.object_id) {
         setSelectedCvObjectId(assetOrId.cvObject.object_id);
-      }
-      if (appMode === 'technician') {
-        setIsRightPanelOpen(true);
       }
     }
   };
@@ -817,43 +811,6 @@ export default function App() {
           </div>
         </div>
       </header>
-
-      {/* ==================== ISA-101 ACTIVE ALARM STRIP (Technical Mode Only) ==================== */}
-      {appMode === 'technician' && (
-        <div className="alarm-strip" role="region" aria-label="Active process alarms">
-          <div className="alarm-strip-label">
-            <span className="sdot critical" />
-            <span>Active Alarms ({activeAlarms.length})</span>
-          </div>
-          <div className="alarm-items">
-            {activeAlarms.map((alarm) => {
-              const st = statusOf(alarm);
-              return (
-                <button
-                  key={alarm.asset_id}
-                  className="alarm-item"
-                  onClick={() => handleSelectAsset(alarm)}
-                  title={`${alarm.tag} — ${alarm.service_description}`}
-                >
-                  <span className={`sdot ${st.cls}`} />
-                  <span className="tag">{alarm.tag}</span>
-                  <span className="desc">{humanize(alarm.status_reason)}</span>
-                  <span className={`health ${st.cls} mono`}>{alarm.health_score}%</span>
-                </button>
-              );
-            })}
-          </div>
-          <button
-            className="view-all"
-            onClick={() => {
-              setActiveNav('alerts');
-              setIsLeftPanelOpen(true);
-            }}
-          >
-            Manage in Alerts ({allFaultedAndWatchAssets.length})
-          </button>
-        </div>
-      )}
 
       {/* ==================== WORKSPACE ==================== */}
       <div
@@ -1783,6 +1740,15 @@ export default function App() {
                       onChange={(e) => setShowStructuralBoxes(e.target.checked)}
                     />
                     <span>Show structural bay wireframes</span>
+                  </label>
+
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={arFirstPersonMode}
+                      onChange={(e) => setArFirstPersonMode(e.target.checked)}
+                    />
+                    <span>1st-Person Technician AR Visor &amp; Drive Pad</span>
                   </label>
                 </div>
               </div>
