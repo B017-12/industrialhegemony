@@ -21,6 +21,8 @@ from pydantic import BaseModel, Field
 
 from backend.ai.agent import answer, configured_model
 from backend.ai.schema import CopilotAnswer
+from backend.scene_edit.routes import router as scene_edit_router
+from backend.vision.routes import router as vision_router
 from pipeline.common import ROOT, WEB_ASSETS
 from pipeline.excel import PackStore
 
@@ -49,6 +51,8 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="Valmet SpatialSense backend", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
                    allow_methods=["*"], allow_headers=["*"])
+app.include_router(vision_router)
+app.include_router(scene_edit_router)
 
 
 def store() -> PackStore:

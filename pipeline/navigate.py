@@ -33,9 +33,20 @@ SAMPLE_STEP = 0.1
 class Nav:
     def __init__(self, path=DERIVED / "nav_grid.npz"):
         g = np.load(path)
-        self.origin, self.cell, self.floor_y = g["origin"], float(g["cell"]), float(g["floor_y"])
-        self.walkable, self.effective, self.skeleton = g["walkable"], g["effective"], g["skeleton"]
-        self.occ = {k: g[f"occ_{k}"] for k in BODY_BANDS}
+        self._setup(g["origin"], float(g["cell"]), float(g["floor_y"]), g["walkable"], g["effective"], g["skeleton"],
+                    {k: g[f"occ_{k}"] for k in BODY_BANDS})
+
+    @classmethod
+    def from_grids(cls, g: dict, skeleton: np.ndarray, floor_y: float, cell: float) -> "Nav":
+        """Build from rails.build_grids() output in memory (used by backend/scene_edit replanning)."""
+        nav = cls.__new__(cls)
+        nav._setup(g["origin"], cell, floor_y, g["walkable"], g["effective"], skeleton, g["occ"])
+        return nav
+
+    def _setup(self, origin, cell, floor_y, walkable, effective, skeleton, occ) -> None:
+        self.origin, self.cell, self.floor_y = origin, cell, floor_y
+        self.walkable, self.effective, self.skeleton = walkable, effective, skeleton
+        self.occ = occ
         d_rail = ndimage.distance_transform_edt(~self.skeleton) * self.cell
         cost = 1.0 + RAIL_PULL * d_rail + CLEARANCE_PULL / np.maximum(self.effective, 0.03)
         cost[~self.walkable] = np.inf
