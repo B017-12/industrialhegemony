@@ -130,15 +130,16 @@ export function clearStoredOverrides() {
 }
 
 /**
- * Loads all CV pipeline artifacts from /data/derived/ and /assets/evidence/
+ * Loads all CV pipeline artifacts from /assets/derived/ and /assets/evidence/
  */
 export async function fetchCvSceneBundle() {
-  const [sceneRes, ovRes, evIdxRes, metricsRes, navRes] = await Promise.all([
+  const [sceneRes, ovRes, evIdxRes, metricsRes, navRes, navTargetsRes] = await Promise.all([
     fetch('/assets/derived/scene_objects.json'),
     fetch('/assets/derived/labels_override.json'),
     fetch('/assets/evidence/index.json').catch(() => null),
     fetch('/assets/evidence/segmentation_metrics.json').catch(() => null),
-    fetch('/assets/derived/nav.json').catch(() => null)
+    fetch('/assets/derived/nav.json').catch(() => null),
+    fetch('/assets/derived/nav_targets.json').catch(() => null)
   ]);
 
   const baseSceneObjects = sceneRes.ok ? await sceneRes.json() : { objects: [], metres_per_unit: 1.2374 };
@@ -146,6 +147,7 @@ export async function fetchCvSceneBundle() {
   const evidenceFrames = evIdxRes && evIdxRes.ok ? await evIdxRes.json() : {};
   const segmentationMetrics = metricsRes && metricsRes.ok ? await metricsRes.json() : null;
   const navData = navRes && navRes.ok ? await navRes.json() : null;
+  const navTargets = navTargetsRes && navTargetsRes.ok ? await navTargetsRes.json() : null;
 
   const storedOverrides = loadStoredOverrides();
   const combinedOverrides = {
@@ -159,15 +161,63 @@ export async function fetchCvSceneBundle() {
     overridesMap: combinedOverrides,
     evidenceFrames,
     segmentationMetrics,
-    navData
+    navData,
+    navTargets
   };
 }
 
 /**
- * Synchronizes the 30 Valmet assets with their bound 3D CV OBBs from scene_objects.json
- * so every asset carries its real CV segmentation metadata, 3D OBB coordinates, and video evidence crop.
+ * 2D OBB footprint in display X-Z space (ported from ahmad_branch web/src/scene/mission.js)
  */
-export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames = {}) {
+export function cvObjectDisplayFootprint(object) {
+  const obb = object.obb ?? {
+    center: object.center,
+    extent: object.aabb_max.map((v, i) => Math.abs(v - object.aabb_min[i])),
+    rotation: [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ]
+  };
+  const dispCenter = rawToDisplay(obb.center);
+  const r = obb.rotation || [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1]
+  ];
+  // Under rawToDisplay [x, -y, -z], Z components negate
+  const ax = [r[0][0], -r[2][0]];
+  const az = [r[0][2], -r[2][2]];
+  const nx = Math.hypot(ax[0], ax[1]) || 1;
+  const nz = Math.hypot(az[0], az[1]) || 1;
+  return {
+    id: object.object_id,
+    asset_id: object.asset_id || null,
+    centre: [dispCenter[0], dispCenter[2]],
+    centerY: dispCenter[1],
+    heightY: obb.extent[1],
+    ax: [ax[0] / nx, ax[1] / nx],
+    az: [az[0] / nz, az[1] / nz],
+    half: [Math.max(0.08, obb.extent[0] * 0.5), Math.max(0.08, obb.extent[2] * 0.5)]
+  };
+}
+
+/**
+ * Horizontal distance in scene units from display point [x, y, z] to a 2D OBB footprint.
+ */
+export function footprintDistanceUnits(x, z, fp) {
+  const dx = x - fp.centre[0];
+  const dz = z - fp.centre[1];
+  const u = Math.max(Math.abs(dx * fp.ax[0] + dz * fp.ax[1]) - fp.half[0], 0);
+  const w = Math.max(Math.abs(dx * fp.az[0] + dz * fp.az[1]) - fp.half[1], 0);
+  return Math.hypot(u, w);
+}
+
+/**
+ * Synchronizes the 30 Valmet assets with their bound 3D CV OBBs from scene_objects.json
+ * and their ESDF collision-free approach poses from nav_targets.json.
+ */
+export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames = {}, navTargets = null) {
   if (!cvSceneObjects?.objects?.length) return assets;
 
   const boundByAssetId = new Map();
@@ -176,6 +226,13 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
       boundByAssetId.set(obj.asset_id, obj);
     }
   });
+
+  const navTargetByAssetId = new Map();
+  if (navTargets?.targets?.length) {
+    navTargets.targets.forEach((t) => {
+      if (t.asset_id) navTargetByAssetId.set(t.asset_id, t);
+    });
+  }
 
   return assets.map((asset) => {
     const cvObj = boundByAssetId.get(asset.asset_id);
@@ -189,10 +246,17 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
       Math.max(0.22, Number(extent[2].toFixed(3)))
     ];
 
+    const navTarget = navTargetByAssetId.get(asset.asset_id);
+    const approachDisp = navTarget?.approach?.position
+      ? rawToDisplay(navTarget.approach.position)
+      : asset.approach_point;
+
     const updatedAsset = {
       ...asset,
       position: dispCenter,
       bbox_size: bboxSize,
+      approach_point: approachDisp,
+      esdf_reachable: navTarget ? Boolean(navTarget.reachable) : true,
       cvObject: {
         object_id: cvObj.object_id,
         detected_class: cvObj.class,

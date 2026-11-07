@@ -29,7 +29,8 @@ import {
   computeAStarPath,
   INITIAL_FLEET_AGENTS,
   coordinateMultiAgentFleet,
-  buildCollisionBoxes
+  buildCollisionBoxes,
+  setCvNavigationData
 } from './utils/pathfinding.js';
 import {
   createInitialExerciseWorkers,
@@ -68,6 +69,8 @@ export default function App() {
   const [cvOverridesMap, setCvOverridesMap] = useState({});
   const [evidenceFrames, setEvidenceFrames] = useState({});
   const [cvMetrics, setCvMetrics] = useState(null);
+  const [navTargets, setNavTargets] = useState(null);
+  const [navData, setNavData] = useState(null);
   const [selectedCvObjectId, setSelectedCvObjectId] = useState('OBJ-0185');
 
   const cvSceneObjects = useMemo(
@@ -86,6 +89,8 @@ export default function App() {
         setCvOverridesMap(bundle.overridesMap);
         setEvidenceFrames(bundle.evidenceFrames);
         setCvMetrics(bundle.segmentationMetrics);
+        setNavTargets(bundle.navTargets);
+        setNavData(bundle.navData);
       })
       .catch((err) => {
         console.warn('Could not load CV scene bundle:', err);
@@ -95,14 +100,15 @@ export default function App() {
     };
   }, []);
 
-  // Synchronize the 30 Valmet assets with their bound 3D CV OBBs whenever CV overrides change
+  // Synchronize the 30 Valmet assets with their bound 3D CV OBBs & ESDF navigation whenever CV overrides change
   useEffect(() => {
     if (!cvSceneObjects?.objects?.length) return;
+    setCvNavigationData(cvSceneObjects, navTargets, navData);
     setPipeline((prev) => ({
       ...prev,
-      assets: syncAssetsWithCvObjects(prev.assets, cvSceneObjects, evidenceFrames)
+      assets: syncAssetsWithCvObjects(prev.assets, cvSceneObjects, evidenceFrames, navTargets)
     }));
-  }, [cvSceneObjects, evidenceFrames]);
+  }, [cvSceneObjects, evidenceFrames, navTargets, navData]);
 
   const handlePatchCvOverride = (patchMap) => {
     setCvOverridesMap((prev) => {
@@ -531,14 +537,14 @@ export default function App() {
             <path d="M12 14.5L16.5 6.5H19L12 19L5 6.5H7.5L12 14.5Z" fill="#7CD476" fillOpacity="0.65" />
           </svg>
           <span className="brand-word">VALMET</span>
-          <span className="brand-product">DNA SpatialSense · 3DGS + CV</span>
+          <span className="brand-product">DNA SpatialSense Â· 3DGS + CV</span>
         </div>
 
         <nav className="breadcrumb" aria-label="Plant hierarchy">
           <span>Kemi Mill</span>
-          <span>›</span>
+          <span>â€º</span>
           <span>Recovery &amp; Power</span>
-          <span>›</span>
+          <span>â€º</span>
           <select
             aria-label="Select 3D capture area"
             value={activeRoomScene}
@@ -547,8 +553,8 @@ export default function App() {
               setActiveRoomScene(e.target.value);
             }}
           >
-            <option value="equipment_room">Area 01 — Equipment Room (.spz)</option>
-            <option value="boiler_room">Area 02 — Boiler House (.spz)</option>
+            <option value="equipment_room">Area 01 â€” Equipment Room (.spz)</option>
+            <option value="boiler_room">Area 02 â€” Boiler House (.spz)</option>
           </select>
         </nav>
 
@@ -641,7 +647,7 @@ export default function App() {
                 key={alarm.asset_id}
                 className="alarm-item"
                 onClick={() => handleSelectAsset(alarm)}
-                title={`${alarm.tag} — ${alarm.service_description}`}
+                title={`${alarm.tag} â€” ${alarm.service_description}`}
               >
                 <span className={`sdot ${st.cls}`} />
                 <span className="tag">{alarm.tag}</span>
@@ -878,7 +884,7 @@ export default function App() {
                               )}
                               {w.state === 'WALKING_TO_FAULT' && (
                                 <span style={{ color: 'var(--info)' }}>
-                                  EN ROUTE → {w.targetTag}
+                                  EN ROUTE â†’ {w.targetTag}
                                   {w.trafficStatus === 'YIELDING'
                                     ? ' [YIELD]'
                                     : w.trafficStatus === 'PASSING_RIGHT'
@@ -893,7 +899,7 @@ export default function App() {
                               )}
                               {w.state === 'RETURNING' && (
                                 <span className="text-2">
-                                  RETURNING → Line
+                                  RETURNING â†’ Line
                                   {w.trafficStatus === 'YIELDING' ? ' [YIELD]' : ''}
                                 </span>
                               )}
@@ -957,17 +963,17 @@ export default function App() {
                             <span className="mono muted">{asset.asset_id}</span>
                             {asset.cvObject?.object_id && (
                               <span className="mono muted" style={{ fontSize: '10.5px' }}>
-                                · {asset.cvObject.object_id}
+                                Â· {asset.cvObject.object_id}
                               </span>
                             )}
                             <span className="spacer" />
                             <span className={`status ${st.cls}`}>
-                              {st.label} · {asset.health_score}%
+                              {st.label} Â· {asset.health_score}%
                             </span>
                           </div>
 
                           <div className="text-2" style={{ fontSize: '12px' }}>
-                            {asset.service_description} —{' '}
+                            {asset.service_description} â€”{' '}
                             <strong style={{ color: 'var(--text)' }}>
                               {humanize(asset.status_reason)}
                             </strong>
@@ -1027,7 +1033,7 @@ export default function App() {
                               >
                                 {exerciseWorkers.map((w) => (
                                   <option key={w.id} value={w.id}>
-                                    {w.id} ({w.type === 'human' ? 'Tech' : 'AMR'} · {w.state})
+                                    {w.id} ({w.type === 'human' ? 'Tech' : 'AMR'} Â· {w.state})
                                   </option>
                                 ))}
                               </select>
@@ -1358,7 +1364,7 @@ export default function App() {
                           <span className="mono" style={{ fontWeight: 600 }}>
                             {wo.wo_id}
                           </span>
-                          <span className="mono text-2">• {asset.tag}</span>
+                          <span className="mono text-2">â€¢ {asset.tag}</span>
                           <span className="spacer" />
                           <span className={`status ${st.cls}`}>{wo.priority}</span>
                         </div>
@@ -1437,10 +1443,10 @@ export default function App() {
                       }}
                     >
                       <option value="equipment_room">
-                        Area 01 — Equipment Room (.spz · 1.67M raw splats)
+                        Area 01 â€” Equipment Room (.spz Â· 1.67M raw splats)
                       </option>
                       <option value="boiler_room">
-                        Area 02 — Boiler House (.spz · 1.50M raw splats)
+                        Area 02 â€” Boiler House (.spz Â· 1.50M raw splats)
                       </option>
                     </select>
                   </div>

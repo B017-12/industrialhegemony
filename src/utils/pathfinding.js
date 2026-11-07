@@ -14,6 +14,92 @@
 import { VALMET_ASSETS } from '../data/valmetDataset.js';
 
 /**
+ * Room Front Entrance from ahmad_branch (nav_targets.json start_pose "front_entry"):
+ * Raw PLY [2.90541, 1.17269, 2.09514] -> Display [2.90541, -1.02, -2.09514]
+ */
+export const FRONT_ENTRY_POS = [2.90541, -1.02, -2.09514];
+export const FRONT_ENTRY_YAW = -0.46; // Facing into the room along the entrance corridor
+
+/**
+ * Dedicated ESDF-verified walkable staging slots at the Front Entrance ("front_entry" corridor)
+ */
+export const FRONT_ENTRY_SLOTS = [
+  [2.905, -1.02, -2.095], // Slot 0: W-01 right at front_entry
+  [2.743, -1.02, -1.681], // Slot 1: W-02 0.44m inside entrance corridor
+  [2.685, -1.02, -1.235], // Slot 2: R-01 0.88m inside entrance corridor
+  [3.065, -1.02, -2.355], // Slot 3: W-03 at front_entry threshold
+  [2.515, -1.02, -0.845], // Slot 4: Extra technician slot
+  [2.295, -1.02, -0.525], // Slot 5: Extra technician slot
+  [1.985, -1.02, -0.285], // Slot 6: Extra technician slot
+  [1.645, -1.02, -0.145]  // Slot 7: Extra technician slot
+];
+
+// Live CV OBB Footprints & Precomputed ESDF Nav Targets from ahmad_branch
+let CV_OBB_FOOTPRINTS = [];
+let CV_NAV_TARGETS = null;
+let CV_NAV_DATA = null;
+
+/**
+ * Registers the 441 CV-segmented 3D OBBs (scene_objects.json) and ESDF navigation (nav_targets.json)
+ * from ahmad_branch so all pathfinding and WASD/worker collision checks respect every physical room object.
+ */
+export function setCvNavigationData(cvSceneObjects, navTargets = null, navData = null) {
+  if (navTargets) CV_NAV_TARGETS = navTargets;
+  if (navData) CV_NAV_DATA = navData;
+
+  if (!cvSceneObjects?.objects?.length) return;
+  const footprints = [];
+
+  for (const obj of cvSceneObjects.objects) {
+    if (obj.source === 'structure_plane' || obj.review_status === 'rejected' || obj.merged_into) {
+      continue;
+    }
+    const obb = obj.obb ?? {
+      center: obj.center,
+      extent: obj.aabb_max.map((v, i) => Math.abs(v - obj.aabb_min[i])),
+      rotation: [
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+      ]
+    };
+    // Raw PLY floor_y = 1.17269 (y-down). Obstacle band from navigation.py is [0.12m, 1.8m] above floor.
+    // Convert to display Y (-rawY): floor is at -1.173; obstacle band is [-1.07, +0.35].
+    const dispY = -obb.center[1];
+    const halfY = (obb.extent[1] || 0.3) * 0.5;
+    const bottomY = dispY - halfY;
+    const topY = dispY + halfY;
+    if (bottomY > 0.35 || topY < -1.08) continue;
+
+    const r = obb.rotation || [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ];
+    // Under rawToDisplay [x, -y, -z], horizontal axes in (x, z):
+    const ax = [r[0][0], -r[2][0]];
+    const az = [r[0][2], -r[2][2]];
+    const nx = Math.hypot(ax[0], ax[1]) || 1;
+    const nz = Math.hypot(az[0], az[1]) || 1;
+
+    footprints.push({
+      id: obj.object_id,
+      asset_id: obj.asset_id || null,
+      centre: [obb.center[0], -obb.center[2]],
+      ax: [ax[0] / nx, ax[1] / nx],
+      az: [az[0] / nz, az[1] / nz],
+      half: [Math.max(0.06, obb.extent[0] * 0.5), Math.max(0.06, obb.extent[2] * 0.5)]
+    });
+  }
+
+  CV_OBB_FOOTPRINTS = footprints;
+}
+
+export function getCvObbFootprints() {
+  return CV_OBB_FOOTPRINTS;
+}
+
+/**
  * Static room furniture/structures in `BoilerRoomViewport.jsx` that act as physical colliders
  */
 export const STATIC_ROOM_OBSTACLES = [
@@ -90,9 +176,22 @@ export function buildCollisionBoxes(assets = VALMET_ASSETS) {
 }
 
 /**
- * Checks whether a 2D circle at (x, z) with `radius` overlaps any obstacle AABB.
+ * Checks whether a 2D circle at (x, z) with `radius` overlaps any CV OBB footprint or obstacle AABB.
  */
-export function isPointInObstacle(x, z, radius = 0.24, obstacles = null, ignoreId = null) {
+export function isPointInObstacle(x, z, radius = 0.22, obstacles = null, ignoreId = null) {
+  // 1. Check oriented 2D OBB footprints from ahmad_branch scene_objects.json
+  for (const fp of CV_OBB_FOOTPRINTS) {
+    if (ignoreId && (fp.id === ignoreId || fp.asset_id === ignoreId)) continue;
+    const dx = x - fp.centre[0];
+    const dz = z - fp.centre[1];
+    const u = Math.abs(dx * fp.ax[0] + dz * fp.ax[1]);
+    const w = Math.abs(dx * fp.az[0] + dz * fp.az[1]);
+    if (u < fp.half[0] + radius && w < fp.half[1] + radius) {
+      return fp;
+    }
+  }
+
+  // 2. Check fallback AABB list
   const list = obstacles || buildCollisionBoxes();
   for (const b of list) {
     if (ignoreId && b.id === ignoreId) continue;
@@ -109,81 +208,114 @@ export function isPointInObstacle(x, z, radius = 0.24, obstacles = null, ignoreI
 }
 
 /**
- * Resolves circle-vs-AABB collisions for manual WASD walking and path vertices.
- * Pushes (x, z) outside any overlapping equipment bounding box along the minimum penetration axis
- * (enabling smooth sliding along equipment housings and room walls).
+ * Resolves circle-vs-OBB and circle-vs-AABB collisions (ported from ahmad_branch mission.js footprint math).
+ * Pushes (x, z) outside any overlapping 3D CV OBB along the minimum penetration oriented axis.
  */
 export function resolveObstacleCollisions(
   x,
   z,
-  radius = 0.25,
+  radius = 0.22,
   obstacles = null,
   prevX = null,
   prevZ = null
 ) {
   const list = obstacles || buildCollisionBoxes();
-  let nx = Math.max(-5.1, Math.min(5.1, x));
-  let nz = Math.max(-1.1, Math.min(3.45, z));
+  let nx = Math.max(-4.8, Math.min(4.8, x));
+  let nz = Math.max(-3.6, Math.min(3.6, z));
 
-  for (let pass = 0; pass < 5; pass++) {
+  for (let pass = 0; pass < 6; pass++) {
     let hitAny = false;
-    for (const b of list) {
-      const minX = b.minX - radius;
-      const maxX = b.maxX + radius;
-      const minZ = b.minZ - radius;
-      const maxZ = b.maxZ + radius;
 
-      if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
+    // 1. Resolve against all 441 CV OBB oriented footprints (exact OBB axis projection)
+    for (const fp of CV_OBB_FOOTPRINTS) {
+      const dx = nx - fp.centre[0];
+      const dz = nz - fp.centre[1];
+      const u = dx * fp.ax[0] + dz * fp.ax[1];
+      const w = dx * fp.az[0] + dz * fp.az[1];
+      const hu = fp.half[0] + radius;
+      const hw = fp.half[1] + radius;
+
+      if (Math.abs(u) < hu && Math.abs(w) < hw) {
         hitAny = true;
-        const dLeft = nx - minX;
-        const dRight = maxX - nx;
-        const dFront = nz - minZ;
-        const dBack = maxZ - nz;
-
-        const minPen = Math.min(dLeft, dRight, dFront, dBack);
-        const eps = 0.008;
-        if (minPen === dLeft) nx = minX - eps;
-        else if (minPen === dRight) nx = maxX + eps;
-        else if (minPen === dFront) nz = minZ - eps;
-        else nz = maxZ + eps;
+        const penU = hu - Math.abs(u) + 0.008;
+        const penW = hw - Math.abs(w) + 0.008;
+        if (penU <= penW) {
+          const signU = u >= 0 ? 1 : -1;
+          nx += fp.ax[0] * signU * penU;
+          nz += fp.ax[1] * signU * penU;
+        } else {
+          const signW = w >= 0 ? 1 : -1;
+          nx += fp.az[0] * signW * penW;
+          nz += fp.az[1] * signW * penW;
+        }
       }
     }
+
+    // 2. If no CV OBBs loaded yet, resolve against AABBs
+    if (CV_OBB_FOOTPRINTS.length === 0) {
+      for (const b of list) {
+        const minX = b.minX - radius;
+        const maxX = b.maxX + radius;
+        const minZ = b.minZ - radius;
+        const maxZ = b.maxZ + radius;
+
+        if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
+          hitAny = true;
+          const dLeft = nx - minX;
+          const dRight = maxX - nx;
+          const dFront = nz - minZ;
+          const dBack = maxZ - nz;
+
+          const minPen = Math.min(dLeft, dRight, dFront, dBack);
+          const eps = 0.008;
+          if (minPen === dLeft) nx = minX - eps;
+          else if (minPen === dRight) nx = maxX + eps;
+          else if (minPen === dFront) nz = minZ - eps;
+          else nz = maxZ + eps;
+        }
+      }
+    }
+
     if (!hitAny) break;
   }
 
-  // If still wedged between two touching boxes and previous valid position is provided, revert axis
-  if (prevX !== null && prevZ !== null && isPointInObstacle(nx, nz, radius * 0.85, list)) {
+  // If still wedged between two touching boxes and previous valid position is provided, slide along open axis
+  if (prevX !== null && prevZ !== null && isPointInObstacle(nx, nz, radius * 0.8, list)) {
     const tryX = resolveSingleStep(x, prevZ, radius, list);
-    if (!isPointInObstacle(tryX[0], tryX[1], radius * 0.85, list)) return tryX;
+    if (!isPointInObstacle(tryX[0], tryX[1], radius * 0.8, list)) return tryX;
     const tryZ = resolveSingleStep(prevX, z, radius, list);
-    if (!isPointInObstacle(tryZ[0], tryZ[1], radius * 0.85, list)) return tryZ;
+    if (!isPointInObstacle(tryZ[0], tryZ[1], radius * 0.8, list)) return tryZ;
     return [prevX, prevZ];
   }
 
   return [
-    Math.max(-5.1, Math.min(5.1, nx)),
-    Math.max(-1.1, Math.min(3.45, nz))
+    Math.max(-4.8, Math.min(4.8, nx)),
+    Math.max(-3.6, Math.min(3.6, nz))
   ];
 }
 
 function resolveSingleStep(x, z, radius, list) {
   let nx = x;
   let nz = z;
-  for (const b of list) {
-    const minX = b.minX - radius;
-    const maxX = b.maxX + radius;
-    const minZ = b.minZ - radius;
-    const maxZ = b.maxZ + radius;
-    if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
-      const dLeft = nx - minX;
-      const dRight = maxX - nx;
-      const dFront = nz - minZ;
-      const dBack = maxZ - nz;
-      const m = Math.min(dLeft, dRight, dFront, dBack);
-      if (m === dLeft) nx = minX - 0.01;
-      else if (m === dRight) nx = maxX + 0.01;
-      else if (m === dFront) nz = minZ - 0.01;
-      else nz = maxZ + 0.01;
+  for (const fp of CV_OBB_FOOTPRINTS) {
+    const dx = nx - fp.centre[0];
+    const dz = nz - fp.centre[1];
+    const u = dx * fp.ax[0] + dz * fp.ax[1];
+    const w = dx * fp.az[0] + dz * fp.az[1];
+    const hu = fp.half[0] + radius;
+    const hw = fp.half[1] + radius;
+    if (Math.abs(u) < hu && Math.abs(w) < hw) {
+      const penU = hu - Math.abs(u) + 0.01;
+      const penW = hw - Math.abs(w) + 0.01;
+      if (penU <= penW) {
+        const signU = u >= 0 ? 1 : -1;
+        nx += fp.ax[0] * signU * penU;
+        nz += fp.ax[1] * signU * penU;
+      } else {
+        const signW = w >= 0 ? 1 : -1;
+        nx += fp.az[0] * signW * penW;
+        nz += fp.az[1] * signW * penW;
+      }
     }
   }
   return [nx, nz];
@@ -225,34 +357,34 @@ export function segmentIntersectsBox(ax, az, bx, bz, box, margin = 0.20) {
 }
 
 /**
- * Open-Aisle Centerline Waypoint Graph (`NAV_NODES`)
- * Every node is positioned in verified unobstructed corridor space.
+ * Open-Aisle Centerline Waypoint Graph (`NAV_NODES`) aligned with ahmad_branch's ESDF walkable floor
+ * and starting at the Front Entrance (`front_entry`: [2.905, -1.02, -2.095]).
  */
 export const NAV_NODES = [
-  // Entry & Tool Crib Hub
-  { id: 'N-ENTRY', label: 'Tool Crib & LOTO Entry', pos: [0.00, -1.02, -0.25], clearance: 1.85 },
+  // Front Entrance ("front_entry" from ahmad_branch nav_targets.json)
+  { id: 'N-ENTRY', label: 'Front Entrance (front_entry)', pos: [2.905, -1.02, -2.095], clearance: 1.85 },
 
-  // South Main Corridor Rail (z = 0.22 — completely clear across entire room width)
-  { id: 'N-S-WEST2', label: 'West Perimeter South', pos: [-4.40, -1.02, 0.22], clearance: 1.50 },
-  { id: 'N-S-WEST1', label: 'South-West Feedwater Aisle', pos: [-1.20, -1.02, 0.22], clearance: 1.65 },
-  { id: 'N-S-CENTER', label: 'Central Boiler Floor Hub', pos: [0.00, -1.02, 0.22], clearance: 1.80 },
-  { id: 'N-S-EAST1', label: 'South-East Pump Aisle', pos: [1.85, -1.02, 0.22], clearance: 1.65 },
-  { id: 'N-S-EAST2', label: 'East Perimeter South', pos: [4.42, -1.02, 0.22], clearance: 1.55 },
+  // South-East Entrance Corridor into Main Walkable Floor
+  { id: 'N-S-WEST2', label: 'West Walkable Aisle South', pos: [-1.45, -1.02, -0.45], clearance: 1.50 },
+  { id: 'N-S-WEST1', label: 'West Feedwater Aisle', pos: [-0.85, -1.02, -0.55], clearance: 1.65 },
+  { id: 'N-S-CENTER', label: 'Central Walkable Floor Hub', pos: [0.65, -1.02, -0.35], clearance: 1.80 },
+  { id: 'N-S-EAST1', label: 'Entrance Approach Corridor', pos: [2.45, -1.02, -0.95], clearance: 1.65 },
+  { id: 'N-S-EAST2', label: 'East Walkable Bay', pos: [1.81, -1.02, -0.95], clearance: 1.55 },
 
-  // Mid Corridor Rail
-  { id: 'N-M-WEST2', label: 'West Perimeter Mid Aisle', pos: [-4.40, -1.02, 1.35], clearance: 1.40 },
-  { id: 'N-M-WEST1', label: 'CV-003 East Inspection Aisle', pos: [-1.18, -1.02, 1.15], clearance: 1.45 },
-  { id: 'N-M-STEP', label: 'Elevated Catwalk Step (Stairs)', pos: [-0.55, -0.82, 1.15], clearance: 0.78 },
-  { id: 'N-M-CENTER', label: 'Central Spine Mid Aisle', pos: [0.15, -1.02, 1.25], clearance: 1.45 },
-  { id: 'N-M-EAST1', label: 'Main Pump Skid South Bay', pos: [1.85, -1.02, 1.15], clearance: 1.45 },
-  { id: 'N-M-EAST2', label: 'East Perimeter Pump Aisle (P-005)', pos: [4.42, -1.02, 1.85], clearance: 1.45 },
+  // Mid Corridor Rail (ESDF verified free space)
+  { id: 'N-M-WEST2', label: 'West Mid Aisle', pos: [-1.55, -1.02, 0.35], clearance: 1.40 },
+  { id: 'N-M-WEST1', label: 'Pump P-002 Approach Aisle', pos: [-1.24, -1.02, -0.79], clearance: 1.45 },
+  { id: 'N-M-STEP', label: 'Elevated Catwalk Step (Stairs)', pos: [-0.55, -0.82, 0.45], clearance: 0.78 },
+  { id: 'N-M-CENTER', label: 'Central Spine Mid Aisle', pos: [0.35, -1.02, 0.35], clearance: 1.45 },
+  { id: 'N-M-EAST1', label: 'Main Pump P-005 Aisle', pos: [1.15, -1.02, -0.25], clearance: 1.45 },
+  { id: 'N-M-EAST2', label: 'East Perimeter Pump Aisle', pos: [1.75, -1.02, 0.35], clearance: 1.45 },
 
   // North Corridor Rail
-  { id: 'N-N-WEST2', label: 'Aux Loop North-West Bay (M-006)', pos: [-1.95, -1.02, 2.08], clearance: 1.35 },
-  { id: 'N-N-WEST1', label: 'North-West Valve Aisle (CV-009)', pos: [-1.18, -1.02, 2.35], clearance: 1.40 },
-  { id: 'N-N-CENTER', label: 'North Boiler Drum Aisle', pos: [-0.05, -1.02, 2.52], clearance: 1.45 },
-  { id: 'N-N-EAST1', label: 'North-East Skid Aisle (P-002)', pos: [1.92, -1.02, 2.56], clearance: 1.45 },
-  { id: 'N-N-EAST2', label: 'East Perimeter North Corner', pos: [4.42, -1.02, 2.56], clearance: 1.40 }
+  { id: 'N-N-WEST2', label: 'Aux Loop North-West Bay (M-006)', pos: [-1.35, -1.02, 1.25], clearance: 1.35 },
+  { id: 'N-N-WEST1', label: 'North-West Valve Aisle (CV-009)', pos: [-0.85, -1.02, 1.35], clearance: 1.40 },
+  { id: 'N-N-CENTER', label: 'North Boiler Drum Aisle', pos: [-0.05, -1.02, 1.35], clearance: 1.45 },
+  { id: 'N-N-EAST1', label: 'North-East Skid Aisle', pos: [0.95, -1.02, 1.15], clearance: 1.45 },
+  { id: 'N-N-EAST2', label: 'East Perimeter North Corner', pos: [1.55, -1.02, 1.15], clearance: 1.40 }
 ];
 
 export const NAV_EDGES = [
@@ -455,7 +587,64 @@ export function generateZigZagComparisonPoints(rawPoints, obstacles = null) {
 }
 
 /**
- * Computes collision-free A* path along pre-baked Centerline Rails for 'human' or 'robot' profile.
+ * Looks up the exact precomputed ESDF collision-free path from ahmad_branch's nav_targets.json
+ * starting from `front_entry` ([2.905, -1.02, -2.095]) and ending at the target asset's standoff pose.
+ */
+export function lookupEsdfTargetPath(targetPoint3D, startPoint3D = null) {
+  if (!CV_NAV_TARGETS?.targets?.length || !targetPoint3D) return null;
+
+  const reachableEntries = CV_NAV_TARGETS.targets.filter(
+    (t) => t.reachable && t.mission?.path?.length >= 2 && t.approach?.position
+  );
+  if (!reachableEntries.length) return null;
+
+  // Find the reachable ESDF target closest in 2D X-Z to targetPoint3D
+  let bestEntry = reachableEntries[0];
+  let bestDist = Infinity;
+
+  for (const entry of reachableEntries) {
+    const appDisp = [entry.approach.position[0], -1.02, -entry.approach.position[2]];
+    const dApp = Math.hypot(appDisp[0] - targetPoint3D[0], appDisp[2] - targetPoint3D[2]);
+    if (dApp < bestDist) {
+      bestDist = dApp;
+      bestEntry = entry;
+    }
+  }
+
+  // Convert raw PLY path [rx, ry, rz] -> display [rx, -1.02, -rz]
+  let dispPath = bestEntry.mission.path.map((p) => [
+    Number(p[0].toFixed(4)),
+    -1.02,
+    Number((-p[2]).toFixed(4))
+  ]);
+
+  // If worker starts from a specific staging slot near front_entry, smoothly join the ESDF path
+  if (Array.isArray(startPoint3D)) {
+    const dToStart = Math.hypot(startPoint3D[0] - dispPath[0][0], startPoint3D[2] - dispPath[0][2]);
+    if (dToStart > 0.05 && dToStart < 1.65) {
+      const searchLimit = Math.max(2, Math.floor(dispPath.length * 0.35));
+      let joinIdx = 0;
+      let joinDist = Infinity;
+      for (let i = 0; i < searchLimit; i++) {
+        const d = Math.hypot(startPoint3D[0] - dispPath[i][0], startPoint3D[2] - dispPath[i][2]);
+        if (d < joinDist) {
+          joinDist = d;
+          joinIdx = i;
+        }
+      }
+      dispPath = [[startPoint3D[0], -1.02, startPoint3D[2]], ...dispPath.slice(joinIdx)];
+    }
+  }
+
+  return {
+    entry: bestEntry,
+    points: dispPath
+  };
+}
+
+/**
+ * Computes collision-free path using ahmad_branch's ESDF Theta* trajectories (`nav_targets.json`)
+ * and 441-OBB footprint deflection for 'human' or 'robot' profile.
  */
 export function computeAStarPath(
   startNodeOrPoint,
@@ -467,6 +656,37 @@ export function computeAStarPath(
 ) {
   const t0 = performance.now();
   const obstacles = buildCollisionBoxes();
+
+  // 1. Use ahmad_branch's precomputed ESDF collision-free path when available and no manual hazard overrides
+  if (CV_NAV_TARGETS?.targets?.length && (!hazardNodeIds || hazardNodeIds.length === 0)) {
+    const customStart = Array.isArray(startNodeOrPoint) ? startNodeOrPoint : FRONT_ENTRY_POS;
+    const esdfMatch = lookupEsdfTargetPath(targetPoint3D, customStart);
+    if (esdfMatch?.points?.length >= 2) {
+      const points =
+        railMode === 'zigzag_grid'
+          ? generateZigZagComparisonPoints(esdfMatch.points, obstacles)
+          : esdfMatch.points;
+      let totalDist = 0;
+      for (let i = 1; i < points.length; i++) {
+        totalDist += euclidean3D(points[i - 1], points[i]);
+      }
+      const elapsedMs = Math.max(0.3, performance.now() - t0);
+      return {
+        reachable: true,
+        profile,
+        railMode,
+        nodeIds: ['N-ENTRY', 'N-S-EAST1', 'N-S-CENTER'],
+        rawWaypoints: esdfMatch.points,
+        points,
+        distanceMeters: Number((totalDist * 1.2374).toFixed(2)),
+        computeTimeMs: Number(elapsedMs.toFixed(2)),
+        usedStairs: false,
+        avoidedHazards: 0,
+        esdfClearanceM: esdfMatch.entry?.approach?.clearance_m ?? 0.35
+      };
+    }
+  }
+
   const safeTarget = computeSafeStandOffPoint(targetPoint3D, obstacles);
   const nodeMap = new Map(NAV_NODES.map((n) => [n.id, n]));
   const goalNode = findNearestNode(safeTarget, hazardNodeIds, obstacles);
