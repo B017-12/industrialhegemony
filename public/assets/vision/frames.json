@@ -1,0 +1,1135 @@
+{
+ "schema_version": 1,
+ "source_video": "Industrial Boiler Room (1).mp4",
+ "note": "Frames hand-picked from the scan video (sharpest within +-0.45 s). Regions drawn by hand. Camera centres come from Ahmad's COLMAP->ply_raw alignment (frame name ~ 3 per second); orientation is not available, so 'near' means captured near, not necessarily facing. 'proposed' is a draft reading by Claude; 'gt' is filled only by a human and is the only thing accuracy is measured on.",
+ "frames": [
+  {
+   "frame_id": "FRM-001",
+   "file": "/assets/vision/frames/FRM-001.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 1.42,
+   "camera": {
+    "ahmad_frame": "frame_00005.jpg",
+    "centre_raw": [
+     2.3159,
+     -0.2419,
+     -0.2329
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-001-R01",
+     "bbox_px": [
+      330,
+      290,
+      485,
+      370
+     ],
+     "kind": "pump",
+     "description": "Grundfos twin-head circulator on the west wall manifold",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-001-R02",
+     "bbox_px": [
+      395,
+      385,
+      485,
+      455
+     ],
+     "kind": "manual_valve",
+     "description": "Blue cast valve body below the circulator",
+     "object_id": "OBJ-0183",
+     "asset_id": null,
+     "link_method": "evidence_projection",
+     "link_confidence": 0.5,
+     "proposed": null,
+     "gt": null,
+     "note": "Ahmad's frame_00008 projection of OBJ-0183 (segmentation called it pump-like)"
+    },
+    {
+     "region_id": "FRM-001-R03",
+     "bbox_px": [
+      520,
+      275,
+      600,
+      340
+     ],
+     "kind": "pump",
+     "description": "Small red circulator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-001-R04",
+     "bbox_px": [
+      400,
+      525,
+      475,
+      590
+     ],
+     "kind": "control_valve",
+     "description": "Cyan zone-valve actuator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-001-R05",
+     "bbox_px": [
+      565,
+      440,
+      605,
+      478
+     ],
+     "kind": "control_valve",
+     "description": "Cyan zone-valve actuator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-001-R06",
+     "bbox_px": [
+      1075,
+      180,
+      1150,
+      240
+     ],
+     "kind": "manual_valve",
+     "description": "Ball valve with blue lever on the red riser",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-002",
+   "file": "/assets/vision/frames/FRM-002.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 10.75,
+   "camera": {
+    "ahmad_frame": "frame_00033.jpg",
+    "centre_raw": [
+     0.7322,
+     -0.2021,
+     -1.7359
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-002-R01",
+     "bbox_px": [
+      40,
+      420,
+      215,
+      505
+     ],
+     "kind": "manual_valve",
+     "description": "Gate valve with purple handwheel",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": {
+      "state": "unknown",
+      "by": "claude-draft"
+     },
+     "gt": null,
+     "note": "handwheel valves show no open/closed cue from outside"
+    },
+    {
+     "region_id": "FRM-002-R02",
+     "bbox_px": [
+      75,
+      505,
+      170,
+      565
+     ],
+     "kind": "manual_valve",
+     "description": "Small valve with red handwheel",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": {
+      "state": "unknown",
+      "by": "claude-draft"
+     },
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-002-R03",
+     "bbox_px": [
+      690,
+      335,
+      950,
+      415
+     ],
+     "kind": "pump",
+     "description": "Inline pumps behind the pallet truck (occluded)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-003",
+   "file": "/assets/vision/frames/FRM-003.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 14.55,
+   "camera": {
+    "ahmad_frame": "frame_00045.jpg",
+    "centre_raw": [
+     -0.6482,
+     -0.1869,
+     -2.512
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-003-R01",
+     "bbox_px": [
+      850,
+      315,
+      925,
+      470
+     ],
+     "kind": "pump",
+     "description": "Vertical inline pump (left)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-003-R02",
+     "bbox_px": [
+      915,
+      335,
+      1010,
+      530
+     ],
+     "kind": "pump",
+     "description": "Vertical inline pump (right)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-003-R03",
+     "bbox_px": [
+      735,
+      425,
+      800,
+      545
+     ],
+     "kind": "manual_valve",
+     "description": "Blue valve on the pump suction",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-004",
+   "file": "/assets/vision/frames/FRM-004.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 18.35,
+   "camera": {
+    "ahmad_frame": "frame_00056.jpg",
+    "centre_raw": [
+     -2.0043,
+     -0.1603,
+     -2.5023
+    ],
+    "orientation": null
+   },
+   "regions": []
+  },
+  {
+   "frame_id": "FRM-005",
+   "file": "/assets/vision/frames/FRM-005.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 22.08,
+   "camera": {
+    "ahmad_frame": "frame_00067.jpg",
+    "centre_raw": [
+     -2.6803,
+     -0.1336,
+     -1.3126
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-005-R01",
+     "bbox_px": [
+      645,
+      320,
+      795,
+      500
+     ],
+     "kind": "pump",
+     "description": "Red circulator on a vertical copper line",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-005-R02",
+     "bbox_px": [
+      675,
+      145,
+      750,
+      300
+     ],
+     "kind": "manual_valve",
+     "description": "Brass valve above the circulator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-005-R03",
+     "bbox_px": [
+      870,
+      280,
+      905,
+      400
+     ],
+     "kind": "gauge",
+     "description": "Vertical flow indicator / sight glass",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-006",
+   "file": "/assets/vision/frames/FRM-006.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 36.35,
+   "camera": {
+    "ahmad_frame": "frame_00110.jpg",
+    "centre_raw": [
+     -3.9925,
+     -0.1224,
+     0.6801
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-006-R01",
+     "bbox_px": [
+      775,
+      125,
+      840,
+      240
+     ],
+     "kind": "control_valve",
+     "description": "Orange valve actuator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-006-R02",
+     "bbox_px": [
+      905,
+      125,
+      1000,
+      210
+     ],
+     "kind": "control_valve",
+     "description": "Black valve actuator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-006-R03",
+     "bbox_px": [
+      1030,
+      285,
+      1220,
+      425
+     ],
+     "kind": "pump",
+     "description": "Red pump next to the heat exchanger",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-007",
+   "file": "/assets/vision/frames/FRM-007.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 50.42,
+   "camera": {
+    "ahmad_frame": "frame_00152.jpg",
+    "centre_raw": [
+     -3.8592,
+     -0.1801,
+     1.6743
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-007-R01",
+     "bbox_px": [
+      315,
+      120,
+      425,
+      165
+     ],
+     "kind": "manual_valve",
+     "description": "Ball valve, white/red lever, vertical pipe",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": {
+      "state": "closed",
+      "by": "claude-draft"
+     },
+     "gt": null,
+     "note": "lever looks perpendicular to the pipe"
+    },
+    {
+     "region_id": "FRM-007-R02",
+     "bbox_px": [
+      500,
+      125,
+      585,
+      180
+     ],
+     "kind": "manual_valve",
+     "description": "Brass ball valve with blue lever (left riser)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-007-R03",
+     "bbox_px": [
+      625,
+      125,
+      690,
+      225
+     ],
+     "kind": "manual_valve",
+     "description": "Brass ball valve with blue lever (right riser)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": {
+      "state": "open",
+      "by": "claude-draft"
+     },
+     "gt": null,
+     "note": "lever looks parallel to the pipe"
+    },
+    {
+     "region_id": "FRM-007-R04",
+     "bbox_px": [
+      385,
+      315,
+      470,
+      395
+     ],
+     "kind": "pump",
+     "description": "Small red circulator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-008",
+   "file": "/assets/vision/frames/FRM-008.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 55.68,
+   "camera": {
+    "ahmad_frame": "frame_00168.jpg",
+    "centre_raw": [
+     -2.9424,
+     -0.1766,
+     2.2589
+    ],
+    "orientation": null
+   },
+   "regions": []
+  },
+  {
+   "frame_id": "FRM-009",
+   "file": "/assets/vision/frames/FRM-009.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 69.15,
+   "camera": {
+    "ahmad_frame": "frame_00208.jpg",
+    "centre_raw": [
+     0.8601,
+     -0.1542,
+     2.8222
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-009-R01",
+     "bbox_px": [
+      660,
+      185,
+      700,
+      245
+     ],
+     "kind": "gauge",
+     "description": "Pressure gauge on brass siphon",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-009-R02",
+     "bbox_px": [
+      970,
+      200,
+      1010,
+      240
+     ],
+     "kind": "gauge",
+     "description": "Pressure gauge on the header",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-009-R03",
+     "bbox_px": [
+      845,
+      190,
+      915,
+      270
+     ],
+     "kind": "manual_valve",
+     "description": "Lever valve on the header",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-010",
+   "file": "/assets/vision/frames/FRM-010.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 72.28,
+   "camera": {
+    "ahmad_frame": "frame_00218.jpg",
+    "centre_raw": [
+     2.1872,
+     -0.1994,
+     2.8027
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-010-R01",
+     "bbox_px": [
+      430,
+      400,
+      560,
+      520
+     ],
+     "kind": "manual_valve",
+     "description": "Lever valve on the header (angled lever)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": "angled bar: lever or instrument well, unclear"
+    },
+    {
+     "region_id": "FRM-010-R02",
+     "bbox_px": [
+      630,
+      390,
+      695,
+      450
+     ],
+     "kind": "gauge",
+     "description": "Pressure gauge on the header",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-010-R03",
+     "bbox_px": [
+      395,
+      570,
+      600,
+      625
+     ],
+     "kind": "manual_valve",
+     "description": "Ball valve with long lever below the header",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": {
+      "state": "open",
+      "by": "claude-draft"
+     },
+     "gt": null,
+     "note": "lever looks parallel to the pipe"
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-011",
+   "file": "/assets/vision/frames/FRM-011.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 84.88,
+   "camera": {
+    "ahmad_frame": "frame_00256.jpg",
+    "centre_raw": [
+     2.1797,
+     -0.1178,
+     -1.0195
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-011-R01",
+     "bbox_px": [
+      150,
+      110,
+      230,
+      165
+     ],
+     "kind": "control_valve",
+     "description": "Two orange valve actuators",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-011-R02",
+     "bbox_px": [
+      925,
+      145,
+      980,
+      245
+     ],
+     "kind": "control_valve",
+     "description": "Orange actuator on a green valve",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-011-R03",
+     "bbox_px": [
+      1000,
+      150,
+      1055,
+      230
+     ],
+     "kind": "control_valve",
+     "description": "Orange valve actuator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-012",
+   "file": "/assets/vision/frames/FRM-012.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 89.95,
+   "camera": {
+    "ahmad_frame": "frame_00271.jpg",
+    "centre_raw": [
+     0.722,
+     -0.1338,
+     -0.1926
+    ],
+    "orientation": null
+   },
+   "regions": []
+  },
+  {
+   "frame_id": "FRM-013",
+   "file": "/assets/vision/frames/FRM-013.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 93.55,
+   "camera": {
+    "ahmad_frame": "frame_00282.jpg",
+    "centre_raw": [
+     -0.7687,
+     -0.1064,
+     0.5219
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-013-R01",
+     "bbox_px": [
+      600,
+      195,
+      790,
+      345
+     ],
+     "kind": "pump",
+     "description": "Grundfos twin pump, left head",
+     "object_id": "OBJ-0185",
+     "asset_id": "ASSET-014",
+     "link_method": "evidence_projection",
+     "link_confidence": 0.4,
+     "proposed": null,
+     "gt": null,
+     "note": "Ahmad's frame_00279 box for OBJ-0185 lands just below this head (projection drift)"
+    },
+    {
+     "region_id": "FRM-013-R02",
+     "bbox_px": [
+      780,
+      195,
+      990,
+      380
+     ],
+     "kind": "pump",
+     "description": "Grundfos twin pump, right head",
+     "object_id": "OBJ-0189",
+     "asset_id": "ASSET-022",
+     "link_method": "evidence_projection",
+     "link_confidence": 0.4,
+     "proposed": null,
+     "gt": null,
+     "note": "Ahmad's frame_00277 box for OBJ-0189"
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-014",
+   "file": "/assets/vision/frames/FRM-014.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 99.82,
+   "camera": {
+    "ahmad_frame": "frame_00300.jpg",
+    "centre_raw": [
+     0.314,
+     -0.123,
+     -0.1392
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-014-R01",
+     "bbox_px": [
+      90,
+      160,
+      175,
+      225
+     ],
+     "kind": "pump",
+     "description": "Red circulator (left)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-014-R02",
+     "bbox_px": [
+      375,
+      160,
+      450,
+      230
+     ],
+     "kind": "pump",
+     "description": "Red circulator (middle)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-014-R03",
+     "bbox_px": [
+      395,
+      30,
+      465,
+      105
+     ],
+     "kind": "manual_valve",
+     "description": "Lever valve above the middle circulator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-014-R04",
+     "bbox_px": [
+      440,
+      245,
+      550,
+      305
+     ],
+     "kind": "manual_valve",
+     "description": "Blue valve body",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-014-R05",
+     "bbox_px": [
+      1200,
+      345,
+      1280,
+      475
+     ],
+     "kind": "manual_valve",
+     "description": "Valve with red handwheel by the door",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": {
+      "state": "unknown",
+      "by": "claude-draft"
+     },
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-015",
+   "file": "/assets/vision/frames/FRM-015.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 102.55,
+   "camera": {
+    "ahmad_frame": "frame_00309.jpg",
+    "centre_raw": [
+     1.315,
+     -0.1616,
+     -0.8327
+    ],
+    "orientation": null
+   },
+   "regions": []
+  },
+  {
+   "frame_id": "FRM-016",
+   "file": "/assets/vision/frames/FRM-016.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 105.42,
+   "camera": {
+    "ahmad_frame": "frame_00317.jpg",
+    "centre_raw": [
+     2.6238,
+     -0.1904,
+     -1.3632
+    ],
+    "orientation": null
+   },
+   "regions": [
+    {
+     "region_id": "FRM-016-R01",
+     "bbox_px": [
+      460,
+      250,
+      660,
+      380
+     ],
+     "kind": "pump",
+     "description": "Grundfos circulator with display",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-016-R02",
+     "bbox_px": [
+      545,
+      380,
+      750,
+      500
+     ],
+     "kind": "manual_valve",
+     "description": "Blue cast valve body below the circulator",
+     "object_id": "OBJ-0183",
+     "asset_id": null,
+     "link_method": "evidence_projection",
+     "link_confidence": 0.6,
+     "proposed": null,
+     "gt": null,
+     "note": "Ahmad's frame_00317 projection of OBJ-0183 (segmentation called it pump-like)"
+    },
+    {
+     "region_id": "FRM-016-R03",
+     "bbox_px": [
+      500,
+      40,
+      570,
+      105
+     ],
+     "kind": "gauge",
+     "description": "Dial gauge / thermometer above the circulator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-016-R04",
+     "bbox_px": [
+      910,
+      235,
+      1050,
+      350
+     ],
+     "kind": "pump",
+     "description": "Red circulator (right)",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-016-R05",
+     "bbox_px": [
+      455,
+      620,
+      580,
+      712
+     ],
+     "kind": "control_valve",
+     "description": "Cyan zone-valve actuator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    },
+    {
+     "region_id": "FRM-016-R06",
+     "bbox_px": [
+      945,
+      515,
+      1035,
+      585
+     ],
+     "kind": "control_valve",
+     "description": "Cyan zone-valve actuator",
+     "object_id": null,
+     "asset_id": null,
+     "link_method": null,
+     "link_confidence": null,
+     "proposed": null,
+     "gt": null,
+     "note": ""
+    }
+   ]
+  },
+  {
+   "frame_id": "FRM-017",
+   "file": "/assets/vision/frames/FRM-017.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 106.22,
+   "camera": {
+    "ahmad_frame": "frame_00320.jpg",
+    "centre_raw": [
+     2.7279,
+     -0.1801,
+     -1.4219
+    ],
+    "orientation": null
+   },
+   "regions": []
+  },
+  {
+   "frame_id": "FRM-018",
+   "file": "/assets/vision/frames/FRM-018.jpg",
+   "width": 1280,
+   "height": 720,
+   "video_t_s": 110.28,
+   "camera": {
+    "ahmad_frame": "frame_00332.jpg",
+    "centre_raw": [
+     1.972,
+     -0.0635,
+     -1.1782
+    ],
+    "orientation": null
+   },
+   "regions": []
+  }
+ ]
+}

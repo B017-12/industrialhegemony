@@ -5,6 +5,8 @@ import {
   CheckCircle2,
   ClipboardList,
   ExternalLink,
+  Eye,
+  Move,
   List,
   MessageSquare,
   Navigation,
@@ -51,6 +53,10 @@ import { statusOf, humanize, sortBySeverity } from './ui/status.js';
 import BoilerRoomViewport from './components/BoilerRoomViewport.jsx';
 import AssetInspectorPanel from './components/AssetInspectorPanel.jsx';
 import CvReviewPanel from './components/CvReviewPanel.jsx';
+import SceneInspectorPanel from './components/SceneInspectorPanel.jsx';
+import SceneEditPanel from './components/SceneEditPanel.jsx';
+import { useSceneEdits, mergeEditOverrides } from './sceneEdit/useSceneEdits.js';
+import { useSplatMover } from './sceneEdit/useSplatMover.js';
 import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopilotAndArHud.jsx';
 
 export default function App() {
@@ -73,9 +79,17 @@ export default function App() {
   const [navData, setNavData] = useState(null);
   const [selectedCvObjectId, setSelectedCvObjectId] = useState('OBJ-0185');
 
+  // Scene editing (backend/scene_edit): moved objects, rebuilt equal-clearance rails and replanned routes
+  const [sceneCtx, setSceneCtx] = useState(null);
+  const [useRailRoutes, setUseRailRoutes] = useState(true);
+  const [navVersion, setNavVersion] = useState(0);
+  const sceneEdit = useSceneEdits(selectedAssetId);
+  // only hand-verified whole objects (chairs, pallet truck) move; their volumes cover the entire object
+  const splatMover = useSplatMover(sceneCtx, sceneEdit.edits, sceneEdit.movablesBaseById);
+
   const cvSceneObjects = useMemo(
-    () => applyCvOverrides(baseCvSceneObjects, cvOverridesMap),
-    [baseCvSceneObjects, cvOverridesMap]
+    () => applyCvOverrides(baseCvSceneObjects, mergeEditOverrides(cvOverridesMap, sceneEdit.overrides)),
+    [baseCvSceneObjects, cvOverridesMap, sceneEdit.overrides]
   );
 
   // Load CV 3D OBB segmentation & video evidence bundle on startup
@@ -129,6 +143,14 @@ export default function App() {
       };
     });
   }, [cvSceneObjects, evidenceFrames, navTargets, navData]);
+
+  // Avatar routes: equal-clearance rail routes from the backend replan (default) or Ahmad's precomputed ESDF paths
+  useEffect(() => {
+    if (!cvSceneObjects?.objects?.length) return;
+    const railTargets = useRailRoutes && sceneEdit.replan?.targets?.length ? sceneEdit.replan : null;
+    setCvNavigationData(cvSceneObjects, railTargets || navTargets, navData);
+    setNavVersion((v) => v + 1);
+  }, [cvSceneObjects, sceneEdit.replan, useRailRoutes, navTargets, navData]);
 
   const handlePatchCvOverride = (patchMap) => {
     setCvOverridesMap((prev) => {
@@ -288,7 +310,7 @@ export default function App() {
         hazardNodes,
         railMode
       ),
-    [selectedAsset, hazardNodes, railMode]
+    [selectedAsset, hazardNodes, railMode, navVersion]
   );
 
   const robotPath = useMemo(
@@ -300,7 +322,7 @@ export default function App() {
         hazardNodes,
         railMode
       ),
-    [selectedAsset, hazardNodes, railMode]
+    [selectedAsset, hazardNodes, railMode, navVersion]
   );
 
   const fleetAssignments = useMemo(
@@ -312,7 +334,7 @@ export default function App() {
         railMode,
         selectedAsset
       ),
-    [pipeline.assets, hazardNodes, railMode, selectedAsset]
+    [pipeline.assets, hazardNodes, railMode, selectedAsset, navVersion]
   );
 
   const counts = useMemo(() => {
@@ -738,6 +760,22 @@ export default function App() {
             title="Computer Vision 3D Object Detection & Label Review (441 OBBs)"
           >
             <Camera size={18} />
+          </button>
+
+          <button
+            className={activeNav === 'vision' ? 'active' : ''}
+            onClick={() => setActiveNav('vision')}
+            title="Visual Inspection: AI reads real photos (valve state, gauges, identity) with cited evidence"
+          >
+            <Eye size={18} />
+          </button>
+
+          <button
+            className={activeNav === 'scene_edit' ? 'active' : ''}
+            onClick={() => setActiveNav('scene_edit')}
+            title="Scene Editing: move objects, check gaps & reachability, rebuild rails and routes"
+          >
+            <Move size={18} />
           </button>
 
           <button
@@ -1196,6 +1234,23 @@ export default function App() {
             />
           )}
 
+          {activeNav === 'vision' && (
+            <SceneInspectorPanel selectedCvObjectId={selectedCvObjectId} selectedAsset={selectedAsset} />
+          )}
+
+          {activeNav === 'scene_edit' && (
+            <SceneEditPanel
+              cvSceneObjects={cvSceneObjects}
+              selectedCvObjectId={selectedCvObjectId}
+              selectedAsset={selectedAsset}
+              sceneEdit={sceneEdit}
+              splatMover={splatMover}
+              onSelectCvObject={(id) => id && setSelectedCvObjectId(id)}
+              useRailRoutes={useRailRoutes}
+              onToggleRailRoutes={setUseRailRoutes}
+            />
+          )}
+
           {activeNav === 'navigate' && (
             <>
               <div className="panel-header">
@@ -1645,6 +1700,7 @@ export default function App() {
           onSelectCvObject={(obj) => {
             if (obj?.object_id) setSelectedCvObjectId(obj.object_id);
           }}
+          onSceneReady={setSceneCtx}
         />
 
         {/* 4. RIGHT ASSET INSPECTOR */}

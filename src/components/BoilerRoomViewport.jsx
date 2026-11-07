@@ -500,7 +500,9 @@ export default function BoilerRoomViewport({
   showAllCvDetections = false,
   onToggleShowAllCvDetections,
   selectedCvObjectId = null,
-  onSelectCvObject
+  onSelectCvObject,
+  // Scene editing (src/sceneEdit): called once with the live three/Spark handles after init
+  onSceneReady
 }) {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
@@ -985,6 +987,8 @@ export default function BoilerRoomViewport({
         keysPressedRef.current[k] = true;
         setIsWasdWalking(true);
         if (onSimPlayingChange) onSimPlayingChange(false);
+        // Manual walking is ignored while the line-dispatch exercise runs (default ON): leave it.
+        if (stateRef.current.exerciseMode && onToggleExerciseMode) onToggleExerciseMode(false);
         if (!manualPosRef.current && primaryRigRef.current) {
           manualPosRef.current = {
             x: primaryRigRef.current.position.x,
@@ -2022,7 +2026,19 @@ export default function BoilerRoomViewport({
 
     animId = requestAnimationFrame(animate);
 
+    if (onSceneReady) {
+      onSceneReady({
+        scene,
+        camera,
+        renderer,
+        controls,
+        displayGroup: splatDisplayGroup,
+        getSplatMesh: () => splatMeshRef.current
+      });
+    }
+
     return () => {
+      if (onSceneReady) onSceneReady(null);
       cancelAnimationFrame(animId);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
