@@ -10,7 +10,7 @@ import {
   SplatEditSdf,
   SplatEditSdfType
 } from '@sparkjsdev/spark';
-import { Wrench, Plus, Trash2, Zap, Pause, Play, Eye, Layers, Camera } from 'lucide-react';
+import { Wrench, Plus, Trash2, Zap, Pause, Play, Eye, Layers, Camera, Building, Target, RotateCcw, Footprints, RotateCw, X } from 'lucide-react';
 import {
   NAV_NODES,
   NAV_EDGES,
@@ -492,6 +492,9 @@ export default function BoilerRoomViewport({
   autoDispatch = true,
   onToggleAutoDispatch,
   onArTrafficSignalChange,
+  appMode = 'technician',
+  showWorkers = true,
+  onSwitchToTechnicianMode = null,
   // CV & 3DGS props from ahmad_branch integration
   viewMode = 'splat', // 'splat' | 'hybrid' | 'cad'
   onViewModeChange,
@@ -538,6 +541,23 @@ export default function BoilerRoomViewport({
     pos: new THREE.Vector3(),
     target: new THREE.Vector3()
   });
+
+  // Consumer Navigation Mode: 'walk' (1st-person FPS walk) | 'orbit' (3rd-person mouse drag orbit)
+  const [navMode, setNavMode] = useState('orbit');
+  const navModeRef = useRef('orbit');
+  useEffect(() => {
+    navModeRef.current = navMode;
+  }, [navMode]);
+
+  const handleSetNavMode = (newMode) => {
+    setNavMode(newMode);
+    navModeRef.current = newMode;
+    if (newMode === 'walk') {
+      onToggleArFirstPerson && onToggleArFirstPerson(true);
+    } else {
+      onToggleArFirstPerson && onToggleArFirstPerson(false);
+    }
+  };
 
   // Smooth Camera Fly-To helper (ported from ahmad_branch CameraRig.jsx fitToBox / flyTo)
   const triggerCameraFlyTo = (targetPos3D, approachPos3D = null, bboxSize = [0.55, 0.55, 0.55]) => {
@@ -2864,11 +2884,11 @@ export default function BoilerRoomViewport({
       <div ref={mountRef} className="viewport-canvas" />
 
       {/* Simulation Exercise Mode Instruction Banner */}
-      {exerciseMode && !arFirstPersonMode && (
+      {showWorkers && exerciseMode && !arFirstPersonMode && (
         <div className={`exercise-banner ${exercisePaused ? 'paused' : ''}`}>
           <div className="row" style={{ gap: '6px', flexWrap: 'wrap' }}>
             <span className={`status ${exercisePaused ? 'medium' : 'info'}`}>
-              {exercisePaused ? 'TIME PAUSED â€” BATCH FAULT SETUP' : 'SIMULATION EXERCISE Â· 3DGS + CV'}
+              {exercisePaused ? 'TIME PAUSED — BATCH FAULT SETUP' : 'SIMULATION EXERCISE · 3DGS + CV'}
             </span>
             <span className="mono muted" style={{ marginLeft: 'auto' }}>
               {exerciseWorkers.filter((w) => w.state === 'STANDBY').length}/{exerciseWorkers.length} at line
@@ -2923,7 +2943,8 @@ export default function BoilerRoomViewport({
       )}
 
       {/* 2D Floating Repair Progress & Worker Traffic / Selection Badges */}
-      {exerciseMode &&
+      {showWorkers &&
+        exerciseMode &&
         workerOverlays.map((ov) => (
           <React.Fragment key={ov.id}>
             {ov.state === 'REPAIRING' ? (
@@ -3373,7 +3394,55 @@ export default function BoilerRoomViewport({
         </div>
       )}
 
+      {/* Consumer Mode: Floating Bottom Camera Dock (while keeping our Holographic Part HUD on click) */}
+      {!showWorkers && (
+        <>
+          <div className="consumer-dock">
+            <div className="dock-mode-switch">
+              <button
+                type="button"
+                className={`dock-mode-btn ${arFirstPersonMode ? 'active' : ''}`}
+                onClick={() => handleSetNavMode('walk')}
+                title="First-Person Walking Mode"
+              >
+                <Footprints size={13} />
+                <span>Walk (AR)</span>
+              </button>
+              <button
+                type="button"
+                className={`dock-mode-btn ${!arFirstPersonMode ? 'active' : ''}`}
+                onClick={() => handleSetNavMode('orbit')}
+                title="Third-Person Orbit Dragging Mode"
+              >
+                <RotateCw size={13} />
+                <span>Orbit</span>
+              </button>
+            </div>
+            <button onClick={handleInteriorCamera} title="Jump inside the 3DGS room scan">
+              <RotateCcw size={14} />
+              <span>Interior View</span>
+            </button>
+            <button onClick={handleResetCamera} title="Top-down facility overview with cutaway">
+              <Building size={14} />
+              <span>Facility Overview</span>
+            </button>
+            {selectedAsset && (
+              <button onClick={handleFocusSelected} title={`Focus ${selectedAsset.tag}`}>
+                <Target size={14} />
+                <span>Focus {selectedAsset.tag}</span>
+              </button>
+            )}
+          </div>
+          <div className="consumer-walk-hint">
+            <span>
+              <strong>{arFirstPersonMode ? 'Walk Mode' : 'Orbit Mode'}</strong>: Click any part in the 3D twin to open the <strong>Holographic AR Asset HUD</strong> · Drag to rotate · Scroll to zoom
+            </span>
+          </div>
+        </>
+      )}
+
       {/* Top-right Viewport Camera & 3DGS/CV Toolbar */}
+      {showWorkers && (
       <div className="vp-toolbar">
         {onViewModeChange && (
           <>
@@ -3476,9 +3545,10 @@ export default function BoilerRoomViewport({
           Overview
         </button>
       </div>
+      )}
 
       {/* Bottom-left 2D Floor Occupancy & ESDF Minimap (ported from ahmad_branch) */}
-      {!arFirstPersonMode && (
+      {!arFirstPersonMode && showWorkers && (
         <FloorMinimap
           assets={assets}
           selectedAsset={selectedAsset}

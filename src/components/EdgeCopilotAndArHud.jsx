@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Compass, QrCode, Send, X } from 'lucide-react';
 import { PRESET_COPILOT_QUERIES, runEdgeCopilotQuery } from '../utils/copilotEngine.js';
 import { cleanMarkdown, humanize, statusOf } from '../ui/status.js';
+import SceneCommandBox from './SceneCommandBox.jsx';
 
 export function EdgeCopilotDrawer({
   assets = [],
@@ -9,7 +10,10 @@ export function EdgeCopilotDrawer({
   onSelectAsset,
   humanPath,
   robotPath,
-  nearbyAssets
+  nearbyAssets,
+  sceneEdit,
+  splatMover,
+  selectedCvObjectId
 }) {
   const [queryInput, setQueryInput] = useState('');
   const [response, setResponse] = useState(() =>
@@ -59,6 +63,14 @@ export function EdgeCopilotDrawer({
       </div>
 
       <div className="panel-body">
+        {sceneEdit && splatMover && (
+          <SceneCommandBox
+            sceneEdit={sceneEdit}
+            splatMover={splatMover}
+            selectedCvObjectId={selectedCvObjectId}
+            selectedAsset={selectedAsset}
+          />
+        )}
         {response && (
           <div className="section">
             <div className="answer">

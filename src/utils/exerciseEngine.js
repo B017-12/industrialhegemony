@@ -113,7 +113,7 @@ export function addExerciseWorker(workers, type = 'human') {
     num++;
   }
   const id = `${prefix}${String(num).padStart(2, '0')}`;
-  const humanNames = ['M. Heikkinen', 'T. Koskinen', 'L. JÃ¤rvinen', 'K. Lehtonen', 'P. Salminen', 'E. Tuominen'];
+  const humanNames = ['M. Heikkinen', 'T. Koskinen', 'L. Jarvinen', 'K. Lehtonen', 'P. Salminen', 'E. Tuominen'];
   const name = isRobot
     ? `AMR-Unit-${String(num).padStart(2, '0')}`
     : humanNames[(num - 1) % humanNames.length];
@@ -678,8 +678,8 @@ export function computeArTrafficSignal(
       : 0.72;
     return {
       light: 'RED',
-      headline: 'RED LIGHT â€” STOP & YIELD',
-      detail: `Yielding right-of-way to ${cId} (${cDist.toFixed(2)} m ahead Â· Intersection Block Locked)`,
+      headline: 'RED LIGHT  ΓÇö  STOP & YIELD',
+      detail: `Yielding right-of-way to ${cId} (${cDist.toFixed(2)} m ahead ┬╖ Intersection Block Locked)`,
       conflictingUnitId: cId,
       distanceMeters: Number(cDist.toFixed(2)),
       speedMultiplier: 0,
@@ -695,7 +695,7 @@ export function computeArTrafficSignal(
     const u = nearestConflict.unit;
     return {
       light: 'RED',
-      headline: 'RED LIGHT â€” HOLD POSITION',
+      headline: 'RED LIGHT  ΓÇö  HOLD POSITION',
       detail: `${u.id} (${u.type === 'robot' ? 'AMR' : 'Technician'}) occupying aisle ${nearestConflict.dist.toFixed(2)} m ahead`,
       conflictingUnitId: u.id,
       distanceMeters: Number(nearestConflict.dist.toFixed(2)),
@@ -712,8 +712,8 @@ export function computeArTrafficSignal(
     const d = nearestConflict?.dist ?? nearestAnyDist ?? 1.4;
     return {
       light: 'YELLOW',
-      headline: 'YELLOW LIGHT â€” KEEP RIGHT LANE',
-      detail: `Passing ${u?.id || 'unit'} (${d.toFixed(2)} m) Â· Right-hand lane offset +0.22 m`,
+      headline: 'YELLOW LIGHT  ΓÇö  KEEP RIGHT LANE',
+      detail: `Passing ${u?.id || 'unit'} (${d.toFixed(2)} m) ┬╖ Right-hand lane offset +0.22 m`,
       conflictingUnitId: u?.id || null,
       distanceMeters: Number(d.toFixed(2)),
       speedMultiplier: 0.78,
@@ -723,10 +723,10 @@ export function computeArTrafficSignal(
 
   return {
     light: 'GREEN',
-    headline: 'GREEN LIGHT â€” PROCEED',
+    headline: 'GREEN LIGHT  ΓÇö  PROCEED',
     detail: nearestAny
-      ? `Corridor clear Â· Nearest unit ${nearestAny.id} at ${nearestAnyDist.toFixed(2)} m`
-      : 'Corridor clear Â· Right-of-way granted',
+      ? `Corridor clear ┬╖ Nearest unit ${nearestAny.id} at ${nearestAnyDist.toFixed(2)} m`
+      : 'Corridor clear ┬╖ Right-of-way granted',
     conflictingUnitId: null,
     distanceMeters: nearestAny ? Number(nearestAnyDist.toFixed(2)) : null,
     speedMultiplier: 1.0,

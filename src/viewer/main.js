@@ -1,5 +1,5 @@
 /**
- * SpatialSense scan viewer — shows the real pipeline output on the photoreal scan:
+ * SpatialSense scan viewer ΓÇö shows the real pipeline output on the photoreal scan:
  * Gaussian splats (public/assets/equipment_room.splat), extracted object frames (objects.json),
  * equal-clearance rails (rails.json), the collision-checked route (path.json), an avatar walking it with
  * proximity highlighting (timeline.json), and the grounded copilot diagnosis on arrival (/api/copilot/query).
@@ -103,7 +103,7 @@ function loadSplats() {
     .addSplatScene('/assets/equipment_room.splat', {
       splatAlphaRemovalThreshold: 10,
       showLoadingUI: false,
-      onProgress: (pct) => setLoading(`Loading scan… ${Math.round(pct)}%`)
+      onProgress: (pct) => setLoading(`Loading scan... ${Math.round(pct)}%`)
     })
     .then(() => setLoading(null));
 }
@@ -148,10 +148,10 @@ function makeLabel(o, status) {
   el.className = `tag${status === 'target' ? ' target' : ''}`;
   el.style.setProperty('--c', CSS_COLOR[status] || CSS_COLOR.scene);
   const a = o.asset;
-  const title = a ? `${a.tag} · ${pretty(a.asset_class)}` : pretty(o.class);
+  const title = a ? `${a.tag} ┬╖ ${pretty(a.asset_class)}` : pretty(o.class);
   const sub = a
-    ? `${o.object_id} · health ${a.health_score} · ${pretty(a.condition_state)}`
-    : `${o.object_id} · ${o.n_points.toLocaleString()} pts · label conf ${o.label_confidence}`;
+    ? `${o.object_id} ┬╖ health ${a.health_score} ┬╖ ${pretty(a.condition_state)}`
+    : `${o.object_id} ┬╖ ${o.n_points.toLocaleString()} pts ┬╖ label conf ${o.label_confidence}`;
   el.innerHTML = `<div class="t">${esc(title)}</div><div class="s">${esc(sub)}</div>`;
   const label = new CSS2DObject(el);
   label.position.set(0, o.extents[1] / 2, 0);
@@ -293,8 +293,8 @@ function renderNearList(frame, entered) {
     .map((n) => {
       const e = state.objects.get(n.object_id);
       const a = e.o.asset;
-      const title = a ? `${a.tag} · ${pretty(a.asset_class)}` : pretty(e.o.class);
-      const sub = a ? `health ${a.health_score} · ${pretty(a.condition_state)} · ${a.issue_code}` : n.object_id;
+      const title = a ? `${a.tag} ┬╖ ${pretty(a.asset_class)}` : pretty(e.o.class);
+      const sub = a ? `health ${a.health_score} ┬╖ ${pretty(a.condition_state)} ┬╖ ${a.issue_code}` : n.object_id;
       return `<li data-id="${n.object_id}" class="${entered.has(n.object_id) ? 'entered' : ''}">
         <span class="dot" style="--c:${CSS_COLOR[e.status] || CSS_COLOR.scene}"></span>
         <span class="what">${esc(title)}<small>${esc(sub)}</small></span>
@@ -321,14 +321,14 @@ function select(objectId) {
   const sec = $('detail');
   sec.hidden = false;
   sec.innerHTML = `<h2>Selected</h2>
-    <h3>${esc(a ? `${a.tag} · ${pretty(a.asset_class)}` : pretty(o.class))}</h3>
+    <h3>${esc(a ? `${a.tag} ┬╖ ${pretty(a.asset_class)}` : pretty(o.class))}</h3>
     <dl class="kv">
-      <dt>Object</dt><dd>${o.object_id} · ${o.n_points.toLocaleString()} splats</dd>
+      <dt>Object</dt><dd>${o.object_id} ┬╖ ${o.n_points.toLocaleString()} splats</dd>
       <dt>Label</dt><dd>${esc(pretty(o.class))} (${esc(o.label_source)}, conf ${o.label_confidence})</dd>
-      <dt>Size</dt><dd>${o.extents.map((v) => v.toFixed(2)).join(' × ')} m</dd>
-      ${a ? `<dt>Asset</dt><dd>${a.asset_id} · criticality ${esc(a.criticality)}</dd>
-      <dt>Condition</dt><dd>${esc(pretty(a.condition_state))} · health ${a.health_score} · ${esc(a.issue_code)}</dd>
-      <dt>Mapping</dt><dd>${esc(pretty(a.mapping_method))} · conf ${a.mapping_confidence}</dd>` : ''}
+      <dt>Size</dt><dd>${o.extents.map((v) => v.toFixed(2)).join(' ├ù ')} m</dd>
+      ${a ? `<dt>Asset</dt><dd>${a.asset_id} ┬╖ criticality ${esc(a.criticality)}</dd>
+      <dt>Condition</dt><dd>${esc(pretty(a.condition_state))} ┬╖ health ${a.health_score} ┬╖ ${esc(a.issue_code)}</dd>
+      <dt>Mapping</dt><dd>${esc(pretty(a.mapping_method))} ┬╖ conf ${a.mapping_confidence}</dd>` : ''}
     </dl>
     ${a ? `<button id="btn-diagnose" style="margin-top:8px">Diagnose ${esc(a.tag)}</button>` : ''}`;
   $('btn-diagnose')?.addEventListener('click', () => diagnose(a.asset_id));
@@ -337,7 +337,7 @@ function select(objectId) {
 async function diagnose(assetId) {
   const sec = $('diagnosis');
   $('diag-panel').hidden = false;
-  sec.innerHTML = '<h2>AI diagnosis</h2><p class="muted">Asking the copilot…</p>';
+  sec.innerHTML = '<h2>AI diagnosis</h2><p class="muted">Asking the copilot...</p>';
   let ans;
   try {
     ans = await askCopilot(assetId, 'Diagnose this asset and recommend the next safe inspection steps.');
@@ -352,7 +352,7 @@ async function diagnose(assetId) {
       .join('');
   const modeBadge =
     ans.mode === 'llm'
-      ? `<span class="badge" style="background:#0e7490">LLM · ${esc(ans.model)}</span>`
+      ? `<span class="badge" style="background:#0e7490">LLM ┬╖ ${esc(ans.model)}</span>`
       : '<span class="badge" style="background:#334155">deterministic fallback</span>';
   sec.innerHTML = `<h2>AI diagnosis ${modeBadge}</h2>
     <h3>${esc(ans.headline)}</h3>
@@ -462,15 +462,15 @@ async function main() {
   state.railGroup = addRails(rails);
   addRoute(state.points);
   const avatar = makeAvatar(timeline.radius_m);
-  $('near-radius').textContent = `(≤ ${timeline.radius_m} m)`;
+  $('near-radius').textContent = `(Γëñ ${timeline.radius_m} m)`;
 
   const mapped = objectsDoc.objects.filter((o) => o.asset).length;
   const m = path.metrics.binding_lr_imbalance_m;
   $('stats').innerHTML =
-    `<b>${objectsDoc.objects.length}</b> objects framed · <b>${mapped}</b> mapped to Excel assets · ` +
+    `<b>${objectsDoc.objects.length}</b> objects framed ┬╖ <b>${mapped}</b> mapped to Excel assets ┬╖ ` +
     `target <b>${esc(path.target.tag)}</b> (${esc(path.target.issue_code)})<br>` +
-    `route <b>${path.length_m} m</b> · ${path.checks.collision_free ? 'collision-free ✓' : 'COLLISION ✗'} · ` +
-    `rail |L−R| median <b>${m.median} m</b>`;
+    `route <b>${path.length_m} m</b> ┬╖ ${path.checks.collision_free ? 'collision-free PASS' : 'COLLISION FAIL'} ┬╖ ` +
+    `rail |LΓêÆR| median <b>${m.median} m</b>`;
 
   // overview camera: above the room (ceiling is cut away in the splat export), looking at the route
   const box = new THREE.Box3().setFromPoints(state.points);

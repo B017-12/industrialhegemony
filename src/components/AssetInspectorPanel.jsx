@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { QrCode, FileText, Wrench, CheckCircle2, Camera, Box } from 'lucide-react';
+import { QrCode, FileText, Wrench, CheckCircle2, Camera, Box, PanelRightClose } from 'lucide-react';
 import {
   statusOf,
   humanize,
@@ -191,7 +191,8 @@ export default function AssetInspectorPanel({
   draftedWoBanner,
   onMutateTelemetry,
   pipelineMeta,
-  onOpenCvReview
+  onOpenCvReview,
+  onClose
 }) {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'diagnosis' | 'telemetry' | 'procedure'
 
@@ -243,6 +244,16 @@ export default function AssetInspectorPanel({
             <QrCode size={13} />
             <span>Verify</span>
           </button>
+          {onClose && (
+            <button
+              className="btn btn-sm btn-icon"
+              onClick={onClose}
+              title="Collapse Inspector (give 3D viewport maximum width)"
+              style={{ marginLeft: '4px' }}
+            >
+              <PanelRightClose size={13} />
+            </button>
+          )}
         </div>
 
         <div className="inspector-desc">
