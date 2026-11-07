@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { getPartVisualSpec } from '../data/excelPartCatalog.js';
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,6 +15,7 @@ import {
   Square,
   Tag
 } from 'lucide-react';
+import { getPartVisualSpec } from '../data/excelPartCatalog.js';
 import {
   INSTANCE_CLASSES,
   EVIDENCE_PHOTO_MAP,
@@ -354,6 +356,16 @@ export default function CvReviewPanel({
               </div>
             )}
 
+            {/* Part-matched transparent image */}
+            {(boundAsset || activeObj) && (
+              <div style={{ textAlign: 'center', padding: 6, borderRadius: 6, background: 'radial-gradient(circle at center, rgba(0,242,255,0.14), rgba(3,12,22,0.85))', border: '1px solid rgba(0,242,255,0.35)' }}>
+                <img
+                  src={getPartVisualSpec(boundAsset || activeObj).transparentImg + '?v=2'}
+                  alt={boundAsset?.tag || activeObj.object_id}
+                  style={{ maxWidth: '100%', maxHeight: 120, objectFit: 'contain' }}
+                />
+              </div>
+            )}
             {/* Video Evidence Photo Crop (from COLMAP-aligned walkthrough frames) */}
             {evidencePhoto ? (
               <div className="cv-evidence-card">

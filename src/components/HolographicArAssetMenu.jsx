@@ -368,7 +368,7 @@ function HolographicArAssetMenuInner({
   const cvObjId = asset.cvObject?.object_id || asset.object_id;
   const currentMove = (cvObjId && objectMoves[cvObjId]) || { dx: 0, dz: 0 };
   const bgPhoto = evidencePhoto || '/assets/vision/frames/FRM-005.jpg';
-  const activePartImg = useOnlinePhoto ? partSpec.onlineTransparentUrl : partSpec.transparentImg;
+  const activePartImg = useOnlinePhoto ? partSpec.onlineTransparentUrl : partSpec.transparentImg + '?v=2';
   const itemTitle =
     excelRec?.excel_item_name ||
     asset.excel_item_name ||

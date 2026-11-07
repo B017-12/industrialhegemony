@@ -8,6 +8,7 @@ import {
   telemetryUnit
 } from '../ui/status.js';
 import { EVIDENCE_PHOTO_MAP } from '../utils/cvEngine.js';
+import { getPartVisualSpec, EXCEL_ASSET_RECORDS } from '../data/excelPartCatalog.js';
 
 /**
  * 3D Asset Contour & Planar Datum Preview
@@ -263,6 +264,34 @@ export default function AssetInspectorPanel({
             </>
           )}
         </div>
+
+        {/* Part-matched transparent image (from Valmet Excel class) */}
+        {(() => {
+          const spec = getPartVisualSpec(selectedAsset);
+          const rec = EXCEL_ASSET_RECORDS[selectedAsset.asset_id];
+          return (
+            <div
+              style={{
+                marginTop: 8,
+                padding: 8,
+                borderRadius: 6,
+                textAlign: 'center',
+                background: 'radial-gradient(circle at center, rgba(0,242,255,0.14), rgba(3,12,22,0.85))',
+                border: '1px solid rgba(0,242,255,0.35)'
+              }}
+            >
+              <img
+                src={spec.transparentImg + '?v=2'}
+                alt={rec?.excel_item_name || selectedAsset.tag}
+                style={{ maxWidth: '100%', maxHeight: 150, objectFit: 'contain' }}
+              />
+              <div className="mono" style={{ fontSize: 10.5, color: '#7dd3fc', marginTop: 4 }}>
+                {rec?.excel_item_name || `${selectedAsset.tag} · ${spec.itemTypeName}`}
+                {rec?.scene_path ? ` · ${rec.scene_path}` : ''}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* ==================== INSPECTOR TABS ==================== */}
