@@ -2206,29 +2206,6 @@ export default function BoilerRoomViewport({
         });
         setAssetTagOverlays(tagPills);
 
-        if (st.clickedPopoverAssetId) {
-          const clickedAsset = st.assets.find((a) => a.asset_id === st.clickedPopoverAssetId);
-          if (clickedAsset) {
-            const worldPos = new THREE.Vector3(
-              clickedAsset.position[0],
-              clickedAsset.position[1] + clickedAsset.bbox_size[1] * 0.68,
-              clickedAsset.position[2]
-            );
-            worldPos.project(camera);
-            if (worldPos.z > -1 && worldPos.z < 1) {
-              const x = (worldPos.x * 0.5 + 0.5) * width;
-              const y = (-(worldPos.y * 0.5) + 0.5) * height;
-              const num = parseInt(clickedAsset.asset_id.split('-')[1], 10) || 1;
-              const triCount = (7.4 + ((num * 3.7) % 24.5)).toFixed(1);
-              setClickedScreenAnchor({
-                x: Math.min(width - 340, Math.max(16, x)),
-                y: Math.min(height - 320, Math.max(54, y)),
-                triCount,
-                meshIdx: String(num).padStart(2, '0')
-              });
-            }
-          }
-        }
       }
 
       renderer.render(scene, camera);
@@ -3181,11 +3158,10 @@ export default function BoilerRoomViewport({
       )}
 
       {/* Interactive Holographic AR Field Service Asset HUD Menu */}
-      {clickedPopoverAsset && clickedScreenAnchor && clickedSt && (
+      {clickedPopoverAsset && clickedSt && (
         <HolographicArAssetMenu
           asset={clickedPopoverAsset}
           assets={assets}
-          screenAnchor={clickedScreenAnchor}
           evidencePhoto={
             clickedPopoverAsset.cvObject?.object_id
               ? EVIDENCE_PHOTO_MAP[clickedPopoverAsset.cvObject.object_id]
