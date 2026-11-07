@@ -599,6 +599,7 @@ export default function BoilerRoomViewport({
   const [splatReady, setSplatReady] = useState(false);
   const [isWasdWalking, setIsWasdWalking] = useState(false);
   const [obstacleAlert, setObstacleAlert] = useState(null);
+  const [arCameraPerspective, setArCameraPerspective] = useState('1st'); // '1st' | '3rd'
 
   const stateRef = useRef({
     assets,
@@ -619,6 +620,7 @@ export default function BoilerRoomViewport({
     simProgress,
     proximityRadius,
     arFirstPersonMode,
+    arCameraPerspective,
     exerciseMode,
     exercisePaused,
     exerciseWorkers,
@@ -650,6 +652,7 @@ export default function BoilerRoomViewport({
       simProgress,
       proximityRadius,
       arFirstPersonMode,
+      arCameraPerspective,
       exerciseMode,
       exercisePaused,
       exerciseWorkers,
@@ -679,6 +682,7 @@ export default function BoilerRoomViewport({
     simProgress,
     proximityRadius,
     arFirstPersonMode,
+    arCameraPerspective,
     exerciseMode,
     exercisePaused,
     exerciseWorkers,
@@ -1414,8 +1418,8 @@ export default function BoilerRoomViewport({
           }
           if (!rig) return;
 
-          // Hide the active technician's own 3D mesh when viewing through their 1st-Person AR Visor
-          rig.visible = !(st.arFirstPersonMode && w.id === controlledId);
+          // Hide the active technician's own 3D mesh only in 1st-Person eye view; keep visible in 3rd-Person AR chase view!
+          rig.visible = !(st.arFirstPersonMode && st.arCameraPerspective !== '3rd' && w.id === controlledId);
 
           if (manualPose && w.id === controlledId) {
             rig.position.set(wpos[0], -1.02, wpos[2]);
@@ -1749,16 +1753,31 @@ export default function BoilerRoomViewport({
 
       if (st.arFirstPersonMode) {
         cameraFlyRef.current.active = false;
-        const eyeX = primarySample.position[0] + primarySample.tangent[0] * 0.16;
-        const eyeY = primarySample.position[1] + 0.68; // Natural human eye level inside 3DGS room (-0.34)
-        const eyeZ = primarySample.position[2] + primarySample.tangent[2] * 0.16;
-        camera.position.lerp(new THREE.Vector3(eyeX, eyeY, eyeZ), 0.28);
+        if (st.arCameraPerspective === '3rd') {
+          // 3rd-Person AR Chase Camera: follows smoothly behind and above the active technician
+          const chaseX = primarySample.position[0] - primarySample.tangent[0] * 1.38;
+          const chaseY = primarySample.position[1] + 1.08;
+          const chaseZ = primarySample.position[2] - primarySample.tangent[2] * 1.38;
+          camera.position.lerp(new THREE.Vector3(chaseX, chaseY, chaseZ), 0.24);
 
-        const lookX = eyeX + primarySample.tangent[0] * 2.4;
-        const lookY = eyeY + (arLookPitchRef.current || -0.04) * 2.4;
-        const lookZ = eyeZ + primarySample.tangent[2] * 2.4;
-        controls.target.lerp(new THREE.Vector3(lookX, lookY, lookZ), 0.28);
-        controls.update();
+          const lookX = primarySample.position[0] + primarySample.tangent[0] * 0.75;
+          const lookY = primarySample.position[1] + 0.48 + (arLookPitchRef.current || 0) * 1.5;
+          const lookZ = primarySample.position[2] + primarySample.tangent[2] * 0.75;
+          controls.target.lerp(new THREE.Vector3(lookX, lookY, lookZ), 0.28);
+          controls.update();
+        } else {
+          // 1st-Person AR Visor Eye View
+          const eyeX = primarySample.position[0] + primarySample.tangent[0] * 0.16;
+          const eyeY = primarySample.position[1] + 0.68; // Natural human eye level inside 3DGS room (-0.34)
+          const eyeZ = primarySample.position[2] + primarySample.tangent[2] * 0.16;
+          camera.position.lerp(new THREE.Vector3(eyeX, eyeY, eyeZ), 0.28);
+
+          const lookX = eyeX + primarySample.tangent[0] * 2.4;
+          const lookY = eyeY + (arLookPitchRef.current || -0.04) * 2.4;
+          const lookZ = eyeZ + primarySample.tangent[2] * 2.4;
+          controls.target.lerp(new THREE.Vector3(lookX, lookY, lookZ), 0.28);
+          controls.update();
+        }
       } else if (cameraFlyRef.current.active) {
         // CameraRig.jsx exponentially-damped flyTo interpolation from ahmad_branch
         const k = 1 - Math.exp(-5.8 * dt);
@@ -3333,213 +3352,262 @@ export default function BoilerRoomViewport({
         />
       )}
 
-      {/* Bottom-right Technician Manual Drive & AR Controller Pad (Works with Keyboard WASD + iPad Touch) */}
-      <div
-        style={{
-          position: 'absolute',
-          right: 16,
-          bottom: 16,
-          zIndex: 45,
-          background: arFirstPersonMode ? 'rgba(9, 13, 22, 0.88)' : 'rgba(255, 255, 255, 0.94)',
-          color: arFirstPersonMode ? '#f8fafc' : '#0f172a',
-          border: arFirstPersonMode ? '1px solid rgba(56, 189, 248, 0.45)' : '1px solid #cbd5e1',
-          borderRadius: 12,
-          padding: '10px 12px',
-          boxShadow: '0 10px 28px rgba(15, 23, 42, 0.22)',
-          backdropFilter: 'blur(10px)',
-          width: 236,
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          touchAction: 'none',
-          fontFamily: 'var(--sans)',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)', letterSpacing: '0.05em', color: arFirstPersonMode ? '#38bdf8' : '#2563eb' }}>
-            {arFirstPersonMode ? '🥽 AR MANUAL DRIVE' : '🕹️ DRIVE TECHNICIAN'}
-          </span>
-          <button
-            onClick={() => onToggleArFirstPerson(!arFirstPersonMode)}
-            style={{
-              fontSize: 10,
-              fontFamily: 'var(--mono)',
-              fontWeight: 700,
-              padding: '3px 7px',
-              borderRadius: 5,
-              border: arFirstPersonMode ? '1px solid #f43f5e' : '1px solid #2563eb',
-              background: arFirstPersonMode ? '#f43f5e' : '#2563eb',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
-          >
-            {arFirstPersonMode ? 'Exit AR' : '1st-Person AR'}
-          </button>
-        </div>
-
-        {/* Unit Selector Pills */}
-        {exerciseMode && exerciseWorkers.length > 0 && (
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
-            {exerciseWorkers.map((w) => {
-              const activeId = selectedWorkerId || exerciseWorkers[0]?.id;
-              const isSelected = w.id === activeId;
-              return (
-                <button
-                  key={w.id}
-                  onClick={() => onSelectWorker && onSelectWorker(w.id)}
-                  style={{
-                    flex: 1,
-                    minWidth: 44,
-                    padding: '3px 5px',
-                    fontSize: 10,
-                    fontFamily: 'var(--mono)',
-                    fontWeight: 700,
-                    borderRadius: 5,
-                    border: isSelected ? `1.5px solid ${w.color}` : '1px solid rgba(148,163,184,0.4)',
-                    background: isSelected ? w.color : 'transparent',
-                    color: isSelected ? '#fff' : arFirstPersonMode ? '#cbd5e1' : '#334155',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {w.id}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Obstacle Anti-Collision Status Banner */}
+      {/* Bottom-right Technician Manual Drive & AR Controller Pad (Only appears when 1st-Person AR is active, with 1st/3rd Person toggle) */}
+      {arFirstPersonMode && (
         <div
           style={{
-            marginBottom: 8,
-            padding: '4px 7px',
-            borderRadius: 6,
-            fontSize: 10,
-            fontFamily: 'var(--mono)',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            background: obstacleAlert?.blocked
-              ? 'rgba(239, 68, 68, 0.18)'
-              : 'rgba(16, 185, 129, 0.14)',
-            border: obstacleAlert?.blocked
-              ? '1px solid rgba(239, 68, 68, 0.6)'
-              : '1px solid rgba(16, 185, 129, 0.4)',
-            color: obstacleAlert?.blocked
-              ? (arFirstPersonMode ? '#fca5a5' : '#b91c1c')
-              : (arFirstPersonMode ? '#6ee7b7' : '#047857'),
+            position: 'absolute',
+            right: 16,
+            bottom: 16,
+            zIndex: 45,
+            background: 'rgba(9, 13, 22, 0.90)',
+            color: '#f8fafc',
+            border: '1px solid rgba(56, 189, 248, 0.48)',
+            borderRadius: 12,
+            padding: '10px 12px',
+            boxShadow: '0 10px 28px rgba(15, 23, 42, 0.35)',
+            backdropFilter: 'blur(10px)',
+            width: 244,
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            touchAction: 'none',
+            fontFamily: 'var(--sans)',
           }}
         >
-          <span>
-            {obstacleAlert?.blocked
-              ? `⛔ BLOCKED: ${obstacleAlert.label}`
-              : '🛡️ Anti-Collision Radar: CLEAR'}
-          </span>
-          {obstacleAlert?.blocked && (
-            <span>{(obstacleAlert.dist ?? 0).toFixed(2)}m</span>
-          )}
-        </div>
-
-        {/* Touch + Mouse Directional D-Pad */}
-        {(() => {
-          const bindHoldKey = (keyCode) => ({
-            onPointerDown: (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              keysPressedRef.current[keyCode] = true;
-            },
-            onPointerUp: (e) => {
-              e.preventDefault();
-              keysPressedRef.current[keyCode] = false;
-            },
-            onPointerLeave: () => {
-              keysPressedRef.current[keyCode] = false;
-            },
-            onPointerCancel: () => {
-              keysPressedRef.current[keyCode] = false;
-            },
-          });
-          const btnStyle = {
-            height: 34,
-            borderRadius: 7,
-            border: arFirstPersonMode ? '1px solid rgba(148,163,184,0.3)' : '1px solid #cbd5e1',
-            background: arFirstPersonMode ? 'rgba(30, 41, 59, 0.9)' : '#f8fafc',
-            color: arFirstPersonMode ? '#f8fafc' : '#0f172a',
-            fontSize: 11,
-            fontFamily: 'var(--mono)',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            touchAction: 'none',
-          };
-          return (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
-              <button style={btnStyle} title="Strafe Left (Q)" {...bindHoldKey('KeyQ')}>
-                ↖ Q
-              </button>
-              <button
-                style={{ ...btnStyle, background: '#2563eb', color: '#fff', border: '1px solid #1d4ed8' }}
-                title="Walk Forward (W / Up)"
-                {...bindHoldKey('KeyW')}
-              >
-                ▲ W
-              </button>
-              <button style={btnStyle} title="Strafe Right (E)" {...bindHoldKey('KeyE')}>
-                E ↗
-              </button>
-              <button style={btnStyle} title="Turn Left (A / Left)" {...bindHoldKey('KeyA')}>
-                ◄ A
-              </button>
-              <button style={btnStyle} title="Step Back (S / Down)" {...bindHoldKey('KeyS')}>
-                ▼ S
-              </button>
-              <button style={btnStyle} title="Turn Right (D / Right)" {...bindHoldKey('KeyD')}>
-                D ►
-              </button>
-            </div>
-          );
-        })()}
-
-        {/* Release Manual Control Option when a worker is in Manual Override */}
-        {exerciseMode && (() => {
-          const activeId = selectedWorkerId || exerciseWorkers[0]?.id;
-          const activeWorker = exerciseWorkers.find((w) => w.id === activeId);
-          if (!activeWorker?.manualControl) return null;
-          return (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)', letterSpacing: '0.05em', color: '#38bdf8' }}>
+              🕹️ DRIVE TECHNICIAN
+            </span>
             <button
-              onClick={() => {
-                delete manualWorkerPosesRef.current[activeWorker.id];
-                if (onManualUpdateWorkerPose) {
-                  onManualUpdateWorkerPose(
-                    activeWorker.id,
-                    activeWorker.slotPos[0],
-                    activeWorker.slotPos[2],
-                    0,
-                    false
-                  );
-                }
-              }}
+              onClick={() => onToggleArFirstPerson(false)}
               style={{
-                marginTop: 7,
-                width: '100%',
-                padding: '4px 8px',
-                borderRadius: 6,
-                border: '1px solid rgba(148,163,184,0.45)',
-                background: 'transparent',
-                color: arFirstPersonMode ? '#cbd5e1' : '#475569',
                 fontSize: 10,
                 fontFamily: 'var(--mono)',
-                fontWeight: 600,
+                fontWeight: 700,
+                padding: '3px 7px',
+                borderRadius: 5,
+                border: '1px solid #f43f5e',
+                background: '#f43f5e',
+                color: '#fff',
                 cursor: 'pointer',
               }}
             >
-              ↩ Return {activeWorker.id} to Auto Standby
+              Exit AR
             </button>
-          );
-        })()}
-      </div>
+          </div>
+
+          {/* 1st-Person vs 3rd-Person Camera Perspective Switcher */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 4,
+              background: 'rgba(15, 23, 42, 0.85)',
+              padding: 3,
+              borderRadius: 7,
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+              marginBottom: 8,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setArCameraPerspective('1st')}
+              style={{
+                padding: '4px 6px',
+                fontSize: 10,
+                fontFamily: 'var(--mono)',
+                fontWeight: 700,
+                borderRadius: 5,
+                border: 'none',
+                background: arCameraPerspective === '1st' ? '#0284c7' : 'transparent',
+                color: arCameraPerspective === '1st' ? '#fff' : '#94a3b8',
+                cursor: 'pointer',
+              }}
+            >
+              👁️ 1st-Person
+            </button>
+            <button
+              type="button"
+              onClick={() => setArCameraPerspective('3rd')}
+              style={{
+                padding: '4px 6px',
+                fontSize: 10,
+                fontFamily: 'var(--mono)',
+                fontWeight: 700,
+                borderRadius: 5,
+                border: 'none',
+                background: arCameraPerspective === '3rd' ? '#0284c7' : 'transparent',
+                color: arCameraPerspective === '3rd' ? '#fff' : '#94a3b8',
+                cursor: 'pointer',
+              }}
+            >
+              🎥 3rd-Person
+            </button>
+          </div>
+
+          {/* Unit Selector Pills */}
+          {exerciseMode && exerciseWorkers.length > 0 && (
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
+              {exerciseWorkers.map((w) => {
+                const activeId = selectedWorkerId || exerciseWorkers[0]?.id;
+                const isSelected = w.id === activeId;
+                return (
+                  <button
+                    key={w.id}
+                    onClick={() => onSelectWorker && onSelectWorker(w.id)}
+                    style={{
+                      flex: 1,
+                      minWidth: 44,
+                      padding: '3px 5px',
+                      fontSize: 10,
+                      fontFamily: 'var(--mono)',
+                      fontWeight: 700,
+                      borderRadius: 5,
+                      border: isSelected ? `1.5px solid ${w.color}` : '1px solid rgba(148,163,184,0.4)',
+                      background: isSelected ? w.color : 'transparent',
+                      color: isSelected ? '#fff' : '#cbd5e1',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {w.id}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Obstacle Anti-Collision Status Banner */}
+          <div
+            style={{
+              marginBottom: 8,
+              padding: '4px 7px',
+              borderRadius: 6,
+              fontSize: 10,
+              fontFamily: 'var(--mono)',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: obstacleAlert?.blocked
+                ? 'rgba(239, 68, 68, 0.18)'
+                : 'rgba(16, 185, 129, 0.14)',
+              border: obstacleAlert?.blocked
+                ? '1px solid rgba(239, 68, 68, 0.6)'
+                : '1px solid rgba(16, 185, 129, 0.4)',
+              color: obstacleAlert?.blocked ? '#fca5a5' : '#6ee7b7',
+            }}
+          >
+            <span>
+              {obstacleAlert?.blocked
+                ? `⛔ BLOCKED: ${obstacleAlert.label}`
+                : '🛡️ Anti-Collision Radar: CLEAR'}
+            </span>
+            {obstacleAlert?.blocked && (
+              <span>{(obstacleAlert.dist ?? 0).toFixed(2)}m</span>
+            )}
+          </div>
+
+          {/* Touch + Mouse Directional D-Pad */}
+          {(() => {
+            const bindHoldKey = (keyCode) => ({
+              onPointerDown: (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                keysPressedRef.current[keyCode] = true;
+              },
+              onPointerUp: (e) => {
+                e.preventDefault();
+                keysPressedRef.current[keyCode] = false;
+              },
+              onPointerLeave: () => {
+                keysPressedRef.current[keyCode] = false;
+              },
+              onPointerCancel: () => {
+                keysPressedRef.current[keyCode] = false;
+              },
+            });
+            const btnStyle = {
+              height: 34,
+              borderRadius: 7,
+              border: '1px solid rgba(148,163,184,0.3)',
+              background: 'rgba(30, 41, 59, 0.9)',
+              color: '#f8fafc',
+              fontSize: 11,
+              fontFamily: 'var(--mono)',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              touchAction: 'none',
+            };
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
+                <button style={btnStyle} title="Strafe Left (Q)" {...bindHoldKey('KeyQ')}>
+                  ↖ Q
+                </button>
+                <button
+                  style={{ ...btnStyle, background: '#2563eb', color: '#fff', border: '1px solid #1d4ed8' }}
+                  title="Walk Forward (W / Up)"
+                  {...bindHoldKey('KeyW')}
+                >
+                  ▲ W
+                </button>
+                <button style={btnStyle} title="Strafe Right (E)" {...bindHoldKey('KeyE')}>
+                  E ↗
+                </button>
+                <button style={btnStyle} title="Turn Left (A / Left)" {...bindHoldKey('KeyA')}>
+                  ◄ A
+                </button>
+                <button style={btnStyle} title="Step Back (S / Down)" {...bindHoldKey('KeyS')}>
+                  ▼ S
+                </button>
+                <button style={btnStyle} title="Turn Right (D / Right)" {...bindHoldKey('KeyD')}>
+                  D ►
+                </button>
+              </div>
+            );
+          })()}
+
+          {/* Release Manual Control Option when a worker is in Manual Override */}
+          {exerciseMode && (() => {
+            const activeId = selectedWorkerId || exerciseWorkers[0]?.id;
+            const activeWorker = exerciseWorkers.find((w) => w.id === activeId);
+            if (!activeWorker?.manualControl) return null;
+            return (
+              <button
+                onClick={() => {
+                  delete manualWorkerPosesRef.current[activeWorker.id];
+                  if (onManualUpdateWorkerPose) {
+                    onManualUpdateWorkerPose(
+                      activeWorker.id,
+                      activeWorker.slotPos[0],
+                      activeWorker.slotPos[2],
+                      0,
+                      false
+                    );
+                  }
+                }}
+                style={{
+                  marginTop: 7,
+                  width: '100%',
+                  padding: '4px 8px',
+                  borderRadius: 6,
+                  border: '1px solid rgba(148,163,184,0.45)',
+                  background: 'transparent',
+                  color: '#cbd5e1',
+                  fontSize: 10,
+                  fontFamily: 'var(--mono)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                ↩ Return {activeWorker.id} to Auto Standby
+              </button>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Bottom-left Compact Legend */}
       <div className="vp-chip bottom-left">
