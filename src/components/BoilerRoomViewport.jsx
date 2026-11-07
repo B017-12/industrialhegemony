@@ -483,6 +483,7 @@ export default function BoilerRoomViewport({
   onSelectWorker,
   onAddWorker,
   onDeleteWorker,
+  onAssignWorkerToFault,
   onInjectRandomFault,
   autoDispatch = true,
   onToggleAutoDispatch,
@@ -564,6 +565,7 @@ export default function BoilerRoomViewport({
   const primaryRigRef = useRef(null);
   const secondaryRigsRef = useRef({});
   const assetMeshMapRef = useRef(new Map());
+  const assetHitboxesRef = useRef([]);
 
   // STRICT INTERACTION RULE:
   // Nothing pops up or shows object details until the user explicitly clicks/interacts with a 3D object!
@@ -571,6 +573,7 @@ export default function BoilerRoomViewport({
   const [clickedUnboundCvObj, setClickedUnboundCvObj] = useState(null);
   const [clickedScreenAnchor, setClickedScreenAnchor] = useState(null);
   const [workerOverlays, setWorkerOverlays] = useState([]);
+  const [assetTagOverlays, setAssetTagOverlays] = useState([]);
   const [arTrafficOverride, setArTrafficOverride] = useState('AUTO');
   const [liveArSignal, setLiveArSignal] = useState({
     light: 'GREEN',
@@ -990,10 +993,68 @@ export default function BoilerRoomViewport({
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
-    // Raycaster ONLY on Click / PointerUp â€” ZERO passive label clutter!
+    // Precision 3D OBB + Touch-Magnet Raycaster (zero wireframe line-threshold hijacking!)
     const raycaster = new THREE.Raycaster();
+    raycaster.params.Line = { threshold: 0.01 };
     const mouse = new THREE.Vector2();
     let pointerDownPos = { x: 0, y: 0 };
+
+    // Hybrid 3D OBB center-weighted raycast + 2D touch-magnet for effortless iPad/desktop picking
+    const pickAssetFromPointer = (clientX, clientY, allowScreenMagnet = true) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      // 1. Raycast ONLY against the 30 dedicated solid OBB hitbox meshes (never LineSegments!)
+      const hitboxes = assetHitboxesRef.current || [];
+      if (hitboxes.length > 0) {
+        const hits = raycaster.intersectObjects(hitboxes, false);
+        if (hits.length > 0) {
+          let bestAsset = null;
+          let bestScore = Infinity;
+          hits.forEach((h) => {
+            const a = h.object?.userData?.asset;
+            if (!a) return;
+            const centerVec = new THREE.Vector3(a.position[0], a.position[1], a.position[2]);
+            const rayToCenter = raycaster.ray.distanceToPoint(centerVec);
+            // Score prioritizes the object whose 3D center you tapped dead-on, with slight depth tie-breaker
+            const score = rayToCenter + h.distance * 0.05;
+            if (score < bestScore) {
+              bestScore = score;
+              bestAsset = a;
+            }
+          });
+          if (bestAsset) return bestAsset;
+        }
+      }
+
+      // 2. Touch-friendly 2D screen-space magnet (28px radius around projected 3D object centers)
+      if (allowScreenMagnet && stateRef.current.assets?.length) {
+        const localX = clientX - rect.left;
+        const localY = clientY - rect.top;
+        let closestAsset = null;
+        let closestPx = 28;
+        stateRef.current.assets.forEach((a) => {
+          const p = new THREE.Vector3(a.position[0], a.position[1], a.position[2]);
+          const camDist = p.distanceTo(camera.position);
+          p.project(camera);
+          if (p.z > -1 && p.z < 1) {
+            const sx = (p.x * 0.5 + 0.5) * rect.width;
+            const sy = (-(p.y * 0.5) + 0.5) * rect.height;
+            const pxDist = Math.hypot(sx - localX, sy - localY) + camDist * 0.6;
+            if (pxDist < closestPx) {
+              closestPx = pxDist;
+              closestAsset = a;
+            }
+          }
+        });
+        if (closestAsset) return closestAsset;
+      }
+
+      return null;
+    };
 
     const handlePointerDown = (e) => {
       pointerDownPos = { x: e.clientX, y: e.clientY };
@@ -1005,22 +1066,8 @@ export default function BoilerRoomViewport({
         cameraFlyRef.current.active = false;
         return;
       }
-      if (!assetGroupRef.current) return;
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const hits = raycaster.intersectObjects(assetGroupRef.current.children, true);
-      let hoveredId = null;
-      if (hits.length > 0) {
-        let obj = hits[0].object;
-        while (obj && !obj.userData?.asset) {
-          obj = obj.parent;
-        }
-        if (obj?.userData?.asset) {
-          hoveredId = obj.userData.asset.asset_id;
-        }
-      }
+      const picked = pickAssetFromPointer(e.clientX, e.clientY, false);
+      const hoveredId = picked ? picked.asset_id : null;
       if (hoveredAssetIdRef.current !== hoveredId) {
         hoveredAssetIdRef.current = hoveredId;
         renderer.domElement.style.cursor = hoveredId ? 'pointer' : '';
@@ -1033,7 +1080,8 @@ export default function BoilerRoomViewport({
 
     const handlePointerUp = (e) => {
       const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
-      if (moveDist > 6) return;
+      // Allow up to 14px finger jitter on iPad touchscreens without treating a tap as an orbit drag
+      if (moveDist > 14) return;
 
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -1056,32 +1104,23 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // 1. Check 30 Bound Assets / OBBs
-      if (assetGroupRef.current) {
-        const hits = raycaster.intersectObjects(assetGroupRef.current.children, true);
-        if (hits.length > 0) {
-          let obj = hits[0].object;
-          while (obj && !obj.userData?.asset) {
-            obj = obj.parent;
-          }
-          if (obj?.userData?.asset) {
-            manualPosRef.current = null;
-            setIsWasdWalking(false);
-            const clickedAsset = obj.userData.asset;
-            onSelectAsset(clickedAsset);
-            setClickedPopoverAssetId(clickedAsset.asset_id);
-            setClickedUnboundCvObj(null);
-            triggerCameraFlyTo(
-              clickedAsset.position,
-              clickedAsset.approach_point,
-              clickedAsset.bbox_size
-            );
-            if (clickedAsset.cvObject?.object_id && onSelectCvObject) {
-              onSelectCvObject(clickedAsset.cvObject);
-            }
-            return;
-          }
+      // 1. Check 30 Bound Assets / OBBs using precision center-weighted 3D + touch-magnet picker
+      const clickedAsset = pickAssetFromPointer(e.clientX, e.clientY, true);
+      if (clickedAsset) {
+        manualPosRef.current = null;
+        setIsWasdWalking(false);
+        onSelectAsset(clickedAsset);
+        setClickedPopoverAssetId(clickedAsset.asset_id);
+        setClickedUnboundCvObj(null);
+        triggerCameraFlyTo(
+          clickedAsset.position,
+          clickedAsset.approach_point,
+          clickedAsset.bbox_size
+        );
+        if (clickedAsset.cvObject?.object_id && onSelectCvObject) {
+          onSelectCvObject(clickedAsset.cvObject);
         }
+        return;
       }
 
       // 2. Check Unbound CV OBBs (when "Show All 441 CV Detections" is enabled)
@@ -1104,19 +1143,7 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // 3. Check Floor Waypoint Hazard Nodes
-      if (navGraphGroupRef.current) {
-        const navHits = raycaster.intersectObjects(navGraphGroupRef.current.children, true);
-        if (navHits.length > 0) {
-          const nodeId = navHits[0].object.userData?.nodeId;
-          if (nodeId && nodeId !== 'N-ENTRY') {
-            onToggleHazardNode(nodeId);
-            return;
-          }
-        }
-      }
-
-      // 4. Clicked on empty space -> hide Popover Card and deselect worker
+      // 3. Clicked on empty space -> hide Popover Card and deselect worker
       setClickedPopoverAssetId(null);
       setClickedUnboundCvObj(null);
       setClickedScreenAnchor(null);
@@ -1348,39 +1375,6 @@ export default function BoilerRoomViewport({
             }
           }
         });
-
-        if (navGraphGroupRef.current) {
-          const lockedNodeSet = new Set();
-          st.exerciseWorkers.forEach((w) => {
-            if (w.lockedNodeId) lockedNodeSet.add(w.lockedNodeId);
-            if (w.state === 'WALKING_TO_FAULT' || w.state === 'RETURNING') {
-              const wpos = w.position || w.pos || [0, -1.02, -0.32];
-              NAV_NODES.forEach((n) => {
-                if (Math.hypot(n.pos[0] - wpos[0], n.pos[2] - wpos[2]) < 0.62) {
-                  lockedNodeSet.add(n.id);
-                }
-              });
-            }
-          });
-          const anyMoving = st.exerciseWorkers.some(
-            (w) => w.state === 'WALKING_TO_FAULT' || w.state === 'RETURNING'
-          );
-          navGraphGroupRef.current.children.forEach((obj) => {
-            if (obj.userData?.isNavNodeSphere && !obj.userData?.isHazard) {
-              const isLocked = lockedNodeSet.has(obj.userData.nodeId);
-              obj.material.color.setHex(
-                isLocked ? 0xef4444 : anyMoving ? 0x49a942 : obj.userData.isStair ? 0x38bdf8 : 0x64748b
-              );
-              obj.material.opacity = isLocked ? 0.95 : anyMoving ? 0.82 : 0.6;
-            }
-            if (obj.userData?.isNavSignalRing && !obj.userData?.isHazard) {
-              const isLocked = lockedNodeSet.has(obj.userData.nodeId);
-              obj.visible = Boolean(anyMoving || isLocked);
-              obj.material.color.setHex(isLocked ? 0xef4444 : 0x49a942);
-              obj.material.opacity = isLocked ? 0.78 : 0.35;
-            }
-          });
-        }
 
         const focusWorker =
           st.exerciseWorkers.find((w) => w.id === st.selectedWorkerId) ||
@@ -1799,6 +1793,48 @@ export default function BoilerRoomViewport({
           setWorkerOverlays([]);
         }
 
+        // Interactive Floating 3D Asset Tag Badges (Overlays.jsx from ahmad_branch)
+        const tagPills = [];
+        st.assets.forEach((asset) => {
+          const isSelected = st.selectedAsset?.asset_id === asset.asset_id;
+          const isClicked = st.clickedPopoverAssetId === asset.asset_id;
+          const isHovered = hoveredId === asset.asset_id;
+          const isTarget = activeTargetAssetIds.has(asset.asset_id);
+          const isAbnormal = asset.health_status !== 'healthy';
+          const camDist = Math.hypot(
+            asset.position[0] - camera.position.x,
+            asset.position[1] - camera.position.y,
+            asset.position[2] - camera.position.z
+          );
+          if (!isAbnormal && !isSelected && !isClicked && !isHovered && !isTarget && camDist > 2.85) {
+            return;
+          }
+          const anchor = new THREE.Vector3(
+            asset.position[0],
+            asset.position[1] + (asset.bbox_size?.[1] || 0.45) * 0.56 + 0.08,
+            asset.position[2]
+          );
+          anchor.project(camera);
+          if (anchor.z > -1 && anchor.z < 1) {
+            const sx = (anchor.x * 0.5 + 0.5) * width;
+            const sy = (-(anchor.y * 0.5) + 0.5) * height;
+            if (sx >= 24 && sx <= width - 24 && sy >= 36 && sy <= height - 36) {
+              tagPills.push({
+                asset_id: asset.asset_id,
+                tag: asset.tag,
+                health_status: asset.health_status,
+                health_score: asset.health_score,
+                isSelected: isSelected || isClicked,
+                isHovered,
+                isTarget,
+                x: sx,
+                y: sy
+              });
+            }
+          }
+        });
+        setAssetTagOverlays(tagPills);
+
         if (st.clickedPopoverAssetId) {
           const clickedAsset = st.assets.find((a) => a.asset_id === st.clickedPopoverAssetId);
           if (clickedAsset) {
@@ -1814,8 +1850,8 @@ export default function BoilerRoomViewport({
               const num = parseInt(clickedAsset.asset_id.split('-')[1], 10) || 1;
               const triCount = (7.4 + ((num * 3.7) % 24.5)).toFixed(1);
               setClickedScreenAnchor({
-                x: Math.min(width - 330, Math.max(20, x)),
-                y: Math.min(height - 260, Math.max(60, y)),
+                x: Math.min(width - 340, Math.max(16, x)),
+                y: Math.min(height - 320, Math.max(54, y)),
                 triCount,
                 meshIdx: String(num).padStart(2, '0')
               });
@@ -2067,6 +2103,7 @@ export default function BoilerRoomViewport({
       assetGroup.remove(assetGroup.children[0]);
     }
     assetMeshMapRef.current.clear();
+    const nextHitboxes = [];
 
     assets.forEach((asset) => {
       const colorHex = HEALTH_COLORS[asset.health_status] || 0x38bdf8;
@@ -2074,13 +2111,26 @@ export default function BoilerRoomViewport({
 
       const group = new THREE.Group();
       group.position.set(asset.position[0], asset.position[1], asset.position[2]);
-      if (asset.cvObject?.yaw_deg) {
-        group.rotation.y = THREE.MathUtils.degToRad(asset.cvObject.yaw_deg);
+      const r = asset.cvObject?.obb?.rotation;
+      if (Array.isArray(r) && r.length === 3) {
+        // Exact display-frame rotation D * R * D where D = diag(1, -1, -1) matches splatDisplayGroup
+        const rotMat = new THREE.Matrix4().set(
+          r[0][0], -r[0][1], -r[0][2], 0,
+          -r[1][0], r[1][1], r[1][2], 0,
+          -r[2][0], r[2][1], r[2][2], 0,
+          0, 0, 0, 1
+        );
+        group.quaternion.setFromRotationMatrix(rotMat);
+      } else if (asset.cvObject?.yaw_deg) {
+        group.rotation.y = THREE.MathUtils.degToRad(-asset.cvObject.yaw_deg);
       }
       group.userData = { asset };
 
       const { group: equipGroup, solidMat, accentMat } = createProceduralEquipmentMesh(asset, colorHex);
       equipGroup.userData = { asset };
+      equipGroup.traverse((c) => {
+        c.raycast = () => {};
+      });
       group.add(equipGroup);
 
       const boxGeo = new THREE.BoxGeometry(sx, sy, sz);
@@ -2095,6 +2145,7 @@ export default function BoilerRoomViewport({
       const boxMesh = new THREE.Mesh(boxGeo, fillMat);
       boxMesh.userData = { asset };
       group.add(boxMesh);
+      nextHitboxes.push(boxMesh);
 
       const edgesGeo = new THREE.EdgesGeometry(boxGeo);
       const edgeMat = new THREE.LineBasicMaterial({
@@ -2104,6 +2155,8 @@ export default function BoilerRoomViewport({
         toneMapped: false
       });
       const wireMesh = new THREE.LineSegments(edgesGeo, edgeMat);
+      // Disable LineSegments raycast so Three.js default 1m line threshold never hijacks clicks!
+      wireMesh.raycast = () => {};
       group.add(wireMesh);
 
       const backPlaneGeo = new THREE.PlaneGeometry(sx * 0.98, sy * 0.98);
@@ -2115,6 +2168,7 @@ export default function BoilerRoomViewport({
       });
       const backPlaneMesh = new THREE.Mesh(backPlaneGeo, backPlaneMat);
       backPlaneMesh.position.set(0, 0, sz * 0.5);
+      backPlaneMesh.raycast = () => {};
       backPlaneMesh.userData = { asset };
       group.add(backPlaneMesh);
 
@@ -2136,12 +2190,15 @@ export default function BoilerRoomViewport({
           transparent: true,
           opacity: 0.95
         });
-        contourGroup.add(new THREE.Line(contourLineGeo, contourLineMat));
+        const cLine = new THREE.Line(contourLineGeo, contourLineMat);
+        cLine.raycast = () => {};
+        contourGroup.add(cLine);
 
         const dotMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
         localContourVecs.slice(0, -1).forEach((v) => {
           const dot = new THREE.Mesh(GEO_CACHE.contourDot, dotMat);
           dot.position.copy(v);
+          dot.raycast = () => {};
           contourGroup.add(dot);
         });
       }
@@ -2159,6 +2216,7 @@ export default function BoilerRoomViewport({
         equipMats: { solidMat, accentMat }
       });
     });
+    assetHitboxesRef.current = nextHitboxes;
 
     while (structuralGroup.children.length > 0) {
       structuralGroup.remove(structuralGroup.children[0]);
@@ -2174,13 +2232,14 @@ export default function BoilerRoomViewport({
           opacity: 0.25 * (semanticBlend / 100)
         });
         const wire = new THREE.LineSegments(edgesGeo, lineMat);
+        wire.raycast = () => {};
         wire.position.set(stObj.position[0], stObj.position[1], stObj.position[2]);
         structuralGroup.add(wire);
       });
     }
   }, [assets, showStructuralBoxes, showContourModels, semanticBlend]);
 
-  // Render Centerline Waypoint 'Rails'
+  // Render Centerline Waypoint 'Rails' (clean path tube only — no green/red floor node dots)
   useEffect(() => {
     const pathGroup = pathGroupRef.current;
     const navGraphGroup = navGraphGroupRef.current;
@@ -2212,85 +2271,33 @@ export default function BoilerRoomViewport({
         opacity
       });
       const mesh = new THREE.Mesh(tubeGeo, tubeMat);
+      mesh.raycast = () => {};
       pathGroup.add(mesh);
     };
 
     const isZig = railMode === 'zigzag_grid';
 
-    if (multiAgentEnabled && fleetAssignments?.length) {
-      fleetAssignments.forEach((assign, idx) => {
-        const col = assign.agent_id === 'R1' ? 0xd96b27 : assign.agent_id === 'R2' ? 0x49a942 : 0x1f6fb2;
-        buildTube(assign.path?.points, col, 0.036, 0.03 + idx * 0.015, 0.88, isZig);
-      });
-    } else if (showDualComparison) {
-      buildTube(humanPath?.points, 0x1f6fb2, 0.034, 0.06, activeProfile === 'human' ? 0.92 : 0.45, isZig);
-      buildTube(robotPath?.points, 0xd96b27, 0.040, 0.03, activeProfile === 'robot' ? 0.92 : 0.45, isZig);
-    } else if (activeProfile === 'human') {
-      buildTube(humanPath?.points, 0x1f6fb2, 0.040, 0.04, 0.92, isZig);
-    } else {
-      buildTube(robotPath?.points, 0xd96b27, 0.040, 0.04, 0.92, isZig);
+    // When not in exerciseMode, show the single/dual/fleet preview path tube
+    if (!exerciseMode) {
+      if (multiAgentEnabled && fleetAssignments?.length) {
+        fleetAssignments.forEach((assign, idx) => {
+          const col = assign.agent_id === 'R1' ? 0xd96b27 : assign.agent_id === 'R2' ? 0x49a942 : 0x1f6fb2;
+          buildTube(assign.path?.points, col, 0.036, 0.03 + idx * 0.015, 0.88, isZig);
+        });
+      } else if (showDualComparison) {
+        buildTube(humanPath?.points, 0x1f6fb2, 0.034, 0.06, activeProfile === 'human' ? 0.92 : 0.45, isZig);
+        buildTube(robotPath?.points, 0xd96b27, 0.040, 0.03, activeProfile === 'robot' ? 0.92 : 0.45, isZig);
+      } else if (activeProfile === 'human') {
+        buildTube(humanPath?.points, 0x1f6fb2, 0.040, 0.04, 0.92, isZig);
+      } else {
+        buildTube(robotPath?.points, 0xd96b27, 0.040, 0.04, 0.92, isZig);
+      }
     }
 
-    const nodeMap = new Map(NAV_NODES.map((n) => [n.id, n]));
-    NAV_EDGES.forEach((edge) => {
-      const u = nodeMap.get(edge.from);
-      const v = nodeMap.get(edge.to);
-      if (!u || !v) return;
-
-      const g = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(u.pos[0], u.pos[1] + 0.012, u.pos[2]),
-        new THREE.Vector3(v.pos[0], v.pos[1] + 0.012, v.pos[2])
-      ]);
-      const m = new THREE.LineBasicMaterial({
-        color: edge.has_stairs ? 0x0284c7 : 0x475569,
-        transparent: true,
-        opacity: 0.65
-      });
-      navGraphGroup.add(new THREE.Line(g, m));
-    });
-
-    NAV_NODES.forEach((node) => {
-      const isHazard = hazardNodes.includes(node.id);
-      const isStair = node.id === 'N-M-STEP';
-
-      const sphereGeo = new THREE.SphereGeometry(isHazard ? 0.16 : 0.055, 12, 12);
-      const sphereMat = new THREE.MeshBasicMaterial({
-        color: isHazard ? 0xef4444 : isStair ? 0x38bdf8 : 0x64748b,
-        transparent: true,
-        opacity: isHazard ? 0.95 : 0.6
-      });
-      const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-      sphere.position.set(node.pos[0], node.pos[1] + 0.04, node.pos[2]);
-      sphere.userData = {
-        nodeId: node.id,
-        label: node.label,
-        isNavNodeSphere: true,
-        isHazard,
-        isStair
-      };
-      navGraphGroup.add(sphere);
-
-      if (!isHazard && node.id !== 'N-ENTRY') {
-        const ringGeo = new THREE.RingGeometry(0.18, 0.24, 24);
-        const ringMat = new THREE.MeshBasicMaterial({
-          color: 0x49a942,
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 0.35
-        });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = -Math.PI / 2;
-        ring.position.set(node.pos[0], node.pos[1] + 0.014, node.pos[2]);
-        ring.visible = false;
-        ring.userData = {
-          nodeId: node.id,
-          isNavSignalRing: true,
-          isHazard
-        };
-        navGraphGroup.add(ring);
-      }
-
-      if (isHazard) {
+    // Only render explicit red hazard cylinders if the user placed a hazard blockade
+    if (hazardNodes?.length > 0) {
+      NAV_NODES.forEach((node) => {
+        if (!hazardNodes.includes(node.id)) return;
         const hazGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.9, 18);
         const hazMat = new THREE.MeshBasicMaterial({
           color: 0xef4444,
@@ -2302,9 +2309,9 @@ export default function BoilerRoomViewport({
         hazMesh.position.set(node.pos[0], node.pos[1] + 0.45, node.pos[2]);
         hazMesh.userData = { nodeId: node.id };
         navGraphGroup.add(hazMesh);
-      }
-    });
-  }, [humanPath, robotPath, activeProfile, railMode, multiAgentEnabled, fleetAssignments, showDualComparison, hazardNodes, selectedAsset]);
+      });
+    }
+  }, [humanPath, robotPath, activeProfile, railMode, multiAgentEnabled, fleetAssignments, showDualComparison, hazardNodes, selectedAsset, exerciseMode]);
 
   // Sync Dynamic Exercise Workers & Active Repair Route Tubes in 3D Scene
   useEffect(() => {
@@ -2557,6 +2564,93 @@ export default function BoilerRoomViewport({
           </React.Fragment>
         ))}
 
+      {/* Interactive Floating 3D Asset Tag Badges (Overlays.jsx from ahmad_branch) */}
+      {!arFirstPersonMode &&
+        assetTagOverlays.map((pill) => {
+          const dotColor =
+            pill.health_status === 'attention_required'
+              ? '#ef4444'
+              : pill.health_status === 'degraded'
+              ? '#f97316'
+              : pill.health_status === 'watch'
+              ? '#eab308'
+              : '#38bdf8';
+          return (
+            <button
+              key={pill.asset_id}
+              type="button"
+              onClick={(ev) => {
+                ev.stopPropagation();
+                const targetAsset = assets.find((a) => a.asset_id === pill.asset_id);
+                if (!targetAsset) return;
+                onSelectAsset(targetAsset);
+                setClickedPopoverAssetId(targetAsset.asset_id);
+                setClickedUnboundCvObj(null);
+                triggerCameraFlyTo(
+                  targetAsset.position,
+                  targetAsset.approach_point,
+                  targetAsset.bbox_size
+                );
+              }}
+              onMouseEnter={() => {
+                hoveredAssetIdRef.current = pill.asset_id;
+              }}
+              onMouseLeave={() => {
+                if (hoveredAssetIdRef.current === pill.asset_id) {
+                  hoveredAssetIdRef.current = null;
+                }
+              }}
+              style={{
+                position: 'absolute',
+                left: pill.x,
+                top: pill.y,
+                transform: 'translate(-50%, -100%)',
+                zIndex: pill.isSelected || pill.isHovered ? 18 : 11,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: pill.isSelected || pill.isHovered ? '4px 9px' : '2.5px 7px',
+                borderRadius: '999px',
+                border: `1px solid ${pill.isSelected || pill.isHovered ? '#38bdf8' : dotColor}`,
+                background:
+                  pill.isSelected || pill.isHovered
+                    ? 'rgba(15, 23, 42, 0.96)'
+                    : 'rgba(15, 23, 42, 0.84)',
+                color: '#f8fafc',
+                fontFamily: 'var(--mono)',
+                fontSize: pill.isSelected || pill.isHovered ? '11.5px' : '10.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow:
+                  pill.isSelected || pill.isHovered
+                    ? '0 0 12px rgba(56, 189, 248, 0.55)'
+                    : '0 2px 6px rgba(0,0,0,0.45)',
+                pointerEvents: 'auto',
+                touchAction: 'manipulation',
+                userSelect: 'none',
+                transition: 'transform 0.12s ease, box-shadow 0.12s ease'
+              }}
+              title={`Tap to focus & inspect ${pill.tag} (${pill.asset_id})`}
+            >
+              <span
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: dotColor,
+                  boxShadow: `0 0 6px ${dotColor}`
+                }}
+              />
+              <span>{pill.tag}</span>
+              {pill.health_status !== 'healthy' && (
+                <span style={{ color: dotColor, fontSize: '10px' }}>
+                  {pill.health_score}%
+                </span>
+              )}
+            </button>
+          );
+        })}
+
       {/* First-Person Field POV Frame + AR Red-Light / Green-Light Traffic Signal System */}
       {arFirstPersonMode && (
         <>
@@ -2661,20 +2755,124 @@ export default function BoilerRoomViewport({
           </div>
 
           <div className="vp-popover-body">
-            {clickedPhoto && (
-              <img
-                src={clickedPhoto}
-                alt={`CV Evidence ${clickedPopoverAsset.tag}`}
-                style={{
-                  width: '100%',
-                  height: '92px',
-                  objectFit: 'cover',
-                  borderRadius: '3px',
-                  border: '1px solid var(--border)',
-                  marginBottom: '6px'
-                }}
-              />
-            )}
+            {/* Live Telemetry Waveform + Diagnostic & Dispatch Block (above Pressure & Vibration) */}
+            {(() => {
+              const vib = Number(clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1);
+              const press = Number(clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5);
+              const temp = Number(clickedPopoverAsset.telemetry?.temperature_c ?? 48.0);
+              const assignedWorker = (exerciseWorkers || []).find(
+                (w) => w.targetAssetId === clickedPopoverAsset.asset_id && w.state !== 'STANDBY'
+              );
+              const standbyWorker =
+                (exerciseWorkers || []).find(
+                  (w) => w.id === selectedWorkerId && w.state === 'STANDBY'
+                ) || (exerciseWorkers || []).find((w) => w.state === 'STANDBY');
+
+              const waveColor =
+                clickedPopoverAsset.health_status === 'attention_required'
+                  ? '#ef4444'
+                  : clickedPopoverAsset.health_status === 'degraded'
+                  ? '#f97316'
+                  : clickedPopoverAsset.health_status === 'watch'
+                  ? '#eab308'
+                  : '#38bdf8';
+
+              // Build 12-point live waveform from current vibration & pressure signature
+              const pts = Array.from({ length: 12 }, (_, idx) => {
+                const x = (idx / 11) * 240;
+                const normV = Math.min(1, Math.max(0.08, vib / 9.5));
+                const ripple = Math.sin(idx * 1.35 + vib) * (0.08 + normV * 0.18);
+                const y = 38 - Math.min(34, Math.max(4, (normV + ripple) * 30));
+                return `${x.toFixed(1)},${y.toFixed(1)}`;
+              }).join(' ');
+
+              return (
+                <div
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.92)',
+                    border: '1px solid #334155',
+                    borderRadius: '4px',
+                    padding: '7px 9px',
+                    marginBottom: '7px',
+                    color: '#f8fafc'
+                  }}
+                >
+                  <div className="row" style={{ justifyContent: 'space-between', fontSize: '10.5px' }}>
+                    <span className="mono" style={{ color: waveColor, fontWeight: 700 }}>
+                      {humanize(clickedPopoverAsset.status_reason || 'NORMAL_OPERATION')}
+                    </span>
+                    <span className="mono" style={{ color: '#94a3b8' }}>
+                      {clickedPopoverAsset.line_id} Â· { temp.toFixed(1) }Â°C
+                    </span>
+                  </div>
+
+                  {/* Live Telemetry Sparkline Waveform SVG */}
+                  <svg
+                    viewBox="0 0 240 42"
+                    style={{
+                      width: '100%',
+                      height: '40px',
+                      marginTop: '4px',
+                      marginBottom: '4px',
+                      display: 'block'
+                    }}
+                  >
+                    <line
+                      x1="0"
+                      y1="14"
+                      x2="240"
+                      y2="14"
+                      stroke="rgba(239, 68, 68, 0.35)"
+                      strokeDasharray="3 3"
+                      strokeWidth="1"
+                    />
+                    <polyline
+                      fill="none"
+                      stroke={waveColor}
+                      strokeWidth="2"
+                      points={pts}
+                    />
+                  </svg>
+
+                  <div
+                    className="row"
+                    style={{
+                      justifyContent: 'space-between',
+                      fontSize: '10.5px',
+                      borderTop: '1px solid rgba(51, 65, 85, 0.7)',
+                      paddingTop: '5px'
+                    }}
+                  >
+                    {assignedWorker ? (
+                      <span className="mono" style={{ color: '#4ade80', fontWeight: 600 }}>
+                        {assignedWorker.id}{' '}
+                        {assignedWorker.state === 'REPAIRING'
+                          ? `Repairing (${Math.round(assignedWorker.repairProgress || 0)}%)`
+                          : `En Route â†’ ${clickedPopoverAsset.tag}`}
+                      </span>
+                    ) : (
+                      <span className="mono" style={{ color: '#cbd5e1' }}>
+                        {clickedPopoverAsset.esdf_reachable !== false
+                          ? 'ESDF Approach Clear (â‰¥0.33m)'
+                          : 'Elevated Valve Â· Floor Standoff'}
+                      </span>
+                    )}
+
+                    {!assignedWorker && standbyWorker && onAssignWorkerToFault && (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-primary"
+                        style={{ padding: '1px 7px', fontSize: '10px' }}
+                        onClick={() => onAssignWorkerToFault(standbyWorker.id, clickedPopoverAsset)}
+                        title={`Send ${standbyWorker.id} from entrance to ${clickedPopoverAsset.tag}`}
+                      >
+                        Dispatch {standbyWorker.id}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="metric-grid">
               <div className="metric">
@@ -2683,6 +2881,25 @@ export default function BoilerRoomViewport({
                   {clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5}
                   <small>bar</small>
                 </div>
+                {onQuickMutateTelemetry && (
+                  <input
+                    type="range"
+                    min="2.0"
+                    max="9.5"
+                    step="0.1"
+                    value={clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5}
+                    onChange={(ev) => {
+                      const val = parseFloat(ev.target.value);
+                      onQuickMutateTelemetry(
+                        clickedPopoverAsset.asset_id,
+                        { pressure_bar: val },
+                        val < 3.8 || val > 8.2 ? 'PRESSURE_DEVIATION' : null
+                      );
+                    }}
+                    style={{ width: '100%', marginTop: '4px', accentColor: '#38bdf8' }}
+                    title="Drag to interactively adjust live Pressure (bar)"
+                  />
+                )}
               </div>
               <div className="metric">
                 <div className="k">Vibration</div>
@@ -2690,6 +2907,29 @@ export default function BoilerRoomViewport({
                   {clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1}
                   <small>mm/s</small>
                 </div>
+                {onQuickMutateTelemetry && (
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="9.5"
+                    step="0.1"
+                    value={clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1}
+                    onChange={(ev) => {
+                      const val = parseFloat(ev.target.value);
+                      onQuickMutateTelemetry(
+                        clickedPopoverAsset.asset_id,
+                        { vibration_mms: val },
+                        val >= 6.0
+                          ? 'HIGH_VIBRATION_ALARM'
+                          : val < 3.5
+                          ? 'NORMAL_OPERATION'
+                          : null
+                      );
+                    }}
+                    style={{ width: '100%', marginTop: '4px', accentColor: '#ef4444' }}
+                    title="Drag to interactively simulate Vibration (mm/s)"
+                  />
+                )}
               </div>
             </div>
 

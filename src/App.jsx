@@ -1586,6 +1586,7 @@ export default function App() {
           onSelectWorker={setSelectedWorkerId}
           onAddWorker={handleAddWorker}
           onDeleteWorker={handleDeleteWorker}
+          onAssignWorkerToFault={handleAssignWorkerToFault}
           onInjectRandomFault={handleInjectRandomFault}
           autoDispatch={autoDispatch}
           onToggleAutoDispatch={setAutoDispatch}
