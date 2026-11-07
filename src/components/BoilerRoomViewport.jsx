@@ -567,8 +567,8 @@ export default function BoilerRoomViewport({
         const curCam = cameraRef.current;
         const obstacles = buildCollisionBoxes([...(STRUCTURAL_BOILER_OBJECTS || []), ...(assets || [])]);
         const [safeX, safeZ] = resolveObstacleCollisions(curCam.position.x, curCam.position.z, 0.28, obstacles);
-        firstPersonPosRef.current = { x: safeX, y: -0.34, z: safeZ };
-        curCam.position.set(safeX, -0.34, safeZ);
+        firstPersonPosRef.current = { x: safeX, y: -0.12, z: safeZ };
+        curCam.position.set(safeX, -0.12, safeZ);
 
         const dir = new THREE.Vector3();
         curCam.getWorldDirection(dir);
@@ -656,8 +656,8 @@ export default function BoilerRoomViewport({
   const [arTrafficOverride, setArTrafficOverride] = useState('AUTO');
   const [liveArSignal, setLiveArSignal] = useState({
     light: 'GREEN',
-    headline: 'GREEN LIGHT â€” PROCEED',
-    detail: 'Corridor clear Â· Right-of-way granted',
+    headline: 'GREEN LIGHT  —  PROCEED',
+    detail: 'Corridor clear · Right-of-way granted',
     conflictingUnitId: null,
     distanceMeters: null,
     speedMultiplier: 1.0,
@@ -893,9 +893,12 @@ export default function BoilerRoomViewport({
     scene.background = new THREE.Color(0x0b1220);
     sceneRef.current = scene;
 
+    const clientW = container.clientWidth || window.innerWidth || 1280;
+    const clientH = container.clientHeight || (window.innerHeight - 80) || 720;
+
     const camera = new THREE.PerspectiveCamera(
       52,
-      container.clientWidth / container.clientHeight,
+      clientW / clientH,
       0.03,
       100
     );
@@ -904,7 +907,7 @@ export default function BoilerRoomViewport({
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(clientW, clientH);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
@@ -1468,9 +1471,12 @@ export default function BoilerRoomViewport({
 
     const handleResize = () => {
       if (!container) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
+      const w = container.clientWidth || window.innerWidth || 1280;
+      const h = container.clientHeight || (window.innerHeight - 80) || 720;
+      if (h <= 0) return;
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);
 
@@ -1870,8 +1876,8 @@ export default function BoilerRoomViewport({
       if (st.arTrafficOverride === 'RED') {
         activeSignal = {
           light: 'RED',
-          headline: 'RED LIGHT â€” HOLD POSITION',
-          detail: 'Intersection stop signal active Â· Forward motion gated',
+          headline: 'RED LIGHT  —  HOLD POSITION',
+          detail: 'Intersection stop signal active · Forward motion gated',
           conflictingUnitId: activeSignal.conflictingUnitId || 'Cross-Traffic',
           distanceMeters: activeSignal.distanceMeters || 0.85,
           speedMultiplier: 0,
@@ -1880,8 +1886,8 @@ export default function BoilerRoomViewport({
       } else if (st.arTrafficOverride === 'YELLOW') {
         activeSignal = {
           light: 'YELLOW',
-          headline: 'YELLOW LIGHT â€” KEEP RIGHT LANE',
-          detail: 'Shared corridor active Â· Right-hand passing offset +0.22 m',
+          headline: 'YELLOW LIGHT  —  KEEP RIGHT LANE',
+          detail: 'Shared corridor active · Right-hand passing offset +0.22 m',
           conflictingUnitId: activeSignal.conflictingUnitId || 'Oncoming Unit',
           distanceMeters: activeSignal.distanceMeters || 1.45,
           speedMultiplier: 0.75,
@@ -1890,8 +1896,8 @@ export default function BoilerRoomViewport({
       } else if (st.arTrafficOverride === 'GREEN') {
         activeSignal = {
           light: 'GREEN',
-          headline: 'GREEN LIGHT â€” PROCEED',
-          detail: 'Corridor clear Â· Full right-of-way granted',
+          headline: 'GREEN LIGHT  —  PROCEED',
+          detail: 'Corridor clear · Full right-of-way granted',
           conflictingUnitId: null,
           distanceMeters: activeSignal.distanceMeters,
           speedMultiplier: 1.0,
@@ -2094,7 +2100,7 @@ export default function BoilerRoomViewport({
           ) {
             cameraFlyRef.current.active = false;
             firstPersonPosRef.current.x = camera.position.x;
-            firstPersonPosRef.current.y = -0.34;
+            firstPersonPosRef.current.y = -0.12;
             firstPersonPosRef.current.z = camera.position.z;
             const dir = new THREE.Vector3();
             camera.getWorldDirection(dir);
@@ -2102,63 +2108,83 @@ export default function BoilerRoomViewport({
             firstPersonPitchRef.current = Math.asin(Math.max(-0.99, Math.min(0.99, dir.y)));
           }
         } else {
-          // 1st-Person Walking & Collision Resolution
-          const forward = (keys.w || keys.arrowup || keys.KeyW ? 1 : 0) - (keys.s || keys.arrowdown || keys.KeyS ? 1 : 0);
-          const strafe = (keys.d || keys.arrowright || keys.KeyD ? 1 : 0) - (keys.a || keys.arrowleft || keys.KeyA ? 1 : 0);
-
-          let curX = firstPersonPosRef.current.x;
-          let curZ = firstPersonPosRef.current.z;
-
-          if (forward !== 0 || strafe !== 0) {
-            const walkSpeed = 1.68 * dt;
+          // Walk movement along yaw
+          if (anyWasdDown) {
             const yaw = firstPersonYawRef.current;
             const fwdX = Math.sin(yaw);
             const fwdZ = Math.cos(yaw);
-            const rightX = -Math.cos(yaw);
-            const rightZ = Math.sin(yaw);
+            const rightX = Math.cos(yaw);
+            const rightZ = -Math.sin(yaw);
 
-            const moveX = fwdX * forward + rightX * strafe;
-            const moveZ = fwdZ * forward + rightZ * strafe;
-            const len = Math.hypot(moveX, moveZ) || 1;
+            const walkSpeed = (keys.shift ? 2.8 : 1.75) * dt;
+            let moveX = 0;
+            let moveZ = 0;
 
-            const desiredX = curX + (moveX / len) * walkSpeed;
-            const desiredZ = curZ + (moveZ / len) * walkSpeed;
+            if (keys.w || keys.arrowup || keys.KeyW) {
+              moveX += fwdX * walkSpeed;
+              moveZ += fwdZ * walkSpeed;
+            }
+            if (keys.s || keys.arrowdown || keys.KeyS) {
+              moveX -= fwdX * walkSpeed;
+              moveZ -= fwdZ * walkSpeed;
+            }
+            if (keys.a || keys.arrowleft || keys.q || keys.KeyA || keys.KeyQ) {
+              moveX -= rightX * walkSpeed;
+              moveZ -= rightZ * walkSpeed;
+            }
+            if (keys.d || keys.arrowright || keys.e || keys.KeyD || keys.KeyE) {
+              moveX += rightX * walkSpeed;
+              moveZ += rightZ * walkSpeed;
+            }
 
-            const [safeX, safeZ] = resolveObstacleCollisions(
-              desiredX,
-              desiredZ,
+            const curX = firstPersonPosRef.current.x;
+            const curZ = firstPersonPosRef.current.z;
+            const [resX, resZ] = resolveObstacleCollisions(
+              curX + moveX,
+              curZ + moveZ,
               0.28,
               obstacles,
               curX,
               curZ
             );
-            curX = safeX;
-            curZ = safeZ;
-            firstPersonPosRef.current.x = curX;
-            firstPersonPosRef.current.z = curZ;
+
+            firstPersonPosRef.current.x = resX;
+            firstPersonPosRef.current.y = -0.12;
+            firstPersonPosRef.current.z = resZ;
           }
 
-          // Strict eye-level floor height inside the 3DGS scan
-          camera.position.set(curX, -0.34, curZ);
+          // Pin camera to the safe, collision-checked human position
+          camera.position.set(
+            firstPersonPosRef.current.x,
+            -0.12,
+            firstPersonPosRef.current.z
+          );
 
-          const cosPitch = Math.cos(firstPersonPitchRef.current);
-          const lookDirX = Math.sin(firstPersonYawRef.current) * cosPitch;
-          const lookDirY = Math.sin(firstPersonPitchRef.current);
-          const lookDirZ = Math.cos(firstPersonYawRef.current) * cosPitch;
+          // Rotate head in-place (yaw & pitch) — camera never swings through obstacles!
+          const cosP = Math.cos(firstPersonPitchRef.current);
+          const lX = Math.sin(firstPersonYawRef.current) * cosP;
+          const lY = Math.sin(firstPersonPitchRef.current);
+          const lZ = Math.cos(firstPersonYawRef.current) * cosP;
 
           camera.lookAt(
-            curX + lookDirX * 2.0,
-            -0.34 + lookDirY * 2.0,
-            curZ + lookDirZ * 2.0
+            camera.position.x + lX,
+            camera.position.y + lY,
+            camera.position.z + lZ
+          );
+
+          controls.target.set(
+            camera.position.x + lX * 2.0,
+            camera.position.y + lY * 2.0,
+            camera.position.z + lZ * 2.0
           );
 
           primarySample = {
-            position: [curX, -1.02, curZ],
+            position: [firstPersonPosRef.current.x, -1.02, firstPersonPosRef.current.z],
             tangent: [Math.sin(firstPersonYawRef.current), 0, Math.cos(firstPersonYawRef.current)]
           };
         }
       } else {
-        // Orbit Mode or Technician Mode: OrbitControls enabled
+        // Orbit Mode (or Technical Mode): Enable OrbitControls for 3rd person mouse dragging
         if (!controls.enabled) controls.enabled = true;
 
         if (cameraFlyRef.current.active) {
@@ -2173,25 +2199,6 @@ export default function BoilerRoomViewport({
             cameraFlyRef.current.active = false;
           }
         } else {
-          // Allow WASD panning in Orbit Mode when in Consumer Mode
-          if (!st.showWorkers) {
-            const forward = (keys.w || keys.arrowup || keys.KeyW ? 1 : 0) - (keys.s || keys.arrowdown || keys.KeyS ? 1 : 0);
-            const strafe = (keys.d || keys.arrowright || keys.KeyD ? 1 : 0) - (keys.a || keys.arrowleft || keys.KeyA ? 1 : 0);
-            if (forward !== 0 || strafe !== 0) {
-              const camDir = new THREE.Vector3();
-              camera.getWorldDirection(camDir);
-              camDir.y = 0;
-              if (camDir.lengthSq() > 0.0001) camDir.normalize();
-              const rightDir = new THREE.Vector3(-camDir.z, 0, camDir.x);
-              const moveSpeed = 2.0 * dt;
-              const deltaX = (camDir.x * forward + rightDir.x * strafe) * moveSpeed;
-              const deltaZ = (camDir.z * forward + rightDir.z * strafe) * moveSpeed;
-              camera.position.x = Math.max(-5.2, Math.min(5.2, camera.position.x + deltaX));
-              camera.position.z = Math.max(-4.2, Math.min(4.2, camera.position.z + deltaZ));
-              controls.target.x = Math.max(-4.5, Math.min(4.5, controls.target.x + deltaX));
-              controls.target.z = Math.max(-3.5, Math.min(3.5, controls.target.z + deltaZ));
-            }
-          }
           controls.update();
         }
       }
@@ -2493,7 +2500,7 @@ export default function BoilerRoomViewport({
           if (cancelled) return;
           if (ev.total > 0) {
             const pct = Math.min(99, Math.round((ev.loaded / ev.total) * 100));
-            setLoadingState(`Streaming ${label}â€¦ ${pct}%`);
+            setLoadingState(`Streaming ${label}... ${pct}%`);
           }
         }
       });
@@ -3008,50 +3015,49 @@ export default function BoilerRoomViewport({
     prevSelectedAssetIdRef.current = curId;
   }, [selectedAsset?.asset_id, arFirstPersonMode]);
 
-  const handleInteriorCamera = () => {
-    if (arFirstPersonMode) onToggleArFirstPerson(false);
-    manualPosRef.current = null;
-    setIsWasdWalking(false);
-    cameraFlyRef.current.pos.set(1.42, -0.12, -1.28);
-    cameraFlyRef.current.target.set(-0.32, -0.45, 0.95);
-    cameraFlyRef.current.active = true;
-  };
-
-  const handleResetCamera = () => {
-    if (arFirstPersonMode) onToggleArFirstPerson(false);
-    manualPosRef.current = null;
-    setIsWasdWalking(false);
-    setClickedPopoverAssetId(null);
-    setClickedUnboundCvObj(null);
-    setClickedScreenAnchor(null);
-    cameraFlyRef.current.pos.set(1.42, -0.12, -1.28);
-    cameraFlyRef.current.target.set(-0.32, -0.45, 0.95);
-    cameraFlyRef.current.active = true;
-  };
-
   const handleFacilityOverview = () => {
     if (arFirstPersonMode) onToggleArFirstPerson(false);
     manualPosRef.current = null;
     setIsWasdWalking(false);
-    handleSetNavMode('orbit');
-    cameraFlyRef.current.pos.set(0.2, 2.8, -3.5);
-    cameraFlyRef.current.target.set(0.0, -0.45, 0.8);
+    setClickedPopoverAssetId(null);
+    setClickedUnboundCvObj(null);
+    setClickedScreenAnchor(null);
+    if (navMode === 'walk') {
+      handleSetNavMode('orbit');
+    }
+    cameraFlyRef.current.pos.set(2.85, 2.45, -2.85);
+    cameraFlyRef.current.target.set(0, -0.85, 0.2);
     cameraFlyRef.current.active = true;
   };
 
   const handleResetCameraForMode = () => {
+    if (arFirstPersonMode) onToggleArFirstPerson(false);
+    manualPosRef.current = null;
+    setIsWasdWalking(false);
     setClickedPopoverAssetId(null);
     setClickedUnboundCvObj(null);
     setClickedScreenAnchor(null);
+
     if (navModeRef.current === 'walk') {
-      firstPersonPosRef.current = { x: 1.42, y: -0.34, z: -1.28 };
-      firstPersonYawRef.current = -0.66;
-      firstPersonPitchRef.current = -0.11;
-      cameraFlyRef.current.active = false;
+      firstPersonPosRef.current = { x: 1.42, y: -0.12, z: -1.28 };
+      firstPersonYawRef.current = -0.46;
+      firstPersonPitchRef.current = 0;
+      cameraFlyRef.current.pos.set(1.42, -0.12, -1.28);
+      cameraFlyRef.current.target.set(
+        1.42 + Math.sin(-0.46) * 2.5,
+        -0.12,
+        -1.28 + Math.cos(-0.46) * 2.5
+      );
+      cameraFlyRef.current.active = true;
     } else {
-      handleResetCamera();
+      cameraFlyRef.current.pos.set(2.85, 2.45, -2.85);
+      cameraFlyRef.current.target.set(0, -0.85, 0.2);
+      cameraFlyRef.current.active = true;
     }
   };
+
+  const handleResetCamera = handleResetCameraForMode;
+  const handleInteriorCamera = handleResetCameraForMode;
 
   const handleFocusSelected = () => {
     if (arFirstPersonMode) onToggleArFirstPerson(false);
@@ -3168,17 +3174,17 @@ export default function BoilerRoomViewport({
                 </span>
                 {ov.trafficStatus === 'YIELDING' && (
                   <span style={{ color: '#ef4444', fontWeight: 700 }}>
-                    Â· RED YIELD{ov.blockingUnitId ? ` (${ov.blockingUnitId})` : ''}
+                    · RED YIELD{ov.blockingUnitId ? ` (${ov.blockingUnitId})` : ''}
                   </span>
                 )}
                 {ov.trafficStatus === 'PASSING_RIGHT' && (
-                  <span style={{ color: '#f59e0b', fontWeight: 600 }}>Â· SUB-LANE</span>
+                  <span style={{ color: '#f59e0b', fontWeight: 600 }}>· SUB-LANE</span>
                 )}
                 {ov.state === 'WALKING_TO_FAULT' && ov.trafficStatus === 'CLEAR' && (
-                  <span className="muted">â†’ {ov.targetTag}</span>
+                  <span className="muted">→ {ov.targetTag}</span>
                 )}
                 {ov.state === 'RETURNING' && ov.trafficStatus === 'CLEAR' && (
-                  <span className="muted">â†’ Line</span>
+                  <span className="muted">→ Line</span>
                 )}
                 {ov.isSelected && <span className="mono muted">[Del]</span>}
               </div>
@@ -3275,7 +3281,7 @@ export default function BoilerRoomViewport({
       })}
 
       {/* First-Person Field AR Visor Frame + Collision Radar + AR Traffic Signal System */}
-      {arFirstPersonMode && (
+      {showWorkers && arFirstPersonMode && (
         <>
           <div className="fp-frame">
             <div
@@ -3293,7 +3299,7 @@ export default function BoilerRoomViewport({
             >
               <Eye size={13} style={{ color: '#38bdf8' }} />
               <span style={{ fontWeight: 700, color: '#38bdf8' }}>
-                AR SMART VISOR Â· {selectedWorkerId || exerciseWorkers?.[0]?.id || 'W-01'}
+                AR SMART VISOR · {selectedWorkerId || exerciseWorkers?.[0]?.id || 'W-01'}
               </span>
               <span style={{ color: '#94a3b8' }}>|</span>
               <span>Drive with W/A/S/D or Touch Pad</span>
@@ -3334,14 +3340,14 @@ export default function BoilerRoomViewport({
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="mono" style={{ fontWeight: 700, fontSize: '11.5px' }}>
                 {obstacleAlert?.blocked
-                  ? `OBSTACLE IN FRONT (${obstacleAlert.label}) â€” COLLISION PREVENTED`
+                  ? `OBSTACLE IN FRONT (${obstacleAlert.label})  —  COLLISION PREVENTED`
                   : obstacleAlert
                   ? `OBJECT AHEAD: ${obstacleAlert.label} (${obstacleAlert.dist}m)`
                   : liveArSignal.headline}
               </div>
               <div style={{ fontSize: '11px', color: '#cbd5e1' }} className="truncate">
                 {obstacleAlert
-                  ? 'ESDF + 3D OBB forward collision shield active Â· Turn left/right to clear obstacle'
+                  ? 'ESDF + 3D OBB forward collision shield active · Turn left/right to clear obstacle'
                   : liveArSignal.detail}
               </div>
             </div>
@@ -3445,6 +3451,7 @@ export default function BoilerRoomViewport({
           onCenterAsset={() => handleFocusSelected()}
           onMoveObject={onMoveCvObject}
           objectMoves={objectMoves}
+          onSwitchToTechnicianMode={!showWorkers ? onSwitchToTechnicianMode : null}
         />
       )}
       {/* On-Click Unbound CV Object Popover (with 1-Click 3D Splat Separation & Move Controls) */}
@@ -3494,7 +3501,7 @@ export default function BoilerRoomViewport({
               style={{ background: 'transparent', color: '#94a3b8', border: '1px solid rgba(148,163,184,0.3)' }}
               onClick={() => setClickedUnboundCvObj(null)}
             >
-              ✕
+              <X size={14} />
             </button>
           </div>
           <div className="vp-popover-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -3762,7 +3769,7 @@ export default function BoilerRoomViewport({
       )}
 
       {/* Bottom-right Technician Manual Drive & AR Controller Pad (Only appears when 1st-Person AR is active, with 1st/3rd Person toggle) */}
-      {arFirstPersonMode && (
+      {showWorkers && arFirstPersonMode && (
         <div
           style={{
             position: 'absolute',
@@ -3785,7 +3792,7 @@ export default function BoilerRoomViewport({
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
             <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)', letterSpacing: '0.05em', color: '#38bdf8' }}>
-              🕹️ DRIVE TECHNICIAN
+              DRIVE TECHNICIAN
             </span>
             <button
               onClick={() => onToggleArFirstPerson(false)}
@@ -3833,7 +3840,7 @@ export default function BoilerRoomViewport({
                 cursor: 'pointer',
               }}
             >
-              👁️ 1st-Person
+              1st-Person
             </button>
             <button
               type="button"
@@ -3850,7 +3857,7 @@ export default function BoilerRoomViewport({
                 cursor: 'pointer',
               }}
             >
-              🎥 3rd-Person
+              3rd-Person
             </button>
           </div>
 
@@ -3908,8 +3915,8 @@ export default function BoilerRoomViewport({
           >
             <span>
               {obstacleAlert?.blocked
-                ? `⛔ BLOCKED: ${obstacleAlert.label}`
-                : '🛡️ Anti-Collision Radar: CLEAR'}
+                ? `BLOCKED: ${obstacleAlert.label}`
+                : 'Anti-Collision Radar: CLEAR'}
             </span>
             {obstacleAlert?.blocked && (
               <span>{(obstacleAlert.dist ?? 0).toFixed(2)}m</span>
@@ -3953,26 +3960,26 @@ export default function BoilerRoomViewport({
             return (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
                 <button style={btnStyle} title="Strafe Left (Q)" {...bindHoldKey('KeyQ')}>
-                  ↖ Q
+                  Q
                 </button>
                 <button
                   style={{ ...btnStyle, background: '#2563eb', color: '#fff', border: '1px solid #1d4ed8' }}
                   title="Walk Forward (W / Up)"
                   {...bindHoldKey('KeyW')}
                 >
-                  ▲ W
+                  W
                 </button>
                 <button style={btnStyle} title="Strafe Right (E)" {...bindHoldKey('KeyE')}>
-                  E ↗
+                  E
                 </button>
                 <button style={btnStyle} title="Turn Left (A / Left)" {...bindHoldKey('KeyA')}>
-                  ◄ A
+                  A
                 </button>
                 <button style={btnStyle} title="Step Back (S / Down)" {...bindHoldKey('KeyS')}>
-                  ▼ S
+                  S
                 </button>
                 <button style={btnStyle} title="Turn Right (D / Right)" {...bindHoldKey('KeyD')}>
-                  D ►
+                  D
                 </button>
               </div>
             );
@@ -4011,7 +4018,7 @@ export default function BoilerRoomViewport({
                   cursor: 'pointer',
                 }}
               >
-                ↩ Return {activeWorker.id} to Auto Standby
+                Return {activeWorker.id} to Auto Standby
               </button>
             );
           })()}

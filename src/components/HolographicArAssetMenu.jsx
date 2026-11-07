@@ -124,7 +124,8 @@ function HolographicArAssetMenuInner({
   onExecuteMaintenanceAction,
   onCenterAsset,
   onMoveObject,
-  objectMoves = {}
+  objectMoves = {},
+  onSwitchToTechnicianMode = null
 }) {
   const [activeView, setActiveView] = useState('topology'); // 'topology' | 'multipanel' | 'badge' | 'cutaway' | 'executive' | 'excel'
   const [themeId, setThemeId] = useState('cyan');
@@ -1432,6 +1433,25 @@ function HolographicArAssetMenuInner({
                 Inject Fault
               </button>
             </>
+          )}
+          {onSwitchToTechnicianMode && (
+            <button
+              onClick={() => onSwitchToTechnicianMode(asset)}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '4px',
+                border: '1px solid #38bdf8',
+                background: 'rgba(56, 189, 248, 0.22)',
+                color: '#e0f2fe',
+                fontFamily: 'var(--mono)',
+                fontSize: '11px',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+              title="Open this part in the Technical Console right inspector drawer"
+            >
+              Inspect in Technical Console →
+            </button>
           )}
           <button
             onClick={() => {

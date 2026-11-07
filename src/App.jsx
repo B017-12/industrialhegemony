@@ -1130,7 +1130,7 @@ export default function App() {
                               )}
                               {w.state === 'WALKING_TO_FAULT' && (
                                 <span style={{ color: 'var(--info)' }}>
-                                  EN ROUTE â†’ {w.targetTag}
+                                  EN ROUTE → {w.targetTag}
                                   {w.trafficStatus === 'YIELDING'
                                     ? ' [YIELD]'
                                     : w.trafficStatus === 'PASSING_RIGHT'
@@ -1145,7 +1145,7 @@ export default function App() {
                               )}
                               {w.state === 'RETURNING' && (
                                 <span className="text-2">
-                                  RETURNING â†’ Line
+                                  RETURNING → Line
                                   {w.trafficStatus === 'YIELDING' ? ' [YIELD]' : ''}
                                 </span>
                               )}
@@ -1209,17 +1209,17 @@ export default function App() {
                             <span className="mono muted">{asset.asset_id}</span>
                             {asset.cvObject?.object_id && (
                               <span className="mono muted" style={{ fontSize: '10.5px' }}>
-                                Â· {asset.cvObject.object_id}
+                                · {asset.cvObject.object_id}
                               </span>
                             )}
                             <span className="spacer" />
                             <span className={`status ${st.cls}`}>
-                              {st.label} Â· {asset.health_score}%
+                              {st.label} · {asset.health_score}%
                             </span>
                           </div>
 
                           <div className="text-2" style={{ fontSize: '12px' }}>
-                            {asset.service_description} â€”{' '}
+                            {asset.service_description} —{' '}
                             <strong style={{ color: 'var(--text)' }}>
                               {humanize(asset.status_reason)}
                             </strong>
@@ -1279,7 +1279,7 @@ export default function App() {
                               >
                                 {exerciseWorkers.map((w) => (
                                   <option key={w.id} value={w.id}>
-                                    {w.id} ({w.type === 'human' ? 'Tech' : 'AMR'} Â· {w.state})
+                                    {w.id} ({w.type === 'human' ? 'Tech' : 'AMR'} · {w.state})
                                   </option>
                                 ))}
                               </select>
@@ -1611,7 +1611,7 @@ export default function App() {
                           <span className="mono" style={{ fontWeight: 600 }}>
                             {wo.wo_id}
                           </span>
-                          <span className="mono text-2">â€¢ {asset.tag}</span>
+                          <span className="mono text-2">• {asset.tag}</span>
                           <span className="spacer" />
                           <span className={`status ${st.cls}`}>{wo.priority}</span>
                         </div>
