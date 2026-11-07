@@ -1,0 +1,102 @@
+{
+  "version": "tab2-segmentation-1",
+  "filter": {
+    "input": 502482,
+    "dropped_low_opacity": 212749,
+    "dropped_large_covariance": 19358,
+    "dropped_sor_outliers": 9871,
+    "sor_limit": 0.0642,
+    "kept": 260504,
+    "params": {
+      "min_opacity": 0.1,
+      "max_sigma": 0.05,
+      "sor_k": 16,
+      "sor_alpha": 2.0
+    }
+  },
+  "voxels": {
+    "voxel": 0.02,
+    "min_weight": 0.3,
+    "voxels": 65617,
+    "dropped_sparse_voxels": 55071
+  },
+  "structure_planes": [
+    "floor",
+    "ceiling",
+    "wall0",
+    "wall1"
+  ],
+  "rejected_wall_candidates": 5,
+  "instances": {
+    "candidate_voxels": 32745,
+    "pipe_seed_segments": 28,
+    "hdbscan_clusters": 96,
+    "pipe_edges_absorbed": 7,
+    "oversized_split": 2,
+    "fragments_merged": 4,
+    "assembly_merges": 9,
+    "noise_fraction": 0.1672,
+    "comparison": {
+      "dbscan_eps0.045_ms12": {
+        "clusters_ge25": 106,
+        "noise_fraction": 0.2607,
+        "median_voxels": 48.5,
+        "largest_cluster_voxels": 5124,
+        "clusters_over_1p5_units": 1,
+        "silhouette_sample": 0.0438
+      },
+      "pipes_then_hdbscan_merge_split": {
+        "clusters_ge25": 122,
+        "noise_fraction": 0.1672,
+        "median_voxels": 85.5,
+        "largest_cluster_voxels": 2750,
+        "clusters_over_1p5_units": 0,
+        "silhouette_sample": 0.2135
+      }
+    }
+  },
+  "quality_filter_dropped": {
+    "too_few_splats": 11,
+    "floating_unsupported": 14
+  },
+  "stable_ids": {
+    "previous_objects": 97,
+    "matched": 97,
+    "new_ids": 0,
+    "matched_against": "data/derived/scene_objects.json"
+  },
+  "mapping": {
+    "bound": 30,
+    "by_method": {
+      "procedural_demo_target": 1,
+      "procedural_class_match": 6,
+      "procedural_fallback": 23
+    },
+    "target": {
+      "object_id": "OBJ-0015",
+      "class": "pump",
+      "reach_units": 0.05,
+      "score": 1.1
+    }
+  },
+  "metrics": {
+    "objects_total": 101,
+    "structure": 4,
+    "equipment_and_pipes": 97,
+    "per_class": {
+      "pipe": 48,
+      "other": 29,
+      "cabinet": 8,
+      "valve": 4,
+      "pump": 3,
+      "trolley": 3,
+      "wall": 2,
+      "crate": 2,
+      "floor": 1,
+      "ceiling": 1
+    },
+    "median_splats_per_object": 272.0,
+    "bound_assets": 30
+  },
+  "runtime_s": 16.9
+}

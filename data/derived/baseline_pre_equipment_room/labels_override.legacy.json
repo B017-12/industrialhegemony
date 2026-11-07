@@ -1,0 +1,405 @@
+{
+  "schema_version": "1.0",
+  "overrides": {
+    "OBJ-0001": {
+      "class": "scene_object",
+      "display_label": "M-002 (ELECTRIC_MOTOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-020",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0002": {
+      "class": "scene_object",
+      "display_label": "M-003 (ELECTRIC_MOTOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-021",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0003": {
+      "class": "scene_object",
+      "display_label": "M-004 (ELECTRIC_MOTOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-022",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0004": {
+      "class": "scene_object",
+      "display_label": "M-005 (ELECTRIC_MOTOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-023",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0005": {
+      "class": "scene_object",
+      "display_label": "M-006 (ELECTRIC_MOTOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-024",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0006": {
+      "class": "scene_object",
+      "display_label": "VS-003 (VIBRATION_SENSOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-030",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0008": {
+      "class": "pump",
+      "display_label": "P-001 (PROCESS_PUMP)",
+      "label_source": "human",
+      "class_confidence": 0.62,
+      "asset_id": "ASSET-013",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0009": {
+      "class": "pump",
+      "display_label": "P-003 (PROCESS_PUMP)",
+      "label_source": "human",
+      "class_confidence": 0.62,
+      "asset_id": "ASSET-015",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0013": {
+      "class": "pump",
+      "display_label": "P-004 (PROCESS_PUMP)",
+      "label_source": "human",
+      "class_confidence": 0.62,
+      "asset_id": "ASSET-016",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0014": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-001 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-001",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0021": {
+      "class": "pump",
+      "display_label": "P-005 (PROCESS_PUMP)",
+      "label_source": "human",
+      "class_confidence": 0.62,
+      "asset_id": "ASSET-017",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0033": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-002 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-002",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0034": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-003 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-003",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0035": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-004 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-004",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0037": {
+      "class": "pump",
+      "display_label": "P-002 process pump target",
+      "label_source": "human",
+      "class_confidence": 0.65,
+      "asset_id": "ASSET-014",
+      "mapping_method": "procedural_demo_target",
+      "mapping_confidence": 0.5,
+      "review_notes": "Demo target selected for ASSET-014; mapping is procedural and must be verified."
+    },
+    "OBJ-0040": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-005 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-005",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0042": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-006 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-006",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0044": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-007 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-007",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0048": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-008 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-008",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0051": {
+      "class": "pump",
+      "display_label": "P-006 (PROCESS_PUMP)",
+      "label_source": "human",
+      "class_confidence": 0.62,
+      "asset_id": "ASSET-018",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0052": {
+      "class": "pump",
+      "display_label": "M-001 (ELECTRIC_MOTOR)",
+      "label_source": "human",
+      "class_confidence": 0.62,
+      "asset_id": "ASSET-019",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0053": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-009 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-009",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0057": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-010 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-010",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0059": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-011 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-011",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0060": {
+      "class": "valve_or_sensor",
+      "display_label": "CV-012 (CONTROL_VALVE)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-012",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0061": {
+      "class": "valve_or_sensor",
+      "display_label": "PT-001 (PRESSURE_TRANSMITTER)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-025",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0062": {
+      "class": "valve_or_sensor",
+      "display_label": "PT-002 (PRESSURE_TRANSMITTER)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-026",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0064": {
+      "class": "valve_or_sensor",
+      "display_label": "PT-003 (PRESSURE_TRANSMITTER)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-027",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0065": {
+      "class": "valve_or_sensor",
+      "display_label": "VS-001 (VIBRATION_SENSOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-028",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0066": {
+      "class": "valve_or_sensor",
+      "display_label": "VS-002 (VIBRATION_SENSOR)",
+      "label_source": "human",
+      "class_confidence": 0.6,
+      "asset_id": "ASSET-029",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "review_notes": "Bound to Excel asset by procedural class/route mapping."
+    },
+    "OBJ-0007": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0007",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0010": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0010",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0011": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0011",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0012": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0012",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0015": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0015",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0016": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0016",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0017": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0017",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0018": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0018",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0019": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0019",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    },
+    "OBJ-0020": {
+      "class": "scene_object",
+      "display_label": "Scene object candidate OBJ-0020",
+      "label_source": "human",
+      "class_confidence": 0.5,
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "review_notes": "Initial review label for unbound scene object."
+    }
+  }
+}

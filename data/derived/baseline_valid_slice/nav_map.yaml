@@ -1,0 +1,7 @@
+image: nav_map.pgm
+resolution: 0.06433
+origin: [-6.32712, -6.32807, 0.0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+# map x = PLY x * metres_per_unit, map y = PLY z * metres_per_unit (PLY frame is y-down)

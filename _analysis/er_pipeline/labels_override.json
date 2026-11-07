@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "note": "Reset by Tab 2 on 2026-11-06: the previous 40 entries were script-generated copies of the old DBSCAN labels marked 'human' without review, and referenced object ids from the old segmentation. They are archived in labels_override.legacy.json. Person-confirmed entries come from Tab 8 review mode and carry a reviewer. Entries with mapping_method 'video_evidence' (2026-11-07, Equipment Room.ply) were chosen by projecting the object box into the COLMAP-posed video frames with _analysis/project_objects.py; they are not person-confirmed.",
+  "overrides": {
+    "OBJ-0185": {
+      "asset_id": "ASSET-014",
+      "mapping_method": "video_evidence",
+      "mapping_confidence": 0.45,
+      "mapping_notes": "Video evidence: the box sits on the body of an inline circulator pump below its motor head, beside the blue expansion tank (frames frame_00279.jpg, frame_00169.jpg). Workbook Scene_Anchors coordinates are placeholders, so the P-002 identity is not verified on site."
+    },
+    "OBJ-0247": {
+      "asset_id": "ASSET-029",
+      "mapping_method": "video_evidence",
+      "mapping_confidence": 0.45,
+      "mapping_notes": "Video evidence: the box sits on the motor head directly above the P-002 pump body (red head in frame_00277.jpg, black insulated head in frame_00170.jpg); a vibration sensor mounts on such a motor or bearing housing. The sensor itself is not visible in the video. VS-002 shares AREA-04 with P-002 in Asset_Master."
+    },
+    "OBJ-0189": {
+      "asset_id": "ASSET-022",
+      "mapping_method": "video_evidence",
+      "mapping_confidence": 0.45,
+      "mapping_notes": "Video evidence: the box covers the motor head of the neighbouring inline pump in the same group as P-002 (frames frame_00277.jpg, frame_00170.jpg). The M-004 identity is not verified on site."
+    }
+  }
+}

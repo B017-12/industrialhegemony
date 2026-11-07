@@ -1,0 +1,9019 @@
+{
+  "schema_version": "1.0",
+  "frame": "ply_raw",
+  "metres_per_unit": 1.2865,
+  "scale_calibration": {
+    "metres_per_unit": 1.2865,
+    "metres_per_unit_range": [
+      1.235,
+      1.3379
+    ],
+    "floor_to_ceiling_units": 1.9433,
+    "room_height_prior_m": [
+      2.4,
+      2.6
+    ],
+    "floor_ceiling_tilt_deg": 0.9,
+    "method": "floor_to_ceiling_prior",
+    "reasoning": "Floor and ceiling RANSAC+SVD planes are 1.943 units apart (tilt 0.9 deg). A plant-room clear height of 2.4-2.6 m is assumed (midpoint 2.5 m), giving 1.235-1.338 m/unit. The earlier 2.0 m door assumption gave 1.25 m/unit, which lies inside this range. Not calibrated against a measured reference."
+  },
+  "source_ply": "_analysis/boiler_room_valid.ply",
+  "pipeline": {
+    "version": "tab2-segmentation-1",
+    "voxel_size": 0.02,
+    "floor_y": 1.07191,
+    "ceiling_y": -0.8714
+  },
+  "objects": [
+    {
+      "object_id": "STRUCT-001",
+      "class": "floor",
+      "display_label": "Floor",
+      "class_confidence": 0.95,
+      "label_source": "structure",
+      "center": [
+        -1.46247,
+        1.06505,
+        -2.16379
+      ],
+      "aabb_min": [
+        -3.23483,
+        1.0415,
+        -3.47234
+      ],
+      "aabb_max": [
+        0.31043,
+        1.08861,
+        -0.85291
+      ],
+      "obb": {
+        "center": [
+          -1.46247,
+          1.06505,
+          -2.16379
+        ],
+        "extent": [
+          3.54362,
+          0.04712,
+          2.62061
+        ],
+        "rotation": [
+          [
+            0.999999,
+            0.0,
+            -0.001346
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.001346,
+            0.0,
+            0.999999
+          ]
+        ],
+        "yaw_deg": 0.08
+      },
+      "splat_count": 22383,
+      "voxel_count": 7476,
+      "source": "structure_plane",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "plane": {
+        "normal": [
+          0.000384,
+          -1.0,
+          0.00084
+        ],
+        "offset": 1.071911,
+        "rms": 0.00699
+      }
+    },
+    {
+      "object_id": "STRUCT-002",
+      "class": "ceiling",
+      "display_label": "Ceiling",
+      "class_confidence": 0.95,
+      "label_source": "structure",
+      "center": [
+        0.4199,
+        -0.87193,
+        -2.108
+      ],
+      "aabb_min": [
+        -2.91457,
+        -0.94477,
+        -3.41045
+      ],
+      "aabb_max": [
+        3.75436,
+        -0.79908,
+        -0.80552
+      ],
+      "obb": {
+        "center": [
+          0.4199,
+          -0.87193,
+          -2.108
+        ],
+        "extent": [
+          6.66898,
+          0.14569,
+          2.60494
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            -2.7e-05
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            2.7e-05,
+            0.0,
+            1.0
+          ]
+        ],
+        "yaw_deg": 0.0
+      },
+      "splat_count": 32125,
+      "voxel_count": 11366,
+      "source": "structure_plane",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "plane": {
+        "normal": [
+          0.015194,
+          0.999883,
+          0.001643
+        ],
+        "offset": 0.871295,
+        "rms": 0.01507
+      }
+    },
+    {
+      "object_id": "STRUCT-003",
+      "class": "wall",
+      "display_label": "Wall 0",
+      "class_confidence": 0.95,
+      "label_source": "structure",
+      "center": [
+        -0.14612,
+        -0.11369,
+        -3.39904
+      ],
+      "aabb_min": [
+        -3.04538,
+        -1.06657,
+        -3.43559
+      ],
+      "aabb_max": [
+        2.75311,
+        0.83919,
+        -3.35187
+      ],
+      "obb": {
+        "center": [
+          -0.14612,
+          -0.11369,
+          -3.39904
+        ],
+        "extent": [
+          5.79854,
+          1.90576,
+          0.07224
+        ],
+        "rotation": [
+          [
+            0.999986,
+            0.0,
+            0.005343
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.005343,
+            0.0,
+            0.999986
+          ]
+        ],
+        "yaw_deg": -0.31
+      },
+      "splat_count": 10411,
+      "voxel_count": 3857,
+      "source": "structure_plane",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "plane": {
+        "normal": [
+          0.007934,
+          -0.032671,
+          0.999435
+        ],
+        "offset": 3.392037,
+        "rms": 0.01163
+      }
+    },
+    {
+      "object_id": "STRUCT-004",
+      "class": "wall",
+      "display_label": "Wall 1",
+      "class_confidence": 0.95,
+      "label_source": "structure",
+      "center": [
+        3.63466,
+        -0.23588,
+        -2.09078
+      ],
+      "aabb_min": [
+        3.59478,
+        -0.87483,
+        -3.2027
+      ],
+      "aabb_max": [
+        3.66971,
+        0.40308,
+        -0.97856
+      ],
+      "obb": {
+        "center": [
+          3.63466,
+          -0.23588,
+          -2.09078
+        ],
+        "extent": [
+          0.06097,
+          1.27791,
+          2.22399
+        ],
+        "rotation": [
+          [
+            0.9999,
+            0.0,
+            0.014159
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.014159,
+            0.0,
+            0.9999
+          ]
+        ],
+        "yaw_deg": -0.81
+      },
+      "splat_count": 9402,
+      "voxel_count": 2847,
+      "source": "structure_plane",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "plane": {
+        "normal": [
+          0.999763,
+          -0.012812,
+          -0.017608
+        ],
+        "offset": -3.674343,
+        "rms": 0.01399
+      }
+    },
+    {
+      "object_id": "OBJ-0002",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        0.83083,
+        0.11401,
+        -2.82535
+      ],
+      "aabb_min": [
+        0.61873,
+        -0.21608,
+        -2.94129
+      ],
+      "aabb_max": [
+        1.03831,
+        0.44679,
+        -2.70996
+      ],
+      "obb": {
+        "center": [
+          0.83083,
+          0.11401,
+          -2.82535
+        ],
+        "extent": [
+          0.42695,
+          0.67294,
+          0.23266
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            -0.000758
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.000758,
+            0.0,
+            1.0
+          ]
+        ],
+        "yaw_deg": 0.04
+      },
+      "splat_count": 2764,
+      "voxel_count": 826,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.738,
+        "planarity": 0.18,
+        "scattering": 0.081,
+        "fill_ratio": 0.296,
+        "tubular_fraction": 0.076,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          25.6,
+          0.3,
+          4.7
+        ],
+        "chroma": 4.7,
+        "dims_m": {
+          "width": 0.549,
+          "depth": 0.299,
+          "height": 0.866
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.804,
+        "top": 1.657
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0015",
+      "class": "pump",
+      "display_label": "P-002 (PROCESS_PUMP) - procedural",
+      "class_confidence": 0.4,
+      "label_source": "heuristic",
+      "center": [
+        -1.73314,
+        0.53225,
+        -3.06269
+      ],
+      "aabb_min": [
+        -1.80953,
+        0.3518,
+        -3.2235
+      ],
+      "aabb_max": [
+        -1.65435,
+        0.71357,
+        -2.89673
+      ],
+      "obb": {
+        "center": [
+          -1.73314,
+          0.53225,
+          -3.06269
+        ],
+        "extent": [
+          0.15825,
+          0.39513,
+          0.33215
+        ],
+        "rotation": [
+          [
+            0.999999,
+            0.0,
+            -0.001188
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.001188,
+            0.0,
+            0.999999
+          ]
+        ],
+        "yaw_deg": 0.07
+      },
+      "splat_count": 932,
+      "voxel_count": 279,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-014",
+      "mapping_method": "procedural_demo_target",
+      "mapping_confidence": 0.5,
+      "relations": [],
+      "features": {
+        "linearity": 0.188,
+        "planarity": 0.689,
+        "scattering": 0.123,
+        "fill_ratio": 0.327,
+        "tubular_fraction": 0.154,
+        "red_fraction": 0.079,
+        "mean_lab": [
+          33.6,
+          7.4,
+          10.1
+        ],
+        "chroma": 12.5,
+        "dims_m": {
+          "width": 0.427,
+          "depth": 0.204,
+          "height": 0.508
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.461,
+        "top": 0.926
+      },
+      "segmentation_notes": [
+        "merged",
+        "split"
+      ],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Most pump-like object within 0.8 units of the walkable floor (distance 0.05)."
+    },
+    {
+      "object_id": "OBJ-0020",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        3.77721,
+        0.08265,
+        -0.85719
+      ],
+      "aabb_min": [
+        3.7096,
+        -0.27755,
+        -0.96503
+      ],
+      "aabb_max": [
+        3.81113,
+        0.44198,
+        -0.74919
+      ],
+      "obb": {
+        "center": [
+          3.77721,
+          0.08265,
+          -0.85719
+        ],
+        "extent": [
+          0.08922,
+          0.73804,
+          0.22715
+        ],
+        "rotation": [
+          [
+            0.950607,
+            0.0,
+            0.310397
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.310397,
+            0.0,
+            0.950607
+          ]
+        ],
+        "yaw_deg": -18.08
+      },
+      "splat_count": 965,
+      "voxel_count": 267,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.967,
+        "planarity": 0.03,
+        "scattering": 0.003,
+        "fill_ratio": 0.406,
+        "tubular_fraction": 0.045,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          61.5,
+          1.5,
+          6.6
+        ],
+        "chroma": 6.7,
+        "dims_m": {
+          "width": 0.292,
+          "depth": 0.115,
+          "height": 0.949
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.81,
+        "top": 1.736
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0035",
+      "class": "valve",
+      "display_label": "CV-003 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        1.89524,
+        0.37963,
+        -3.03315
+      ],
+      "aabb_min": [
+        1.8482,
+        0.33712,
+        -3.08156
+      ],
+      "aabb_max": [
+        1.94392,
+        0.42262,
+        -2.97605
+      ],
+      "obb": {
+        "center": [
+          1.89524,
+          0.37963,
+          -3.03315
+        ],
+        "extent": [
+          0.09752,
+          0.08705,
+          0.11291
+        ],
+        "rotation": [
+          [
+            0.99971,
+            0.0,
+            0.024096
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.024096,
+            0.0,
+            0.99971
+          ]
+        ],
+        "yaw_deg": -1.38
+      },
+      "splat_count": 321,
+      "voxel_count": 107,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-003",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0076"
+        }
+      ],
+      "features": {
+        "linearity": 0.119,
+        "planarity": 0.196,
+        "scattering": 0.685,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.056,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          33.4,
+          -1.9,
+          2.8
+        ],
+        "chroma": 3.4,
+        "dims_m": {
+          "width": 0.145,
+          "depth": 0.125,
+          "height": 0.112
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.835,
+        "top": 0.945
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'valve' matched to CONTROL_VALVE (tier ('valve',))."
+    },
+    {
+      "object_id": "OBJ-0037",
+      "class": "crate",
+      "display_label": "Box on floor (crate or bin)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        0.43056,
+        0.86808,
+        -3.41787
+      ],
+      "aabb_min": [
+        0.23618,
+        0.75109,
+        -3.45691
+      ],
+      "aabb_max": [
+        0.61803,
+        1.01886,
+        -3.39653
+      ],
+      "obb": {
+        "center": [
+          0.43056,
+          0.86808,
+          -3.41787
+        ],
+        "extent": [
+          0.39928,
+          0.31228,
+          0.0714
+        ],
+        "rotation": [
+          [
+            0.995859,
+            0.0,
+            -0.090914
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.090914,
+            0.0,
+            0.995859
+          ]
+        ],
+        "yaw_deg": 5.22
+      },
+      "splat_count": 338,
+      "voxel_count": 158,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.645,
+        "planarity": 0.339,
+        "scattering": 0.017,
+        "fill_ratio": 0.51,
+        "tubular_fraction": 0.025,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          67.1,
+          2.2,
+          19.4
+        ],
+        "chroma": 19.5,
+        "dims_m": {
+          "width": 0.514,
+          "depth": 0.092,
+          "height": 0.402
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.068,
+        "top": 0.413
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0044",
+      "class": "other",
+      "display_label": "PT-001 (PRESSURE_TRANSMITTER) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.52813,
+        -0.15001,
+        -2.75129
+      ],
+      "aabb_min": [
+        3.46452,
+        -0.2425,
+        -2.84928
+      ],
+      "aabb_max": [
+        3.59288,
+        -0.06537,
+        -2.64997
+      ],
+      "obb": {
+        "center": [
+          3.52813,
+          -0.15001,
+          -2.75129
+        ],
+        "extent": [
+          0.12951,
+          0.18808,
+          0.21277
+        ],
+        "rotation": [
+          [
+            0.998624,
+            0.0,
+            0.052442
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.052442,
+            0.0,
+            0.998624
+          ]
+        ],
+        "yaw_deg": -3.01
+      },
+      "splat_count": 517,
+      "voxel_count": 138,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-025",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.359,
+        "planarity": 0.261,
+        "scattering": 0.379,
+        "fill_ratio": 0.766,
+        "tubular_fraction": 0.014,
+        "red_fraction": 0.007,
+        "mean_lab": [
+          36.3,
+          3.9,
+          7.2
+        ],
+        "chroma": 8.2,
+        "dims_m": {
+          "width": 0.274,
+          "depth": 0.167,
+          "height": 0.242
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.463,
+        "top": 1.691
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to PRESSURE_TRANSMITTER (tier ('other', 'sign'))."
+    },
+    {
+      "object_id": "OBJ-0047",
+      "class": "other",
+      "display_label": "CV-005 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -2.44048,
+        0.88824,
+        -2.87934
+      ],
+      "aabb_min": [
+        -2.52301,
+        0.76114,
+        -2.98703
+      ],
+      "aabb_max": [
+        -2.39254,
+        1.02366,
+        -2.80969
+      ],
+      "obb": {
+        "center": [
+          -2.44048,
+          0.88824,
+          -2.87934
+        ],
+        "extent": [
+          0.08323,
+          0.27151,
+          0.21994
+        ],
+        "rotation": [
+          [
+            0.811059,
+            0.0,
+            -0.584965
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.584965,
+            0.0,
+            0.811059
+          ]
+        ],
+        "yaw_deg": 35.8
+      },
+      "splat_count": 172,
+      "voxel_count": 84,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-005",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0143"
+        }
+      ],
+      "features": {
+        "linearity": 0.856,
+        "planarity": 0.117,
+        "scattering": 0.027,
+        "fill_ratio": 0.489,
+        "tubular_fraction": 0.06,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          94.8,
+          0.0,
+          10.1
+        ],
+        "chroma": 10.1,
+        "dims_m": {
+          "width": 0.283,
+          "depth": 0.107,
+          "height": 0.349
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.062,
+        "top": 0.4
+      },
+      "segmentation_notes": [
+        "merged",
+        "split"
+      ],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0068",
+      "class": "trolley",
+      "display_label": "Open frame on floor (trolley or cage)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -1.99168,
+        0.38532,
+        -0.94123
+      ],
+      "aabb_min": [
+        -2.30462,
+        -0.2257,
+        -1.20032
+      ],
+      "aabb_max": [
+        -1.68707,
+        0.96736,
+        -0.76509
+      ],
+      "obb": {
+        "center": [
+          -1.99168,
+          0.38532,
+          -0.94123
+        ],
+        "extent": [
+          0.57346,
+          1.22559,
+          0.44283
+        ],
+        "rotation": [
+          [
+            0.98816,
+            0.0,
+            0.153427
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.153427,
+            0.0,
+            0.98816
+          ]
+        ],
+        "yaw_deg": -8.83
+      },
+      "splat_count": 14673,
+      "voxel_count": 2750,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.672,
+        "planarity": 0.232,
+        "scattering": 0.096,
+        "fill_ratio": 0.201,
+        "tubular_fraction": 0.233,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          59.5,
+          0.2,
+          12.0
+        ],
+        "chroma": 12.0,
+        "dims_m": {
+          "width": 0.738,
+          "depth": 0.57,
+          "height": 1.577
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.135,
+        "top": 1.669
+      },
+      "segmentation_notes": [
+        "absorbed_edge"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0069",
+      "class": "pipe",
+      "display_label": "Pipe manifold or valve assembly",
+      "class_confidence": 0.3,
+      "label_source": "heuristic",
+      "center": [
+        2.45643,
+        -0.17887,
+        -3.16335
+      ],
+      "aabb_min": [
+        2.0555,
+        -0.7846,
+        -3.31231
+      ],
+      "aabb_max": [
+        2.86607,
+        0.43212,
+        -3.02586
+      ],
+      "obb": {
+        "center": [
+          2.45643,
+          -0.17887,
+          -3.16335
+        ],
+        "extent": [
+          0.83273,
+          1.25149,
+          0.30969
+        ],
+        "rotation": [
+          [
+            0.99461,
+            0.0,
+            0.103691
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.103691,
+            0.0,
+            0.99461
+          ]
+        ],
+        "yaw_deg": -5.95
+      },
+      "splat_count": 10280,
+      "voxel_count": 2314,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0145"
+        }
+      ],
+      "features": {
+        "linearity": 0.603,
+        "planarity": 0.374,
+        "scattering": 0.023,
+        "fill_ratio": 0.151,
+        "tubular_fraction": 0.051,
+        "red_fraction": 0.002,
+        "mean_lab": [
+          51.8,
+          2.3,
+          11.9
+        ],
+        "chroma": 12.1,
+        "dims_m": {
+          "width": 1.071,
+          "depth": 0.398,
+          "height": 1.61
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.823,
+        "top": 2.388
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0070",
+      "class": "other",
+      "display_label": "CV-006 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -0.62678,
+        -0.27088,
+        -3.40171
+      ],
+      "aabb_min": [
+        -1.44966,
+        -0.71603,
+        -3.52969
+      ],
+      "aabb_max": [
+        -0.06496,
+        0.10692,
+        -3.26565
+      ],
+      "obb": {
+        "center": [
+          -0.62678,
+          -0.27088,
+          -3.40171
+        ],
+        "extent": [
+          1.68667,
+          0.91448,
+          0.27109
+        ],
+        "rotation": [
+          [
+            0.999917,
+            0.0,
+            0.012889
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.012889,
+            0.0,
+            0.999917
+          ]
+        ],
+        "yaw_deg": -0.74
+      },
+      "splat_count": 4798,
+      "voxel_count": 1121,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-006",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0115"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0112"
+        }
+      ],
+      "features": {
+        "linearity": 0.342,
+        "planarity": 0.636,
+        "scattering": 0.021,
+        "fill_ratio": 0.076,
+        "tubular_fraction": 0.051,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          73.9,
+          0.5,
+          1.7
+        ],
+        "chroma": 1.8,
+        "dims_m": {
+          "width": 2.17,
+          "depth": 0.349,
+          "height": 1.176
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.241,
+        "top": 2.3
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0071",
+      "class": "other",
+      "display_label": "CV-007 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -3.25367,
+        0.57153,
+        -1.51388
+      ],
+      "aabb_min": [
+        -3.40359,
+        0.15938,
+        -2.19402
+      ],
+      "aabb_max": [
+        -3.09253,
+        0.97133,
+        -0.76992
+      ],
+      "obb": {
+        "center": [
+          -3.25367,
+          0.57153,
+          -1.51388
+        ],
+        "extent": [
+          0.36233,
+          0.8393,
+          1.52286
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.000299
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.000299,
+            0.0,
+            1.0
+          ]
+        ],
+        "yaw_deg": -0.02
+      },
+      "splat_count": 4647,
+      "voxel_count": 1758,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-007",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.727,
+        "planarity": 0.249,
+        "scattering": 0.024,
+        "fill_ratio": 0.116,
+        "tubular_fraction": 0.043,
+        "red_fraction": 0.007,
+        "mean_lab": [
+          44.2,
+          2.6,
+          8.2
+        ],
+        "chroma": 8.6,
+        "dims_m": {
+          "width": 1.959,
+          "depth": 0.466,
+          "height": 1.08
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.129,
+        "top": 1.174
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0072",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        3.48688,
+        0.0943,
+        -1.83733
+      ],
+      "aabb_min": [
+        3.36311,
+        -0.20942,
+        -1.96259
+      ],
+      "aabb_max": [
+        3.61292,
+        0.43304,
+        -1.70926
+      ],
+      "obb": {
+        "center": [
+          3.48688,
+          0.0943,
+          -1.83733
+        ],
+        "extent": [
+          0.25443,
+          0.69757,
+          0.25886
+        ],
+        "rotation": [
+          [
+            0.999999,
+            0.0,
+            0.001265
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.001265,
+            0.0,
+            0.999999
+          ]
+        ],
+        "yaw_deg": -0.07
+      },
+      "splat_count": 4018,
+      "voxel_count": 721,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.894,
+        "planarity": 0.054,
+        "scattering": 0.052,
+        "fill_ratio": 0.337,
+        "tubular_fraction": 0.076,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          46.9,
+          1.1,
+          6.3
+        ],
+        "chroma": 6.4,
+        "dims_m": {
+          "width": 0.333,
+          "depth": 0.327,
+          "height": 0.897
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.822,
+        "top": 1.648
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0073",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        0.99992,
+        -0.1218,
+        -3.14441
+      ],
+      "aabb_min": [
+        0.85198,
+        -0.78304,
+        -3.25657
+      ],
+      "aabb_max": [
+        1.13123,
+        0.50658,
+        -2.94807
+      ],
+      "obb": {
+        "center": [
+          0.99992,
+          -0.1218,
+          -3.14441
+        ],
+        "extent": [
+          0.24284,
+          1.37358,
+          0.39431
+        ],
+        "rotation": [
+          [
+            0.789052,
+            0.0,
+            -0.614326
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.614326,
+            0.0,
+            0.789052
+          ]
+        ],
+        "yaw_deg": 37.9
+      },
+      "splat_count": 3861,
+      "voxel_count": 1194,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.947,
+        "planarity": 0.028,
+        "scattering": 0.025,
+        "fill_ratio": 0.188,
+        "tubular_fraction": 0.056,
+        "red_fraction": 0.017,
+        "mean_lab": [
+          45.0,
+          2.9,
+          11.1
+        ],
+        "chroma": 11.5,
+        "dims_m": {
+          "width": 0.507,
+          "depth": 0.312,
+          "height": 1.767
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.727,
+        "top": 2.386
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0074",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        0.51309,
+        -0.29502,
+        -3.17937
+      ],
+      "aabb_min": [
+        0.20328,
+        -0.80866,
+        -3.23056
+      ],
+      "aabb_max": [
+        0.81642,
+        0.21544,
+        -3.11952
+      ],
+      "obb": {
+        "center": [
+          0.51309,
+          -0.29502,
+          -3.17937
+        ],
+        "extent": [
+          0.62704,
+          1.0387,
+          0.12593
+        ],
+        "rotation": [
+          [
+            0.99985,
+            0.0,
+            -0.017322
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.017322,
+            0.0,
+            0.99985
+          ]
+        ],
+        "yaw_deg": 0.99
+      },
+      "splat_count": 3474,
+      "voxel_count": 1192,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.852,
+        "planarity": 0.142,
+        "scattering": 0.006,
+        "fill_ratio": 0.344,
+        "tubular_fraction": 0.059,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          59.9,
+          -2.6,
+          11.4
+        ],
+        "chroma": 11.6,
+        "dims_m": {
+          "width": 0.807,
+          "depth": 0.162,
+          "height": 1.336
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.102,
+        "top": 2.419
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0075",
+      "class": "trolley",
+      "display_label": "Open frame on floor (trolley or cage)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -2.82292,
+        0.53813,
+        -1.98068
+      ],
+      "aabb_min": [
+        -2.98503,
+        0.05545,
+        -2.17937
+      ],
+      "aabb_max": [
+        -2.63335,
+        1.02031,
+        -1.7892
+      ],
+      "obb": {
+        "center": [
+          -2.82292,
+          0.53813,
+          -1.98068
+        ],
+        "extent": [
+          0.40294,
+          0.97385,
+          0.41372
+        ],
+        "rotation": [
+          [
+            0.999362,
+            0.0,
+            -0.035706
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.035706,
+            0.0,
+            0.999362
+          ]
+        ],
+        "yaw_deg": 2.05
+      },
+      "splat_count": 2982,
+      "voxel_count": 815,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.921,
+        "planarity": 0.029,
+        "scattering": 0.05,
+        "fill_ratio": 0.123,
+        "tubular_fraction": 0.121,
+        "red_fraction": 0.022,
+        "mean_lab": [
+          38.2,
+          4.8,
+          17.1
+        ],
+        "chroma": 17.7,
+        "dims_m": {
+          "width": 0.532,
+          "depth": 0.518,
+          "height": 1.253
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.066,
+        "top": 1.308
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0076",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        1.90722,
+        0.1027,
+        -3.10549
+      ],
+      "aabb_min": [
+        1.84373,
+        -0.20271,
+        -3.21187
+      ],
+      "aabb_max": [
+        1.97214,
+        0.39364,
+        -2.99782
+      ],
+      "obb": {
+        "center": [
+          1.90722,
+          0.1027,
+          -3.10549
+        ],
+        "extent": [
+          0.12945,
+          0.61698,
+          0.2247
+        ],
+        "rotation": [
+          [
+            0.996479,
+            0.0,
+            0.083846
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.083846,
+            0.0,
+            0.996479
+          ]
+        ],
+        "yaw_deg": -4.81
+      },
+      "splat_count": 1510,
+      "voxel_count": 354,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0077"
+        }
+      ],
+      "features": {
+        "linearity": 0.938,
+        "planarity": 0.038,
+        "scattering": 0.024,
+        "fill_ratio": 0.396,
+        "tubular_fraction": 0.068,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          41.2,
+          5.2,
+          10.6
+        ],
+        "chroma": 11.8,
+        "dims_m": {
+          "width": 0.289,
+          "depth": 0.167,
+          "height": 0.794
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.873,
+        "top": 1.64
+      },
+      "segmentation_notes": [
+        "merged"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0077",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        1.90915,
+        -0.48838,
+        -3.13568
+      ],
+      "aabb_min": [
+        1.85783,
+        -0.79121,
+        -3.22355
+      ],
+      "aabb_max": [
+        1.97067,
+        -0.17074,
+        -3.07404
+      ],
+      "obb": {
+        "center": [
+          1.90915,
+          -0.48838,
+          -3.13568
+        ],
+        "extent": [
+          0.10551,
+          0.63698,
+          0.17366
+        ],
+        "rotation": [
+          [
+            0.931962,
+            0.0,
+            0.362557
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.362557,
+            0.0,
+            0.931962
+          ]
+        ],
+        "yaw_deg": -21.26
+      },
+      "splat_count": 1494,
+      "voxel_count": 306,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0076"
+        }
+      ],
+      "features": {
+        "linearity": 0.933,
+        "planarity": 0.048,
+        "scattering": 0.019,
+        "fill_ratio": 0.499,
+        "tubular_fraction": 0.056,
+        "red_fraction": 0.007,
+        "mean_lab": [
+          39.4,
+          5.7,
+          9.2
+        ],
+        "chroma": 10.8,
+        "dims_m": {
+          "width": 0.223,
+          "depth": 0.136,
+          "height": 0.819
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.599,
+        "top": 2.397
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0078",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -4.77068,
+        -0.13004,
+        -1.92206
+      ],
+      "aabb_min": [
+        -4.88983,
+        -0.56037,
+        -2.31245
+      ],
+      "aabb_max": [
+        -4.64752,
+        0.28419,
+        -1.56369
+      ],
+      "obb": {
+        "center": [
+          -4.77068,
+          -0.13004,
+          -1.92206
+        ],
+        "extent": [
+          0.25441,
+          0.88746,
+          0.81055
+        ],
+        "rotation": [
+          [
+            0.999844,
+            0.0,
+            0.01765
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.01765,
+            0.0,
+            0.999844
+          ]
+        ],
+        "yaw_deg": -1.01
+      },
+      "splat_count": 1002,
+      "voxel_count": 656,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.219,
+        "planarity": 0.704,
+        "scattering": 0.077,
+        "fill_ratio": 0.139,
+        "tubular_fraction": 0.152,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          29.7,
+          -0.1,
+          3.9
+        ],
+        "chroma": 3.9,
+        "dims_m": {
+          "width": 1.043,
+          "depth": 0.327,
+          "height": 1.142
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.013,
+        "top": 2.1
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0079",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -3.80984,
+        0.43104,
+        -1.13205
+      ],
+      "aabb_min": [
+        -3.94749,
+        0.16658,
+        -1.51257
+      ],
+      "aabb_max": [
+        -3.67863,
+        0.68878,
+        -0.74778
+      ],
+      "obb": {
+        "center": [
+          -3.80984,
+          0.43104,
+          -1.13205
+        ],
+        "extent": [
+          0.27424,
+          0.5428,
+          0.78225
+        ],
+        "rotation": [
+          [
+            0.997943,
+            0.0,
+            -0.0641
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0641,
+            0.0,
+            0.997943
+          ]
+        ],
+        "yaw_deg": 3.68
+      },
+      "splat_count": 997,
+      "voxel_count": 551,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0090"
+        }
+      ],
+      "features": {
+        "linearity": 0.371,
+        "planarity": 0.521,
+        "scattering": 0.108,
+        "fill_ratio": 0.168,
+        "tubular_fraction": 0.065,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          18.4,
+          0.6,
+          3.7
+        ],
+        "chroma": 3.7,
+        "dims_m": {
+          "width": 1.006,
+          "depth": 0.353,
+          "height": 0.698
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.493,
+        "top": 1.165
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0080",
+      "class": "other",
+      "display_label": "Unclassified object",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.60925,
+        0.10885,
+        -1.19482
+      ],
+      "aabb_min": [
+        3.59392,
+        -0.20014,
+        -1.47259
+      ],
+      "aabb_max": [
+        3.62712,
+        0.4315,
+        -0.91742
+      ],
+      "obb": {
+        "center": [
+          3.60925,
+          0.10885,
+          -1.19482
+        ],
+        "extent": [
+          0.03537,
+          0.68003,
+          0.55699
+        ],
+        "rotation": [
+          [
+            0.999906,
+            0.0,
+            0.013743
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.013743,
+            0.0,
+            0.999906
+          ]
+        ],
+        "yaw_deg": -0.79
+      },
+      "splat_count": 909,
+      "voxel_count": 273,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0131"
+        }
+      ],
+      "features": {
+        "linearity": 0.608,
+        "planarity": 0.39,
+        "scattering": 0.002,
+        "fill_ratio": 0.549,
+        "tubular_fraction": 0.168,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          69.1,
+          0.6,
+          15.9
+        ],
+        "chroma": 15.9,
+        "dims_m": {
+          "width": 0.717,
+          "depth": 0.046,
+          "height": 0.875
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.824,
+        "top": 1.636
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0081",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        3.56976,
+        -0.52017,
+        -1.8178
+      ],
+      "aabb_min": [
+        3.53309,
+        -0.67602,
+        -1.86346
+      ],
+      "aabb_max": [
+        3.60623,
+        -0.35697,
+        -1.774
+      ],
+      "obb": {
+        "center": [
+          3.56976,
+          -0.52017,
+          -1.8178
+        ],
+        "extent": [
+          0.07507,
+          0.32665,
+          0.0918
+        ],
+        "rotation": [
+          [
+            0.999934,
+            0.0,
+            0.011517
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.011517,
+            0.0,
+            0.999934
+          ]
+        ],
+        "yaw_deg": -0.66
+      },
+      "splat_count": 827,
+      "voxel_count": 125,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.906,
+        "planarity": 0.023,
+        "scattering": 0.07,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.048,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          41.5,
+          -1.5,
+          8.5
+        ],
+        "chroma": 8.6,
+        "dims_m": {
+          "width": 0.118,
+          "depth": 0.097,
+          "height": 0.42
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.838,
+        "top": 2.249
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0082",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        3.73171,
+        0.02821,
+        -1.72928
+      ],
+      "aabb_min": [
+        3.671,
+        -0.35075,
+        -1.88851
+      ],
+      "aabb_max": [
+        3.79034,
+        0.40876,
+        -1.56848
+      ],
+      "obb": {
+        "center": [
+          3.73171,
+          0.02821,
+          -1.72928
+        ],
+        "extent": [
+          0.11661,
+          0.7975,
+          0.32433
+        ],
+        "rotation": [
+          [
+            0.999624,
+            0.0,
+            0.027423
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.027423,
+            0.0,
+            0.999624
+          ]
+        ],
+        "yaw_deg": -1.57
+      },
+      "splat_count": 738,
+      "voxel_count": 294,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.896,
+        "planarity": 0.083,
+        "scattering": 0.021,
+        "fill_ratio": 0.257,
+        "tubular_fraction": 0.041,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          21.2,
+          2.3,
+          6.1
+        ],
+        "chroma": 6.5,
+        "dims_m": {
+          "width": 0.417,
+          "depth": 0.15,
+          "height": 1.026
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.853,
+        "top": 1.83
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0083",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.57149,
+        -0.7491,
+        -1.49166
+      ],
+      "aabb_min": [
+        -2.61716,
+        -0.77814,
+        -2.21773
+      ],
+      "aabb_max": [
+        -2.52515,
+        -0.71286,
+        -0.7671
+      ],
+      "obb": {
+        "center": [
+          -2.57149,
+          -0.7491,
+          -1.49166
+        ],
+        "extent": [
+          0.0932,
+          0.07558,
+          1.47297
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.000893
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.000893,
+            0.0,
+            1.0
+          ]
+        ],
+        "yaw_deg": -0.05
+      },
+      "splat_count": 697,
+      "voxel_count": 325,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0136"
+        }
+      ],
+      "features": {
+        "linearity": 0.997,
+        "planarity": 0.002,
+        "scattering": 0.001,
+        "fill_ratio": 0.919,
+        "tubular_fraction": 0.025,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          48.4,
+          0.9,
+          17.0
+        ],
+        "chroma": 17.1,
+        "dims_m": {
+          "width": 1.895,
+          "depth": 0.12,
+          "height": 0.097
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.296,
+        "top": 2.38
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0084",
+      "class": "other",
+      "display_label": "M-003 (ELECTRIC_MOTOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        2.15825,
+        0.34051,
+        -1.79329
+      ],
+      "aabb_min": [
+        2.03716,
+        0.23366,
+        -1.84878
+      ],
+      "aabb_max": [
+        2.26299,
+        0.44614,
+        -1.73767
+      ],
+      "obb": {
+        "center": [
+          2.15825,
+          0.34051,
+          -1.79329
+        ],
+        "extent": [
+          0.2393,
+          0.21516,
+          0.10743
+        ],
+        "rotation": [
+          [
+            0.999346,
+            0.0,
+            0.03615
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.03615,
+            0.0,
+            0.999346
+          ]
+        ],
+        "yaw_deg": -2.07
+      },
+      "splat_count": 594,
+      "voxel_count": 63,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-021",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0085"
+        }
+      ],
+      "features": {
+        "linearity": 0.575,
+        "planarity": 0.418,
+        "scattering": 0.007,
+        "fill_ratio": 0.278,
+        "tubular_fraction": 0.698,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          57.7,
+          2.5,
+          14.9
+        ],
+        "chroma": 15.1,
+        "dims_m": {
+          "width": 0.308,
+          "depth": 0.138,
+          "height": 0.277
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.805,
+        "top": 1.078
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to ELECTRIC_MOTOR (tier ('pump', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0085",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        2.28841,
+        0.22917,
+        -1.74716
+      ],
+      "aabb_min": [
+        2.10782,
+        0.21837,
+        -1.76439
+      ],
+      "aabb_max": [
+        2.46995,
+        0.24008,
+        -1.73735
+      ],
+      "obb": {
+        "center": [
+          2.28841,
+          0.22917,
+          -1.74716
+        ],
+        "extent": [
+          0.36694,
+          0.02258,
+          0.01888
+        ],
+        "rotation": [
+          [
+            0.997826,
+            0.0,
+            0.065899
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.065899,
+            0.0,
+            0.997826
+          ]
+        ],
+        "yaw_deg": -3.78
+      },
+      "splat_count": 586,
+      "voxel_count": 48,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.998,
+        "planarity": 0.001,
+        "scattering": 0.001,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 1.0,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          73.5,
+          1.7,
+          10.7
+        ],
+        "chroma": 10.8,
+        "dims_m": {
+          "width": 0.472,
+          "depth": 0.024,
+          "height": 0.029
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.07,
+        "top": 1.098
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          2.28899,
+          0.22574,
+          -1.74996
+        ],
+        "direction": [
+          0.9979,
+          -0.0251,
+          -0.0594
+        ],
+        "radius": 0.0055,
+        "length": 0.3631,
+        "rms": 0.0028
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0086",
+      "class": "other",
+      "display_label": "P-005 (PROCESS_PUMP) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        1.23062,
+        0.24226,
+        -2.86073
+      ],
+      "aabb_min": [
+        1.0712,
+        0.06314,
+        -2.92833
+      ],
+      "aabb_max": [
+        1.3144,
+        0.42859,
+        -2.72706
+      ],
+      "obb": {
+        "center": [
+          1.23062,
+          0.24226,
+          -2.86073
+        ],
+        "extent": [
+          0.32592,
+          0.37574,
+          0.1235
+        ],
+        "rotation": [
+          [
+            0.759849,
+            0.0,
+            -0.6501
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.6501,
+            0.0,
+            0.759849
+          ]
+        ],
+        "yaw_deg": 40.55
+      },
+      "splat_count": 578,
+      "voxel_count": 100,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-017",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [],
+      "features": {
+        "linearity": 0.83,
+        "planarity": 0.097,
+        "scattering": 0.073,
+        "fill_ratio": 0.165,
+        "tubular_fraction": 0.69,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          5.9,
+          0.1,
+          0.7
+        ],
+        "chroma": 0.7,
+        "dims_m": {
+          "width": 0.419,
+          "depth": 0.159,
+          "height": 0.483
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.828,
+        "top": 1.298
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to PROCESS_PUMP (tier ('motor', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0087",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -3.02436,
+        -0.70041,
+        -1.1424
+      ],
+      "aabb_min": [
+        -3.14583,
+        -0.77066,
+        -1.459
+      ],
+      "aabb_max": [
+        -2.93023,
+        -0.63233,
+        -0.7684
+      ],
+      "obb": {
+        "center": [
+          -3.02436,
+          -0.70041,
+          -1.1424
+        ],
+        "extent": [
+          0.21242,
+          0.14924,
+          0.76989
+        ],
+        "rotation": [
+          [
+            0.997397,
+            0.0,
+            -0.072102
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.072102,
+            0.0,
+            0.997397
+          ]
+        ],
+        "yaw_deg": 4.13
+      },
+      "splat_count": 499,
+      "voxel_count": 192,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0120"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0129"
+        }
+      ],
+      "features": {
+        "linearity": 0.913,
+        "planarity": 0.065,
+        "scattering": 0.022,
+        "fill_ratio": 0.275,
+        "tubular_fraction": 0.057,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          33.8,
+          0.6,
+          13.2
+        ],
+        "chroma": 13.2,
+        "dims_m": {
+          "width": 0.99,
+          "depth": 0.273,
+          "height": 0.192
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.193,
+        "top": 2.37
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0088",
+      "class": "other",
+      "display_label": "PT-003 (PRESSURE_TRANSMITTER) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.6326,
+        -0.51265,
+        -2.34171
+      ],
+      "aabb_min": [
+        3.58706,
+        -0.6819,
+        -2.52776
+      ],
+      "aabb_max": [
+        3.67377,
+        -0.33124,
+        -2.15612
+      ],
+      "obb": {
+        "center": [
+          3.6326,
+          -0.51265,
+          -2.34171
+        ],
+        "extent": [
+          0.08919,
+          0.37332,
+          0.37688
+        ],
+        "rotation": [
+          [
+            0.999398,
+            0.0,
+            0.034689
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.034689,
+            0.0,
+            0.999398
+          ]
+        ],
+        "yaw_deg": -1.99
+      },
+      "splat_count": 485,
+      "voxel_count": 82,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-027",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.752,
+        "planarity": 0.203,
+        "scattering": 0.044,
+        "fill_ratio": 0.235,
+        "tubular_fraction": 0.159,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          42.8,
+          -8.0,
+          14.3
+        ],
+        "chroma": 16.4,
+        "dims_m": {
+          "width": 0.485,
+          "depth": 0.115,
+          "height": 0.48
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.805,
+        "top": 2.256
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to PRESSURE_TRANSMITTER (tier ('other', 'sign'))."
+    },
+    {
+      "object_id": "OBJ-0089",
+      "class": "pump",
+      "display_label": "P-003 (PROCESS_PUMP) - procedural",
+      "class_confidence": 0.4,
+      "label_source": "heuristic",
+      "center": [
+        1.80892,
+        -0.18943,
+        -3.16288
+      ],
+      "aabb_min": [
+        1.75518,
+        -0.24379,
+        -3.27331
+      ],
+      "aabb_max": [
+        1.88511,
+        -0.13636,
+        -3.05447
+      ],
+      "obb": {
+        "center": [
+          1.80892,
+          -0.18943,
+          -3.16288
+        ],
+        "extent": [
+          0.10943,
+          0.10923,
+          0.24508
+        ],
+        "rotation": [
+          [
+            0.967585,
+            0.0,
+            0.252546
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.252546,
+            0.0,
+            0.967585
+          ]
+        ],
+        "yaw_deg": -14.63
+      },
+      "splat_count": 482,
+      "voxel_count": 89,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-015",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0077"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0076"
+        }
+      ],
+      "features": {
+        "linearity": 0.598,
+        "planarity": 0.293,
+        "scattering": 0.109,
+        "fill_ratio": 0.808,
+        "tubular_fraction": 0.247,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          81.6,
+          2.4,
+          12.5
+        ],
+        "chroma": 12.7,
+        "dims_m": {
+          "width": 0.315,
+          "depth": 0.141,
+          "height": 0.141
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.554,
+        "top": 1.693
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'pump' matched to PROCESS_PUMP (tier ('pump',))."
+    },
+    {
+      "object_id": "OBJ-0090",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -3.71314,
+        -0.17049,
+        -1.17431
+      ],
+      "aabb_min": [
+        -3.72663,
+        -0.64493,
+        -1.19068
+      ],
+      "aabb_max": [
+        -3.69884,
+        0.28964,
+        -1.15782
+      ],
+      "obb": {
+        "center": [
+          -3.71314,
+          -0.17049,
+          -1.17431
+        ],
+        "extent": [
+          0.0159,
+          0.98488,
+          0.042
+        ],
+        "rotation": [
+          [
+            0.857302,
+            0.0,
+            0.514814
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.514814,
+            0.0,
+            0.857302
+          ]
+        ],
+        "yaw_deg": -30.99
+      },
+      "splat_count": 477,
+      "voxel_count": 102,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 1.0,
+        "planarity": 0.0,
+        "scattering": 0.0,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 1.0,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          45.4,
+          1.5,
+          10.0
+        ],
+        "chroma": 10.1,
+        "dims_m": {
+          "width": 0.054,
+          "depth": 0.02,
+          "height": 1.267
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.006,
+        "top": 2.209
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -3.71292,
+          -0.17791,
+          -1.17306
+        ],
+        "direction": [
+          0.022,
+          0.9994,
+          0.0267
+        ],
+        "radius": 0.0051,
+        "length": 0.935,
+        "rms": 0.0025
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0091",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        1.3517,
+        -0.09779,
+        -3.18513
+      ],
+      "aabb_min": [
+        1.29901,
+        -0.39127,
+        -3.23167
+      ],
+      "aabb_max": [
+        1.40007,
+        0.19051,
+        -3.14624
+      ],
+      "obb": {
+        "center": [
+          1.3517,
+          -0.09779,
+          -3.18513
+        ],
+        "extent": [
+          0.10979,
+          0.58825,
+          0.08214
+        ],
+        "rotation": [
+          [
+            0.963395,
+            0.0,
+            0.268085
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.268085,
+            0.0,
+            0.963395
+          ]
+        ],
+        "yaw_deg": -15.55
+      },
+      "splat_count": 467,
+      "voxel_count": 215,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0100"
+        }
+      ],
+      "features": {
+        "linearity": 0.972,
+        "planarity": 0.016,
+        "scattering": 0.012,
+        "fill_ratio": 0.965,
+        "tubular_fraction": 0.014,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          78.6,
+          0.3,
+          17.1
+        ],
+        "chroma": 17.1,
+        "dims_m": {
+          "width": 0.141,
+          "depth": 0.106,
+          "height": 0.757
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.134,
+        "top": 1.882
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0092",
+      "class": "other",
+      "display_label": "Unclassified object",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.72808,
+        -0.7456,
+        -1.23479
+      ],
+      "aabb_min": [
+        3.67856,
+        -0.83328,
+        -1.41536
+      ],
+      "aabb_max": [
+        3.77791,
+        -0.66167,
+        -1.04334
+      ],
+      "obb": {
+        "center": [
+          3.72808,
+          -0.7456,
+          -1.23479
+        ],
+        "extent": [
+          0.10264,
+          0.18246,
+          0.39791
+        ],
+        "rotation": [
+          [
+            0.999845,
+            0.0,
+            -0.017601
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.017601,
+            0.0,
+            0.999845
+          ]
+        ],
+        "yaw_deg": 1.01
+      },
+      "splat_count": 466,
+      "voxel_count": 146,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.691,
+        "planarity": 0.248,
+        "scattering": 0.06,
+        "fill_ratio": 0.584,
+        "tubular_fraction": 0.048,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          30.1,
+          0.2,
+          6.8
+        ],
+        "chroma": 6.8,
+        "dims_m": {
+          "width": 0.512,
+          "depth": 0.132,
+          "height": 0.235
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.23,
+        "top": 2.451
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0093",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        2.91437,
+        -0.82186,
+        -1.19129
+      ],
+      "aabb_min": [
+        2.62837,
+        -0.84064,
+        -1.28504
+      ],
+      "aabb_max": [
+        3.22313,
+        -0.81144,
+        -1.09858
+      ],
+      "obb": {
+        "center": [
+          2.91437,
+          -0.82186,
+          -1.19129
+        ],
+        "extent": [
+          0.63116,
+          0.03834,
+          0.18953
+        ],
+        "rotation": [
+          [
+            0.999989,
+            0.0,
+            -0.004794
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.004794,
+            0.0,
+            0.999989
+          ]
+        ],
+        "yaw_deg": 0.27
+      },
+      "splat_count": 462,
+      "voxel_count": 116,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.859,
+        "planarity": 0.14,
+        "scattering": 0.001,
+        "fill_ratio": 0.816,
+        "tubular_fraction": 0.595,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          59.7,
+          2.1,
+          12.3
+        ],
+        "chroma": 12.5,
+        "dims_m": {
+          "width": 0.812,
+          "depth": 0.244,
+          "height": 0.049
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.423,
+        "top": 2.46
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0094",
+      "class": "other",
+      "display_label": "M-002 (ELECTRIC_MOTOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        1.5976,
+        -0.65308,
+        -3.18476
+      ],
+      "aabb_min": [
+        1.52294,
+        -0.80842,
+        -3.20702
+      ],
+      "aabb_max": [
+        1.67161,
+        -0.49345,
+        -3.15765
+      ],
+      "obb": {
+        "center": [
+          1.5976,
+          -0.65308,
+          -3.18476
+        ],
+        "extent": [
+          0.15024,
+          0.32523,
+          0.05073
+        ],
+        "rotation": [
+          [
+            0.998216,
+            0.0,
+            0.059705
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.059705,
+            0.0,
+            0.998216
+          ]
+        ],
+        "yaw_deg": -3.42
+      },
+      "splat_count": 455,
+      "voxel_count": 107,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-020",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0107"
+        }
+      ],
+      "features": {
+        "linearity": 0.61,
+        "planarity": 0.371,
+        "scattering": 0.019,
+        "fill_ratio": 0.955,
+        "tubular_fraction": 0.159,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          83.0,
+          -2.0,
+          16.3
+        ],
+        "chroma": 16.4,
+        "dims_m": {
+          "width": 0.193,
+          "depth": 0.065,
+          "height": 0.418
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.014,
+        "top": 2.419
+      },
+      "segmentation_notes": [
+        "merged"
+      ],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to ELECTRIC_MOTOR (tier ('pump', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0095",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -2.76534,
+        -0.75446,
+        -1.4352
+      ],
+      "aabb_min": [
+        -2.7956,
+        -0.77601,
+        -2.05254
+      ],
+      "aabb_max": [
+        -2.73121,
+        -0.72954,
+        -0.81411
+      ],
+      "obb": {
+        "center": [
+          -2.76534,
+          -0.75446,
+          -1.4352
+        ],
+        "extent": [
+          0.06701,
+          0.05201,
+          1.26055
+        ],
+        "rotation": [
+          [
+            0.999991,
+            0.0,
+            0.004291
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.004291,
+            0.0,
+            0.999991
+          ]
+        ],
+        "yaw_deg": -0.25
+      },
+      "splat_count": 450,
+      "voxel_count": 197,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0127"
+        }
+      ],
+      "features": {
+        "linearity": 0.998,
+        "planarity": 0.001,
+        "scattering": 0.001,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.127,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          46.9,
+          1.3,
+          16.6
+        ],
+        "chroma": 16.6,
+        "dims_m": {
+          "width": 1.622,
+          "depth": 0.086,
+          "height": 0.067
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.318,
+        "top": 2.377
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -2.76005,
+          -0.74662,
+          -1.43353
+        ],
+        "direction": [
+          0.0117,
+          0.0021,
+          0.9999
+        ],
+        "radius": 0.0184,
+        "length": 1.2383,
+        "rms": 0.0094
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0096",
+      "class": "pump",
+      "display_label": "P-001 (PROCESS_PUMP) - procedural",
+      "class_confidence": 0.4,
+      "label_source": "heuristic",
+      "center": [
+        1.6604,
+        0.07059,
+        -3.1711
+      ],
+      "aabb_min": [
+        1.51498,
+        -0.05201,
+        -3.19677
+      ],
+      "aabb_max": [
+        1.79886,
+        0.19338,
+        -3.1383
+      ],
+      "obb": {
+        "center": [
+          1.6604,
+          0.07059,
+          -3.1711
+        ],
+        "extent": [
+          0.29372,
+          0.24858,
+          0.0574
+        ],
+        "rotation": [
+          [
+            0.997706,
+            0.0,
+            0.06769
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.06769,
+            0.0,
+            0.997706
+          ]
+        ],
+        "yaw_deg": -3.88
+      },
+      "splat_count": 442,
+      "voxel_count": 128,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-013",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0076"
+        }
+      ],
+      "features": {
+        "linearity": 0.739,
+        "planarity": 0.241,
+        "scattering": 0.02,
+        "fill_ratio": 0.733,
+        "tubular_fraction": 0.086,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          69.2,
+          2.6,
+          15.3
+        ],
+        "chroma": 15.5,
+        "dims_m": {
+          "width": 0.378,
+          "depth": 0.074,
+          "height": 0.32
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.13,
+        "top": 1.446
+      },
+      "segmentation_notes": [
+        "merged"
+      ],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'pump' matched to PROCESS_PUMP (tier ('pump',))."
+    },
+    {
+      "object_id": "OBJ-0097",
+      "class": "other",
+      "display_label": "PT-002 (PRESSURE_TRANSMITTER) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.51111,
+        0.36713,
+        -2.75625
+      ],
+      "aabb_min": [
+        3.4385,
+        0.32421,
+        -2.81071
+      ],
+      "aabb_max": [
+        3.59317,
+        0.41103,
+        -2.69279
+      ],
+      "obb": {
+        "center": [
+          3.51111,
+          0.36713,
+          -2.75625
+        ],
+        "extent": [
+          0.1643,
+          0.08812,
+          0.11194
+        ],
+        "rotation": [
+          [
+            0.978179,
+            0.0,
+            0.207762
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.207762,
+            0.0,
+            0.978179
+          ]
+        ],
+        "yaw_deg": -11.99
+      },
+      "splat_count": 432,
+      "voxel_count": 117,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-026",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.591,
+        "planarity": 0.05,
+        "scattering": 0.359,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.017,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          21.7,
+          -0.4,
+          1.0
+        ],
+        "chroma": 1.1,
+        "dims_m": {
+          "width": 0.211,
+          "depth": 0.144,
+          "height": 0.113
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.85,
+        "top": 0.962
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to PRESSURE_TRANSMITTER (tier ('other', 'sign'))."
+    },
+    {
+      "object_id": "OBJ-0098",
+      "class": "crate",
+      "display_label": "Box on floor (crate or bin)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -1.51591,
+        0.92816,
+        -3.05988
+      ],
+      "aabb_min": [
+        -1.62424,
+        0.84571,
+        -3.19531
+      ],
+      "aabb_max": [
+        -1.40746,
+        1.01035,
+        -2.92007
+      ],
+      "obb": {
+        "center": [
+          -1.51591,
+          0.92816,
+          -3.05988
+        ],
+        "extent": [
+          0.21102,
+          0.16731,
+          0.27356
+        ],
+        "rotation": [
+          [
+            0.996685,
+            0.0,
+            0.08136
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.08136,
+            0.0,
+            0.996685
+          ]
+        ],
+        "yaw_deg": -4.67
+      },
+      "splat_count": 429,
+      "voxel_count": 143,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.51,
+        "planarity": 0.303,
+        "scattering": 0.187,
+        "fill_ratio": 0.517,
+        "tubular_fraction": 0.245,
+        "red_fraction": 0.818,
+        "mean_lab": [
+          56.1,
+          40.8,
+          23.4
+        ],
+        "chroma": 47.0,
+        "dims_m": {
+          "width": 0.352,
+          "depth": 0.271,
+          "height": 0.215
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.079,
+        "top": 0.291
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0099",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        0.30612,
+        0.61441,
+        -3.15974
+      ],
+      "aabb_min": [
+        0.27841,
+        0.23137,
+        -3.28031
+      ],
+      "aabb_max": [
+        0.3261,
+        1.01201,
+        -3.03826
+      ],
+      "obb": {
+        "center": [
+          0.30612,
+          0.61441,
+          -3.15974
+        ],
+        "extent": [
+          0.0479,
+          0.7955,
+          0.24655
+        ],
+        "rotation": [
+          [
+            0.996858,
+            0.0,
+            -0.079206
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.079206,
+            0.0,
+            0.996858
+          ]
+        ],
+        "yaw_deg": 4.54
+      },
+      "splat_count": 419,
+      "voxel_count": 121,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.998,
+        "planarity": 0.002,
+        "scattering": 0.0,
+        "fill_ratio": 0.279,
+        "tubular_fraction": 0.264,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          90.8,
+          0.2,
+          6.3
+        ],
+        "chroma": 6.3,
+        "dims_m": {
+          "width": 0.317,
+          "depth": 0.062,
+          "height": 1.023
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.077,
+        "top": 1.081
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          0.30704,
+          0.62116,
+          -3.15894
+        ],
+        "direction": [
+          0.0279,
+          -0.9552,
+          -0.2945
+        ],
+        "radius": 0.0118,
+        "length": 0.8182,
+        "rms": 0.0047
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0100",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        1.34374,
+        -0.61432,
+        -3.18061
+      ],
+      "aabb_min": [
+        1.29614,
+        -0.82573,
+        -3.21103
+      ],
+      "aabb_max": [
+        1.3854,
+        -0.40802,
+        -3.15353
+      ],
+      "obb": {
+        "center": [
+          1.34374,
+          -0.61432,
+          -3.18061
+        ],
+        "extent": [
+          0.09157,
+          0.43448,
+          0.05732
+        ],
+        "rotation": [
+          [
+            0.966743,
+            0.0,
+            0.25575
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.25575,
+            0.0,
+            0.966743
+          ]
+        ],
+        "yaw_deg": -14.82
+      },
+      "splat_count": 407,
+      "voxel_count": 111,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0091"
+        }
+      ],
+      "features": {
+        "linearity": 0.968,
+        "planarity": 0.021,
+        "scattering": 0.011,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.036,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          76.6,
+          -15.2,
+          23.0
+        ],
+        "chroma": 27.6,
+        "dims_m": {
+          "width": 0.118,
+          "depth": 0.074,
+          "height": 0.559
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.904,
+        "top": 2.441
+      },
+      "segmentation_notes": [
+        "merged"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0101",
+      "class": "valve",
+      "display_label": "CV-004 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        2.4898,
+        -0.77447,
+        -1.79586
+      ],
+      "aabb_min": [
+        2.38326,
+        -0.82931,
+        -1.90059
+      ],
+      "aabb_max": [
+        2.59684,
+        -0.71731,
+        -1.7004
+      ],
+      "obb": {
+        "center": [
+          2.4898,
+          -0.77447,
+          -1.79586
+        ],
+        "extent": [
+          0.21958,
+          0.11719,
+          0.20962
+        ],
+        "rotation": [
+          [
+            0.999974,
+            0.0,
+            0.00718
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.00718,
+            0.0,
+            0.999974
+          ]
+        ],
+        "yaw_deg": -0.41
+      },
+      "splat_count": 399,
+      "voxel_count": 114,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-004",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0153"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0146"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0111"
+        }
+      ],
+      "features": {
+        "linearity": 0.411,
+        "planarity": 0.34,
+        "scattering": 0.249,
+        "fill_ratio": 0.664,
+        "tubular_fraction": 0.088,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          94.1,
+          0.6,
+          4.4
+        ],
+        "chroma": 4.5,
+        "dims_m": {
+          "width": 0.282,
+          "depth": 0.27,
+          "height": 0.151
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.302,
+        "top": 2.446
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'valve' matched to CONTROL_VALVE (tier ('valve',))."
+    },
+    {
+      "object_id": "OBJ-0102",
+      "class": "other",
+      "display_label": "CV-010 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -3.60723,
+        -0.70106,
+        -2.0029
+      ],
+      "aabb_min": [
+        -3.94688,
+        -0.77242,
+        -2.06093
+      ],
+      "aabb_max": [
+        -3.22908,
+        -0.6309,
+        -1.68473
+      ],
+      "obb": {
+        "center": [
+          -3.60723,
+          -0.70106,
+          -2.0029
+        ],
+        "extent": [
+          0.68798,
+          0.1457,
+          0.43516
+        ],
+        "rotation": [
+          [
+            0.891008,
+            0.0,
+            0.453987
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.453987,
+            0.0,
+            0.891008
+          ]
+        ],
+        "yaw_deg": -27.0
+      },
+      "splat_count": 395,
+      "voxel_count": 169,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-010",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.824,
+        "planarity": 0.17,
+        "scattering": 0.007,
+        "fill_ratio": 0.131,
+        "tubular_fraction": 0.047,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          48.4,
+          1.4,
+          11.6
+        ],
+        "chroma": 11.7,
+        "dims_m": {
+          "width": 0.885,
+          "depth": 0.56,
+          "height": 0.187
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.191,
+        "top": 2.373
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0103",
+      "class": "other",
+      "display_label": "VS-001 (VIBRATION_SENSOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.58995,
+        0.12407,
+        -2.26991
+      ],
+      "aabb_min": [
+        3.57526,
+        0.07108,
+        -2.35348
+      ],
+      "aabb_max": [
+        3.60704,
+        0.1869,
+        -2.18736
+      ],
+      "obb": {
+        "center": [
+          3.58995,
+          0.12407,
+          -2.26991
+        ],
+        "extent": [
+          0.03418,
+          0.13085,
+          0.18048
+        ],
+        "rotation": [
+          [
+            0.999975,
+            0.0,
+            0.007004
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.007004,
+            0.0,
+            0.999975
+          ]
+        ],
+        "yaw_deg": -0.4
+      },
+      "splat_count": 382,
+      "voxel_count": 55,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-028",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.714,
+        "planarity": 0.254,
+        "scattering": 0.032,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.018,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          48.4,
+          3.2,
+          2.8
+        ],
+        "chroma": 4.2,
+        "dims_m": {
+          "width": 0.232,
+          "depth": 0.044,
+          "height": 0.168
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.139,
+        "top": 1.288
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to VIBRATION_SENSOR (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0104",
+      "class": "other",
+      "display_label": "M-004 (ELECTRIC_MOTOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        2.43974,
+        -0.7745,
+        -1.13147
+      ],
+      "aabb_min": [
+        2.30082,
+        -0.83757,
+        -1.51176
+      ],
+      "aabb_max": [
+        2.57777,
+        -0.7122,
+        -0.75746
+      ],
+      "obb": {
+        "center": [
+          2.43974,
+          -0.7745,
+          -1.13147
+        ],
+        "extent": [
+          0.28579,
+          0.12776,
+          0.76399
+        ],
+        "rotation": [
+          [
+            0.999967,
+            0.0,
+            0.008104
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.008104,
+            0.0,
+            0.999967
+          ]
+        ],
+        "yaw_deg": -0.46
+      },
+      "splat_count": 379,
+      "voxel_count": 218,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-022",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0153"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0146"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0111"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0093"
+        }
+      ],
+      "features": {
+        "linearity": 0.911,
+        "planarity": 0.053,
+        "scattering": 0.036,
+        "fill_ratio": 0.33,
+        "tubular_fraction": 0.115,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          84.0,
+          1.2,
+          0.9
+        ],
+        "chroma": 1.5,
+        "dims_m": {
+          "width": 0.983,
+          "depth": 0.368,
+          "height": 0.164
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.295,
+        "top": 2.457
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to ELECTRIC_MOTOR (tier ('pump', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0105",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.44345,
+        0.25079,
+        -3.06129
+      ],
+      "aabb_min": [
+        -2.49182,
+        -0.08805,
+        -3.13613
+      ],
+      "aabb_max": [
+        -2.40781,
+        0.59731,
+        -2.98604
+      ],
+      "obb": {
+        "center": [
+          -2.44345,
+          0.25079,
+          -3.06129
+        ],
+        "extent": [
+          0.09291,
+          0.71318,
+          0.15803
+        ],
+        "rotation": [
+          [
+            0.993209,
+            0.0,
+            0.116343
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.116343,
+            0.0,
+            0.993209
+          ]
+        ],
+        "yaw_deg": -6.68
+      },
+      "splat_count": 360,
+      "voxel_count": 133,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.985,
+        "planarity": 0.01,
+        "scattering": 0.005,
+        "fill_ratio": 0.312,
+        "tubular_fraction": 0.09,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          84.9,
+          1.3,
+          8.0
+        ],
+        "chroma": 8.1,
+        "dims_m": {
+          "width": 0.203,
+          "depth": 0.12,
+          "height": 0.918
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.611,
+        "top": 1.492
+      },
+      "segmentation_notes": [
+        "split"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0106",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.96328,
+        -0.72911,
+        -2.03245
+      ],
+      "aabb_min": [
+        -3.00065,
+        -0.75988,
+        -2.40819
+      ],
+      "aabb_max": [
+        -2.92581,
+        -0.69466,
+        -1.64887
+      ],
+      "obb": {
+        "center": [
+          -2.96328,
+          -0.72911,
+          -2.03245
+        ],
+        "extent": [
+          0.07622,
+          0.07418,
+          0.789
+        ],
+        "rotation": [
+          [
+            0.999998,
+            0.0,
+            -0.0018
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0018,
+            0.0,
+            0.999998
+          ]
+        ],
+        "yaw_deg": 0.1
+      },
+      "splat_count": 335,
+      "voxel_count": 154,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0129"
+        }
+      ],
+      "features": {
+        "linearity": 0.99,
+        "planarity": 0.005,
+        "scattering": 0.005,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.032,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          40.6,
+          1.9,
+          15.8
+        ],
+        "chroma": 15.9,
+        "dims_m": {
+          "width": 1.015,
+          "depth": 0.098,
+          "height": 0.095
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.273,
+        "top": 2.357
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0107",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        1.56187,
+        -0.2835,
+        -3.18287
+      ],
+      "aabb_min": [
+        1.51761,
+        -0.45103,
+        -3.21251
+      ],
+      "aabb_max": [
+        1.60413,
+        -0.12582,
+        -3.15423
+      ],
+      "obb": {
+        "center": [
+          1.56187,
+          -0.2835,
+          -3.18287
+        ],
+        "extent": [
+          0.08796,
+          0.33804,
+          0.05944
+        ],
+        "rotation": [
+          [
+            0.997084,
+            0.0,
+            0.07631
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.07631,
+            0.0,
+            0.997084
+          ]
+        ],
+        "yaw_deg": -4.38
+      },
+      "splat_count": 311,
+      "voxel_count": 99,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.908,
+        "planarity": 0.053,
+        "scattering": 0.039,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.01,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          83.5,
+          -6.8,
+          19.6
+        ],
+        "chroma": 20.8,
+        "dims_m": {
+          "width": 0.113,
+          "depth": 0.076,
+          "height": 0.435
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.541,
+        "top": 1.959
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0108",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        3.68407,
+        -0.24862,
+        -2.68647
+      ],
+      "aabb_min": [
+        3.65326,
+        -0.54576,
+        -2.79057
+      ],
+      "aabb_max": [
+        3.7106,
+        0.04782,
+        -2.57163
+      ],
+      "obb": {
+        "center": [
+          3.68407,
+          -0.24862,
+          -2.68647
+        ],
+        "extent": [
+          0.06152,
+          0.62339,
+          0.23218
+        ],
+        "rotation": [
+          [
+            0.999551,
+            0.0,
+            0.029948
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.029948,
+            0.0,
+            0.999551
+          ]
+        ],
+        "yaw_deg": -1.72
+      },
+      "splat_count": 310,
+      "voxel_count": 143,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.904,
+        "planarity": 0.087,
+        "scattering": 0.009,
+        "fill_ratio": 0.553,
+        "tubular_fraction": 0.077,
+        "red_fraction": 0.007,
+        "mean_lab": [
+          12.3,
+          1.0,
+          5.4
+        ],
+        "chroma": 5.5,
+        "dims_m": {
+          "width": 0.299,
+          "depth": 0.079,
+          "height": 0.802
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.317,
+        "top": 2.081
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0109",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.34245,
+        -0.75528,
+        -1.36972
+      ],
+      "aabb_min": [
+        -2.35083,
+        -0.77306,
+        -1.56978
+      ],
+      "aabb_max": [
+        -2.33426,
+        -0.73379,
+        -1.17055
+      ],
+      "obb": {
+        "center": [
+          -2.34245,
+          -0.75528,
+          -1.36972
+        ],
+        "extent": [
+          0.01705,
+          0.04453,
+          0.41241
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            -0.000475
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.000475,
+            0.0,
+            1.0
+          ]
+        ],
+        "yaw_deg": 0.03
+      },
+      "splat_count": 274,
+      "voxel_count": 74,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.99,
+        "planarity": 0.01,
+        "scattering": 0.001,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.122,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          97.6,
+          -2.0,
+          8.8
+        ],
+        "chroma": 9.1,
+        "dims_m": {
+          "width": 0.531,
+          "depth": 0.022,
+          "height": 0.057
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.323,
+        "top": 2.374
+      },
+      "segmentation_notes": [
+        "split"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0110",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -3.11052,
+        -0.73382,
+        -2.08593
+      ],
+      "aabb_min": [
+        -3.15006,
+        -0.77308,
+        -2.40122
+      ],
+      "aabb_max": [
+        -3.07693,
+        -0.6952,
+        -1.76833
+      ],
+      "obb": {
+        "center": [
+          -3.11052,
+          -0.73382,
+          -2.08593
+        ],
+        "extent": [
+          0.07745,
+          0.08324,
+          0.65932
+        ],
+        "rotation": [
+          [
+            0.999928,
+            0.0,
+            -0.012028
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.012028,
+            0.0,
+            0.999928
+          ]
+        ],
+        "yaw_deg": 0.69
+      },
+      "splat_count": 272,
+      "voxel_count": 132,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0120"
+        }
+      ],
+      "features": {
+        "linearity": 0.985,
+        "planarity": 0.008,
+        "scattering": 0.007,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.038,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          38.1,
+          2.1,
+          15.1
+        ],
+        "chroma": 15.3,
+        "dims_m": {
+          "width": 0.848,
+          "depth": 0.1,
+          "height": 0.107
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.273,
+        "top": 2.374
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0111",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        2.56714,
+        -0.72381,
+        -1.32171
+      ],
+      "aabb_min": [
+        2.54665,
+        -0.73287,
+        -1.79066
+      ],
+      "aabb_max": [
+        2.59181,
+        -0.71582,
+        -0.85431
+      ],
+      "obb": {
+        "center": [
+          2.56714,
+          -0.72381,
+          -1.32171
+        ],
+        "extent": [
+          0.04965,
+          0.02127,
+          0.93972
+        ],
+        "rotation": [
+          [
+            0.999994,
+            0.0,
+            -0.003326
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.003326,
+            0.0,
+            0.999994
+          ]
+        ],
+        "yaw_deg": 0.19
+      },
+      "splat_count": 268,
+      "voxel_count": 97,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.998,
+        "planarity": 0.002,
+        "scattering": 0.0,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.649,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          97.8,
+          0.3,
+          0.2
+        ],
+        "chroma": 0.4,
+        "dims_m": {
+          "width": 1.209,
+          "depth": 0.064,
+          "height": 0.027
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.3,
+        "top": 2.322
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          2.57716,
+          -0.72319,
+          -1.32253
+        ],
+        "direction": [
+          0.0051,
+          0.0031,
+          -1.0
+        ],
+        "radius": 0.01,
+        "length": 0.9364,
+        "rms": 0.0082
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0112",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -0.68285,
+        0.38861,
+        -3.47454
+      ],
+      "aabb_min": [
+        -0.69986,
+        -0.15602,
+        -3.49746
+      ],
+      "aabb_max": [
+        -0.65329,
+        0.93745,
+        -3.45363
+      ],
+      "obb": {
+        "center": [
+          -0.68285,
+          0.38861,
+          -3.47454
+        ],
+        "extent": [
+          0.05584,
+          1.11621,
+          0.04495
+        ],
+        "rotation": [
+          [
+            0.888543,
+            0.0,
+            0.458794
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.458794,
+            0.0,
+            0.888543
+          ]
+        ],
+        "yaw_deg": -27.31
+      },
+      "splat_count": 267,
+      "voxel_count": 133,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0156"
+        }
+      ],
+      "features": {
+        "linearity": 0.998,
+        "planarity": 0.001,
+        "scattering": 0.001,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.466,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          48.2,
+          -1.4,
+          2.4
+        ],
+        "chroma": 2.8,
+        "dims_m": {
+          "width": 0.072,
+          "depth": 0.058,
+          "height": 1.436
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.173,
+        "top": 1.58
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -0.66693,
+          0.39072,
+          -3.47229
+        ],
+        "direction": [
+          0.0015,
+          -1.0,
+          -0.008
+        ],
+        "radius": 0.0136,
+        "length": 1.0936,
+        "rms": 0.0093
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0113",
+      "class": "other",
+      "display_label": "VS-002 (VIBRATION_SENSOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.5938,
+        0.1433,
+        -1.95332
+      ],
+      "aabb_min": [
+        3.57623,
+        0.08771,
+        -1.977
+      ],
+      "aabb_max": [
+        3.6097,
+        0.19806,
+        -1.92847
+      ],
+      "obb": {
+        "center": [
+          3.5938,
+          0.1433,
+          -1.95332
+        ],
+        "extent": [
+          0.03482,
+          0.11434,
+          0.05305
+        ],
+        "rotation": [
+          [
+            0.999452,
+            0.0,
+            0.033104
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.033104,
+            0.0,
+            0.999452
+          ]
+        ],
+        "yaw_deg": -1.9
+      },
+      "splat_count": 264,
+      "voxel_count": 41,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-029",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.802,
+        "planarity": 0.097,
+        "scattering": 0.102,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.0,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          42.6,
+          4.0,
+          0.6
+        ],
+        "chroma": 4.0,
+        "dims_m": {
+          "width": 0.068,
+          "depth": 0.045,
+          "height": 0.147
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.124,
+        "top": 1.266
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to VIBRATION_SENSOR (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0114",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -1.69478,
+        -0.54751,
+        -3.18119
+      ],
+      "aabb_min": [
+        -1.71721,
+        -0.77369,
+        -3.23494
+      ],
+      "aabb_max": [
+        -1.66582,
+        -0.32796,
+        -3.12804
+      ],
+      "obb": {
+        "center": [
+          -1.69478,
+          -0.54751,
+          -3.18119
+        ],
+        "extent": [
+          0.05872,
+          0.45967,
+          0.11268
+        ],
+        "rotation": [
+          [
+            0.999545,
+            0.0,
+            -0.030174
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.030174,
+            0.0,
+            0.999545
+          ]
+        ],
+        "yaw_deg": 1.73
+      },
+      "splat_count": 253,
+      "voxel_count": 87,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.96,
+        "planarity": 0.032,
+        "scattering": 0.008,
+        "fill_ratio": 0.758,
+        "tubular_fraction": 0.08,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          69.9,
+          -8.9,
+          19.3
+        ],
+        "chroma": 21.3,
+        "dims_m": {
+          "width": 0.145,
+          "depth": 0.076,
+          "height": 0.591
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.801,
+        "top": 2.374
+      },
+      "segmentation_notes": [
+        "merged",
+        "split"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0115",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -1.50121,
+        0.09296,
+        -3.42496
+      ],
+      "aabb_min": [
+        -1.5274,
+        -0.4008,
+        -3.44576
+      ],
+      "aabb_max": [
+        -1.47337,
+        0.57928,
+        -3.40674
+      ],
+      "obb": {
+        "center": [
+          -1.50121,
+          0.09296,
+          -3.42496
+        ],
+        "extent": [
+          0.06499,
+          1.01017,
+          0.02447
+        ],
+        "rotation": [
+          [
+            0.833183,
+            0.0,
+            0.552998
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.552998,
+            0.0,
+            0.833183
+          ]
+        ],
+        "yaw_deg": -33.57
+      },
+      "splat_count": 252,
+      "voxel_count": 85,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.997,
+        "planarity": 0.002,
+        "scattering": 0.0,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.612,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          82.6,
+          -0.4,
+          6.7
+        ],
+        "chroma": 6.7,
+        "dims_m": {
+          "width": 0.084,
+          "depth": 0.031,
+          "height": 1.3
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.634,
+        "top": 1.895
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -1.50271,
+          0.08912,
+          -3.42492
+        ],
+        "direction": [
+          0.013,
+          -0.9997,
+          -0.0195
+        ],
+        "radius": 0.0124,
+        "length": 0.9805,
+        "rms": 0.0091
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0116",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -3.69033,
+        -0.42295,
+        -1.43619
+      ],
+      "aabb_min": [
+        -3.7029,
+        -0.62663,
+        -1.44388
+      ],
+      "aabb_max": [
+        -3.67804,
+        -0.21249,
+        -1.42885
+      ],
+      "obb": {
+        "center": [
+          -3.69033,
+          -0.42295,
+          -1.43619
+        ],
+        "extent": [
+          0.02576,
+          0.42183,
+          0.01597
+        ],
+        "rotation": [
+          [
+            0.994029,
+            0.0,
+            -0.10912
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.10912,
+            0.0,
+            0.994029
+          ]
+        ],
+        "yaw_deg": 6.26
+      },
+      "splat_count": 244,
+      "voxel_count": 40,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.999,
+        "planarity": 0.001,
+        "scattering": 0.001,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 1.0,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          46.7,
+          0.3,
+          12.2
+        ],
+        "chroma": 12.2,
+        "dims_m": {
+          "width": 0.033,
+          "depth": 0.021,
+          "height": 0.543
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.652,
+        "top": 2.185
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -3.68916,
+          -0.41949,
+          -1.43526
+        ],
+        "direction": [
+          0.0314,
+          0.9994,
+          0.0121
+        ],
+        "radius": 0.0055,
+        "length": 0.4144,
+        "rms": 0.0024
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0117",
+      "class": "other",
+      "display_label": "CV-008 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -1.45782,
+        0.80895,
+        -3.42162
+      ],
+      "aabb_min": [
+        -1.58261,
+        0.67378,
+        -3.45426
+      ],
+      "aabb_max": [
+        -1.33485,
+        0.94627,
+        -3.38387
+      ],
+      "obb": {
+        "center": [
+          -1.45782,
+          0.80895,
+          -3.42162
+        ],
+        "extent": [
+          0.25986,
+          0.29426,
+          0.07263
+        ],
+        "rotation": [
+          [
+            0.999115,
+            0.0,
+            -0.042052
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.042052,
+            0.0,
+            0.999115
+          ]
+        ],
+        "yaw_deg": 2.41
+      },
+      "splat_count": 228,
+      "voxel_count": 61,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-008",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.915,
+        "planarity": 0.048,
+        "scattering": 0.037,
+        "fill_ratio": 0.357,
+        "tubular_fraction": 0.148,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          86.2,
+          -0.1,
+          1.1
+        ],
+        "chroma": 1.1,
+        "dims_m": {
+          "width": 0.334,
+          "depth": 0.093,
+          "height": 0.379
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.162,
+        "top": 0.512
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0118",
+      "class": "other",
+      "display_label": "Unclassified object",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.70361,
+        0.1253,
+        -2.08121
+      ],
+      "aabb_min": [
+        3.66976,
+        0.03813,
+        -2.22917
+      ],
+      "aabb_max": [
+        3.73253,
+        0.20413,
+        -1.93491
+      ],
+      "obb": {
+        "center": [
+          3.70361,
+          0.1253,
+          -2.08121
+        ],
+        "extent": [
+          0.06709,
+          0.17838,
+          0.29894
+        ],
+        "rotation": [
+          [
+            0.99995,
+            0.0,
+            0.009973
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.009973,
+            0.0,
+            0.99995
+          ]
+        ],
+        "yaw_deg": -0.57
+      },
+      "splat_count": 221,
+      "voxel_count": 81,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.787,
+        "planarity": 0.18,
+        "scattering": 0.033,
+        "fill_ratio": 0.68,
+        "tubular_fraction": 0.062,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          9.3,
+          2.6,
+          0.2
+        ],
+        "chroma": 2.6,
+        "dims_m": {
+          "width": 0.385,
+          "depth": 0.086,
+          "height": 0.229
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.116,
+        "top": 1.33
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0119",
+      "class": "other",
+      "display_label": "P-006 (PROCESS_PUMP) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -3.76699,
+        0.45844,
+        -1.84327
+      ],
+      "aabb_min": [
+        -3.93924,
+        0.4135,
+        -2.08512
+      ],
+      "aabb_max": [
+        -3.60923,
+        0.49725,
+        -1.60328
+      ],
+      "obb": {
+        "center": [
+          -3.76699,
+          0.45844,
+          -1.84327
+        ],
+        "extent": [
+          0.34316,
+          0.09147,
+          0.48277
+        ],
+        "rotation": [
+          [
+            0.999099,
+            0.0,
+            0.042441
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.042441,
+            0.0,
+            0.999099
+          ]
+        ],
+        "yaw_deg": -2.43
+      },
+      "splat_count": 215,
+      "voxel_count": 131,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-018",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [],
+      "features": {
+        "linearity": 0.758,
+        "planarity": 0.227,
+        "scattering": 0.015,
+        "fill_ratio": 0.346,
+        "tubular_fraction": 0.13,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          53.4,
+          11.4,
+          12.2
+        ],
+        "chroma": 16.7,
+        "dims_m": {
+          "width": 0.621,
+          "depth": 0.441,
+          "height": 0.118
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.739,
+        "top": 0.847
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to PROCESS_PUMP (tier ('motor', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0120",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -3.12258,
+        -0.72224,
+        -1.36961
+      ],
+      "aabb_min": [
+        -3.15513,
+        -0.74539,
+        -1.71337
+      ],
+      "aabb_max": [
+        -3.08886,
+        -0.6997,
+        -1.04535
+      ],
+      "obb": {
+        "center": [
+          -3.12258,
+          -0.72224,
+          -1.36961
+        ],
+        "extent": [
+          0.06591,
+          0.04806,
+          0.70306
+        ],
+        "rotation": [
+          [
+            0.999985,
+            0.0,
+            -0.005386
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.005386,
+            0.0,
+            0.999985
+          ]
+        ],
+        "yaw_deg": 0.31
+      },
+      "splat_count": 209,
+      "voxel_count": 86,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0087"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0110"
+        }
+      ],
+      "features": {
+        "linearity": 0.989,
+        "planarity": 0.008,
+        "scattering": 0.003,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.163,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          38.3,
+          0.6,
+          15.4
+        ],
+        "chroma": 15.4,
+        "dims_m": {
+          "width": 0.904,
+          "depth": 0.085,
+          "height": 0.062
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.279,
+        "top": 2.338
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -3.12139,
+          -0.71702,
+          -1.37911
+        ],
+        "direction": [
+          0.0217,
+          0.0006,
+          -0.9998
+        ],
+        "radius": 0.0208,
+        "length": 0.6686,
+        "rms": 0.0093
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0121",
+      "class": "trolley",
+      "display_label": "Open frame on floor (trolley or cage)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -3.23233,
+        0.71423,
+        -3.16191
+      ],
+      "aabb_min": [
+        -3.52846,
+        0.47361,
+        -3.38383
+      ],
+      "aabb_max": [
+        -3.03042,
+        1.01475,
+        -3.06766
+      ],
+      "obb": {
+        "center": [
+          -3.23233,
+          0.71423,
+          -3.16191
+        ],
+        "extent": [
+          0.56659,
+          0.60798,
+          0.28072
+        ],
+        "rotation": [
+          [
+            0.904872,
+            0.0,
+            0.425684
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.425684,
+            0.0,
+            0.904872
+          ]
+        ],
+        "yaw_deg": -25.19
+      },
+      "splat_count": 206,
+      "voxel_count": 129,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.392,
+        "planarity": 0.46,
+        "scattering": 0.147,
+        "fill_ratio": 0.064,
+        "tubular_fraction": 0.333,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          51.4,
+          0.3,
+          7.1
+        ],
+        "chroma": 7.1,
+        "dims_m": {
+          "width": 0.729,
+          "depth": 0.361,
+          "height": 0.782
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.074,
+        "top": 0.77
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0122",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        2.66763,
+        -0.41346,
+        -3.38025
+      ],
+      "aabb_min": [
+        2.62911,
+        -0.53827,
+        -3.39943
+      ],
+      "aabb_max": [
+        2.7061,
+        -0.27375,
+        -3.35598
+      ],
+      "obb": {
+        "center": [
+          2.66763,
+          -0.41346,
+          -3.38025
+        ],
+        "extent": [
+          0.07597,
+          0.28027,
+          0.03783
+        ],
+        "rotation": [
+          [
+            0.948364,
+            0.0,
+            0.317183
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.317183,
+            0.0,
+            0.948364
+          ]
+        ],
+        "yaw_deg": -18.49
+      },
+      "splat_count": 206,
+      "voxel_count": 38,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.917,
+        "planarity": 0.074,
+        "scattering": 0.009,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.421,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          81.8,
+          0.6,
+          10.3
+        ],
+        "chroma": 10.3,
+        "dims_m": {
+          "width": 0.098,
+          "depth": 0.049,
+          "height": 0.361
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.731,
+        "top": 2.072
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0123",
+      "class": "other",
+      "display_label": "CV-009 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -3.08832,
+        -0.74558,
+        -2.7113
+      ],
+      "aabb_min": [
+        -3.27972,
+        -0.77688,
+        -2.80637
+      ],
+      "aabb_max": [
+        -2.89071,
+        -0.7141,
+        -2.61412
+      ],
+      "obb": {
+        "center": [
+          -3.08832,
+          -0.74558,
+          -2.7113
+        ],
+        "extent": [
+          0.41534,
+          0.06707,
+          0.16246
+        ],
+        "rotation": [
+          [
+            0.995838,
+            0.0,
+            -0.091136
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.091136,
+            0.0,
+            0.995838
+          ]
+        ],
+        "yaw_deg": 5.23
+      },
+      "splat_count": 193,
+      "voxel_count": 71,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-009",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.809,
+        "planarity": 0.188,
+        "scattering": 0.002,
+        "fill_ratio": 0.509,
+        "tubular_fraction": 0.915,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          51.2,
+          0.9,
+          15.6
+        ],
+        "chroma": 15.6,
+        "dims_m": {
+          "width": 0.534,
+          "depth": 0.209,
+          "height": 0.086
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.298,
+        "top": 2.378
+      },
+      "segmentation_notes": [
+        "absorbed_edge"
+      ],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0124",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -2.78356,
+        -0.75527,
+        -2.78118
+      ],
+      "aabb_min": [
+        -2.81369,
+        -0.77405,
+        -3.16754
+      ],
+      "aabb_max": [
+        -2.75069,
+        -0.73563,
+        -2.40248
+      ],
+      "obb": {
+        "center": [
+          -2.78356,
+          -0.75527,
+          -2.78118
+        ],
+        "extent": [
+          0.05586,
+          0.03996,
+          0.78026
+        ],
+        "rotation": [
+          [
+            0.999783,
+            0.0,
+            0.020844
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.020844,
+            0.0,
+            0.999783
+          ]
+        ],
+        "yaw_deg": -1.19
+      },
+      "splat_count": 192,
+      "voxel_count": 91,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0127"
+        }
+      ],
+      "features": {
+        "linearity": 0.997,
+        "planarity": 0.001,
+        "scattering": 0.002,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.363,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          46.7,
+          1.3,
+          15.1
+        ],
+        "chroma": 15.2,
+        "dims_m": {
+          "width": 1.004,
+          "depth": 0.072,
+          "height": 0.051
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.325,
+        "top": 2.375
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -2.7789,
+          -0.7518,
+          -2.78454
+        ],
+        "direction": [
+          0.0372,
+          -0.0078,
+          0.9993
+        ],
+        "radius": 0.0151,
+        "length": 0.7656,
+        "rms": 0.008
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0125",
+      "class": "other",
+      "display_label": "CV-011 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        0.83784,
+        -0.13505,
+        -3.2904
+      ],
+      "aabb_min": [
+        0.78694,
+        -0.19426,
+        -3.37102
+      ],
+      "aabb_max": [
+        0.88671,
+        -0.07675,
+        -3.21195
+      ],
+      "obb": {
+        "center": [
+          0.83784,
+          -0.13505,
+          -3.2904
+        ],
+        "extent": [
+          0.10165,
+          0.12412,
+          0.16144
+        ],
+        "rotation": [
+          [
+            0.999691,
+            0.0,
+            -0.024869
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.024869,
+            0.0,
+            0.999691
+          ]
+        ],
+        "yaw_deg": 1.43
+      },
+      "splat_count": 175,
+      "voxel_count": 67,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-011",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.566,
+        "planarity": 0.126,
+        "scattering": 0.308,
+        "fill_ratio": 0.848,
+        "tubular_fraction": 0.015,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          21.0,
+          0.9,
+          4.7
+        ],
+        "chroma": 4.8,
+        "dims_m": {
+          "width": 0.208,
+          "depth": 0.131,
+          "height": 0.16
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.478,
+        "top": 1.629
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0126",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        3.34798,
+        -0.3854,
+        -3.20347
+      ],
+      "aabb_min": [
+        3.21848,
+        -0.59514,
+        -3.23485
+      ],
+      "aabb_max": [
+        3.48835,
+        -0.17399,
+        -3.17706
+      ],
+      "obb": {
+        "center": [
+          3.34798,
+          -0.3854,
+          -3.20347
+        ],
+        "extent": [
+          0.2968,
+          0.42857,
+          0.06269
+        ],
+        "rotation": [
+          [
+            0.9909,
+            0.0,
+            0.1346
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.1346,
+            0.0,
+            0.9909
+          ]
+        ],
+        "yaw_deg": -7.74
+      },
+      "splat_count": 174,
+      "voxel_count": 83,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0145"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0157"
+        }
+      ],
+      "features": {
+        "linearity": 0.83,
+        "planarity": 0.164,
+        "scattering": 0.006,
+        "fill_ratio": 0.393,
+        "tubular_fraction": 0.048,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          42.4,
+          -0.1,
+          8.0
+        ],
+        "chroma": 8.0,
+        "dims_m": {
+          "width": 0.382,
+          "depth": 0.081,
+          "height": 0.551
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.603,
+        "top": 2.145
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0127",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.77112,
+        -0.75496,
+        -2.1986
+      ],
+      "aabb_min": [
+        -2.80092,
+        -0.77607,
+        -2.39985
+      ],
+      "aabb_max": [
+        -2.74241,
+        -0.73181,
+        -1.99216
+      ],
+      "obb": {
+        "center": [
+          -2.77112,
+          -0.75496,
+          -2.1986
+        ],
+        "extent": [
+          0.0603,
+          0.04712,
+          0.42087
+        ],
+        "rotation": [
+          [
+            0.999658,
+            0.0,
+            -0.026144
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.026144,
+            0.0,
+            0.999658
+          ]
+        ],
+        "yaw_deg": 1.5
+      },
+      "splat_count": 174,
+      "voxel_count": 81,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0124"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0095"
+        }
+      ],
+      "features": {
+        "linearity": 0.97,
+        "planarity": 0.02,
+        "scattering": 0.009,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.062,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          46.6,
+          1.5,
+          16.2
+        ],
+        "chroma": 16.3,
+        "dims_m": {
+          "width": 0.541,
+          "depth": 0.078,
+          "height": 0.061
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.32,
+        "top": 2.377
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0128",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.38088,
+        -0.47507,
+        -3.17026
+      ],
+      "aabb_min": [
+        -2.44193,
+        -0.7432,
+        -3.20742
+      ],
+      "aabb_max": [
+        -2.30875,
+        -0.20628,
+        -3.11955
+      ],
+      "obb": {
+        "center": [
+          -2.38088,
+          -0.47507,
+          -3.17026
+        ],
+        "extent": [
+          0.13636,
+          0.55963,
+          0.09806
+        ],
+        "rotation": [
+          [
+            0.970946,
+            0.0,
+            -0.239299
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.239299,
+            0.0,
+            0.970946
+          ]
+        ],
+        "yaw_deg": 13.85
+      },
+      "splat_count": 173,
+      "voxel_count": 88,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.967,
+        "planarity": 0.015,
+        "scattering": 0.018,
+        "fill_ratio": 0.453,
+        "tubular_fraction": 0.114,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          55.1,
+          0.8,
+          13.1
+        ],
+        "chroma": 13.1,
+        "dims_m": {
+          "width": 0.175,
+          "depth": 0.126,
+          "height": 0.72
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.644,
+        "top": 2.335
+      },
+      "segmentation_notes": [
+        "split"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0129",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -2.96361,
+        -0.72176,
+        -1.46758
+      ],
+      "aabb_min": [
+        -2.99032,
+        -0.74469,
+        -1.71542
+      ],
+      "aabb_max": [
+        -2.93254,
+        -0.69996,
+        -1.21346
+      ],
+      "obb": {
+        "center": [
+          -2.96361,
+          -0.72176,
+          -1.46758
+        ],
+        "extent": [
+          0.0642,
+          0.04871,
+          0.51222
+        ],
+        "rotation": [
+          [
+            0.999995,
+            0.0,
+            0.003232
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.003232,
+            0.0,
+            0.999995
+          ]
+        ],
+        "yaw_deg": -0.19
+      },
+      "splat_count": 170,
+      "voxel_count": 52,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0087"
+        },
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0106"
+        }
+      ],
+      "features": {
+        "linearity": 0.98,
+        "planarity": 0.016,
+        "scattering": 0.004,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.154,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          47.2,
+          1.6,
+          17.3
+        ],
+        "chroma": 17.4,
+        "dims_m": {
+          "width": 0.659,
+          "depth": 0.083,
+          "height": 0.063
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.28,
+        "top": 2.337
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -2.95424,
+          -0.71693,
+          -1.46432
+        ],
+        "direction": [
+          0.0319,
+          -0.014,
+          -0.9994
+        ],
+        "radius": 0.0191,
+        "length": 0.5029,
+        "rms": 0.0104
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0130",
+      "class": "other",
+      "display_label": "VS-003 (VIBRATION_SENSOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.65039,
+        -0.33709,
+        -3.03763
+      ],
+      "aabb_min": [
+        3.55886,
+        -0.44885,
+        -3.06684
+      ],
+      "aabb_max": [
+        3.73233,
+        -0.22922,
+        -3.00831
+      ],
+      "obb": {
+        "center": [
+          3.65039,
+          -0.33709,
+          -3.03763
+        ],
+        "extent": [
+          0.18371,
+          0.23154,
+          0.06245
+        ],
+        "rotation": [
+          [
+            0.999984,
+            0.0,
+            0.005704
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.005704,
+            0.0,
+            0.999984
+          ]
+        ],
+        "yaw_deg": -0.33
+      },
+      "splat_count": 167,
+      "voxel_count": 67,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-030",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.227,
+        "planarity": 0.72,
+        "scattering": 0.053,
+        "fill_ratio": 0.843,
+        "tubular_fraction": 0.09,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          23.2,
+          0.5,
+          3.4
+        ],
+        "chroma": 3.4,
+        "dims_m": {
+          "width": 0.236,
+          "depth": 0.08,
+          "height": 0.298
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.674,
+        "top": 1.956
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to VIBRATION_SENSOR (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0131",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        3.62006,
+        -0.00611,
+        -1.00233
+      ],
+      "aabb_min": [
+        3.61414,
+        -0.31779,
+        -1.03007
+      ],
+      "aabb_max": [
+        3.627,
+        0.30242,
+        -0.97505
+      ],
+      "obb": {
+        "center": [
+          3.62006,
+          -0.00611,
+          -1.00233
+        ],
+        "extent": [
+          0.01294,
+          0.64423,
+          0.05674
+        ],
+        "rotation": [
+          [
+            0.99845,
+            0.0,
+            0.055664
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.055664,
+            0.0,
+            0.99845
+          ]
+        ],
+        "yaw_deg": -3.19
+      },
+      "splat_count": 164,
+      "voxel_count": 66,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.996,
+        "planarity": 0.004,
+        "scattering": 0.0,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.682,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          65.2,
+          -0.5,
+          15.8
+        ],
+        "chroma": 15.8,
+        "dims_m": {
+          "width": 0.073,
+          "depth": 0.017,
+          "height": 0.829
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.99,
+        "top": 1.788
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          3.62079,
+          -0.00756,
+          -0.99353
+        ],
+        "direction": [
+          -0.0071,
+          -0.9989,
+          -0.0456
+        ],
+        "radius": 0.0102,
+        "length": 0.6204,
+        "rms": 0.0072
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0132",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        3.60676,
+        -0.57415,
+        -1.18293
+      ],
+      "aabb_min": [
+        3.59729,
+        -0.62629,
+        -1.36448
+      ],
+      "aabb_max": [
+        3.61856,
+        -0.5236,
+        -1.00376
+      ],
+      "obb": {
+        "center": [
+          3.60676,
+          -0.57415,
+          -1.18293
+        ],
+        "extent": [
+          0.02008,
+          0.10466,
+          0.36579
+        ],
+        "rotation": [
+          [
+            0.99987,
+            0.0,
+            0.016125
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.016125,
+            0.0,
+            0.99987
+          ]
+        ],
+        "yaw_deg": -0.92
+      },
+      "splat_count": 163,
+      "voxel_count": 49,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.937,
+        "planarity": 0.061,
+        "scattering": 0.002,
+        "fill_ratio": 0.961,
+        "tubular_fraction": 0.102,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          42.4,
+          0.4,
+          10.3
+        ],
+        "chroma": 10.3,
+        "dims_m": {
+          "width": 0.471,
+          "depth": 0.026,
+          "height": 0.135
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.053,
+        "top": 2.185
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0133",
+      "class": "other",
+      "display_label": "CV-012 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -3.25886,
+        0.95732,
+        -2.32331
+      ],
+      "aabb_min": [
+        -3.32668,
+        0.91157,
+        -2.42391
+      ],
+      "aabb_max": [
+        -3.19028,
+        1.00481,
+        -2.22815
+      ],
+      "obb": {
+        "center": [
+          -3.25886,
+          0.95732,
+          -2.32331
+        ],
+        "extent": [
+          0.14315,
+          0.09738,
+          0.19715
+        ],
+        "rotation": [
+          [
+            0.996534,
+            0.0,
+            -0.083182
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.083182,
+            0.0,
+            0.996534
+          ]
+        ],
+        "yaw_deg": 4.77
+      },
+      "splat_count": 158,
+      "voxel_count": 76,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-012",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.2,
+      "relations": [],
+      "features": {
+        "linearity": 0.481,
+        "planarity": 0.323,
+        "scattering": 0.196,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.132,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          49.2,
+          -0.7,
+          6.9
+        ],
+        "chroma": 7.0,
+        "dims_m": {
+          "width": 0.254,
+          "depth": 0.184,
+          "height": 0.125
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.086,
+        "top": 0.206
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to CONTROL_VALVE (tier ('other',))."
+    },
+    {
+      "object_id": "OBJ-0134",
+      "class": "other",
+      "display_label": "M-006 (ELECTRIC_MOTOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.29424,
+        -0.72375,
+        -3.35124
+      ],
+      "aabb_min": [
+        3.2289,
+        -0.83301,
+        -3.40092
+      ],
+      "aabb_max": [
+        3.35072,
+        -0.62039,
+        -3.31829
+      ],
+      "obb": {
+        "center": [
+          3.29424,
+          -0.72375,
+          -3.35124
+        ],
+        "extent": [
+          0.10988,
+          0.22246,
+          0.10344
+        ],
+        "rotation": [
+          [
+            0.742663,
+            0.0,
+            0.669665
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.669665,
+            0.0,
+            0.742663
+          ]
+        ],
+        "yaw_deg": -42.04
+      },
+      "splat_count": 149,
+      "voxel_count": 69,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-024",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [],
+      "features": {
+        "linearity": 0.597,
+        "planarity": 0.331,
+        "scattering": 0.072,
+        "fill_ratio": 0.962,
+        "tubular_fraction": 0.159,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          41.0,
+          0.6,
+          4.5
+        ],
+        "chroma": 4.5,
+        "dims_m": {
+          "width": 0.141,
+          "depth": 0.133,
+          "height": 0.286
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.177,
+        "top": 2.451
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to ELECTRIC_MOTOR (tier ('pump', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0135",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        1.80263,
+        0.18556,
+        -3.32918
+      ],
+      "aabb_min": [
+        1.77806,
+        -0.06583,
+        -3.36819
+      ],
+      "aabb_max": [
+        1.8255,
+        0.43446,
+        -3.29243
+      ],
+      "obb": {
+        "center": [
+          1.80263,
+          0.18556,
+          -3.32918
+        ],
+        "extent": [
+          0.0508,
+          0.50411,
+          0.07907
+        ],
+        "rotation": [
+          [
+            0.999539,
+            0.0,
+            -0.030356
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.030356,
+            0.0,
+            0.999539
+          ]
+        ],
+        "yaw_deg": 1.74
+      },
+      "splat_count": 146,
+      "voxel_count": 73,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.983,
+        "planarity": 0.011,
+        "scattering": 0.006,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.192,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          23.6,
+          1.9,
+          9.7
+        ],
+        "chroma": 9.9,
+        "dims_m": {
+          "width": 0.102,
+          "depth": 0.065,
+          "height": 0.649
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.82,
+        "top": 1.464
+      },
+      "segmentation_notes": [
+        "merged"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0136",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -2.59231,
+        -0.75497,
+        -2.66467
+      ],
+      "aabb_min": [
+        -2.61635,
+        -0.78161,
+        -3.01352
+      ],
+      "aabb_max": [
+        -2.57269,
+        -0.72776,
+        -2.2674
+      ],
+      "obb": {
+        "center": [
+          -2.59231,
+          -0.75497,
+          -2.66467
+        ],
+        "extent": [
+          0.04251,
+          0.05873,
+          0.79757
+        ],
+        "rotation": [
+          [
+            0.999229,
+            0.0,
+            0.039257
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.039257,
+            0.0,
+            0.999229
+          ]
+        ],
+        "yaw_deg": -2.25
+      },
+      "splat_count": 141,
+      "voxel_count": 85,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0083"
+        }
+      ],
+      "features": {
+        "linearity": 0.994,
+        "planarity": 0.004,
+        "scattering": 0.002,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.365,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          39.7,
+          2.3,
+          16.6
+        ],
+        "chroma": 16.7,
+        "dims_m": {
+          "width": 1.026,
+          "depth": 0.055,
+          "height": 0.076
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.315,
+        "top": 2.385
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -2.58975,
+          -0.74736,
+          -2.64039
+        ],
+        "direction": [
+          -0.0354,
+          -0.01,
+          -0.9993
+        ],
+        "radius": 0.0167,
+        "length": 0.7464,
+        "rms": 0.0083
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0137",
+      "class": "other",
+      "display_label": "Unclassified object",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.55299,
+        -0.81409,
+        -1.19022
+      ],
+      "aabb_min": [
+        3.51322,
+        -0.83895,
+        -1.28304
+      ],
+      "aabb_max": [
+        3.58189,
+        -0.79116,
+        -1.09691
+      ],
+      "obb": {
+        "center": [
+          3.55299,
+          -0.81409,
+          -1.19022
+        ],
+        "extent": [
+          0.08657,
+          0.05066,
+          0.18649
+        ],
+        "rotation": [
+          [
+            0.999992,
+            0.0,
+            0.003981
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.003981,
+            0.0,
+            0.999992
+          ]
+        ],
+        "yaw_deg": -0.23
+      },
+      "splat_count": 128,
+      "voxel_count": 36,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.928,
+        "planarity": 0.04,
+        "scattering": 0.032,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.028,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          43.1,
+          1.1,
+          11.4
+        ],
+        "chroma": 11.4,
+        "dims_m": {
+          "width": 0.24,
+          "depth": 0.111,
+          "height": 0.065
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.397,
+        "top": 2.458
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0138",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.36933,
+        -0.73924,
+        -2.1147
+      ],
+      "aabb_min": [
+        -2.39715,
+        -0.76838,
+        -2.33025
+      ],
+      "aabb_max": [
+        -2.33244,
+        -0.71033,
+        -1.90095
+      ],
+      "obb": {
+        "center": [
+          -2.36933,
+          -0.73924,
+          -2.1147
+        ],
+        "extent": [
+          0.07421,
+          0.06038,
+          0.43679
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.000828
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.000828,
+            0.0,
+            1.0
+          ]
+        ],
+        "yaw_deg": -0.05
+      },
+      "splat_count": 119,
+      "voxel_count": 75,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.973,
+        "planarity": 0.017,
+        "scattering": 0.01,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.0,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          56.3,
+          1.3,
+          17.0
+        ],
+        "chroma": 17.1,
+        "dims_m": {
+          "width": 0.562,
+          "depth": 0.095,
+          "height": 0.078
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.293,
+        "top": 2.368
+      },
+      "segmentation_notes": [
+        "split"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0139",
+      "class": "valve",
+      "display_label": "CV-001 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -2.34972,
+        -0.73401,
+        -1.69287
+      ],
+      "aabb_min": [
+        -2.39363,
+        -0.76637,
+        -1.75993
+      ],
+      "aabb_max": [
+        -2.3298,
+        -0.70222,
+        -1.62594
+      ],
+      "obb": {
+        "center": [
+          -2.34972,
+          -0.73401,
+          -1.69287
+        ],
+        "extent": [
+          0.07184,
+          0.0671,
+          0.13515
+        ],
+        "rotation": [
+          [
+            0.948968,
+            0.0,
+            -0.315373
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.315373,
+            0.0,
+            0.948968
+          ]
+        ],
+        "yaw_deg": 18.38
+      },
+      "splat_count": 118,
+      "voxel_count": 38,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-001",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0109"
+        }
+      ],
+      "features": {
+        "linearity": 0.558,
+        "planarity": 0.372,
+        "scattering": 0.07,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.158,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          79.7,
+          -0.0,
+          13.9
+        ],
+        "chroma": 13.9,
+        "dims_m": {
+          "width": 0.174,
+          "depth": 0.092,
+          "height": 0.086
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.282,
+        "top": 2.365
+      },
+      "segmentation_notes": [
+        "split"
+      ],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'valve' matched to CONTROL_VALVE (tier ('valve',))."
+    },
+    {
+      "object_id": "OBJ-0140",
+      "class": "other",
+      "display_label": "M-005 (ELECTRIC_MOTOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        2.73986,
+        -0.63945,
+        -3.37044
+      ],
+      "aabb_min": [
+        2.69138,
+        -0.67355,
+        -3.40026
+      ],
+      "aabb_max": [
+        2.78732,
+        -0.60463,
+        -3.35282
+      ],
+      "obb": {
+        "center": [
+          2.73986,
+          -0.63945,
+          -3.37044
+        ],
+        "extent": [
+          0.09612,
+          0.07798,
+          0.05939
+        ],
+        "rotation": [
+          [
+            0.989798,
+            0.0,
+            0.14248
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.14248,
+            0.0,
+            0.989798
+          ]
+        ],
+        "yaw_deg": -8.19
+      },
+      "splat_count": 109,
+      "voxel_count": 38,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-023",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0069"
+        }
+      ],
+      "features": {
+        "linearity": 0.575,
+        "planarity": 0.297,
+        "scattering": 0.128,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.0,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          46.9,
+          1.2,
+          5.1
+        ],
+        "chroma": 5.2,
+        "dims_m": {
+          "width": 0.124,
+          "depth": 0.076,
+          "height": 0.1
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.157,
+        "top": 2.246
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to ELECTRIC_MOTOR (tier ('pump', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0141",
+      "class": "other",
+      "display_label": "P-004 (PROCESS_PUMP) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -3.30773,
+        0.50133,
+        -2.18842
+      ],
+      "aabb_min": [
+        -3.40642,
+        0.41924,
+        -2.34683
+      ],
+      "aabb_max": [
+        -3.22622,
+        0.58409,
+        -2.02715
+      ],
+      "obb": {
+        "center": [
+          -3.30773,
+          0.50133,
+          -2.18842
+        ],
+        "extent": [
+          0.19125,
+          0.16627,
+          0.32578
+        ],
+        "rotation": [
+          [
+            0.984296,
+            0.0,
+            -0.176527
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.176527,
+            0.0,
+            0.984296
+          ]
+        ],
+        "yaw_deg": 10.17
+      },
+      "splat_count": 107,
+      "voxel_count": 52,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-016",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [],
+      "features": {
+        "linearity": 0.718,
+        "planarity": 0.237,
+        "scattering": 0.045,
+        "fill_ratio": 0.216,
+        "tubular_fraction": 0.154,
+        "red_fraction": 0.019,
+        "mean_lab": [
+          60.6,
+          8.7,
+          15.0
+        ],
+        "chroma": 17.4,
+        "dims_m": {
+          "width": 0.419,
+          "depth": 0.246,
+          "height": 0.214
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.628,
+        "top": 0.84
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to PROCESS_PUMP (tier ('motor', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0142",
+      "class": "other",
+      "display_label": "M-001 (ELECTRIC_MOTOR) - procedural",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        -3.87223,
+        -0.62153,
+        -1.32172
+      ],
+      "aabb_min": [
+        -3.99387,
+        -0.73042,
+        -1.47642
+      ],
+      "aabb_max": [
+        -3.76127,
+        -0.51164,
+        -1.15394
+      ],
+      "obb": {
+        "center": [
+          -3.87223,
+          -0.62153,
+          -1.32172
+        ],
+        "extent": [
+          0.22912,
+          0.22239,
+          0.34439
+        ],
+        "rotation": [
+          [
+            0.996393,
+            0.0,
+            -0.08486
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.08486,
+            0.0,
+            0.996393
+          ]
+        ],
+        "yaw_deg": 4.87
+      },
+      "splat_count": 106,
+      "voxel_count": 79,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-019",
+      "mapping_method": "procedural_fallback",
+      "mapping_confidence": 0.25,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0116"
+        }
+      ],
+      "features": {
+        "linearity": 0.756,
+        "planarity": 0.184,
+        "scattering": 0.06,
+        "fill_ratio": 0.193,
+        "tubular_fraction": 0.241,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          12.2,
+          0.6,
+          3.9
+        ],
+        "chroma": 3.9,
+        "dims_m": {
+          "width": 0.443,
+          "depth": 0.295,
+          "height": 0.286
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.037,
+        "top": 2.319
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'other' matched to ELECTRIC_MOTOR (tier ('pump', 'other'))."
+    },
+    {
+      "object_id": "OBJ-0143",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.52606,
+        0.54229,
+        -2.97583
+      ],
+      "aabb_min": [
+        -2.54789,
+        0.29243,
+        -3.0398
+      ],
+      "aabb_max": [
+        -2.4754,
+        0.78651,
+        -2.90276
+      ],
+      "obb": {
+        "center": [
+          -2.52606,
+          0.54229,
+          -2.97583
+        ],
+        "extent": [
+          0.06443,
+          0.51336,
+          0.14622
+        ],
+        "rotation": [
+          [
+            0.913208,
+            0.0,
+            0.407494
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.407494,
+            0.0,
+            0.913208
+          ]
+        ],
+        "yaw_deg": -24.05
+      },
+      "splat_count": 103,
+      "voxel_count": 61,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.989,
+        "planarity": 0.006,
+        "scattering": 0.004,
+        "fill_ratio": 0.516,
+        "tubular_fraction": 0.23,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          94.2,
+          0.6,
+          9.3
+        ],
+        "chroma": 9.4,
+        "dims_m": {
+          "width": 0.188,
+          "depth": 0.083,
+          "height": 0.66
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.367,
+        "top": 1.003
+      },
+      "segmentation_notes": [
+        "split"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0144",
+      "class": "cabinet",
+      "display_label": "Boxy or flat neutral object (cabinet or panel)",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -3.31378,
+        0.28013,
+        -3.2765
+      ],
+      "aabb_min": [
+        -3.53253,
+        0.08645,
+        -3.33306
+      ],
+      "aabb_max": [
+        -3.09542,
+        0.45616,
+        -3.19875
+      ],
+      "obb": {
+        "center": [
+          -3.31378,
+          0.28013,
+          -3.2765
+        ],
+        "extent": [
+          0.45282,
+          0.38752,
+          0.10435
+        ],
+        "rotation": [
+          [
+            0.975987,
+            0.0,
+            0.217831
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.217831,
+            0.0,
+            0.975987
+          ]
+        ],
+        "yaw_deg": -12.58
+      },
+      "splat_count": 99,
+      "voxel_count": 74,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.717,
+        "planarity": 0.264,
+        "scattering": 0.018,
+        "fill_ratio": 0.171,
+        "tubular_fraction": 0.176,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          65.8,
+          0.9,
+          7.8
+        ],
+        "chroma": 7.9,
+        "dims_m": {
+          "width": 0.583,
+          "depth": 0.134,
+          "height": 0.499
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.792,
+        "top": 1.268
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0145",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        3.1431,
+        -0.5877,
+        -3.21375
+      ],
+      "aabb_min": [
+        2.90733,
+        -0.60998,
+        -3.23713
+      ],
+      "aabb_max": [
+        3.38755,
+        -0.56856,
+        -3.18111
+      ],
+      "obb": {
+        "center": [
+          3.1431,
+          -0.5877,
+          -3.21375
+        ],
+        "extent": [
+          0.48972,
+          0.04492,
+          0.0634
+        ],
+        "rotation": [
+          [
+            0.999065,
+            0.0,
+            0.043232
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.043232,
+            0.0,
+            0.999065
+          ]
+        ],
+        "yaw_deg": -2.48
+      },
+      "splat_count": 96,
+      "voxel_count": 49,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0069"
+        }
+      ],
+      "features": {
+        "linearity": 0.989,
+        "planarity": 0.005,
+        "scattering": 0.006,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.408,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          51.0,
+          1.2,
+          7.8
+        ],
+        "chroma": 7.9,
+        "dims_m": {
+          "width": 0.63,
+          "depth": 0.082,
+          "height": 0.058
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.11,
+        "top": 2.164
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          3.14743,
+          -0.59324,
+          -3.20178
+        ],
+        "direction": [
+          0.9999,
+          0.008,
+          -0.0146
+        ],
+        "radius": 0.0157,
+        "length": 0.4803,
+        "rms": 0.0098
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0146",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        2.41788,
+        -0.81983,
+        -1.67258
+      ],
+      "aabb_min": [
+        2.40378,
+        -0.82993,
+        -1.85061
+      ],
+      "aabb_max": [
+        2.43165,
+        -0.81167,
+        -1.5115
+      ],
+      "obb": {
+        "center": [
+          2.41788,
+          -0.81983,
+          -1.67258
+        ],
+        "extent": [
+          0.04314,
+          0.02047,
+          0.35752
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.000965
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.000965,
+            0.0,
+            1.0
+          ]
+        ],
+        "yaw_deg": -0.06
+      },
+      "splat_count": 96,
+      "voxel_count": 37,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.992,
+        "planarity": 0.006,
+        "scattering": 0.002,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.784,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          97.0,
+          0.4,
+          0.3
+        ],
+        "chroma": 0.5,
+        "dims_m": {
+          "width": 0.46,
+          "depth": 0.055,
+          "height": 0.026
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.423,
+        "top": 2.447
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          2.41982,
+          -0.82154,
+          -1.68107
+        ],
+        "direction": [
+          0.0025,
+          -0.0043,
+          -1.0
+        ],
+        "radius": 0.0071,
+        "length": 0.3391,
+        "rms": 0.0063
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0147",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -3.58575,
+        0.53071,
+        -2.78131
+      ],
+      "aabb_min": [
+        -3.66505,
+        0.07864,
+        -2.8795
+      ],
+      "aabb_max": [
+        -3.51736,
+        1.00832,
+        -2.69942
+      ],
+      "obb": {
+        "center": [
+          -3.58575,
+          0.53071,
+          -2.78131
+        ],
+        "extent": [
+          0.13659,
+          0.96329,
+          0.19142
+        ],
+        "rotation": [
+          [
+            0.971515,
+            0.0,
+            -0.236979
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.236979,
+            0.0,
+            0.971515
+          ]
+        ],
+        "yaw_deg": 13.71
+      },
+      "splat_count": 92,
+      "voxel_count": 75,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.967,
+        "planarity": 0.026,
+        "scattering": 0.008,
+        "fill_ratio": 0.155,
+        "tubular_fraction": 0.213,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          47.8,
+          0.8,
+          9.5
+        ],
+        "chroma": 9.6,
+        "dims_m": {
+          "width": 0.246,
+          "depth": 0.176,
+          "height": 1.239
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.082,
+        "top": 1.278
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0148",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -3.51509,
+        -0.73833,
+        -0.94432
+      ],
+      "aabb_min": [
+        -3.53981,
+        -0.76131,
+        -1.12962
+      ],
+      "aabb_max": [
+        -3.49188,
+        -0.71588,
+        -0.74982
+      ],
+      "obb": {
+        "center": [
+          -3.51509,
+          -0.73833,
+          -0.94432
+        ],
+        "extent": [
+          0.04397,
+          0.05084,
+          0.39066
+        ],
+        "rotation": [
+          [
+            0.999572,
+            0.0,
+            0.029246
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.029246,
+            0.0,
+            0.999572
+          ]
+        ],
+        "yaw_deg": -1.68
+      },
+      "splat_count": 91,
+      "voxel_count": 56,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.981,
+        "planarity": 0.011,
+        "scattering": 0.008,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.143,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          4.2,
+          5.5,
+          6.2
+        ],
+        "chroma": 8.2,
+        "dims_m": {
+          "width": 0.503,
+          "depth": 0.057,
+          "height": 0.065
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.3,
+        "top": 2.358
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -3.51639,
+          -0.73677,
+          -0.94017
+        ],
+        "direction": [
+          0.0403,
+          0.0328,
+          0.9986
+        ],
+        "radius": 0.0174,
+        "length": 0.3821,
+        "rms": 0.0059
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0149",
+      "class": "other",
+      "display_label": "Unclassified object",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.69485,
+        0.32758,
+        -2.76163
+      ],
+      "aabb_min": [
+        3.66199,
+        0.25399,
+        -2.80995
+      ],
+      "aabb_max": [
+        3.72567,
+        0.3965,
+        -2.72549
+      ],
+      "obb": {
+        "center": [
+          3.69485,
+          0.32758,
+          -2.76163
+        ],
+        "extent": [
+          0.06106,
+          0.14818,
+          0.09753
+        ],
+        "rotation": [
+          [
+            0.99091,
+            0.0,
+            -0.134525
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.134525,
+            0.0,
+            0.99091
+          ]
+        ],
+        "yaw_deg": 7.73
+      },
+      "splat_count": 89,
+      "voxel_count": 38,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.642,
+        "planarity": 0.158,
+        "scattering": 0.199,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.105,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          11.1,
+          3.1,
+          7.6
+        ],
+        "chroma": 8.2,
+        "dims_m": {
+          "width": 0.125,
+          "depth": 0.079,
+          "height": 0.191
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.869,
+        "top": 1.052
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0150",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -2.32333,
+        0.06581,
+        -3.15798
+      ],
+      "aabb_min": [
+        -2.34418,
+        -0.13531,
+        -3.1848
+      ],
+      "aabb_max": [
+        -2.29832,
+        0.27126,
+        -3.13032
+      ],
+      "obb": {
+        "center": [
+          -2.32333,
+          0.06581,
+          -3.15798
+        ],
+        "extent": [
+          0.04439,
+          0.41351,
+          0.05083
+        ],
+        "rotation": [
+          [
+            0.949568,
+            0.0,
+            -0.313562
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.313562,
+            0.0,
+            0.949568
+          ]
+        ],
+        "yaw_deg": 18.27
+      },
+      "splat_count": 86,
+      "voxel_count": 46,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.989,
+        "planarity": 0.003,
+        "scattering": 0.007,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.457,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          72.3,
+          0.2,
+          17.2
+        ],
+        "chroma": 17.2,
+        "dims_m": {
+          "width": 0.065,
+          "depth": 0.057,
+          "height": 0.532
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.03,
+        "top": 1.553
+      },
+      "segmentation_notes": [
+        "split"
+      ],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0151",
+      "class": "other",
+      "display_label": "Unclassified object",
+      "class_confidence": 0.2,
+      "label_source": "heuristic",
+      "center": [
+        3.66998,
+        -0.59952,
+        -2.97898
+      ],
+      "aabb_min": [
+        3.64746,
+        -0.67679,
+        -3.05317
+      ],
+      "aabb_max": [
+        3.71068,
+        -0.54271,
+        -2.915
+      ],
+      "obb": {
+        "center": [
+          3.66998,
+          -0.59952,
+          -2.97898
+        ],
+        "extent": [
+          0.07324,
+          0.16017,
+          0.14257
+        ],
+        "rotation": [
+          [
+            0.913856,
+            0.0,
+            0.406038
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.406038,
+            0.0,
+            0.913856
+          ]
+        ],
+        "yaw_deg": -23.96
+      },
+      "splat_count": 82,
+      "voxel_count": 30,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.626,
+        "planarity": 0.272,
+        "scattering": 0.101,
+        "fill_ratio": 0.536,
+        "tubular_fraction": 0.033,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          37.2,
+          1.2,
+          7.3
+        ],
+        "chroma": 7.4,
+        "dims_m": {
+          "width": 0.183,
+          "depth": 0.094,
+          "height": 0.206
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.077,
+        "top": 2.25
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0152",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        -3.80251,
+        0.64972,
+        -3.03976
+      ],
+      "aabb_min": [
+        -3.85559,
+        0.30542,
+        -3.12124
+      ],
+      "aabb_max": [
+        -3.745,
+        0.99055,
+        -2.96209
+      ],
+      "obb": {
+        "center": [
+          -3.80251,
+          0.64972,
+          -3.03976
+        ],
+        "extent": [
+          0.03864,
+          0.69572,
+          0.19848
+        ],
+        "rotation": [
+          [
+            0.80009,
+            0.0,
+            0.59988
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.59988,
+            0.0,
+            0.80009
+          ]
+        ],
+        "yaw_deg": -36.86
+      },
+      "splat_count": 75,
+      "voxel_count": 50,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.997,
+        "planarity": 0.002,
+        "scattering": 0.002,
+        "fill_ratio": 0.348,
+        "tubular_fraction": 0.78,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          57.1,
+          1.6,
+          7.8
+        ],
+        "chroma": 7.9,
+        "dims_m": {
+          "width": 0.255,
+          "depth": 0.05,
+          "height": 0.895
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.105,
+        "top": 0.986
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          -3.8059,
+          0.65068,
+          -3.04861
+        ],
+        "direction": [
+          0.1514,
+          0.9662,
+          0.2088
+        ],
+        "radius": 0.0127,
+        "length": 0.7139,
+        "rms": 0.0076
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0153",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        2.39846,
+        -0.71766,
+        -1.68171
+      ],
+      "aabb_min": [
+        2.3766,
+        -0.72488,
+        -1.83287
+      ],
+      "aabb_max": [
+        2.42529,
+        -0.7104,
+        -1.52902
+      ],
+      "obb": {
+        "center": [
+          2.39846,
+          -0.71766,
+          -1.68171
+        ],
+        "extent": [
+          0.04679,
+          0.01511,
+          0.3054
+        ],
+        "rotation": [
+          [
+            0.995295,
+            0.0,
+            0.096892
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.096892,
+            0.0,
+            0.995295
+          ]
+        ],
+        "yaw_deg": -5.56
+      },
+      "splat_count": 75,
+      "voxel_count": 26,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.989,
+        "planarity": 0.01,
+        "scattering": 0.001,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 1.0,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          99.1,
+          0.2,
+          0.9
+        ],
+        "chroma": 0.9,
+        "dims_m": {
+          "width": 0.393,
+          "depth": 0.06,
+          "height": 0.019
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.293,
+        "top": 2.312
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          2.39166,
+          -0.7161,
+          -1.6807
+        ],
+        "direction": [
+          0.0698,
+          0.0348,
+          0.997
+        ],
+        "radius": 0.0079,
+        "length": 0.3045,
+        "rms": 0.0073
+      },
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0154",
+      "class": "valve",
+      "display_label": "CV-002 (CONTROL_VALVE) - procedural",
+      "class_confidence": 0.35,
+      "label_source": "heuristic",
+      "center": [
+        -2.59096,
+        -0.76041,
+        -3.0746
+      ],
+      "aabb_min": [
+        -2.63535,
+        -0.78749,
+        -3.17759
+      ],
+      "aabb_max": [
+        -2.50658,
+        -0.73428,
+        -2.97726
+      ],
+      "obb": {
+        "center": [
+          -2.59096,
+          -0.76041,
+          -3.0746
+        ],
+        "extent": [
+          0.10578,
+          0.05424,
+          0.1974
+        ],
+        "rotation": [
+          [
+            0.82841,
+            0.0,
+            0.560122
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.560122,
+            0.0,
+            0.82841
+          ]
+        ],
+        "yaw_deg": -34.06
+      },
+      "splat_count": 74,
+      "voxel_count": 41,
+      "source": "auto_hdbscan",
+      "asset_id": "ASSET-002",
+      "mapping_method": "procedural_class_match",
+      "mapping_confidence": 0.45,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0136"
+        }
+      ],
+      "features": {
+        "linearity": 0.82,
+        "planarity": 0.146,
+        "scattering": 0.034,
+        "fill_ratio": 1.0,
+        "tubular_fraction": 0.024,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          42.9,
+          0.9,
+          14.3
+        ],
+        "chroma": 14.3,
+        "dims_m": {
+          "width": 0.254,
+          "depth": 0.136,
+          "height": 0.07
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 2.324,
+        "top": 2.392
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0,
+      "mapping_notes": "Scene class 'valve' matched to CONTROL_VALVE (tier ('valve',))."
+    },
+    {
+      "object_id": "OBJ-0155",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        3.73768,
+        -0.1113,
+        -2.12305
+      ],
+      "aabb_min": [
+        3.68764,
+        -0.15191,
+        -2.26439
+      ],
+      "aabb_max": [
+        3.76763,
+        -0.07611,
+        -1.98491
+      ],
+      "obb": {
+        "center": [
+          3.73768,
+          -0.1113,
+          -2.12305
+        ],
+        "extent": [
+          0.07757,
+          0.08168,
+          0.28928
+        ],
+        "rotation": [
+          [
+            0.996631,
+            0.0,
+            0.082016
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.082016,
+            0.0,
+            0.996631
+          ]
+        ],
+        "yaw_deg": -4.7
+      },
+      "splat_count": 71,
+      "voxel_count": 35,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.923,
+        "planarity": 0.046,
+        "scattering": 0.031,
+        "fill_ratio": 0.698,
+        "tubular_fraction": 0.371,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          11.7,
+          0.7,
+          8.1
+        ],
+        "chroma": 8.1,
+        "dims_m": {
+          "width": 0.372,
+          "depth": 0.1,
+          "height": 0.105
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.477,
+        "top": 1.574
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0156",
+      "class": "pipe",
+      "display_label": "Pipe-like elongated cluster",
+      "class_confidence": 0.5,
+      "label_source": "heuristic",
+      "center": [
+        -0.9443,
+        0.97904,
+        -3.48039
+      ],
+      "aabb_min": [
+        -1.19686,
+        0.94091,
+        -3.5013
+      ],
+      "aabb_max": [
+        -0.65675,
+        1.02542,
+        -3.46207
+      ],
+      "obb": {
+        "center": [
+          -0.9443,
+          0.97904,
+          -3.48039
+        ],
+        "extent": [
+          0.57675,
+          0.09532,
+          0.04339
+        ],
+        "rotation": [
+          [
+            0.999999,
+            0.0,
+            0.001337
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.001337,
+            0.0,
+            0.999999
+          ]
+        ],
+        "yaw_deg": -0.08
+      },
+      "splat_count": 63,
+      "voxel_count": 38,
+      "source": "auto_hdbscan",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [
+        {
+          "type": "connected_pipe",
+          "object_id": "OBJ-0112"
+        }
+      ],
+      "features": {
+        "linearity": 0.985,
+        "planarity": 0.012,
+        "scattering": 0.003,
+        "fill_ratio": 0.698,
+        "tubular_fraction": 0.421,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          30.7,
+          -1.0,
+          8.7
+        ],
+        "chroma": 8.8,
+        "dims_m": {
+          "width": 0.742,
+          "depth": 0.056,
+          "height": 0.123
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 0.06,
+        "top": 0.169
+      },
+      "segmentation_notes": [],
+      "stable_id_iou": 1.0
+    },
+    {
+      "object_id": "OBJ-0157",
+      "class": "pipe",
+      "display_label": "Pipe segment (cylinder fit)",
+      "class_confidence": 0.6,
+      "label_source": "heuristic",
+      "center": [
+        3.43593,
+        -0.12134,
+        -3.20028
+      ],
+      "aabb_min": [
+        3.38755,
+        -0.3164,
+        -3.20547
+      ],
+      "aabb_max": [
+        3.48021,
+        0.07868,
+        -3.18245
+      ],
+      "obb": {
+        "center": [
+          3.43593,
+          -0.12134,
+          -3.20028
+        ],
+        "extent": [
+          0.10019,
+          0.40421,
+          0.02649
+        ],
+        "rotation": [
+          [
+            0.964408,
+            0.0,
+            0.264418
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.264418,
+            0.0,
+            0.964408
+          ]
+        ],
+        "yaw_deg": -15.33
+      },
+      "splat_count": 62,
+      "voxel_count": 27,
+      "source": "pipe_fit",
+      "asset_id": null,
+      "mapping_method": null,
+      "mapping_confidence": null,
+      "relations": [],
+      "features": {
+        "linearity": 0.968,
+        "planarity": 0.03,
+        "scattering": 0.002,
+        "fill_ratio": 0.751,
+        "tubular_fraction": 0.481,
+        "red_fraction": 0.0,
+        "mean_lab": [
+          41.6,
+          0.4,
+          5.5
+        ],
+        "chroma": 5.5,
+        "dims_m": {
+          "width": 0.129,
+          "depth": 0.034,
+          "height": 0.52
+        }
+      },
+      "height_above_floor_m": {
+        "bottom": 1.278,
+        "top": 1.786
+      },
+      "segmentation_notes": [],
+      "cylinder": {
+        "centre": [
+          3.44089,
+          -0.11788,
+          -3.19406
+        ],
+        "direction": [
+          0.0514,
+          -0.9986,
+          -0.0084
+        ],
+        "radius": 0.0176,
+        "length": 0.3956,
+        "rms": 0.0142
+      },
+      "stable_id_iou": 1.0
+    }
+  ]
+}

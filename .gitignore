@@ -1,0 +1,45 @@
+_analysis/.venv/
+_analysis/.colmap_env/
+_analysis/.conda_pkgs/
+_analysis/.rust/
+_analysis/bin/
+_analysis/brush/
+_analysis/brush_out/
+_analysis/rustup-init.sh
+_analysis/boiler_room_valid.ply
+_analysis/sfm_frames/
+_analysis/sfm_test/
+_analysis/sfm_full/
+.cache/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+node_modules/
+dist/
+build/
+.vite/
+.next/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+.DS_Store
+*.log
+*.tmp
+
+data/valmet.db
+data/derived/diagnostics/
+data/derived/*.cache
+web/public/generated/
+
+# Over GitHub's 100 MB file limit
+/Equipment Room.ply
+/Industrial Boiler Room (1).mp4
+web/public/assets/equipment_room.ply
+web/public/assets/boiler_room_valid.ply

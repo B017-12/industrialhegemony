@@ -1,0 +1,5 @@
+{
+  "schema_version": "1.0",
+  "note": "Reset by Tab 2 on 2026-11-06: the previous 40 entries were script-generated copies of the old DBSCAN labels marked 'human' without review, and referenced object ids from the old segmentation. They are archived in labels_override.legacy.json. Only add entries a person has confirmed (Tab 8).",
+  "overrides": {}
+}

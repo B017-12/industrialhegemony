@@ -1,0 +1,18 @@
+{
+  "url": "/assets/boiler_room.spz",
+  "fileType": "spz",
+  "fallbackUrl": "/assets/boiler_room_valid.ply",
+  "sourceBytes": 118587254,
+  "bytes": 9255790,
+  "cropBox": [
+    -5.2,
+    -1.8,
+    -5.6,
+    4.2,
+    1.5,
+    -0.5
+  ],
+  "minOpacity": 0.01,
+  "seconds": 14,
+  "generatedAt": "2026-11-06T21:23:14.490Z"
+}

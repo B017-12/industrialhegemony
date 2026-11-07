@@ -1,0 +1,69 @@
+{
+  "asset_id": "ASSET-014",
+  "mode": "arrival_diagnosis",
+  "source_generation": "deterministic",
+  "model": null,
+  "created_at": "2026-11-07T11:58:33+00:00",
+  "answer": {
+    "summary": "P-002 is flagged attention_required with CAVITATION_RISK: Hydraulic instability / cavitation-like signature. The 3D binding (video_evidence) is unverified and must be checked on site.",
+    "observations": [
+      {
+        "text": "Vibration daily mean rose from 2.42 to 4.57 mm/s, against a healthy PROCESS_PUMP average of 2.08 mm/s.",
+        "evidence_ids": [
+          "TEL:ASSET-014:vibration_mm_s",
+          "BASELINE:PROCESS_PUMP:vibration_mm_s"
+        ]
+      },
+      {
+        "text": "Process flow daily mean fell from 83.06 to 76.17 %, against a healthy PROCESS_PUMP average of 83.9 %.",
+        "evidence_ids": [
+          "TEL:ASSET-014:process_flow_pct",
+          "BASELINE:PROCESS_PUMP:process_flow_pct"
+        ]
+      },
+      {
+        "text": "Process pressure daily mean fell from 4.52 to 4.04 bar, against a healthy PROCESS_PUMP average of 4.6 bar.",
+        "evidence_ids": [
+          "TEL:ASSET-014:process_pressure_bar",
+          "BASELINE:PROCESS_PUMP:process_pressure_bar"
+        ]
+      },
+      {
+        "text": "Open CAVITATION_RISK events EVT-00893 and EVT-00136 are still unresolved.",
+        "evidence_ids": [
+          "EVT-00893",
+          "EVT-00136",
+          "EVENTS:ASSET-014:summary"
+        ]
+      },
+      {
+        "text": "Data-quality issues DQ-0098 (high stale_document_link) and DQ-0064 (medium timestamp_jitter) lower confidence in this diagnosis.",
+        "evidence_ids": [
+          "DQ-0098",
+          "DQ-0064"
+        ]
+      }
+    ],
+    "hypotheses": [
+      {
+        "text": "The combined trend matches historical PROCESS_PUMP cases recorded as CAVITATION_RISK (Hydraulic instability / cavitation-like signature), supporting a CAVITATION_RISK hypothesis rather than a confirmed fault.",
+        "evidence_ids": [
+          "TEL:ASSET-014:vibration_mm_s",
+          "TEL:ASSET-014:process_flow_pct",
+          "TEL:ASSET-014:process_pressure_bar",
+          "CASE-026",
+          "CASE-049",
+          "CASE-022"
+        ]
+      }
+    ],
+    "next_safe_checks": [
+      "Inspect process conditions before any physical intervention.",
+      "Follow site procedures, lockout/tagout and permits; the copilot does not replace qualified personnel (DOC-FIELD-SAFETY)."
+    ],
+    "caveats": [
+      "The 3D binding to scene object OBJ-0185 is video_evidence and must be verified on site; the Excel scene coordinates are placeholders.",
+      "Data-quality issues present: DQ-0098, DQ-0064."
+    ]
+  }
+}
