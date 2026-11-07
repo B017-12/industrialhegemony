@@ -15,7 +15,6 @@ import {
   Square,
   Tag
 } from 'lucide-react';
-import { getPartVisualSpec } from '../data/excelPartCatalog.js';
 import {
   INSTANCE_CLASSES,
   EVIDENCE_PHOTO_MAP,
