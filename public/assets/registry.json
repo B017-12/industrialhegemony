@@ -1,0 +1,294 @@
+{
+  "mapping_note": "Procedural mapping (allowed by the brief). Excel Scene_Anchors coordinates are placeholders and are replaced by these bindings.",
+  "start_xz": [
+    0.116,
+    3.525
+  ],
+  "start_label": "south doorway (rail endpoint at max z)",
+  "target": {
+    "asset_id": "ASSET-017",
+    "tag": "P-005",
+    "object_id": "OBJ-087",
+    "stand_point_xz": [
+      -1.634,
+      -0.825
+    ],
+    "issue_code": "FOULING",
+    "health_score": 44
+  },
+  "entries": [
+    {
+      "object_id": "OBJ-087",
+      "asset_id": "ASSET-017",
+      "tag": "P-005",
+      "asset_class": "PROCESS_PUMP",
+      "mapping_method": "pinned_faulty_target",
+      "mapping_confidence": 0.8,
+      "reason": "pre-determined faulty target (lowest health, criticality A) pinned to a team-confirmed object"
+    },
+    {
+      "object_id": "OBJ-129",
+      "asset_id": "ASSET-020",
+      "tag": "M-002",
+      "asset_class": "ELECTRIC_MOTOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "ELECTRIC_MOTOR placed on a 'pump' object near the route"
+    },
+    {
+      "object_id": "OBJ-083",
+      "asset_id": "ASSET-021",
+      "tag": "M-003",
+      "asset_class": "ELECTRIC_MOTOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "ELECTRIC_MOTOR placed on a 'pump' object near the route"
+    },
+    {
+      "object_id": "OBJ-075",
+      "asset_id": "ASSET-015",
+      "tag": "P-003",
+      "asset_class": "PROCESS_PUMP",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "PROCESS_PUMP placed on a 'pump' object near the route"
+    },
+    {
+      "object_id": "OBJ-116",
+      "asset_id": "ASSET-005",
+      "tag": "CV-005",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route"
+    },
+    {
+      "object_id": "OBJ-091",
+      "asset_id": "ASSET-028",
+      "tag": "VS-001",
+      "asset_class": "VIBRATION_SENSOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "VIBRATION_SENSOR placed on a 'instrument' object near the route"
+    },
+    {
+      "object_id": "OBJ-061",
+      "asset_id": "ASSET-025",
+      "tag": "PT-001",
+      "asset_class": "PRESSURE_TRANSMITTER",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "PRESSURE_TRANSMITTER placed on a 'valve_assembly' object near the route"
+    },
+    {
+      "object_id": "OBJ-124",
+      "asset_id": "ASSET-004",
+      "tag": "CV-004",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route"
+    },
+    {
+      "object_id": "OBJ-088",
+      "asset_id": "ASSET-019",
+      "tag": "M-001",
+      "asset_class": "ELECTRIC_MOTOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "ELECTRIC_MOTOR placed on a 'pump' object near the route"
+    },
+    {
+      "object_id": "OBJ-068",
+      "asset_id": "ASSET-001",
+      "tag": "CV-001",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route"
+    },
+    {
+      "object_id": "OBJ-074",
+      "asset_id": "ASSET-026",
+      "tag": "PT-002",
+      "asset_class": "PRESSURE_TRANSMITTER",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "PRESSURE_TRANSMITTER placed on a 'valve_assembly' object near the route"
+    },
+    {
+      "object_id": "OBJ-100",
+      "asset_id": "ASSET-011",
+      "tag": "CV-011",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route"
+    },
+    {
+      "object_id": "OBJ-112",
+      "asset_id": "ASSET-008",
+      "tag": "CV-008",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route"
+    },
+    {
+      "object_id": "OBJ-002",
+      "asset_id": "ASSET-002",
+      "tag": "CV-002",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-080",
+      "asset_id": "ASSET-016",
+      "tag": "P-004",
+      "asset_class": "PROCESS_PUMP",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "PROCESS_PUMP placed on a 'pump' object near the route"
+    },
+    {
+      "object_id": "OBJ-044",
+      "asset_id": "ASSET-007",
+      "tag": "CV-007",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-115",
+      "asset_id": "ASSET-018",
+      "tag": "P-006",
+      "asset_class": "PROCESS_PUMP",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "PROCESS_PUMP placed on a 'pump' object near the route"
+    },
+    {
+      "object_id": "OBJ-179",
+      "asset_id": "ASSET-006",
+      "tag": "CV-006",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-042",
+      "asset_id": "ASSET-030",
+      "tag": "VS-003",
+      "asset_class": "VIBRATION_SENSOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "VIBRATION_SENSOR placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-162",
+      "asset_id": "ASSET-027",
+      "tag": "PT-003",
+      "asset_class": "PRESSURE_TRANSMITTER",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "PRESSURE_TRANSMITTER placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-168",
+      "asset_id": "ASSET-010",
+      "tag": "CV-010",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-120",
+      "asset_id": "ASSET-012",
+      "tag": "CV-012",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-161",
+      "asset_id": "ASSET-014",
+      "tag": "P-002",
+      "asset_class": "PROCESS_PUMP",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "PROCESS_PUMP placed on a 'pump' object"
+    },
+    {
+      "object_id": "OBJ-023",
+      "asset_id": "ASSET-029",
+      "tag": "VS-002",
+      "asset_class": "VIBRATION_SENSOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "VIBRATION_SENSOR placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-159",
+      "asset_id": "ASSET-013",
+      "tag": "P-001",
+      "asset_class": "PROCESS_PUMP",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "PROCESS_PUMP placed on a 'pump' object"
+    },
+    {
+      "object_id": "OBJ-142",
+      "asset_id": "ASSET-024",
+      "tag": "M-006",
+      "asset_class": "ELECTRIC_MOTOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "ELECTRIC_MOTOR placed on a 'pump' object"
+    },
+    {
+      "object_id": "OBJ-013",
+      "asset_id": "ASSET-009",
+      "tag": "CV-009",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-157",
+      "asset_id": "ASSET-022",
+      "tag": "M-004",
+      "asset_class": "ELECTRIC_MOTOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "ELECTRIC_MOTOR placed on a 'pump' object"
+    },
+    {
+      "object_id": "OBJ-037",
+      "asset_id": "ASSET-003",
+      "tag": "CV-003",
+      "asset_class": "CONTROL_VALVE",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.55,
+      "reason": "CONTROL_VALVE placed on a 'valve_assembly' object"
+    },
+    {
+      "object_id": "OBJ-036",
+      "asset_id": "ASSET-023",
+      "tag": "M-005",
+      "asset_class": "ELECTRIC_MOTOR",
+      "mapping_method": "procedural_class_compatible",
+      "mapping_confidence": 0.45,
+      "reason": "ELECTRIC_MOTOR placed on a 'pump' object"
+    }
+  ],
+  "objects_total": 221,
+  "objects_mapped": 30,
+  "objects_near_route": 79
+}

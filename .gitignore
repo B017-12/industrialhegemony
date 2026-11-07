@@ -21,3 +21,11 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Python pipeline
+.venv/
+__pycache__/
+*.pyc
+data/raw/
+data/derived/
+public/assets/equipment_room.splat

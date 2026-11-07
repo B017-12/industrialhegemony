@@ -1,0 +1,6 @@
+{
+  "_note": "Team-confirmed scene choices. Positions (world frame, y up) survive re-segmentation; object IDs do not.",
+  "target_point_xyz": [-1.951, -0.898, -1.764],
+  "target_point_source": "visually confirmed inline pump body on a pipe (was OBJ-087 in segment v0, 2026-11-07)",
+  "start_xz": null
+}

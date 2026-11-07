@@ -4,20 +4,16 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 import { NAV_NODES, NAV_EDGES, samplePathAtProgress } from '../utils/pathfinding.js';
 import { STRUCTURAL_BOILER_OBJECTS } from '../data/valmetDataset.js';
+import { statusOf, humanize } from '../ui/status.js';
 
+// ISA-101 High-Performance HMI palette: colour reserved for abnormal states; normal is neutral steel grey
 const HEALTH_COLORS = {
-  attention_required: 0xef4444, // Red
-  degraded: 0xf97316,           // Orange-Red
-  watch: 0xf59e0b,              // Amber
-  healthy: 0x10b981             // Emerald
+  attention_required: 0xc62828, // Alarm Red
+  degraded: 0xe06c00,           // High / Degraded Orange
+  watch: 0xc99400,              // Watch Amber
+  healthy: 0x6b7682             // Neutral Industrial Steel
 };
 
-const HEALTH_CSS = {
-  attention_required: '#ef4444',
-  degraded: '#f97316',
-  watch: '#f59e0b',
-  healthy: '#10b981'
-};
 
 /**
  * Shared Geometry Cache for High-Performance Photorealistic CAD Rendering
@@ -138,22 +134,22 @@ function createProceduralEquipmentMesh(asset, colorHex) {
 function createCleanIndustrialRoomArchitecture() {
   const room = new THREE.Group();
 
-  // 1. Smooth Epoxy Concrete Floor
+  // 1. Neutral Industrial Epoxy Concrete Floor (ISA-101 mid-light grey)
   const floorMat = new THREE.MeshStandardMaterial({
-    color: 0x334155,
-    roughness: 0.65,
-    metalness: 0.12
+    color: 0xbec5cd,
+    roughness: 0.78,
+    metalness: 0.08
   });
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(11.5, 9.0), floorMat);
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(0, -1.045, 1.6);
   room.add(floor);
 
-  // 2. Industrial Light-Grey Painted Concrete Walls (Back Wall + West/East Walls)
+  // 2. Industrial Light-Grey Painted Concrete Walls
   const wallMat = new THREE.MeshStandardMaterial({
-    color: 0x475569,
-    roughness: 0.85,
-    metalness: 0.08
+    color: 0xdbe0e5,
+    roughness: 0.88,
+    metalness: 0.05
   });
 
   const backWall = new THREE.Mesh(new THREE.BoxGeometry(11.5, 4.2, 0.18), wallMat);
@@ -168,11 +164,11 @@ function createCleanIndustrialRoomArchitecture() {
   eastWall.position.set(5.65, 1.05, 1.6);
   room.add(eastWall);
 
-  // 3. Overhead Galvanized HVAC & Steam Ductwork (matching semantic_extraction_demo_2.mp4 ceiling)
+  // 3. Overhead Galvanized HVAC & Steam Ductwork
   const ductMat = new THREE.MeshStandardMaterial({
-    color: 0x94a3b8,
-    metalness: 0.65,
-    roughness: 0.30
+    color: 0x9aa4ae,
+    metalness: 0.5,
+    roughness: 0.38
   });
   const mainDuct = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 10.5, 24), ductMat);
   mainDuct.rotation.z = Math.PI / 2;
@@ -189,13 +185,13 @@ function createCleanIndustrialRoomArchitecture() {
   crossDuct2.position.set(2.1, 2.35, 1.6);
   room.add(crossDuct2);
 
-  // 4. Back-Wall Stacked White IBC Tote Wall & Blue Pipe Manifold Frame (from Equipment Room video!)
+  // 4. Back-Wall Stacked IBC Tote Wall & Pipe Manifold Frame
   const toteMat = new THREE.MeshStandardMaterial({
-    color: 0xe2e8f0,
-    roughness: 0.35,
-    metalness: 0.15
+    color: 0xeef1f4,
+    roughness: 0.4,
+    metalness: 0.1
   });
-  const cageMat = new THREE.LineBasicMaterial({ color: 0x64748b });
+  const cageMat = new THREE.LineBasicMaterial({ color: 0x8a949e });
 
   for (let row = 0; row < 2; row++) {
     for (let col = 0; col < 4; col++) {
@@ -210,21 +206,21 @@ function createCleanIndustrialRoomArchitecture() {
     }
   }
 
-  // Blue Industrial Manifold Rack on East Wall (matching the blue rack in semantic_extraction_demo_2.mp4)
+  // Industrial Manifold Rack on East Wall
   const blueRackMat = new THREE.MeshStandardMaterial({
-    color: 0x0284c7,
-    metalness: 0.55,
-    roughness: 0.3
+    color: 0x4b6b88,
+    metalness: 0.45,
+    roughness: 0.4
   });
   const rackFrame = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.65, 0.16), blueRackMat);
   rackFrame.position.set(2.1, -0.15, 3.72);
   room.add(rackFrame);
 
-  // Yellow Safety Conveyor / Guardrail in Mid-Bay
+  // Safety Guardrail in Mid-Bay
   const yellowMat = new THREE.MeshStandardMaterial({
-    color: 0xeab308,
-    metalness: 0.4,
-    roughness: 0.3
+    color: 0xc99400,
+    metalness: 0.3,
+    roughness: 0.4
   });
   const yellowRail = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.38, 1.85), yellowMat);
   yellowRail.position.set(0.95, -0.82, 1.45);
@@ -312,13 +308,13 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   rightArmPivot.add(rightArmMesh);
   bodyGroup.add(rightArmPivot);
 
-  const radarGeo = new THREE.RingGeometry(0.95, 1.0, 36);
+  const radarGeo = new THREE.RingGeometry(0.96, 1.0, 36);
   radarGeo.rotateX(-Math.PI / 2);
   const radarMat = new THREE.MeshBasicMaterial({
     color: colorHex,
     side: THREE.DoubleSide,
     transparent: true,
-    opacity: 0.65
+    opacity: 0.28
   });
   const radarRing = new THREE.Mesh(radarGeo, radarMat);
   radarRing.position.y = 0.02;
@@ -536,8 +532,8 @@ export default function BoilerRoomViewport({
     if (!container) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b1120);
-    scene.fog = new THREE.FogExp2(0x0b1120, 0.032);
+    scene.background = new THREE.Color(0xd7dbe0);
+    scene.fog = new THREE.FogExp2(0xd7dbe0, 0.022);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
@@ -564,41 +560,41 @@ export default function BoilerRoomViewport({
     controls.update();
     controlsRef.current = controls;
 
-    // Bright, realistic industrial lighting so solid 3D CAD meshes look crisp and clear
-    const hemiLight = new THREE.HemisphereLight(0xf8fafc, 0x1e293b, 1.15);
+    // Neutral industrial lighting for ISA-101 light viewport
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x9aa4ae, 1.15);
     scene.add(hemiLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.25);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
     dirLight.position.set(4, 9, -4);
     scene.add(dirLight);
-    const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
+    const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.55);
     fillLight.position.set(-5, 4, 5);
     scene.add(fillLight);
 
     // Subtle Floor Grid
-    const gridHelper = new THREE.GridHelper(11.5, 23, 0x334155, 0x1e293b);
+    const gridHelper = new THREE.GridHelper(11.5, 23, 0x9aa3ad, 0xb4bcc5);
     gridHelper.position.set(0, -1.04, 1.6);
     scene.add(gridHelper);
 
-    // Clean Industrial CAD Room Architecture (Replaces noisy white point-cloud dots when Semantic World >= 80%!)
+    // Clean Industrial CAD Room Architecture
     const cadRoomGroup = createCleanIndustrialRoomArchitecture();
     scene.add(cadRoomGroup);
     cadRoomGroupRef.current = cadRoomGroup;
 
-    // Purple/Blue AI Semantic Extraction Laser Wave Plane
+    // Semantic Segmentation Sweep Plane
     const laserGroup = new THREE.Group();
     const laserPlaneGeo = new THREE.PlaneGeometry(11.5, 4.5);
     const laserPlaneMat = new THREE.MeshBasicMaterial({
-      color: 0x8b5cf6,
+      color: 0x1f6fb2,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.30,
+      opacity: 0.22,
       depthWrite: false
     });
     laserGroup.add(new THREE.Mesh(laserPlaneGeo, laserPlaneMat));
     laserGroup.add(
       new THREE.LineSegments(
         new THREE.EdgesGeometry(laserPlaneGeo),
-        new THREE.LineBasicMaterial({ color: 0x38bdf8 })
+        new THREE.LineBasicMaterial({ color: 0x1f6fb2 })
       )
     );
     laserGroup.position.set(0, 0.5, -3.2);
@@ -624,12 +620,12 @@ export default function BoilerRoomViewport({
     navGraphGroupRef.current = navGraphGroup;
     fleetGroupRef.current = fleetGroup;
 
-    const primaryRig = createHumanoidRig(0xf97316, false, [0.58, 1.38, 0.58]);
+    const primaryRig = createHumanoidRig(0xd96b27, false, [0.58, 1.38, 0.58]);
     fleetGroup.add(primaryRig);
     primaryRigRef.current = primaryRig;
 
-    const r2Rig = createHumanoidRig(0xa855f7, false, [0.58, 1.38, 0.58]);
-    const h1Rig = createHumanoidRig(0x06b6d4, true, [0.52, 1.68, 0.48]);
+    const r2Rig = createHumanoidRig(0x49a942, false, [0.58, 1.38, 0.58]);
+    const h1Rig = createHumanoidRig(0x1f6fb2, true, [0.52, 1.68, 0.48]);
     fleetGroup.add(r2Rig);
     fleetGroup.add(h1Rig);
     secondaryRigsRef.current = { R2: r2Rig, H1: h1Rig };
@@ -984,13 +980,21 @@ export default function BoilerRoomViewport({
 
         const meshBundle = assetMeshMapRef.current.get(asset.asset_id);
         if (meshBundle) {
+          const isSelected = st.selectedAsset?.asset_id === asset.asset_id;
+          const isAbnormal = asset.health_status !== 'healthy';
           const semanticAlpha = revealedByLaser ? st.semanticBlend / 100 : 0.04;
-          const baseBoxOpacity = isClickedOpen
-            ? 0.42
+          const baseBoxOpacity = isClickedOpen || isSelected
+            ? 0.22
+            : isAbnormal
+            ? 0.10
+            : 0.02;
+          const baseEdgeOpacity = isClickedOpen || isSelected
+            ? 0.98
+            : isAbnormal
+            ? 0.82
             : isWithinRadius
-            ? 0.18
-            : 0.04;
-          const baseEdgeOpacity = isClickedOpen ? 1.0 : isWithinRadius ? 0.90 : 0.55;
+            ? 0.45
+            : 0.18;
 
           meshBundle.fillMat.opacity = baseBoxOpacity * semanticAlpha;
           meshBundle.edgeMat.opacity = baseEdgeOpacity * Math.max(0.15, semanticAlpha);
@@ -1333,16 +1337,16 @@ export default function BoilerRoomViewport({
 
     if (multiAgentEnabled && fleetAssignments?.length) {
       fleetAssignments.forEach((assign, idx) => {
-        const col = assign.agent_id === 'R1' ? 0xf97316 : assign.agent_id === 'R2' ? 0xa855f7 : 0x06b6d4;
-        buildTube(assign.path?.points, col, 0.04, 0.03 + idx * 0.015, 0.9, isZig);
+        const col = assign.agent_id === 'R1' ? 0xd96b27 : assign.agent_id === 'R2' ? 0x49a942 : 0x1f6fb2;
+        buildTube(assign.path?.points, col, 0.036, 0.03 + idx * 0.015, 0.88, isZig);
       });
     } else if (showDualComparison) {
-      buildTube(humanPath?.points, 0x06b6d4, 0.036, 0.06, activeProfile === 'human' ? 0.95 : 0.5, isZig);
-      buildTube(robotPath?.points, 0xf97316, 0.044, 0.03, activeProfile === 'robot' ? 0.95 : 0.5, isZig);
+      buildTube(humanPath?.points, 0x1f6fb2, 0.034, 0.06, activeProfile === 'human' ? 0.92 : 0.45, isZig);
+      buildTube(robotPath?.points, 0xd96b27, 0.040, 0.03, activeProfile === 'robot' ? 0.92 : 0.45, isZig);
     } else if (activeProfile === 'human') {
-      buildTube(humanPath?.points, 0x06b6d4, 0.044, 0.04, 0.95, isZig);
+      buildTube(humanPath?.points, 0x1f6fb2, 0.040, 0.04, 0.92, isZig);
     } else {
-      buildTube(robotPath?.points, 0xf97316, 0.044, 0.04, 0.95, isZig);
+      buildTube(robotPath?.points, 0xd96b27, 0.040, 0.04, 0.92, isZig);
     }
 
     const nodeMap = new Map(NAV_NODES.map((n) => [n.id, n]));
@@ -1418,224 +1422,198 @@ export default function BoilerRoomViewport({
   const clickedPopoverAsset = clickedPopoverAssetId
     ? assets.find((a) => a.asset_id === clickedPopoverAssetId)
     : null;
+  const clickedSt = clickedPopoverAsset ? statusOf(clickedPopoverAsset) : null;
 
   return (
-    <div className="relative w-full h-full select-none overflow-hidden bg-slate-950">
-      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+    <main className="viewport">
+      <div ref={mountRef} className="viewport-canvas" />
 
-      {/* First-Person Live AR Visor Overlay */}
+      {/* First-Person Field POV Frame */}
       {arFirstPersonMode && (
-        <div className="pointer-events-none absolute inset-0 z-20 border-4 border-emerald-400/40 flex flex-col justify-between p-4">
-          <div className="flex items-center justify-between">
-            <div className="px-3 py-1.5 rounded-lg bg-slate-950/85 border border-emerald-400/60 font-mono text-xs text-emerald-300 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>AR VISOR LIVE POV • PRESS W,A,S,D TO WALK FREELY</span>
-            </div>
+        <div className="fp-frame">
+          <div className="vp-chip top-left mono">
+            <span>First-Person POV · Use W/A/S/D to walk</span>
           </div>
-
-          <div className="mx-auto my-auto w-44 h-44 rounded-2xl border border-dashed border-emerald-400/60 flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full border-2 border-emerald-400" />
-          </div>
-
-          <div className="mx-auto px-4 py-2 rounded-xl bg-slate-950/90 border border-slate-700 font-mono text-xs text-slate-200">
-            Use W/A/S/D keys to walk around • Click any 3D object to pop up its Object Details Card
-          </div>
+          <div className="fp-reticle" />
         </div>
       )}
 
-      {/* STRICT ON-INTERACTION FLOATING CALLOUT + CONTROL CARD (Hidden until you click a 3D object!) */}
-      {clickedPopoverAsset && clickedScreenAnchor && (
+      {/* On-Click Asset Callout Popover */}
+      {clickedPopoverAsset && clickedScreenAnchor && clickedSt && (
         <div
           style={{
             left: clickedScreenAnchor.x,
             top: clickedScreenAnchor.y
           }}
-          className="pointer-events-auto absolute z-30 w-80 p-3.5 rounded-xl bg-slate-950/95 border-2 border-sky-400 shadow-2xl space-y-2.5"
+          className="vp-popover"
         >
-          {/* MovingAtoms-style Callout Header ("CV-003 | mesh 03 - 18.5k tris") */}
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ backgroundColor: HEALTH_CSS[clickedPopoverAsset.health_status] }}
-                />
-                <span className="font-mono text-sm font-bold text-white">
-                  {clickedPopoverAsset.tag} ({clickedPopoverAsset.asset_id})
+          <div className="vp-popover-head">
+            <span className={`sdot ${clickedSt.cls}`} style={{ marginTop: '4px' }} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="row" style={{ gap: '6px' }}>
+                <span className="mono" style={{ fontWeight: 600 }}>
+                  {clickedPopoverAsset.tag}
+                </span>
+                <span className="mono muted">{clickedPopoverAsset.asset_id}</span>
+                <span className={`status ${clickedSt.cls}`} style={{ marginLeft: 'auto' }}>
+                  {clickedSt.label} · {clickedPopoverAsset.health_score}%
                 </span>
               </div>
-              <div className="text-[10px] font-mono text-sky-300 mt-0.5">
-                mesh {clickedScreenAnchor.meshIdx} - {clickedScreenAnchor.triCount}k tris • {clickedPopoverAsset.service_description}
+              <div className="text-2 truncate" style={{ fontSize: '12px', marginTop: '2px' }}>
+                {clickedPopoverAsset.service_description}
+              </div>
+              <div className="mono muted" style={{ fontSize: '11px', marginTop: '2px' }}>
+                mesh {clickedScreenAnchor.meshIdx} ({clickedScreenAnchor.triCount}k tris) ·{' '}
+                {clickedPopoverAsset.contourModel?.contourPointCount || 12} seam pts
               </div>
             </div>
             <button
+              className="btn btn-sm btn-icon"
               onClick={() => {
                 setClickedPopoverAssetId(null);
                 setClickedScreenAnchor(null);
               }}
-              className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono text-slate-300"
+              aria-label="Close callout"
             >
               ✕
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] font-mono">
-            <span
-              className="px-2 py-0.5 rounded font-bold text-slate-950"
-              style={{ backgroundColor: HEALTH_CSS[clickedPopoverAsset.health_status] }}
-            >
-              Health {clickedPopoverAsset.health_score}% ({clickedPopoverAsset.health_status.toUpperCase()})
-            </span>
-            <span className="text-slate-300">
-              {clickedPopoverAsset.contourModel?.contourPointCount} Contour Pts + Planar Back
-            </span>
-          </div>
+          <div className="vp-popover-body">
+            <div className="metric-grid">
+              <div className="metric">
+                <div className="k">Pressure</div>
+                <div className="v mono" style={{ fontSize: '13px' }}>
+                  {clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5}
+                  <small>bar</small>
+                </div>
+              </div>
+              <div className="metric">
+                <div className="k">Vibration</div>
+                <div className="v mono" style={{ fontSize: '13px' }}>
+                  {clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1}
+                  <small>mm/s</small>
+                </div>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-3 gap-1.5 p-2 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono">
-            <div>
-              <span className="text-slate-400 block">Pressure</span>
-              <span className="text-white font-bold">
-                {clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5} bar
-              </span>
+            <div className="vp-popover-actions">
+              <button className="btn btn-sm" onClick={handleFocusSelected}>
+                Center Camera
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={() => {
+                  if (onOpenArHud) onOpenArHud();
+                }}
+              >
+                Verify ({clickedPopoverAsset.qr_id})
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={() => {
+                  if (onQuickMutateTelemetry) {
+                    onQuickMutateTelemetry(
+                      clickedPopoverAsset.asset_id,
+                      {
+                        vibration_mms: 1.6,
+                        bearing_temp_c: 54.0,
+                        stiction_index: 0.12,
+                        position_pct: clickedPopoverAsset.telemetry?.setpoint_pct || 64.0
+                      },
+                      'NORMAL_OPERATION'
+                    );
+                  }
+                }}
+              >
+                Restore Nominal
+              </button>
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={() => {
+                  if (onQuickMutateTelemetry) {
+                    onQuickMutateTelemetry(
+                      clickedPopoverAsset.asset_id,
+                      {
+                        vibration_mms: 7.8,
+                        bearing_temp_c: 86.0,
+                        stiction_index: 0.65
+                      },
+                      'CRITICAL_FAULT_INJECTED'
+                    );
+                  }
+                }}
+              >
+                Inject Fault
+              </button>
             </div>
-            <div>
-              <span className="text-slate-400 block">Vibration</span>
-              <span className="text-orange-300 font-bold">
-                {clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1} mm/s
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Temp</span>
-              <span className="text-sky-300 font-bold">
-                {clickedPopoverAsset.telemetry?.bearing_temp_c ?? clickedPopoverAsset.telemetry?.temperature_c ?? 54}°C
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-1.5 pt-1">
-            <button
-              onClick={() => {
-                if (onQuickMutateTelemetry) {
-                  onQuickMutateTelemetry(
-                    clickedPopoverAsset.asset_id,
-                    {
-                      vibration_mms: 1.6,
-                      bearing_temp_c: 54.0,
-                      stiction_index: 0.12,
-                      position_pct: clickedPopoverAsset.telemetry?.setpoint_pct || 64.0
-                    },
-                    'NORMAL_OPERATION'
-                  );
-                }
-              }}
-              className="py-1.5 px-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-[11px]"
-            >
-              ✓ Repair / Calibrate
-            </button>
-            <button
-              onClick={() => {
-                if (onQuickMutateTelemetry) {
-                  onQuickMutateTelemetry(
-                    clickedPopoverAsset.asset_id,
-                    {
-                      vibration_mms: 7.8,
-                      bearing_temp_c: 86.0,
-                      stiction_index: 0.65
-                    },
-                    'CRITICAL_FAULT_INJECTED'
-                  );
-                }
-              }}
-              className="py-1.5 px-2 rounded-lg bg-red-500/25 hover:bg-red-500/40 border border-red-500/50 text-red-300 font-mono font-bold text-[11px]"
-            >
-              ⚡ Trigger Fault
-            </button>
-            <button
-              onClick={handleFocusSelected}
-              className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-mono text-[11px]"
-            >
-              🎥 Zoom To Object
-            </button>
-            <button
-              onClick={() => {
-                if (onOpenArHud) onOpenArHud();
-              }}
-              className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 font-mono text-[11px]"
-            >
-              📱 Scan QR ({clickedPopoverAsset.qr_id})
-            </button>
           </div>
         </div>
       )}
 
       {loadingState && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm z-30">
-          <div className="px-6 py-4 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl text-center">
-            <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <div className="text-sm font-medium text-slate-200">{loadingState}</div>
+        <div className="vp-loading">
+          <div className="vp-loading-box">
+            <div className="spinner" />
+            <span>{loadingState}</span>
           </div>
         </div>
       )}
 
-      {/* Viewport Quick Camera Controls */}
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
+      {/* Top-right Viewport Camera Toolbar */}
+      <div className="vp-toolbar">
         {isWasdWalking && (
           <button
+            className="on"
             onClick={() => {
               manualPosRef.current = null;
               setIsWasdWalking(false);
               if (onSimPlayingChange) onSimPlayingChange(true);
             }}
-            className="px-2.5 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-mono text-xs font-bold shadow"
           >
-            WASD Manual Walk Active (Click to Resume Auto-Rail)
+            Resume Auto-Patrol
           </button>
         )}
         <button
+          className={arFirstPersonMode ? 'on' : ''}
           onClick={() => onToggleArFirstPerson(!arFirstPersonMode)}
-          className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold shadow transition ${
-            arFirstPersonMode
-              ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-              : 'bg-slate-900/90 hover:bg-slate-800 border-emerald-500/50 text-emerald-300'
-          }`}
         >
-          {arFirstPersonMode ? 'Exit AR First-Person POV' : 'Enter AR First-Person POV'}
+          {arFirstPersonMode ? 'Exit 1st-Person' : '1st-Person POV'}
         </button>
-        <button
-          onClick={handleFocusSelected}
-          className="px-2.5 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-sky-300 shadow"
-        >
+        <button onClick={handleFocusSelected}>
           Focus {selectedAsset?.tag || 'Asset'}
         </button>
-        <button
-          onClick={handleResetCamera}
-          className="px-2.5 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 shadow"
-        >
-          Reset Orbit
-        </button>
+        <button onClick={handleResetCamera}>Reset View</button>
       </div>
 
-      {/* Bottom Interactive Game Controls Legend */}
-      <div className="absolute bottom-3 left-3 z-20 px-3 py-2 rounded-lg bg-slate-900/90 backdrop-blur-md border border-slate-800 text-[11px] text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
-        <div className="flex items-center gap-1.5 font-mono text-emerald-300 font-semibold">
-          <span>🎮 W, A, S, D to Walk</span>
-        </div>
-        <div className="flex items-center gap-1.5 font-mono text-sky-300 font-semibold">
-          <span>🖱️ Click any 3D object to pop up its Object Details Card</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-1 rounded bg-orange-500 inline-block" />
-          <span>R1 Rail</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-1 rounded bg-purple-500 inline-block" />
-          <span>R2 Rail</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-1 rounded bg-cyan-400 inline-block" />
-          <span>H1 Human Rail</span>
-        </div>
+      {/* Bottom-left Compact Legend */}
+      <div className="vp-chip bottom-left">
+        <span>
+          <kbd>W</kbd>
+          <kbd>A</kbd>
+          <kbd>S</kbd>
+          <kbd>D</kbd> Walk
+        </span>
+        <span>·</span>
+        <span>Click equipment to inspect</span>
+        <span>·</span>
+        <span>
+          <span className="legend-swatch" style={{ background: '#d96b27' }} />
+          AMR R1
+        </span>
+        {multiAgentEnabled && (
+          <>
+            <span>
+              <span className="legend-swatch" style={{ background: '#49a942' }} />
+              AMR R2
+            </span>
+            <span>
+              <span className="legend-swatch" style={{ background: '#1f6fb2' }} />
+              Operator H1
+            </span>
+          </>
+        )}
       </div>
-    </div>
+    </main>
   );
 }

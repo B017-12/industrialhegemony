@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpatialSense Scan Viewer</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2334d399'/%3E%3Cpath d='M9 11l7-4 7 4v10l-7 4-7-4z' fill='none' stroke='%23052e1f' stroke-width='2.5'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="stage"></div>
+
+    <header class="hud hud-title">
+      <div class="brand">
+        <a href="/" style="color: #94a3b8; text-decoration: none; font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-right: 10px; padding: 3px 7px; border: 1px solid rgba(148,163,184,0.3); border-radius: 3px;">← Station</a>
+        VALMET <span>| DNA SpatialSense™ 1M-Splat Viewer</span>
+      </div>
+      <div class="stats" id="stats">Loading pipeline output…</div>
+    </header>
+
+    <div class="hud hud-controls">
+      <button id="btn-play" class="primary" title="Space">Walk</button>
+      <button id="btn-restart" title="Back to the doorway">Restart</button>
+      <select id="sel-speed" title="Walk speed">
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
+      <input id="scrub" type="range" min="0" max="1000" value="0" title="Route progress" />
+      <div class="toggles">
+        <label><input type="checkbox" id="tg-splats" checked /> Photoreal scan</label>
+        <label><input type="checkbox" id="tg-boxes" checked /> All object frames</label>
+        <label><input type="checkbox" id="tg-rails" checked /> Rails</label>
+        <label><input type="checkbox" id="tg-follow" /> Follow avatar</label>
+      </div>
+    </div>
+
+    <aside class="hud panel" id="panel">
+      <section>
+        <h2>Nearby <span id="near-radius"></span></h2>
+        <ul id="near-list" class="near-list"><li class="muted">Press Walk to start the route.</li></ul>
+      </section>
+      <section id="detail" hidden></section>
+    </aside>
+
+    <aside class="hud diag-panel" id="diag-panel" hidden>
+      <button class="close" id="diag-close" title="Close">×</button>
+      <section id="diagnosis"></section>
+    </aside>
+
+    <footer class="hud legend">
+      <span><i style="--c: var(--target)"></i>faulty target</span>
+      <span><i style="--c: var(--ok)"></i>healthy</span>
+      <span><i style="--c: var(--watch)"></i>watch</span>
+      <span><i style="--c: var(--degraded)"></i>degraded</span>
+      <span><i style="--c: var(--scene)"></i>scene object</span>
+      <span><i style="--c: var(--rail)"></i>rail</span>
+      <span><i style="--c: var(--route)"></i>route</span>
+    </footer>
+
+    <div class="loading" id="loading">Loading scan…</div>
+
+    <script type="module" src="/src/viewer/main.js"></script>
+  </body>
+</html>

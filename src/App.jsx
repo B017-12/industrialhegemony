@@ -1,26 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Activity,
-  AlertOctagon,
-  Award,
-  BookOpen,
-  Bot,
-  Box,
-  ChevronRight,
-  Database,
-  Eye,
-  Footprints,
-  Gamepad2,
-  GitMerge,
-  Layers,
+  ClipboardList,
+  ExternalLink,
+  List,
+  MessageSquare,
+  Navigation,
   Pause,
   Play,
   QrCode,
-  Radar,
+  RotateCcw,
   Search,
-  Sparkles,
-  Upload,
-  Users
+  Sliders,
+  Upload
 } from 'lucide-react';
 import {
   createInitialDataPipeline,
@@ -33,17 +24,17 @@ import {
   coordinateMultiAgentFleet
 } from './utils/pathfinding.js';
 import { CHALLENGE_BRIEF_MISSIONS } from './data/challengeBriefMissions.js';
+import { statusOf, humanize, sortBySeverity } from './ui/status.js';
 import BoilerRoomViewport from './components/BoilerRoomViewport.jsx';
 import AssetInspectorPanel from './components/AssetInspectorPanel.jsx';
 import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopilotAndArHud.jsx';
 
 export default function App() {
-  // 1. Fast In-Memory Telemetry & Excel Data Pipeline (Real-time environment active by default!)
   const [pipeline, setPipeline] = useState(() => createInitialDataPipeline());
   const [liveStreaming, setLiveStreaming] = useState(true);
 
-  // Selected 3D Asset
   const [selectedAssetId, setSelectedAssetId] = useState('ASSET-003');
+  const [activeNav, setActiveNav] = useState('assets'); // 'assets' | 'navigate' | 'workorders' | 'copilot' | 'settings'
 
   const selectedAsset = useMemo(
     () =>
@@ -52,14 +43,14 @@ export default function App() {
     [pipeline.assets, selectedAssetId]
   );
 
-  // Feature 1: "Dumb Scan -> Semantic World" Lens + AI Laser Sweep Wave (100% Clean CAD Default = ZERO white dots!)
+  // Scene & CAD display settings
   const [semanticBlend, setSemanticBlend] = useState(100);
   const [laserSweepTrigger, setLaserSweepTrigger] = useState(0);
-  const [showStructuralBoxes, setShowStructuralBoxes] = useState(true);
+  const [showStructuralBoxes, setShowStructuralBoxes] = useState(false);
   const [showContourModels, setShowContourModels] = useState(true);
-  const [pointSize, setPointSize] = useState(0.055);
+  const [pointSize, setPointSize] = useState(0.05);
 
-  // Feature 2: Centerline Waypoint 'Rails', Smooth vs. Zig-Zag & Multi-Agent Fleet
+  // Navigation & Fleet state
   const [activeProfile, setActiveProfile] = useState('robot');
   const [railMode, setRailMode] = useState('smooth_rail');
   const [multiAgentEnabled, setMultiAgentEnabled] = useState(true);
@@ -70,28 +61,20 @@ export default function App() {
   const [proximityRadius, setProximityRadius] = useState(1.75);
   const [nearbyAssets, setNearbyAssets] = useState([]);
 
-  // Feature 4: Main AR Functionality
+  // Field verification / LOTO state
   const [arFirstPersonMode, setArFirstPersonMode] = useState(false);
   const [isArHudOpen, setIsArHudOpen] = useState(false);
   const [checkedLotoSteps, setCheckedLotoSteps] = useState({});
   const [draftedWoBanner, setDraftedWoBanner] = useState(null);
 
-  // Interactive Game Campaign & Challenge Briefing Mission Director
-  const [activeStageId, setActiveStageId] = useState(1);
-  const [showMissionBar, setShowMissionBar] = useState(true);
+  // Scenario preset state
+  const [activeStageId, setActiveStageId] = useState(null);
 
-  const activeMission = useMemo(
-    () =>
-      CHALLENGE_BRIEF_MISSIONS.find((m) => m.stageId === activeStageId) ||
-      CHALLENGE_BRIEF_MISSIONS[0],
-    [activeStageId]
-  );
-
-  // Left Sidebar Filter
-  const [statusFilter, setStatusFilter] = useState('all');
+  // Asset Register filter & search
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'abnormal' | 'watch' | 'healthy'
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Active 3D Room PLY Selector ('equipment_room' = Equipment Room.ply, 'boiler_room' = Industrial Boiler Room (1).ply)
+  // Active 3D room capture
   const [activeRoomScene, setActiveRoomScene] = useState('equipment_room');
 
   const fileInputRef = useRef(null);
@@ -108,7 +91,7 @@ export default function App() {
     if (!liveStreaming) return;
     const timer = setInterval(() => {
       setPipeline((prev) => simulateLiveTelemetryTick(prev));
-    }, 1800);
+    }, 2200);
     return () => clearInterval(timer);
   }, [liveStreaming]);
 
@@ -148,9 +131,42 @@ export default function App() {
     [pipeline.assets, hazardNodes, railMode, selectedAsset]
   );
 
+  const counts = useMemo(() => {
+    const c = { critical: 0, high: 0, medium: 0, normal: 0, abnormal: 0 };
+    pipeline.assets.forEach((a) => {
+      if (a.health_status === 'attention_required') {
+        c.critical++;
+        c.abnormal++;
+      } else if (a.health_status === 'degraded') {
+        c.high++;
+        c.abnormal++;
+      } else if (a.health_status === 'watch') {
+        c.medium++;
+      } else {
+        c.normal++;
+      }
+    });
+    return c;
+  }, [pipeline.assets]);
+
+  const activeAlarms = useMemo(
+    () =>
+      sortBySeverity(
+        pipeline.assets.filter(
+          (a) => a.health_status === 'attention_required' || a.health_status === 'degraded'
+        )
+      ),
+    [pipeline.assets]
+  );
+
+  const workOrderAssets = useMemo(
+    () => sortBySeverity(pipeline.assets.filter((a) => Boolean(a.work_order))),
+    [pipeline.assets]
+  );
+
   const filteredAssets = useMemo(() => {
-    return pipeline.assets.filter((a) => {
-      if (statusFilter === 'critical') {
+    const list = pipeline.assets.filter((a) => {
+      if (statusFilter === 'abnormal') {
         if (a.health_status !== 'attention_required' && a.health_status !== 'degraded') return false;
       } else if (statusFilter === 'watch') {
         if (a.health_status !== 'watch') return false;
@@ -169,11 +185,21 @@ export default function App() {
       }
       return true;
     });
+    return sortBySeverity(list);
   }, [pipeline.assets, statusFilter, searchQuery]);
 
-  const handleSelectAsset = (asset) => {
-    if (!asset) return;
-    setSelectedAssetId(asset.asset_id);
+  const handleSelectAsset = (assetOrId) => {
+    if (!assetOrId) return;
+    if (typeof assetOrId === 'string') {
+      const found = pipeline.assets.find(
+        (a) => a.asset_id === assetOrId || a.tag === assetOrId
+      );
+      if (found) setSelectedAssetId(found.asset_id);
+      return;
+    }
+    if (assetOrId.asset_id) {
+      setSelectedAssetId(assetOrId.asset_id);
+    }
   };
 
   const handleMutateTelemetry = (assetId, patch, customReason = null) => {
@@ -201,11 +227,10 @@ export default function App() {
     const newId = asset.work_order?.wo_id || `WO-2026-${asset.tag}`;
     setDraftedWoBanner({
       id: newId,
-      message: `Dispatched grounded work order packet for ${asset.tag} (${asset.service_description}) citing ${asset.doc_refs.join(', ')}.`
+      message: `Work order ${newId} queued in SAP PM for ${asset.tag} (${asset.service_description}). Referenced documents: ${asset.doc_refs.join(', ')}.`
     });
   };
 
-  // Interactive Mission Action Executor (executes each Challenge Briefing stage when clicked!)
   const handleExecuteMissionStage = (stage) => {
     setActiveStageId(stage.stageId);
     if (stage.targetAssetId) {
@@ -213,28 +238,25 @@ export default function App() {
     }
 
     if (stage.stageId === 1) {
-      // Trigger the Purple/Blue AI Semantic Laser Wave across the boiler room!
       setArFirstPersonMode(false);
       setShowContourModels(true);
       setLaserSweepTrigger((t) => t + 1);
     } else if (stage.stageId === 2) {
-      // Engage Centerline Rail Walk & Proximity Radar
       setArFirstPersonMode(false);
       setRailMode('smooth_rail');
       setSimPlaying(true);
       setProximityRadius(1.9);
+      setActiveNav('navigate');
     } else if (stage.stageId === 3) {
-      // Focus P-002 -> CV-003 spatial coupling & start live telemetry stream
       setArFirstPersonMode(false);
       setLiveStreaming(true);
     } else if (stage.stageId === 4) {
-      // Enable Multi-Robot Fleet R1, R2, H1 & drop dynamic floor hazard
       setArFirstPersonMode(false);
       setMultiAgentEnabled(true);
       setHazardNodes(['N-S-EAST1', 'N-M-WEST1']);
       setSimPlaying(true);
+      setActiveNav('navigate');
     } else if (stage.stageId === 5) {
-      // Enter First-Person AR Visor Mode
       setArFirstPersonMode(true);
       setSimPlaying(true);
     }
@@ -252,154 +274,186 @@ export default function App() {
     reader.readAsArrayBuffer(file);
   };
 
-  const statusColorDot = {
-    attention_required: 'bg-red-500',
-    degraded: 'bg-orange-500',
-    watch: 'bg-amber-500',
-    healthy: 'bg-emerald-500'
-  };
-
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-100">
-      {/* ==================== TOP COMMAND BAR ==================== */}
-      <header className="h-14 shrink-0 px-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between gap-3 select-none">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-sky-500 flex items-center justify-center text-slate-950 font-black text-base shadow-lg">
-            V
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-bold text-sm tracking-tight text-white">
-                Valmet SpatialSense
-              </h1>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                Interactive Challenge Walkthrough
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2">
-              <span>{sceneStats.activeSplats.toLocaleString()} Splats</span>
-              <span>•</span>
-              <span className="text-sky-300">30 Reconstructed 3D Meshes</span>
-              <span>•</span>
-              <span className="text-emerald-300">WASD + Centerline Rails</span>
-            </div>
-          </div>
+    <div className="app">
+      {/* ==================== TOP APPLICATION BAR ==================== */}
+      <header className="topbar">
+        <div className="brand">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 5L12 19L20 5H15.5L12 11.5L8.5 5H4Z" fill="#49A942" />
+            <path d="M12 14.5L16.5 6.5H19L12 19L5 6.5H7.5L12 14.5Z" fill="#7CD476" fillOpacity="0.65" />
+          </svg>
+          <span className="brand-word">VALMET</span>
+          <span className="brand-product">DNA SpatialSense</span>
         </div>
 
-        {/* Center Feature 1: 1-Click PLY Room Switcher + AI Laser Scan Wave + MovingAtoms Pipeline */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
-          {/* Instant 1-Click Switcher between Equipment Room.ply and Industrial Boiler Room.ply */}
-          <div className="flex items-center rounded-lg bg-slate-900 p-0.5 border border-slate-800 text-[11px] font-mono">
+        <nav className="breadcrumb" aria-label="Plant hierarchy">
+          <span>Kemi Mill</span>
+          <span>›</span>
+          <span>Recovery &amp; Power</span>
+          <span>›</span>
+          <select
+            aria-label="Select 3D capture area"
+            value={activeRoomScene}
+            onChange={(e) => {
+              setCustomPlyBuffer(null);
+              setActiveRoomScene(e.target.value);
+            }}
+          >
+            <option value="equipment_room">Area 01 — Equipment Room</option>
+            <option value="boiler_room">Area 02 — Boiler House</option>
+          </select>
+        </nav>
+
+        <div className="topbar-right">
+          <div className="alarm-counter" title="Filter asset register by alarm priority">
             <button
               onClick={() => {
-                setCustomPlyBuffer(null);
-                setActiveRoomScene('equipment_room');
+                setActiveNav('assets');
+                setStatusFilter('abnormal');
               }}
-              className={`px-2 py-0.5 rounded transition ${
-                activeRoomScene === 'equipment_room'
-                  ? 'bg-emerald-500 text-slate-950 font-bold'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-              title="Switch to Equipment Room.ply (269,219 splats — matches the MovingAtoms demo video!)"
             >
-              Equipment Room.ply
+              <span className="sq" style={{ background: 'var(--critical)' }} />
+              <span className="mono">{counts.critical}</span>
+              <span>Alarm</span>
             </button>
             <button
               onClick={() => {
-                setCustomPlyBuffer(null);
-                setActiveRoomScene('boiler_room');
+                setActiveNav('assets');
+                setStatusFilter('abnormal');
               }}
-              className={`px-2 py-0.5 rounded transition ${
-                activeRoomScene === 'boiler_room'
-                  ? 'bg-sky-500 text-slate-950 font-bold'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-              title="Switch to Industrial Boiler Room (1).ply (121,537 splats)"
             >
-              Boiler Room.ply
+              <span className="sq" style={{ background: 'var(--high)' }} />
+              <span className="mono">{counts.high}</span>
+              <span>Degraded</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveNav('assets');
+                setStatusFilter('watch');
+              }}
+            >
+              <span className="sq" style={{ background: 'var(--medium)' }} />
+              <span className="mono">{counts.medium}</span>
+              <span>Watch</span>
             </button>
           </div>
 
           <button
-            onClick={() => setLaserSweepTrigger((t) => t + 1)}
-            className="px-2.5 py-1 rounded-lg bg-purple-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-1 shadow transition"
-            title="Run MovingAtoms-style AI Semantic Extraction Laser across the active PLY room"
+            className="live-toggle"
+            onClick={() => setLiveStreaming((s) => !s)}
+            title="Toggle historian live polling"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>MovingAtoms Laser</span>
+            <span className={`live-dot ${liveStreaming ? 'on' : ''}`} />
+            <span>{liveStreaming ? 'Live telemetry' : 'Polling paused'}</span>
           </button>
-
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={semanticBlend}
-            onChange={(e) => setSemanticBlend(Number(e.target.value))}
-            className="w-20 accent-emerald-400 cursor-pointer"
-          />
-          <span className="text-xs font-mono text-emerald-300 font-semibold">
-            {semanticBlend}%
-          </span>
 
           <a
-            href="https://movingatoms.ai/"
-            target="_blank"
-            rel="noreferrer"
-            className="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-sky-300"
-            title="Open MovingAtoms.ai (PLY Semantic 3D Mesh Extractor recommended by organizers)"
+            href="/viewer.html"
+            className="topbar-meta"
+            style={{ color: 'var(--topbar-text)' }}
+            title="Open standalone 1M-splat Gaussian viewer"
           >
-            movingatoms.ai ↗
+            <span>Splat Viewer</span>
+            <ExternalLink size={12} />
           </a>
-        </div>
-
-        {/* Right Controls */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowMissionBar((b) => !b)}
-            className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
-              showMissionBar
-                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
-                : 'bg-slate-950 border-slate-800 text-slate-300'
-            }`}
-          >
-            <Gamepad2 className="w-3.5 h-3.5" />
-            <span>Challenge Guide</span>
-          </button>
 
           <button
-            onClick={() =>
-              setRailMode((m) => (m === 'smooth_rail' ? 'zigzag_grid' : 'smooth_rail'))
-            }
-            className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
-              railMode === 'smooth_rail'
-                ? 'bg-sky-500/20 border-sky-500/50 text-sky-300 font-semibold'
-                : 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-semibold'
-            }`}
-          >
-            <GitMerge className="w-3.5 h-3.5" />
-            <span>{railMode === 'smooth_rail' ? 'Rail: Smooth' : 'Path: Zig-Zag'}</span>
-          </button>
-
-          <button
-            onClick={handleDropDemoHazard}
-            className={`px-2.5 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
-              hazardNodes.length > 0
-                ? 'bg-red-500/20 border-red-500/50 text-red-300 font-semibold'
-                : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
-            }`}
-          >
-            <AlertOctagon className="w-3.5 h-3.5 text-red-400" />
-            <span>
-              {hazardNodes.length > 0 ? `Hazards (${hazardNodes.length})` : 'Drop Hazard'}
-            </span>
-          </button>
-
-          <button
+            className="live-toggle"
             onClick={() => setIsArHudOpen(true)}
-            className="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-1.5 shadow"
+            title="Open mobile field verification dialog"
           >
-            <QrCode className="w-3.5 h-3.5" />
-            <span>AR Scanner</span>
+            <QrCode size={13} />
+            <span>Field Verify</span>
+          </button>
+
+          <div className="user-chip">
+            <span className="avatar">MV</span>
+            <span>M. Virtanen</span>
+          </div>
+        </div>
+      </header>
+
+      {/* ==================== ISA-101 ACTIVE ALARM STRIP ==================== */}
+      <div className="alarm-strip" role="region" aria-label="Active process alarms">
+        <div className="alarm-strip-label">
+          <span className="sdot critical" />
+          <span>Active Alarms ({activeAlarms.length})</span>
+        </div>
+        <div className="alarm-items">
+          {activeAlarms.map((alarm) => {
+            const st = statusOf(alarm);
+            return (
+              <button
+                key={alarm.asset_id}
+                className="alarm-item"
+                onClick={() => handleSelectAsset(alarm)}
+                title={`${alarm.tag} — ${alarm.service_description}`}
+              >
+                <span className={`sdot ${st.cls}`} />
+                <span className="tag">{alarm.tag}</span>
+                <span className="desc">{humanize(alarm.status_reason)}</span>
+                <span className={`health ${st.cls} mono`}>{alarm.health_score}%</span>
+              </button>
+            );
+          })}
+        </div>
+        <button
+          className="view-all"
+          onClick={() => {
+            setActiveNav('assets');
+            setStatusFilter('abnormal');
+          }}
+        >
+          Show in register
+        </button>
+      </div>
+
+      {/* ==================== 4-COLUMN WORKSPACE ==================== */}
+      <div className="workspace">
+        {/* 1. LEFT ICON NAVIGATION RAIL */}
+        <nav className="navrail" aria-label="Primary tools">
+          <button
+            className={activeNav === 'assets' ? 'active' : ''}
+            onClick={() => setActiveNav('assets')}
+            title="Asset Register"
+          >
+            <List size={18} />
+          </button>
+
+          <button
+            className={activeNav === 'navigate' ? 'active' : ''}
+            onClick={() => setActiveNav('navigate')}
+            title="Routing & Autonomous Fleet"
+          >
+            <Navigation size={18} />
+          </button>
+
+          <button
+            className={activeNav === 'workorders' ? 'active' : ''}
+            onClick={() => setActiveNav('workorders')}
+            title="Work Orders & Evaluation Scenarios"
+          >
+            <ClipboardList size={18} />
+            {workOrderAssets.length > 0 && (
+              <span className="badge-dot">{workOrderAssets.length}</span>
+            )}
+          </button>
+
+          <button
+            className={activeNav === 'copilot' ? 'active' : ''}
+            onClick={() => setActiveNav('copilot')}
+            title="Diagnostic Assistant"
+          >
+            <MessageSquare size={18} />
+          </button>
+
+          <button
+            className={`rail-bottom ${activeNav === 'settings' ? 'active' : ''}`}
+            onClick={() => setActiveNav('settings')}
+            title="Scene & Display Settings"
+          >
+            <Sliders size={18} />
           </button>
 
           <input
@@ -409,369 +463,505 @@ export default function App() {
             onChange={handleFileUpload}
             className="hidden"
           />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="px-2.5 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-mono text-slate-300 flex items-center gap-1"
-          >
-            <Upload className="w-3.5 h-3.5 text-sky-400" />
-            <span>.PLY</span>
-          </button>
-        </div>
-      </header>
+        </nav>
 
-      {/* ==================== INTERACTIVE CHALLENGE BRIEFING & MISSION CAMPAIGN BAR ==================== */}
-      {showMissionBar && (
-        <div className="bg-slate-900/90 border-b border-slate-800 px-4 py-2.5 flex flex-col gap-2 select-none">
-          {/* 5-Stage Progress Stepper */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {CHALLENGE_BRIEF_MISSIONS.map((m) => {
-                const isActive = m.stageId === activeStageId;
-                return (
-                  <button
-                    key={m.stageId}
-                    onClick={() => handleExecuteMissionStage(m)}
-                    className={`px-2.5 py-1 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${
-                      isActive
-                        ? 'bg-sky-500/20 border-sky-400 text-white font-bold shadow'
-                        : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    <span className="px-1.5 py-0.2 rounded bg-slate-800 text-sky-300 text-[10px]">
-                      {m.criterionWeight}
-                    </span>
-                    <span>{m.shortLabel}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => {
-                const nextId = (activeStageId % CHALLENGE_BRIEF_MISSIONS.length) + 1;
-                const nextMission = CHALLENGE_BRIEF_MISSIONS.find((m) => m.stageId === nextId);
-                if (nextMission) handleExecuteMissionStage(nextMission);
-              }}
-              className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-1 shrink-0"
-            >
-              <span>Next Challenge Stage</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Active Stage Details & Reference to Official Challenge Brief */}
-          <div className="p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span className="text-xs font-bold text-white">
-                  {activeMission.criterionTitle}
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                  {activeMission.criterionWeight}
+        {/* 2. MODE-BASED LEFT SIDE PANEL */}
+        <aside className="sidepanel">
+          {activeNav === 'assets' && (
+            <>
+              <div className="panel-header">
+                <span className="panel-title">Asset Register</span>
+                <span className="panel-count">
+                  {filteredAssets.length} of {pipeline.assets.length}
                 </span>
               </div>
-              <div className="text-xs text-slate-200">
-                <strong>Interactive Walkthrough Action:</strong> {activeMission.missionGoal}
-              </div>
-              <div className="text-[11px] font-mono text-slate-400">
-                📄 {activeMission.referenceText}
-              </div>
-            </div>
 
-            <button
-              onClick={() => handleExecuteMissionStage(activeMission)}
-              className="px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-mono font-bold text-xs shrink-0 shadow-lg"
-            >
-              {activeMission.actionButtonLabel}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ==================== MAIN 3-COLUMN WORKSPACE ==================== */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* LEFT SIDEBAR */}
-        <aside className="w-80 shrink-0 h-full bg-slate-900/95 border-r border-slate-800 flex flex-col overflow-hidden select-none">
-          <div className="p-3.5 border-b border-slate-800 bg-slate-950/60 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
-                <Radar className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Rig & Centerline Rails</span>
-              </span>
-              <div className="flex items-center gap-1 text-[10px] font-mono">
-                <button
-                  onClick={() => setActiveProfile('robot')}
-                  className={`px-1.5 py-0.5 rounded ${
-                    activeProfile === 'robot'
-                      ? 'bg-orange-500 text-slate-950 font-bold'
-                      : 'bg-slate-900 text-orange-300'
-                  }`}
-                >
-                  AMR ({robotPath.distanceMeters}m)
-                </button>
-                <button
-                  onClick={() => setActiveProfile('human')}
-                  className={`px-1.5 py-0.5 rounded ${
-                    activeProfile === 'human'
-                      ? 'bg-cyan-500 text-slate-950 font-bold'
-                      : 'bg-slate-900 text-cyan-300'
-                  }`}
-                >
-                  Human ({humanPath.distanceMeters}m)
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSimPlaying((p) => !p)}
-                className="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs flex items-center gap-1 shrink-0"
-              >
-                {simPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                <span>{simPlaying ? 'Pause' : 'Walk'}</span>
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={simProgress}
-                onChange={(e) => {
-                  setSimPlaying(false);
-                  setSimProgress(Number(e.target.value));
-                }}
-                className="w-full accent-emerald-400 cursor-pointer"
-              />
-              <span className="font-mono text-[11px] text-slate-300 w-9 text-right">
-                {Math.round(simProgress * 100)}%
-              </span>
-            </div>
-
-            {/* Multi-Robot Fleet */}
-            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-white cursor-pointer">
+              <div className="panel-toolbar">
+                <div className="input-wrap">
+                  <Search size={14} />
                   <input
-                    type="checkbox"
-                    checked={multiAgentEnabled}
-                    onChange={(e) => setMultiAgentEnabled(e.target.checked)}
-                    className="accent-emerald-400"
+                    type="text"
+                    className="input"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Filter by tag, service, or area..."
                   />
-                  <span>Multi-Robot Fleet (R1, R2, H1)</span>
-                </label>
-                <span className="text-[10px] font-mono text-emerald-400">Zero Conflict</span>
-              </div>
+                </div>
 
-              {multiAgentEnabled && (
-                <div className="space-y-1 pt-1">
-                  {fleetAssignments.map((assign) => (
+                <div className="seg" role="tablist" aria-label="Filter assets by condition">
+                  {[
+                    { key: 'all', label: 'All', count: pipeline.assets.length },
+                    { key: 'abnormal', label: 'Abnormal', count: counts.abnormal },
+                    { key: 'watch', label: 'Watch', count: counts.medium },
+                    { key: 'healthy', label: 'Normal', count: counts.normal }
+                  ].map((t) => (
                     <button
-                      key={assign.agent_id}
-                      onClick={() => handleSelectAsset(assign.targetAsset)}
-                      className="w-full px-2 py-1 rounded bg-slate-950 hover:bg-slate-800 border border-slate-800 flex items-center justify-between text-[10px] font-mono transition"
+                      key={t.key}
+                      className={statusFilter === t.key ? 'active' : ''}
+                      onClick={() => setStatusFilter(t.key)}
                     >
-                      <span className="flex items-center gap-1.5">
-                        <span
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: assign.color }}
-                        />
-                        <span className="font-bold text-white">{assign.agent_id}</span>
-                        <span className="text-slate-400">→</span>
-                        <span className="text-sky-300 font-bold">
-                          {assign.targetAsset?.tag}
-                        </span>
-                      </span>
-                      <span className="text-emerald-300">
-                        {assign.path?.distanceMeters}m rail
-                      </span>
+                      <span>{t.label}</span>
+                      <span className="count">{t.count}</span>
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
 
-            <div className="flex items-center justify-between gap-2 text-[11px]">
-              <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showContourModels}
-                  onChange={(e) => setShowContourModels(e.target.checked)}
-                  className="accent-sky-400"
-                />
-                <span>Contour + Back Plane</span>
-              </label>
-              <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showStructuralBoxes}
-                  onChange={(e) => setShowStructuralBoxes(e.target.checked)}
-                  className="accent-sky-400"
-                />
-                <span>Structural Frames</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Search & Filter */}
-          <div className="p-3 border-b border-slate-800 space-y-2">
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search 30 contoured assets..."
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-400"
-              />
-            </div>
-
-            <div className="grid grid-cols-4 gap-1 text-[11px] font-mono">
-              {[
-                { key: 'all', label: 'All (30)' },
-                { key: 'critical', label: 'Fault' },
-                { key: 'watch', label: 'Watch' },
-                { key: 'healthy', label: 'OK' }
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setStatusFilter(tab.key)}
-                  className={`py-1 rounded border transition ${
-                    statusFilter === tab.key
-                      ? 'bg-sky-500/20 border-sky-500/50 text-sky-300 font-bold'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Scrollable List of 30 Valmet Assets */}
-          <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
-            {filteredAssets.map((asset) => {
-              const isSelected = selectedAsset?.asset_id === asset.asset_id;
-              const isNear = nearbyAssets.some((n) => n.asset_id === asset.asset_id);
-              const assignedAgent = multiAgentEnabled
-                ? fleetAssignments.find((f) => f.targetAsset?.asset_id === asset.asset_id)
-                : null;
-
-              return (
-                <button
-                  key={asset.asset_id}
-                  onClick={() => handleSelectAsset(asset)}
-                  className={`w-full p-2.5 rounded-xl border text-left transition flex items-start justify-between gap-2 ${
-                    isSelected
-                      ? 'bg-sky-500/15 border-sky-400 shadow-md'
-                      : isNear
-                      ? 'bg-emerald-500/10 border-emerald-500/40'
-                      : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`w-2 h-2 rounded-full shrink-0 ${
-                          statusColorDot[asset.health_status]
-                        }`}
-                      />
-                      <span className="font-mono text-xs font-bold text-white">
-                        {asset.tag}
-                      </span>
-                      <span className="font-mono text-[10px] text-slate-400">
-                        {asset.asset_id}
-                      </span>
-                      {assignedAgent && (
-                        <span
-                          className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold text-slate-950"
-                          style={{ backgroundColor: assignedAgent.color }}
+              <div className="panel-body">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '28px' }}>St.</th>
+                      <th style={{ width: '74px' }}>Tag</th>
+                      <th>Description</th>
+                      <th className="right" style={{ width: '54px' }}>
+                        Health
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredAssets.map((asset) => {
+                      const st = statusOf(asset);
+                      const isSelected = selectedAsset?.asset_id === asset.asset_id;
+                      const isNear = nearbyAssets.some((n) => n.asset_id === asset.asset_id);
+                      return (
+                        <tr
+                          key={asset.asset_id}
+                          className={`${isSelected ? 'selected' : ''} ${isNear ? 'near' : ''}`}
+                          onClick={() => handleSelectAsset(asset)}
                         >
-                          {assignedAgent.agent_id}
-                        </span>
-                      )}
-                      {isNear && (
-                        <span className="px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[9px]">
-                          RADAR
-                        </span>
-                      )}
+                          <td>
+                            <span className={`sdot ${st.cls}`} title={st.label} />
+                          </td>
+                          <td className="tag">{asset.tag}</td>
+                          <td title={asset.service_description}>{asset.service_description}</td>
+                          <td className={`right health ${st.cls}`}>{asset.health_score}%</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {activeNav === 'navigate' && (
+            <>
+              <div className="panel-header">
+                <span className="panel-title">Navigation &amp; Fleet</span>
+              </div>
+
+              <div className="panel-body">
+                <div className="section stack">
+                  <div className="section-title">
+                    <span>Route to {selectedAsset?.tag}</span>
+                    <span className="mono">
+                      {activeProfile === 'robot'
+                        ? `${robotPath.distanceMeters} m`
+                        : `${humanPath.distanceMeters} m`}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>Mobility profile</span>
                     </div>
-                    <div className="text-[11px] text-slate-300 truncate mt-0.5">
-                      {asset.service_description}
-                    </div>
-                    <div className="text-[10px] font-mono text-slate-400 mt-0.5">
-                      {asset.contourModel?.contourPointCount} Contour Pts • {asset.status_reason}
+                    <div className="seg">
+                      <button
+                        className={activeProfile === 'human' ? 'active' : ''}
+                        onClick={() => setActiveProfile('human')}
+                      >
+                        Operator ({humanPath.distanceMeters} m)
+                      </button>
+                      <button
+                        className={activeProfile === 'robot' ? 'active' : ''}
+                        onClick={() => setActiveProfile('robot')}
+                      >
+                        Wheeled AMR ({robotPath.distanceMeters} m)
+                      </button>
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0 font-mono">
-                    <div
-                      className={`text-xs font-bold ${
-                        asset.health_score < 60
-                          ? 'text-red-400'
-                          : asset.health_score < 80
-                          ? 'text-amber-400'
-                          : 'text-emerald-400'
-                      }`}
+                  <div>
+                    <div className="field-label">
+                      <span>Path solver</span>
+                    </div>
+                    <div className="seg">
+                      <button
+                        className={railMode === 'smooth_rail' ? 'active' : ''}
+                        onClick={() => setRailMode('smooth_rail')}
+                      >
+                        Centerline rail
+                      </button>
+                      <button
+                        className={railMode === 'zigzag_grid' ? 'active' : ''}
+                        onClick={() => setRailMode('zigzag_grid')}
+                      >
+                        Grid A*
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>Patrol simulation</span>
+                      <span className="mono">{Math.round(simProgress * 100)}%</span>
+                    </div>
+                    <div className="row">
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => setSimPlaying((p) => !p)}
+                      >
+                        {simPlaying ? <Pause size={13} /> : <Play size={13} />}
+                        <span>{simPlaying ? 'Pause' : 'Walk'}</span>
+                      </button>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={simProgress}
+                        onChange={(e) => {
+                          setSimPlaying(false);
+                          setSimProgress(Number(e.target.value));
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>Proximity scan radius</span>
+                      <span className="mono">{proximityRadius.toFixed(2)} m</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1.0"
+                      max="3.0"
+                      step="0.05"
+                      value={proximityRadius}
+                      onChange={(e) => setProximityRadius(Number(e.target.value))}
+                    />
+                  </div>
+
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={showDualComparison}
+                      onChange={(e) => setShowDualComparison(e.target.checked)}
+                    />
+                    <span>Overlay both Operator &amp; AMR paths</span>
+                  </label>
+                </div>
+
+                <div className="section stack">
+                  <div className="section-title">
+                    <span>Aisle Obstructions</span>
+                    <span className="mono">{hazardNodes.length} blocked</span>
+                  </div>
+                  <p className="help">
+                    Click any floor waypoint node in the 3D scene to toggle a temporary aisle
+                    blockage, or test dynamic rerouting below.
+                  </p>
+                  <div className="row">
+                    <button
+                      className={`btn btn-block ${hazardNodes.length > 0 ? 'btn-danger' : ''}`}
+                      onClick={handleDropDemoHazard}
                     >
-                      {asset.health_score}%
-                    </div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">{asset.qr_id}</div>
+                      {hazardNodes.length > 0
+                        ? `Clear blocked aisles (${hazardNodes.join(', ')})`
+                        : 'Simulate East/West aisle blockage'}
+                    </button>
                   </div>
-                </button>
-              );
-            })}
-          </div>
-        </aside>
+                </div>
 
-        {/* CENTER 3D VIEWPORT + BOTTOM EDGE AI COPILOT DRAWER */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden">
-          <div className="flex-1 relative overflow-hidden">
-            <BoilerRoomViewport
-              activeRoomScene={activeRoomScene}
+                <div className="section stack">
+                  <div className="section-title">
+                    <span>Fleet Dispatch</span>
+                    <span className="mono">{multiAgentEnabled ? '3 active' : 'Off'}</span>
+                  </div>
+
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={multiAgentEnabled}
+                      onChange={(e) => setMultiAgentEnabled(e.target.checked)}
+                    />
+                    <span>Coordinate multi-unit dispatch (R1, R2, H1)</span>
+                  </label>
+
+                  {multiAgentEnabled && (
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '48px' }}>Unit</th>
+                          <th style={{ width: '72px' }}>Target</th>
+                          <th>Role</th>
+                          <th className="right" style={{ width: '58px' }}>
+                            Dist.
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {fleetAssignments.map((assign) => (
+                          <tr
+                            key={assign.agent_id}
+                            onClick={() => handleSelectAsset(assign.targetAsset)}
+                          >
+                            <td className="mono">
+                              <span
+                                className="legend-swatch"
+                                style={{ backgroundColor: assign.color }}
+                              />
+                              {assign.agent_id}
+                            </td>
+                            <td className="tag">{assign.targetAsset?.tag}</td>
+                            <td className="text-2">{assign.role}</td>
+                            <td className="right mono">{assign.path?.distanceMeters} m</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeNav === 'workorders' && (
+            <>
+              <div className="panel-header">
+                <span className="panel-title">Work Orders &amp; Scenarios</span>
+                <span className="panel-count">{workOrderAssets.length} open</span>
+              </div>
+
+              <div className="panel-body">
+                <div className="section" style={{ padding: 0 }}>
+                  <div className="section-title" style={{ padding: '10px 12px 0' }}>
+                    <span>Open Maintenance Orders</span>
+                  </div>
+                  {workOrderAssets.map((asset) => {
+                    const wo = asset.work_order;
+                    const st = statusOf(asset);
+                    const isSelected = selectedAsset?.asset_id === asset.asset_id;
+                    return (
+                      <button
+                        key={wo.wo_id}
+                        className={`list-item ${isSelected ? 'selected' : ''}`}
+                        onClick={() => handleSelectAsset(asset)}
+                      >
+                        <div className="top">
+                          <span className={`sdot ${st.cls}`} />
+                          <span className="mono" style={{ fontWeight: 600 }}>
+                            {wo.wo_id}
+                          </span>
+                          <span className="mono text-2">• {asset.tag}</span>
+                          <span className="spacer" />
+                          <span className={`status ${st.cls}`}>{wo.priority}</span>
+                        </div>
+                        <div className="title">{wo.summary}</div>
+                        <div className="sub mono">
+                          Failure mode: {humanize(wo.failure_code)}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="section" style={{ padding: 0 }}>
+                  <div className="section-title" style={{ padding: '12px 12px 4px' }}>
+                    <span>Verification Scenarios</span>
+                  </div>
+                  {CHALLENGE_BRIEF_MISSIONS.map((m) => {
+                    const isActive = m.stageId === activeStageId;
+                    return (
+                      <button
+                        key={m.stageId}
+                        className={`list-item ${isActive ? 'selected' : ''}`}
+                        onClick={() => handleExecuteMissionStage(m)}
+                      >
+                        <div className="top">
+                          <span className="mono" style={{ fontWeight: 600 }}>
+                            0{m.stageId}
+                          </span>
+                          <span style={{ fontWeight: 600 }}>{m.shortLabel}</span>
+                          <span className="spacer" />
+                          <span className="mono muted">{m.targetAssetId}</span>
+                        </div>
+                        <div className="title">{m.criterionTitle}</div>
+                        <div className="sub">{m.missionGoal}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeNav === 'copilot' && (
+            <EdgeCopilotDrawer
               assets={pipeline.assets}
               selectedAsset={selectedAsset}
               onSelectAsset={handleSelectAsset}
-              semanticBlend={semanticBlend}
-              onSemanticBlendChange={setSemanticBlend}
-              laserSweepTrigger={laserSweepTrigger}
-              showStructuralBoxes={showStructuralBoxes}
-              showContourModels={showContourModels}
-              activeProfile={activeProfile}
-              railMode={railMode}
-              multiAgentEnabled={multiAgentEnabled}
-              fleetAssignments={fleetAssignments}
-              showDualComparison={showDualComparison}
               humanPath={humanPath}
               robotPath={robotPath}
-              hazardNodes={hazardNodes}
-              onToggleHazardNode={handleToggleHazardNode}
-              simPlaying={simPlaying}
-              onSimPlayingChange={setSimPlaying}
-              simProgress={simProgress}
-              onSimProgressChange={setSimProgress}
-              proximityRadius={proximityRadius}
-              onNearbyAssetsChange={setNearbyAssets}
-              pointSize={pointSize}
-              arFirstPersonMode={arFirstPersonMode}
-              onToggleArFirstPerson={setArFirstPersonMode}
-              onQuickMutateTelemetry={handleMutateTelemetry}
-              onOpenArHud={() => setIsArHudOpen(true)}
-              customPlyBuffer={customPlyBuffer}
-              onLoadStats={setSceneStats}
+              nearbyAssets={nearbyAssets}
             />
-          </div>
+          )}
 
-          <EdgeCopilotDrawer
-            selectedAsset={selectedAsset}
-            humanPath={humanPath}
-            robotPath={robotPath}
-            nearbyAssets={nearbyAssets}
-          />
-        </main>
+          {activeNav === 'settings' && (
+            <>
+              <div className="panel-header">
+                <span className="panel-title">Scene &amp; Display</span>
+              </div>
 
-        {/* RIGHT SIDEBAR */}
+              <div className="panel-body">
+                <div className="section stack">
+                  <div className="section-title">
+                    <span>3D Capture Source</span>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>Active room scan</span>
+                    </div>
+                    <select
+                      className="select"
+                      value={activeRoomScene}
+                      onChange={(e) => {
+                        setCustomPlyBuffer(null);
+                        setActiveRoomScene(e.target.value);
+                      }}
+                    >
+                      <option value="equipment_room">
+                        Area 01 — Equipment Room (269,219 splats)
+                      </option>
+                      <option value="boiler_room">
+                        Area 02 — Boiler House (121,537 splats)
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="row">
+                    <button
+                      className="btn btn-block"
+                      onClick={() => setLaserSweepTrigger((t) => t + 1)}
+                    >
+                      <RotateCcw size={13} />
+                      <span>Run segmentation sweep</span>
+                    </button>
+                  </div>
+
+                  <div className="row">
+                    <button
+                      className="btn btn-block"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload size={13} />
+                      <span>Import custom .PLY scan...</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="section stack">
+                  <div className="section-title">
+                    <span>Reconstruction Layers</span>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>CAD / Point-cloud blend</span>
+                      <span className="mono">{semanticBlend}% CAD</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={semanticBlend}
+                      onChange={(e) => setSemanticBlend(Number(e.target.value))}
+                    />
+                    <div className="help" style={{ marginTop: '4px' }}>
+                      0% shows raw LiDAR/Gaussian point cloud; 100% shows extracted CAD
+                      geometry.
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>Point cloud splat size</span>
+                      <span className="mono">{pointSize.toFixed(3)}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.015"
+                      max="0.09"
+                      step="0.005"
+                      value={pointSize}
+                      onChange={(e) => setPointSize(Number(e.target.value))}
+                    />
+                  </div>
+
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={showContourModels}
+                      onChange={(e) => setShowContourModels(e.target.checked)}
+                    />
+                    <span>Show attachment seam vertices &amp; datum plane</span>
+                  </label>
+
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={showStructuralBoxes}
+                      onChange={(e) => setShowStructuralBoxes(e.target.checked)}
+                    />
+                    <span>Show structural bay wireframes</span>
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
+        </aside>
+
+        {/* 3. CENTER 3D VIEWPORT */}
+        <BoilerRoomViewport
+          activeRoomScene={activeRoomScene}
+          assets={pipeline.assets}
+          selectedAsset={selectedAsset}
+          onSelectAsset={handleSelectAsset}
+          semanticBlend={semanticBlend}
+          onSemanticBlendChange={setSemanticBlend}
+          laserSweepTrigger={laserSweepTrigger}
+          showStructuralBoxes={showStructuralBoxes}
+          showContourModels={showContourModels}
+          activeProfile={activeProfile}
+          railMode={railMode}
+          multiAgentEnabled={multiAgentEnabled}
+          fleetAssignments={fleetAssignments}
+          showDualComparison={showDualComparison}
+          humanPath={humanPath}
+          robotPath={robotPath}
+          hazardNodes={hazardNodes}
+          onToggleHazardNode={handleToggleHazardNode}
+          simPlaying={simPlaying}
+          onSimPlayingChange={setSimPlaying}
+          simProgress={simProgress}
+          onSimProgressChange={setSimProgress}
+          proximityRadius={proximityRadius}
+          onNearbyAssetsChange={setNearbyAssets}
+          pointSize={pointSize}
+          arFirstPersonMode={arFirstPersonMode}
+          onToggleArFirstPerson={setArFirstPersonMode}
+          onQuickMutateTelemetry={handleMutateTelemetry}
+          onOpenArHud={() => setIsArHudOpen(true)}
+          customPlyBuffer={customPlyBuffer}
+          onLoadStats={setSceneStats}
+        />
+
+        {/* 4. RIGHT ASSET INSPECTOR */}
         <AssetInspectorPanel
+          assets={pipeline.assets}
           selectedAsset={selectedAsset}
           nearbyAssets={nearbyAssets}
           onSelectAsset={handleSelectAsset}
@@ -784,6 +974,24 @@ export default function App() {
           pipelineMeta={pipeline}
         />
       </div>
+
+      {/* ==================== BOTTOM STATUS BAR ==================== */}
+      <footer className="statusbar">
+        <span>
+          <span className="conn-dot" />
+          <span>Valmet DNA Historian: Online</span>
+        </span>
+        <span className="mono">
+          Scene: {sceneStats.sourceFile} ({sceneStats.activeSplats.toLocaleString()} pts)
+        </span>
+        <span className="mono">Assets: {pipeline.assets.length} anchored</span>
+        <span className="mono">
+          Rev. {pipeline.version} ({pipeline.lastUpdated})
+        </span>
+        <span className="right mono">
+          Selected: {selectedAsset?.tag} [{selectedAsset?.position.map((v) => v.toFixed(2)).join(', ')} m]
+        </span>
+      </footer>
 
       <MobileArFieldHudModal
         isOpen={isArHudOpen}

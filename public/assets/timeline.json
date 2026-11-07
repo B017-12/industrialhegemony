@@ -1,0 +1,8633 @@
+{
+  "radius_m": 1.5,
+  "sample_step_m": 0.1,
+  "frames": [
+    {
+      "i": 0,
+      "t": 0.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.56,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.56,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.01,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-134",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-158",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.45,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-124",
+        "OBJ-125",
+        "OBJ-127",
+        "OBJ-128",
+        "OBJ-129",
+        "OBJ-134",
+        "OBJ-158",
+        "OBJ-201",
+        "OBJ-202",
+        "OBJ-203",
+        "OBJ-204",
+        "OBJ-205",
+        "OBJ-207"
+      ],
+      "left": []
+    },
+    {
+      "i": 1,
+      "t": 0.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.6,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.89,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-134",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-158",
+          "distance_m": 1.42,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 2,
+      "t": 0.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.65,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.05,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-134",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-158",
+          "distance_m": 1.46,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 3,
+      "t": 0.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.71,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.08,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-134",
+          "distance_m": 1.45,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-158"
+      ]
+    },
+    {
+      "i": 4,
+      "t": 0.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.77,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.12,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-134",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-059"
+      ],
+      "left": []
+    },
+    {
+      "i": 5,
+      "t": 0.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.54,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.82,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.15,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-134",
+          "distance_m": 1.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-212"
+      ],
+      "left": []
+    },
+    {
+      "i": 6,
+      "t": 1.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.64,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.89,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.19,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-134",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 7,
+      "t": 1.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.73,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 0.98,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.27,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-134"
+      ]
+    },
+    {
+      "i": 8,
+      "t": 1.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.63,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.08,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.35,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 1.38,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-212"
+      ]
+    },
+    {
+      "i": 9,
+      "t": 1.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-129",
+          "distance_m": 1.43,
+          "asset_id": "ASSET-020"
+        },
+        {
+          "object_id": "OBJ-128",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 10,
+      "t": 1.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.27,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.31,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-128",
+        "OBJ-129"
+      ]
+    },
+    {
+      "i": 11,
+      "t": 1.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.33,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.34,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 12,
+      "t": 2.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.35,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-202",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-212"
+      ],
+      "left": []
+    },
+    {
+      "i": 13,
+      "t": 2.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.4,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-072"
+      ],
+      "left": [
+        "OBJ-202"
+      ]
+    },
+    {
+      "i": 14,
+      "t": 2.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.44,
+          "asset_id": "ASSET-004"
+        },
+        {
+          "object_id": "OBJ-203",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-114"
+      ],
+      "left": []
+    },
+    {
+      "i": 15,
+      "t": 2.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-201",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-124",
+          "distance_m": 1.48,
+          "asset_id": "ASSET-004"
+        }
+      ],
+      "entered": [
+        "OBJ-073"
+      ],
+      "left": [
+        "OBJ-203"
+      ]
+    },
+    {
+      "i": 16,
+      "t": 2.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-207",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-059",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-094",
+          "distance_m": 1.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.5,
+          "asset_id": "ASSET-026"
+        }
+      ],
+      "entered": [
+        "OBJ-074",
+        "OBJ-094"
+      ],
+      "left": [
+        "OBJ-124",
+        "OBJ-201"
+      ]
+    },
+    {
+      "i": 17,
+      "t": 2.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-205",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.43,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-094",
+          "distance_m": 1.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-204",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-059",
+        "OBJ-207"
+      ]
+    },
+    {
+      "i": 18,
+      "t": 3.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.36,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-094",
+          "distance_m": 1.43,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-204",
+        "OBJ-205"
+      ]
+    },
+    {
+      "i": 19,
+      "t": 3.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.32,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-094",
+          "distance_m": 1.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.49,
+          "asset_id": "ASSET-018"
+        }
+      ],
+      "entered": [
+        "OBJ-115",
+        "OBJ-132"
+      ],
+      "left": []
+    },
+    {
+      "i": 20,
+      "t": 3.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.29,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.44,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-094",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-065",
+        "OBJ-089"
+      ],
+      "left": []
+    },
+    {
+      "i": 21,
+      "t": 3.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.27,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.39,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-094",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 22,
+      "t": 3.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.22,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.32,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-125",
+          "distance_m": 1.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-094",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 23,
+      "t": 3.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.18,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.26,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.4,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-094",
+        "OBJ-125"
+      ]
+    },
+    {
+      "i": 24,
+      "t": 4.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.78,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.18,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.23,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.4,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 25,
+      "t": 4.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.19,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.46,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-131"
+      ],
+      "left": []
+    },
+    {
+      "i": 26,
+      "t": 4.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.73,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.16,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.4,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 27,
+      "t": 4.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.13,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-101"
+      ],
+      "left": []
+    },
+    {
+      "i": 28,
+      "t": 4.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.11,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.18,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-211"
+      ],
+      "left": []
+    },
+    {
+      "i": 29,
+      "t": 4.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.09,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.19,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 30,
+      "t": 5.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.69,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.04,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.16,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.43,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 31,
+      "t": 5.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.89,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.18,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.42,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-107"
+      ],
+      "left": []
+    },
+    {
+      "i": 32,
+      "t": 5.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.74,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.02,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.21,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.43,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 33,
+      "t": 5.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.74,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.0,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.22,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-127",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-132",
+          "distance_m": 1.42,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 34,
+      "t": 5.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.89,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.94,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.18,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-097",
+        "OBJ-119"
+      ],
+      "left": [
+        "OBJ-127",
+        "OBJ-132"
+      ]
+    },
+    {
+      "i": 35,
+      "t": 5.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.87,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.13,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-108"
+      ],
+      "left": []
+    },
+    {
+      "i": 36,
+      "t": 6.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.78,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.81,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.08,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-066"
+      ],
+      "left": []
+    },
+    {
+      "i": 37,
+      "t": 6.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.54,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.76,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.89,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.42,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-210"
+      ],
+      "left": []
+    },
+    {
+      "i": 38,
+      "t": 6.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.73,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.01,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-212",
+          "distance_m": 1.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-102",
+        "OBJ-104",
+        "OBJ-117"
+      ],
+      "left": []
+    },
+    {
+      "i": 39,
+      "t": 6.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.71,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.0,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.4,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-212"
+      ]
+    },
+    {
+      "i": 40,
+      "t": 6.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.54,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.61,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.64,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.72,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.01,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.41,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 41,
+      "t": 6.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.64,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.72,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.0,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-071",
+        "OBJ-093",
+        "OBJ-099",
+        "OBJ-130"
+      ],
+      "left": []
+    },
+    {
+      "i": 42,
+      "t": 7.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.77,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.04,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-103",
+        "OBJ-105",
+        "OBJ-106"
+      ],
+      "left": [
+        "OBJ-071"
+      ]
+    },
+    {
+      "i": 43,
+      "t": 7.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.63,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.69,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.82,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.89,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.09,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-072"
+      ]
+    },
+    {
+      "i": 44,
+      "t": 7.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.8,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.82,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.07,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 1.46,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 1.47,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-071",
+        "OBJ-072",
+        "OBJ-079",
+        "OBJ-080",
+        "OBJ-081",
+        "OBJ-100"
+      ],
+      "left": []
+    },
+    {
+      "i": 45,
+      "t": 7.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.79,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 1.36,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 1.37,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.43,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": []
+    },
+    {
+      "i": 46,
+      "t": 7.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.78,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.8,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.8,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 1.26,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 1.27,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-070",
+        "OBJ-095",
+        "OBJ-096"
+      ],
+      "left": []
+    },
+    {
+      "i": 47,
+      "t": 7.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.54,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.73,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.8,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.8,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.83,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.04,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.44,
+          "asset_id": "ASSET-008"
+        }
+      ],
+      "entered": [
+        "OBJ-077",
+        "OBJ-112"
+      ],
+      "left": []
+    },
+    {
+      "i": 48,
+      "t": 8.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.83,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 1.07,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 1.08,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.37,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.44,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-027"
+      ],
+      "left": []
+    },
+    {
+      "i": 49,
+      "t": 8.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.54,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.64,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.64,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.64,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.82,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.98,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 1.0,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.01,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.32,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-130",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-069",
+        "OBJ-098"
+      ],
+      "left": []
+    },
+    {
+      "i": 50,
+      "t": 8.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.5,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.81,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.89,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.91,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.01,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.27,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-064",
+        "OBJ-076"
+      ],
+      "left": [
+        "OBJ-130"
+      ]
+    },
+    {
+      "i": 51,
+      "t": 8.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.74,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.8,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.81,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.83,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.02,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.22,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 1.5,
+          "asset_id": "ASSET-028"
+        }
+      ],
+      "entered": [
+        "OBJ-062",
+        "OBJ-090",
+        "OBJ-091"
+      ],
+      "left": []
+    },
+    {
+      "i": 52,
+      "t": 8.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.63,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.7,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.73,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.86,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.07,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.15,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 1.4,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.42,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-211",
+          "distance_m": 1.43,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-116"
+      ],
+      "left": []
+    },
+    {
+      "i": 53,
+      "t": 8.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.61,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.66,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.74,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.86,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.08,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.12,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 1.31,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.39,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 1.42,
+          "asset_id": "ASSET-017"
+        }
+      ],
+      "entered": [
+        "OBJ-087"
+      ],
+      "left": [
+        "OBJ-211"
+      ]
+    },
+    {
+      "i": 54,
+      "t": 9.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.5,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.55,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.62,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.8,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.86,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.06,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.12,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 1.22,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 1.34,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.39,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 1.47,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 1.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-111",
+          "distance_m": 1.48,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-060",
+        "OBJ-067",
+        "OBJ-083",
+        "OBJ-111"
+      ],
+      "left": []
+    },
+    {
+      "i": 55,
+      "t": 9.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.49,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.5,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.6,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.69,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.74,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.74,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.86,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.05,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.12,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 1.13,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 1.27,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 1.37,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.39,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-131",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-111",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-082",
+        "OBJ-084"
+      ],
+      "left": []
+    },
+    {
+      "i": 56,
+      "t": 9.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.43,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.59,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.61,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.69,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.88,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.89,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.04,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 1.04,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.12,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 1.2,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 1.28,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 1.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.4,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-111",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-131"
+      ]
+    },
+    {
+      "i": 57,
+      "t": 9.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.39,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.56,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.6,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.75,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.78,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.82,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.91,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.95,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.13,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 1.14,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 1.19,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 1.25,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.42,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.46,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-111",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-068"
+      ],
+      "left": []
+    },
+    {
+      "i": 58,
+      "t": 9.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.37,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.5,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.62,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.73,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.78,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.8,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.82,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.87,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.94,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.04,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 1.08,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 1.09,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.14,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.4,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.44,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-111",
+          "distance_m": 1.47,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-028"
+      ],
+      "left": []
+    },
+    {
+      "i": 59,
+      "t": 9.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.34,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.38,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.61,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.63,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.66,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.73,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.79,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.89,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 0.99,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 1.0,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 1.03,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 1.04,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.05,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.34,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-075",
+          "distance_m": 1.44,
+          "asset_id": "ASSET-015"
+        },
+        {
+          "object_id": "OBJ-116",
+          "distance_m": 1.47,
+          "asset_id": "ASSET-005"
+        },
+        {
+          "object_id": "OBJ-061",
+          "distance_m": 1.48,
+          "asset_id": "ASSET-025"
+        },
+        {
+          "object_id": "OBJ-111",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-061",
+        "OBJ-075"
+      ],
+      "left": []
+    },
+    {
+      "i": 60,
+      "t": 10.0,
+      "nearby": [
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.33,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.41,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.64,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.71,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.71,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.72,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 0.92,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 0.97,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 0.98,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.04,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.08,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.2,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.28,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-075",
+          "distance_m": 1.35,
+          "asset_id": "ASSET-015"
+        },
+        {
+          "object_id": "OBJ-061",
+          "distance_m": 1.39,
+          "asset_id": "ASSET-025"
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-078",
+          "distance_m": 1.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-088",
+          "distance_m": 1.45,
+          "asset_id": "ASSET-019"
+        },
+        {
+          "object_id": "OBJ-086",
+          "distance_m": 1.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-106",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-078",
+        "OBJ-086",
+        "OBJ-088"
+      ],
+      "left": [
+        "OBJ-111",
+        "OBJ-116"
+      ]
+    },
+    {
+      "i": 61,
+      "t": 10.17,
+      "nearby": [
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.45,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.61,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.64,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.73,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.75,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.81,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 0.85,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.87,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 0.93,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.09,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.11,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.13,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.22,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.24,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-075",
+          "distance_m": 1.28,
+          "asset_id": "ASSET-015"
+        },
+        {
+          "object_id": "OBJ-061",
+          "distance_m": 1.32,
+          "asset_id": "ASSET-025"
+        },
+        {
+          "object_id": "OBJ-078",
+          "distance_m": 1.35,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-088",
+          "distance_m": 1.42,
+          "asset_id": "ASSET-019"
+        },
+        {
+          "object_id": "OBJ-086",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-063",
+          "distance_m": 1.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-119",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-063"
+      ],
+      "left": [
+        "OBJ-106"
+      ]
+    },
+    {
+      "i": 62,
+      "t": 10.33,
+      "nearby": [
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.49,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.52,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.56,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.56,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.6,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 0.72,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 0.76,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.79,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 0.79,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 0.87,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.01,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.19,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.2,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.2,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.21,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.22,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-075",
+          "distance_m": 1.23,
+          "asset_id": "ASSET-015"
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.23,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-061",
+          "distance_m": 1.26,
+          "asset_id": "ASSET-025"
+        },
+        {
+          "object_id": "OBJ-078",
+          "distance_m": 1.26,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-088",
+          "distance_m": 1.41,
+          "asset_id": "ASSET-019"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-063",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-086",
+          "distance_m": 1.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-219",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-219"
+      ],
+      "left": [
+        "OBJ-119"
+      ]
+    },
+    {
+      "i": 63,
+      "t": 10.5,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.02,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.24,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.5,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.51,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.56,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.56,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.59,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.61,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 0.63,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 0.67,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.69,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 0.73,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.83,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.85,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 0.85,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.85,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 0.88,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 0.99,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.06,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.13,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-075",
+          "distance_m": 1.16,
+          "asset_id": "ASSET-015"
+        },
+        {
+          "object_id": "OBJ-078",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-061",
+          "distance_m": 1.18,
+          "asset_id": "ASSET-025"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.18,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.24,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.27,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.28,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.28,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-063",
+          "distance_m": 1.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-088",
+          "distance_m": 1.38,
+          "asset_id": "ASSET-019"
+        },
+        {
+          "object_id": "OBJ-073",
+          "distance_m": 1.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-086",
+          "distance_m": 1.45,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-051",
+          "distance_m": 1.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-219",
+          "distance_m": 1.49,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-054",
+          "distance_m": 1.5,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-051",
+        "OBJ-054"
+      ],
+      "left": []
+    },
+    {
+      "i": 64,
+      "t": 10.67,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.11,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.41,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.48,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.53,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.57,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.57,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.62,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.66,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.7,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 0.74,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 0.77,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.77,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.84,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 0.86,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 0.9,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.92,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.93,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.95,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.03,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.07,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-078",
+          "distance_m": 1.08,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-075",
+          "distance_m": 1.16,
+          "asset_id": "ASSET-015"
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-061",
+          "distance_m": 1.17,
+          "asset_id": "ASSET-025"
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.19,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.19,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.22,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.26,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.29,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.34,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.37,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-051",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-063",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-025",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-088",
+          "distance_m": 1.42,
+          "asset_id": "ASSET-019"
+        },
+        {
+          "object_id": "OBJ-054",
+          "distance_m": 1.43,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-219",
+          "distance_m": 1.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-086",
+          "distance_m": 1.49,
+          "asset_id": null
+        }
+      ],
+      "entered": [
+        "OBJ-025"
+      ],
+      "left": [
+        "OBJ-073"
+      ]
+    },
+    {
+      "i": 65,
+      "t": 10.83,
+      "nearby": [
+        {
+          "object_id": "OBJ-108",
+          "distance_m": 0.0,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-027",
+          "distance_m": 0.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-079",
+          "distance_m": 0.14,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-093",
+          "distance_m": 0.15,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-077",
+          "distance_m": 0.27,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-090",
+          "distance_m": 0.36,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-062",
+          "distance_m": 0.38,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-091",
+          "distance_m": 0.38,
+          "asset_id": "ASSET-028"
+        },
+        {
+          "object_id": "OBJ-096",
+          "distance_m": 0.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-081",
+          "distance_m": 0.44,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-076",
+          "distance_m": 0.46,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-089",
+          "distance_m": 0.47,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-060",
+          "distance_m": 0.5,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-070",
+          "distance_m": 0.54,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-082",
+          "distance_m": 0.55,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-100",
+          "distance_m": 0.58,
+          "asset_id": "ASSET-011"
+        },
+        {
+          "object_id": "OBJ-103",
+          "distance_m": 0.58,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-097",
+          "distance_m": 0.65,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-071",
+          "distance_m": 0.68,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-099",
+          "distance_m": 0.73,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-083",
+          "distance_m": 0.74,
+          "asset_id": "ASSET-021"
+        },
+        {
+          "object_id": "OBJ-087",
+          "distance_m": 0.75,
+          "asset_id": "ASSET-017"
+        },
+        {
+          "object_id": "OBJ-095",
+          "distance_m": 0.79,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-028",
+          "distance_m": 0.84,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-080",
+          "distance_m": 0.84,
+          "asset_id": "ASSET-016"
+        },
+        {
+          "object_id": "OBJ-084",
+          "distance_m": 0.91,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-064",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-066",
+          "distance_m": 0.94,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-065",
+          "distance_m": 0.96,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-101",
+          "distance_m": 0.98,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-069",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-078",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-102",
+          "distance_m": 1.05,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-107",
+          "distance_m": 1.1,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-067",
+          "distance_m": 1.12,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-061",
+          "distance_m": 1.16,
+          "asset_id": "ASSET-025"
+        },
+        {
+          "object_id": "OBJ-075",
+          "distance_m": 1.16,
+          "asset_id": "ASSET-015"
+        },
+        {
+          "object_id": "OBJ-104",
+          "distance_m": 1.16,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-098",
+          "distance_m": 1.17,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-068",
+          "distance_m": 1.2,
+          "asset_id": "ASSET-001"
+        },
+        {
+          "object_id": "OBJ-117",
+          "distance_m": 1.23,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-112",
+          "distance_m": 1.26,
+          "asset_id": "ASSET-008"
+        },
+        {
+          "object_id": "OBJ-072",
+          "distance_m": 1.3,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-210",
+          "distance_m": 1.31,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-105",
+          "distance_m": 1.32,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-051",
+          "distance_m": 1.37,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-074",
+          "distance_m": 1.37,
+          "asset_id": "ASSET-026"
+        },
+        {
+          "object_id": "OBJ-063",
+          "distance_m": 1.39,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-025",
+          "distance_m": 1.4,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-115",
+          "distance_m": 1.4,
+          "asset_id": "ASSET-018"
+        },
+        {
+          "object_id": "OBJ-054",
+          "distance_m": 1.41,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-114",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-219",
+          "distance_m": 1.42,
+          "asset_id": null
+        },
+        {
+          "object_id": "OBJ-088",
+          "distance_m": 1.44,
+          "asset_id": "ASSET-019"
+        }
+      ],
+      "entered": [],
+      "left": [
+        "OBJ-086"
+      ]
+    }
+  ]
+}

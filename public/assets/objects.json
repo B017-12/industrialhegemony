@@ -1,0 +1,6583 @@
+{
+  "frame": "world, y up",
+  "objects": [
+    {
+      "object_id": "OBJ-001",
+      "center": [
+        -4.884503721034958,
+        0.42955218110233545,
+        0.33880861837255605
+      ],
+      "extents": [
+        0.7617983633609887,
+        0.6349996440857649,
+        0.13019248952349466
+      ],
+      "yaw": 1.4786818821863237,
+      "n_points": 720,
+      "mean_rgb": [
+        0.20399999618530273,
+        0.18700000643730164,
+        0.164000004529953
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.295,
+        1.93
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-002",
+      "center": [
+        -4.80954360115836,
+        -0.7829207146167755,
+        -2.61266401986677
+      ],
+      "extents": [
+        0.42936525914927104,
+        0.4180813813209534,
+        0.25421374144804043
+      ],
+      "yaw": 1.3953439568990489,
+      "n_points": 210,
+      "mean_rgb": [
+        0.5270000100135803,
+        0.453000009059906,
+        0.37299999594688416
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.191,
+        0.609
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-002",
+        "asset_id": "ASSET-002",
+        "tag": "CV-002",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-003",
+      "center": [
+        -4.864079781987619,
+        -0.7365491177141665,
+        0.3370766056853961
+      ],
+      "extents": [
+        0.3048708532026807,
+        0.785774640738964,
+        0.19268441786975832
+      ],
+      "yaw": 1.0852655068348196,
+      "n_points": 370,
+      "mean_rgb": [
+        0.3720000088214874,
+        0.3089999854564667,
+        0.2290000021457672
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.054,
+        0.839
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-004",
+      "center": [
+        -4.806388802966691,
+        -0.22072878025472165,
+        -2.591407743411653
+      ],
+      "extents": [
+        0.4088026455583988,
+        0.7250228436291217,
+        0.25575582743503184
+      ],
+      "yaw": 1.5182442919053496,
+      "n_points": 614,
+      "mean_rgb": [
+        0.48100000619888306,
+        0.37599998712539673,
+        0.3070000112056732
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.6,
+        1.325
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-005",
+      "center": [
+        -4.826121178842305,
+        -0.19005430910736323,
+        0.4406770537765032
+      ],
+      "extents": [
+        0.7998873452879848,
+        0.5768925052136182,
+        0.2299210175494724
+      ],
+      "yaw": 1.3319316601881028,
+      "n_points": 1624,
+      "mean_rgb": [
+        0.42899999022483826,
+        0.3930000066757202,
+        0.3580000102519989
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.704,
+        1.281
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-006",
+      "center": [
+        -4.7798317124859455,
+        -0.009191438853740713,
+        -2.8742726565453194
+      ],
+      "extents": [
+        0.5227708092515512,
+        0.9044759804010392,
+        0.36269595328310467
+      ],
+      "yaw": 1.380888605849673,
+      "n_points": 1274,
+      "mean_rgb": [
+        0.6209999918937683,
+        0.5630000233650208,
+        0.5329999923706055
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.722,
+        1.626
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-007",
+      "center": [
+        -4.81040656452475,
+        0.2829823193699118,
+        1.098818330674774
+      ],
+      "extents": [
+        0.7404641341562406,
+        0.895829853266477,
+        0.230978366656085
+      ],
+      "yaw": 1.6215682029932217,
+      "n_points": 1268,
+      "mean_rgb": [
+        0.30300000309944153,
+        0.2840000092983246,
+        0.24500000476837158
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.018,
+        1.914
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-008",
+      "center": [
+        -4.704001945004086,
+        0.358316905698739,
+        -0.4186258674244381
+      ],
+      "extents": [
+        0.7951526881286102,
+        0.7398077865410595,
+        0.830094406371272
+      ],
+      "yaw": -2.446466191969824,
+      "n_points": 2700,
+      "mean_rgb": [
+        0.6700000166893005,
+        0.6370000243186951,
+        0.5799999833106995
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.171,
+        1.911
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-009",
+      "center": [
+        -4.775682706201099,
+        -0.6224666893482208,
+        1.2135948159410175
+      ],
+      "extents": [
+        0.5234033334124897,
+        0.8927412009239195,
+        0.35740183916868634
+      ],
+      "yaw": 2.0002551723864803,
+      "n_points": 785,
+      "mean_rgb": [
+        0.367000013589859,
+        0.3400000035762787,
+        0.30300000309944153
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.114,
+        1.007
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-010",
+      "center": [
+        -4.744181003063129,
+        -0.4818800479918718,
+        -0.6068381535866665
+      ],
+      "extents": [
+        1.0391617036569167,
+        1.2175035606324676,
+        0.2265308931250989
+      ],
+      "yaw": 1.4826477710576507,
+      "n_points": 5355,
+      "mean_rgb": [
+        0.48500001430511475,
+        0.4410000145435333,
+        0.38100001215934753
+      ],
+      "class": "shelving_rack",
+      "label_confidence": 0.4,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.092,
+        1.31
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-011",
+      "center": [
+        -4.66663837214389,
+        -0.6627892246842385,
+        -2.243216507184831
+      ],
+      "extents": [
+        0.5698867180496837,
+        0.8444864481687546,
+        0.5392588463816741
+      ],
+      "yaw": 2.712031236315145,
+      "n_points": 845,
+      "mean_rgb": [
+        0.7099999785423279,
+        0.6769999861717224,
+        0.6420000195503235
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.098,
+        0.942
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-012",
+      "center": [
+        -4.699090658512892,
+        -0.7070523661375046,
+        0.7007754783707549
+      ],
+      "extents": [
+        0.5801209710361173,
+        0.8214409625530242,
+        0.3319967114446587
+      ],
+      "yaw": 1.5991278330044376,
+      "n_points": 722,
+      "mean_rgb": [
+        0.3580000102519989,
+        0.3009999990463257,
+        0.2630000114440918
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.065,
+        0.887
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-013",
+      "center": [
+        -4.718585853882409,
+        0.20289562229067087,
+        -0.15582874121241355
+      ],
+      "extents": [
+        0.43875101002502315,
+        0.4661243640631437,
+        0.1373736890139708
+      ],
+      "yaw": 1.5761837655627264,
+      "n_points": 890,
+      "mean_rgb": [
+        0.49799999594688416,
+        0.43700000643730164,
+        0.34700000286102295
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.153,
+        1.619
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-013",
+        "asset_id": "ASSET-009",
+        "tag": "CV-009",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object",
+        "health_score": 59,
+        "condition_state": "degraded",
+        "issue_code": "POSITION_DEVIATION",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-014",
+      "center": [
+        -4.585468418747402,
+        -0.8833588415384293,
+        -0.9476471382997497
+      ],
+      "extents": [
+        0.4539698178741353,
+        0.4834907042980193,
+        0.3300615291810161
+      ],
+      "yaw": 1.7465256814751013,
+      "n_points": 1079,
+      "mean_rgb": [
+        0.4569999873638153,
+        0.3479999899864197,
+        0.2849999964237213
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.058,
+        0.541
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-015",
+      "center": [
+        -4.620022888053441,
+        -0.4361463411152363,
+        -0.054256928145915984
+      ],
+      "extents": [
+        0.4508916829916383,
+        0.7144689711928367,
+        0.17481063662191035
+      ],
+      "yaw": 1.4216149824056705,
+      "n_points": 1999,
+      "mean_rgb": [
+        0.4950000047683716,
+        0.4320000112056732,
+        0.35199999809265137
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.39,
+        1.104
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-016",
+      "center": [
+        -3.550773445108431,
+        0.6255637276172638,
+        -2.815220277602314
+      ],
+      "extents": [
+        0.8309307033538167,
+        0.236299444437027,
+        0.16733276182653828
+      ],
+      "yaw": 3.1153256761107686,
+      "n_points": 510,
+      "mean_rgb": [
+        0.6589999794960022,
+        0.609000027179718,
+        0.5759999752044678
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.69,
+        1.927
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-017",
+      "center": [
+        -4.357832410784622,
+        0.5020024091005324,
+        -2.7962434949765598
+      ],
+      "extents": [
+        0.6728063651701562,
+        0.46275177836418113,
+        0.2095517034501279
+      ],
+      "yaw": 2.9658518962735463,
+      "n_points": 745,
+      "mean_rgb": [
+        0.7329999804496765,
+        0.7009999752044678,
+        0.6629999876022339
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.454,
+        1.916
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-018",
+      "center": [
+        -4.514905275650008,
+        -0.6275541451573372,
+        -2.6481146997691196
+      ],
+      "extents": [
+        0.44690738762517473,
+        0.54321122944355,
+        0.2371138215136665
+      ],
+      "yaw": 1.6579482130518066,
+      "n_points": 552,
+      "mean_rgb": [
+        0.5630000233650208,
+        0.3709999918937683,
+        0.3630000054836273
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.284,
+        0.827
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-019",
+      "center": [
+        -4.543678818127297,
+        -0.5831510642170907,
+        1.4399148978275684
+      ],
+      "extents": [
+        0.2790436268915597,
+        0.9340823405981061,
+        0.22277704079816177
+      ],
+      "yaw": 2.39379106548881,
+      "n_points": 323,
+      "mean_rgb": [
+        0.4020000100135803,
+        0.37400001287460327,
+        0.3140000104904175
+      ],
+      "class": "vertical_pipe",
+      "label_confidence": 0.45,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.133,
+        1.067
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-020",
+      "center": [
+        -4.451526653964,
+        0.25877640463411805,
+        1.3974246934244996
+      ],
+      "extents": [
+        0.5733528060646942,
+        0.7337355022132396,
+        0.4185908973538
+      ],
+      "yaw": -2.9407306306919208,
+      "n_points": 1550,
+      "mean_rgb": [
+        0.30300000309944153,
+        0.28600001335144043,
+        0.2409999966621399
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.075,
+        1.809
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-021",
+      "center": [
+        -4.531761528314091,
+        0.3623358011618256,
+        0.4372388006663709
+      ],
+      "extents": [
+        1.3417147793727127,
+        0.8348236822336912,
+        0.3553996816846391
+      ],
+      "yaw": 1.5734335355572309,
+      "n_points": 2235,
+      "mean_rgb": [
+        0.671999990940094,
+        0.6439999938011169,
+        0.6019999980926514
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.128,
+        1.963
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-022",
+      "center": [
+        -4.381708490798972,
+        -0.39903579205274603,
+        -2.975369184369788
+      ],
+      "extents": [
+        0.4127285364630749,
+        1.2515824466943737,
+        0.3629286056377806
+      ],
+      "yaw": 1.187884232800559,
+      "n_points": 1391,
+      "mean_rgb": [
+        0.6449999809265137,
+        0.36399999260902405,
+        0.3630000054836273
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.158,
+        1.41
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-023",
+      "center": [
+        -4.315867577971114,
+        -0.34457307308912277,
+        -3.3668738986972757
+      ],
+      "extents": [
+        0.27147411205249417,
+        0.38559485971927643,
+        0.1875415949788213
+      ],
+      "yaw": -3.0403639295343945,
+      "n_points": 501,
+      "mean_rgb": [
+        0.5899999737739563,
+        0.5460000038146973,
+        0.5220000147819519
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.646,
+        1.031
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-023",
+        "asset_id": "ASSET-029",
+        "tag": "VS-002",
+        "asset_class": "VIBRATION_SENSOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "VIBRATION_SENSOR placed on a 'valve_assembly' object",
+        "health_score": 58,
+        "condition_state": "degraded",
+        "issue_code": "MOUNTING_ISSUE",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-024",
+      "center": [
+        -4.2744308945231175,
+        0.6916228640079498,
+        -0.6611699606403817
+      ],
+      "extents": [
+        0.32591356084125866,
+        0.15711784124374395,
+        0.2566749893327602
+      ],
+      "yaw": -3.128226349722322,
+      "n_points": 922,
+      "mean_rgb": [
+        0.8349999785423279,
+        0.8149999976158142,
+        0.7879999876022339
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.796,
+        1.953
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-025",
+      "center": [
+        -3.4326434916909387,
+        0.7295372259616852,
+        -1.0303943553420334
+      ],
+      "extents": [
+        0.808389209105058,
+        0.11287166953086858,
+        0.19869736879019922
+      ],
+      "yaw": 3.1300640355645633,
+      "n_points": 392,
+      "mean_rgb": [
+        0.48899999260902405,
+        0.42500001192092896,
+        0.32499998807907104
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.856,
+        1.969
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-026",
+      "center": [
+        -4.182190739763392,
+        0.5271083554625511,
+        -1.2201697982566482
+      ],
+      "extents": [
+        0.8896181155432654,
+        0.4759647160768509,
+        0.6285625965259083
+      ],
+      "yaw": 1.7298998745661758,
+      "n_points": 3487,
+      "mean_rgb": [
+        0.4830000102519989,
+        0.4339999854564667,
+        0.3869999945163727
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.472,
+        1.948
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-027",
+      "center": [
+        -1.9397178442476768,
+        0.7626252174377441,
+        -1.0533318438547474
+      ],
+      "extents": [
+        0.9439841506926943,
+        0.047915875911712646,
+        0.16623737058935784
+      ],
+      "yaw": -3.1224356971578535,
+      "n_points": 251,
+      "mean_rgb": [
+        0.4059999883174896,
+        0.35499998927116394,
+        0.2800000011920929
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.922,
+        1.97
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-028",
+      "center": [
+        -2.719702364146458,
+        0.7226932594180107,
+        -0.9940492517749541
+      ],
+      "extents": [
+        1.4815023559861755,
+        0.11844261825084679,
+        0.49040356491182746
+      ],
+      "yaw": 1.5768682579914917,
+      "n_points": 1138,
+      "mean_rgb": [
+        0.3630000054836273,
+        0.3050000071525574,
+        0.22499999403953552
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.846,
+        1.965
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-029",
+      "center": [
+        -4.18412585718359,
+        -0.3041609413921833,
+        -1.2737985548919204
+      ],
+      "extents": [
+        0.25603272451951425,
+        1.530697487294674,
+        0.1608780063941732
+      ],
+      "yaw": 1.8218232113290838,
+      "n_points": 1126,
+      "mean_rgb": [
+        0.4429999887943268,
+        0.36399999260902405,
+        0.2720000147819519
+      ],
+      "class": "vertical_pipe",
+      "label_confidence": 0.45,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.113,
+        1.644
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-030",
+      "center": [
+        -4.079649177564119,
+        -0.16539617061614986,
+        -1.7917020179370209
+      ],
+      "extents": [
+        0.677128883878942,
+        1.8406283664703371,
+        0.39987124351334624
+      ],
+      "yaw": 1.6558414231184957,
+      "n_points": 2973,
+      "mean_rgb": [
+        0.5839999914169312,
+        0.5149999856948853,
+        0.44200000166893005
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.097,
+        1.938
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-031",
+      "center": [
+        -3.972157312847075,
+        -0.7233352154493332,
+        -3.026327065841134
+      ],
+      "extents": [
+        0.49926594772555666,
+        0.7723694860935211,
+        0.35098312117019104
+      ],
+      "yaw": 2.0824856867421935,
+      "n_points": 1541,
+      "mean_rgb": [
+        0.5640000104904175,
+        0.4359999895095825,
+        0.414000004529953
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.073,
+        0.846
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-032",
+      "center": [
+        -2.9070556065207214,
+        -0.7417867800593376,
+        -2.8370664341564527
+      ],
+      "extents": [
+        0.9554773304347813,
+        0.7521707969903946,
+        0.4196770298042294
+      ],
+      "yaw": 3.098045980565652,
+      "n_points": 1527,
+      "mean_rgb": [
+        0.6320000290870667,
+        0.5419999957084656,
+        0.5099999904632568
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.065,
+        0.817
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-033",
+      "center": [
+        -3.599567911545481,
+        -0.6246600441634655,
+        -2.932957624798608
+      ],
+      "extents": [
+        0.7329368743761224,
+        0.9172988310456277,
+        0.424942461670362
+      ],
+      "yaw": 1.0453290816319822,
+      "n_points": 2611,
+      "mean_rgb": [
+        0.4449999928474426,
+        0.4480000138282776,
+        0.4350000023841858
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.1,
+        1.017
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-034",
+      "center": [
+        -3.927194931292353,
+        0.4370510265231132,
+        1.8580705817323349
+      ],
+      "extents": [
+        0.8568537410610864,
+        0.5433279424905776,
+        0.711701960354566
+      ],
+      "yaw": 0.8787023131524956,
+      "n_points": 1021,
+      "mean_rgb": [
+        0.3659999966621399,
+        0.33399999141693115,
+        0.28200000524520874
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.348,
+        1.892
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-035",
+      "center": [
+        -4.119688351315992,
+        0.6771013879776001,
+        0.8496340707878524
+      ],
+      "extents": [
+        1.0626753154916881,
+        0.21512576580047615,
+        0.43416116529306614
+      ],
+      "yaw": 1.235736091426537,
+      "n_points": 477,
+      "mean_rgb": [
+        0.5680000185966492,
+        0.5189999938011169,
+        0.4269999861717224
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.753,
+        1.968
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-036",
+      "center": [
+        -3.779341809047098,
+        -0.7772968438267708,
+        1.8762123900938308
+      ],
+      "extents": [
+        0.4703845968419117,
+        0.5796940463781357,
+        0.3597841633819312
+      ],
+      "yaw": 1.2334824859217137,
+      "n_points": 719,
+      "mean_rgb": [
+        0.27300000190734863,
+        0.23199999332427979,
+        0.21299999952316284
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.116,
+        0.696
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-036",
+        "asset_id": "ASSET-023",
+        "tag": "M-005",
+        "asset_class": "ELECTRIC_MOTOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "ELECTRIC_MOTOR placed on a 'pump' object",
+        "health_score": 61,
+        "condition_state": "degraded",
+        "issue_code": "CURRENT_IMBALANCE",
+        "criticality": "C - standard"
+      }
+    },
+    {
+      "object_id": "OBJ-037",
+      "center": [
+        -3.823876528245623,
+        -0.5820549100637435,
+        0.501934609554966
+      ],
+      "extents": [
+        0.26669665122874137,
+        0.4080939054489136,
+        0.23747711566412455
+      ],
+      "yaw": 1.1269243307597407,
+      "n_points": 246,
+      "mean_rgb": [
+        0.4970000088214874,
+        0.4359999895095825,
+        0.33500000834465027
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.397,
+        0.805
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-037",
+        "asset_id": "ASSET-003",
+        "tag": "CV-003",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object",
+        "health_score": 52,
+        "condition_state": "degraded",
+        "issue_code": "POSITION_DEVIATION",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-038",
+      "center": [
+        -3.3046768861023446,
+        0.36947690557688473,
+        0.42675091450041724
+      ],
+      "extents": [
+        0.8648511712342293,
+        0.7863874993473292,
+        0.6074744709816327
+      ],
+      "yaw": 2.6410011234365562,
+      "n_points": 3005,
+      "mean_rgb": [
+        0.4399999976158142,
+        0.4180000126361847,
+        0.3149999976158142
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.159,
+        1.946
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-039",
+      "center": [
+        -3.4186275832521638,
+        0.7002827668190003,
+        1.1452355938446674
+      ],
+      "extents": [
+        0.7584627768560197,
+        0.06048195481300356,
+        0.15240652041993177
+      ],
+      "yaw": 1.5258146590107595,
+      "n_points": 320,
+      "mean_rgb": [
+        0.1120000034570694,
+        0.061000000685453415,
+        0.04699999839067459
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.853,
+        1.914
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-040",
+      "center": [
+        -3.493158177051923,
+        -0.5575323778553866,
+        0.5063307728566043
+      ],
+      "extents": [
+        0.8354547199103272,
+        1.1105030429037288,
+        0.31430391386982626
+      ],
+      "yaw": 3.0303192375244676,
+      "n_points": 2289,
+      "mean_rgb": [
+        0.39899998903274536,
+        0.35100001096725464,
+        0.2639999985694885
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.07,
+        1.181
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-041",
+      "center": [
+        -3.1816007517670135,
+        -0.8214966002106667,
+        1.1514194190676024
+      ],
+      "extents": [
+        0.8538060257165799,
+        0.460697402358055,
+        0.38447060467425453
+      ],
+      "yaw": 1.5749323564827835,
+      "n_points": 3198,
+      "mean_rgb": [
+        0.515999972820282,
+        0.4740000069141388,
+        0.3970000147819519
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.131,
+        0.592
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-042",
+      "center": [
+        -3.275988537407073,
+        -0.39095544509589675,
+        1.2086244119553404
+      ],
+      "extents": [
+        0.20772191813160842,
+        0.3610682906210423,
+        0.2386585640096644
+      ],
+      "yaw": 1.5700088436987718,
+      "n_points": 948,
+      "mean_rgb": [
+        0.2150000035762787,
+        0.19900000095367432,
+        0.17299999296665192
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.612,
+        0.973
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-042",
+        "asset_id": "ASSET-030",
+        "tag": "VS-003",
+        "asset_class": "VIBRATION_SENSOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "VIBRATION_SENSOR placed on a 'valve_assembly' object",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-043",
+      "center": [
+        -3.7470059354149012,
+        -0.14710228443145695,
+        1.263784376095692
+      ],
+      "extents": [
+        0.6184137950790638,
+        1.6162814378738415,
+        0.35904705451783764
+      ],
+      "yaw": 1.372671870779068,
+      "n_points": 2271,
+      "mean_rgb": [
+        0.257999986410141,
+        0.23399999737739563,
+        0.1940000057220459
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.228,
+        1.844
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-044",
+      "center": [
+        -3.786696473902814,
+        -0.8082644638419152,
+        0.7720743489747061
+      ],
+      "extents": [
+        0.2690470200449378,
+        0.36607388556003573,
+        0.19294550104168665
+      ],
+      "yaw": 1.6130351419213695,
+      "n_points": 254,
+      "mean_rgb": [
+        0.3580000102519989,
+        0.32499998807907104,
+        0.2800000011920929
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.192,
+        0.558
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-044",
+        "asset_id": "ASSET-007",
+        "tag": "CV-007",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object",
+        "health_score": 71,
+        "condition_state": "watch",
+        "issue_code": "CALIBRATION_DRIFT",
+        "criticality": "C - standard"
+      }
+    },
+    {
+      "object_id": "OBJ-045",
+      "center": [
+        -3.409295682581966,
+        0.16903261438012096,
+        -3.304174653597239
+      ],
+      "extents": [
+        0.6501729902081249,
+        1.0853468927741046,
+        0.3547304216090924
+      ],
+      "yaw": -3.089845610362824,
+      "n_points": 2150,
+      "mean_rgb": [
+        0.4690000116825104,
+        0.45100000500679016,
+        0.38199999928474426
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.809,
+        1.895
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-046",
+      "center": [
+        -3.2479471209243296,
+        -0.799315581023693,
+        1.8968011525138613
+      ],
+      "extents": [
+        0.45192370312511065,
+        0.6426805359125136,
+        0.40741519769878787
+      ],
+      "yaw": 1.286163424224242,
+      "n_points": 1507,
+      "mean_rgb": [
+        0.46299999952316284,
+        0.40400001406669617,
+        0.38199999928474426
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.062,
+        0.705
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-047",
+      "center": [
+        -3.2291145649335977,
+        -0.8100751566886902,
+        2.527429662621232
+      ],
+      "extents": [
+        0.7531014079581202,
+        0.6277063798904419,
+        0.2961803494143624
+      ],
+      "yaw": 1.5582734635082636,
+      "n_points": 625,
+      "mean_rgb": [
+        0.6790000200271606,
+        0.5789999961853027,
+        0.4830000102519989
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.059,
+        0.687
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-048",
+      "center": [
+        -3.181086060509264,
+        -0.29188475757837284,
+        2.8410625451518885
+      ],
+      "extents": [
+        0.19418760967799303,
+        0.6227935606241228,
+        0.21621911835430008
+      ],
+      "yaw": 0.9681646358638902,
+      "n_points": 322,
+      "mean_rgb": [
+        0.7200000286102295,
+        0.6819999814033508,
+        0.5820000171661377
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.58,
+        1.203
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-049",
+      "center": [
+        -3.1648369419129856,
+        0.3874249385669828,
+        2.979331342740781
+      ],
+      "extents": [
+        0.4220523452366369,
+        0.7144163658469915,
+        0.5163816752316852
+      ],
+      "yaw": 0.8785667726992767,
+      "n_points": 1049,
+      "mean_rgb": [
+        0.48500001430511475,
+        0.4659999907016754,
+        0.3880000114440918
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.213,
+        1.928
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-050",
+      "center": [
+        -2.5519701254364775,
+        0.14718695104122176,
+        -2.8032470844025053
+      ],
+      "extents": [
+        1.2807185543448987,
+        1.1062336170673372,
+        0.4693812305919883
+      ],
+      "yaw": -2.8538701502468444,
+      "n_points": 4233,
+      "mean_rgb": [
+        0.45500001311302185,
+        0.375,
+        0.3569999933242798
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.777,
+        1.883
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-051",
+      "center": [
+        -3.0451110573459195,
+        0.6929444301128387,
+        -1.6393006859973747
+      ],
+      "extents": [
+        1.1157416592595117,
+        0.08538492441177359,
+        0.2617495685968297
+      ],
+      "yaw": 1.6884939513039465,
+      "n_points": 1165,
+      "mean_rgb": [
+        0.460999995470047,
+        0.3959999978542328,
+        0.3059999942779541
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.833,
+        1.919
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-052",
+      "center": [
+        -3.953641389143346,
+        0.7157668018341065,
+        -2.3411484334040487
+      ],
+      "extents": [
+        0.564003920575463,
+        0.13917439103126528,
+        0.34307153923245204
+      ],
+      "yaw": -3.0734688513333026,
+      "n_points": 334,
+      "mean_rgb": [
+        0.7139999866485596,
+        0.6779999732971191,
+        0.6660000085830688
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.829,
+        1.968
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-053",
+      "center": [
+        -3.2472026636053353,
+        0.7158590331673622,
+        -2.372938381935028
+      ],
+      "extents": [
+        0.8032184676871987,
+        0.12574124634265904,
+        0.5076808116687481
+      ],
+      "yaw": 2.8638661208879412,
+      "n_points": 916,
+      "mean_rgb": [
+        0.675000011920929,
+        0.6209999918937683,
+        0.5699999928474426
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.836,
+        1.962
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-054",
+      "center": [
+        -3.075912502771101,
+        0.6986030066013336,
+        -0.5595946349820311
+      ],
+      "extents": [
+        0.9341268524151303,
+        0.08750888109207156,
+        0.07420580347974429
+      ],
+      "yaw": 1.565924030724172,
+      "n_points": 645,
+      "mean_rgb": [
+        0.46700000762939453,
+        0.40400001406669617,
+        0.3089999854564667
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.838,
+        1.925
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-055",
+      "center": [
+        -2.9561011656626635,
+        0.6721459794044495,
+        0.9122726826232352
+      ],
+      "extents": [
+        1.566697545013818,
+        0.16134635448455803,
+        0.2732403571143577
+      ],
+      "yaw": 1.6092384884579747,
+      "n_points": 2067,
+      "mean_rgb": [
+        0.48899999260902405,
+        0.4390000104904175,
+        0.34599998593330383
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.774,
+        1.936
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-056",
+      "center": [
+        -2.9460977703682922,
+        0.7201531979441642,
+        2.4534773867488355
+      ],
+      "extents": [
+        1.38190422145013,
+        0.12130318939685825,
+        1.0656153346055066
+      ],
+      "yaw": 1.1628359282356382,
+      "n_points": 2444,
+      "mean_rgb": [
+        0.5759999752044678,
+        0.5180000066757202,
+        0.414000004529953
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.843,
+        1.964
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-057",
+      "center": [
+        -3.0296101390991756,
+        0.7436977422237396,
+        3.2867602559044773
+      ],
+      "extents": [
+        1.2705465073912157,
+        0.08595862150192257,
+        0.4517486929297008
+      ],
+      "yaw": 2.957420770413137,
+      "n_points": 408,
+      "mean_rgb": [
+        0.578000009059906,
+        0.5120000243186951,
+        0.3799999952316284
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.884,
+        1.97
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-058",
+      "center": [
+        -2.415647674849512,
+        0.7281412544846535,
+        2.1199386047387763
+      ],
+      "extents": [
+        0.9605244709922207,
+        0.11332815468311308,
+        0.45129481929530146
+      ],
+      "yaw": 1.4363329664955753,
+      "n_points": 1180,
+      "mean_rgb": [
+        0.5789999961853027,
+        0.5189999938011169,
+        0.40299999713897705
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.854,
+        1.968
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-059",
+      "center": [
+        -2.119741839709715,
+        0.7313202917575836,
+        3.062243740528694
+      ],
+      "extents": [
+        1.0076643707760549,
+        0.1121220588684082,
+        0.7400646573071219
+      ],
+      "yaw": -2.708023187601665,
+      "n_points": 676,
+      "mean_rgb": [
+        0.6140000224113464,
+        0.5590000152587891,
+        0.44200000166893005
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.858,
+        1.97
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-060",
+      "center": [
+        -2.5265358381524994,
+        -0.36518672645092015,
+        -0.9775375163104585
+      ],
+      "extents": [
+        0.6267455232036689,
+        1.390876809358597,
+        0.5733330492838833
+      ],
+      "yaw": -2.476535191252835,
+      "n_points": 2895,
+      "mean_rgb": [
+        0.367000013589859,
+        0.38499999046325684,
+        0.4129999876022339
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.122,
+        1.513
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-061",
+      "center": [
+        -2.6265249732806186,
+        -0.6891718345880509,
+        0.0012677246657181738
+      ],
+      "extents": [
+        0.21198807845085818,
+        0.3958095252513885,
+        0.1737034812850372
+      ],
+      "yaw": 2.112452871320217,
+      "n_points": 773,
+      "mean_rgb": [
+        0.4189999997615814,
+        0.3240000009536743,
+        0.2409999966621399
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.296,
+        0.692
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-061",
+        "asset_id": "ASSET-025",
+        "tag": "PT-001",
+        "asset_class": "PRESSURE_TRANSMITTER",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "PRESSURE_TRANSMITTER placed on a 'valve_assembly' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-062",
+      "center": [
+        -2.3651500485468286,
+        0.008838893175125151,
+        -0.21353072758710026
+      ],
+      "extents": [
+        1.0818216961419354,
+        1.452410943508148,
+        0.5804876098881485
+      ],
+      "yaw": 2.193024503472743,
+      "n_points": 10629,
+      "mean_rgb": [
+        0.3490000069141388,
+        0.31299999356269836,
+        0.257999986410141
+      ],
+      "class": "shelving_rack",
+      "label_confidence": 0.4,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.466,
+        1.918
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-063",
+      "center": [
+        -2.5709094996002446,
+        0.7283134084939956,
+        0.8236569078763006
+      ],
+      "extents": [
+        1.0422520717662471,
+        0.10189726352691642,
+        0.29685393851819086
+      ],
+      "yaw": 1.4988862897038153,
+      "n_points": 1490,
+      "mean_rgb": [
+        0.49900001287460327,
+        0.45500001311302185,
+        0.36000001430511475
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.86,
+        1.962
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-064",
+      "center": [
+        -1.9992868199322786,
+        -0.0750371062755596,
+        0.3853148539359328
+      ],
+      "extents": [
+        0.7124003779290115,
+        1.0111415314674355,
+        0.6135272115120375
+      ],
+      "yaw": -2.676869773062724,
+      "n_points": 7953,
+      "mean_rgb": [
+        0.49000000953674316,
+        0.46299999952316284,
+        0.3880000114440918
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.602,
+        1.614
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-065",
+      "center": [
+        -1.1845191539069058,
+        -0.20542311906814578,
+        0.37634645193711735
+      ],
+      "extents": [
+        1.197160703389705,
+        1.0849869394302367,
+        0.6525584981842302
+      ],
+      "yaw": 2.728825268606771,
+      "n_points": 14153,
+      "mean_rgb": [
+        0.6809999942779541,
+        0.6579999923706055,
+        0.6200000047683716
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.435,
+        1.52
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-066",
+      "center": [
+        -1.4222635895260476,
+        0.4552282333374023,
+        0.38123313841551343
+      ],
+      "extents": [
+        0.6764525977921992,
+        0.3618176651000976,
+        0.3610906828009972
+      ],
+      "yaw": -2.858145281177066,
+      "n_points": 2379,
+      "mean_rgb": [
+        0.7519999742507935,
+        0.703000009059906,
+        0.6510000228881836
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.457,
+        1.819
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-067",
+      "center": [
+        -2.0301260444233256,
+        -0.8757120501995086,
+        0.43517526802217193
+      ],
+      "extents": [
+        0.5634608288922298,
+        0.5089341187477112,
+        0.409536340681659
+      ],
+      "yaw": -2.8614378433110796,
+      "n_points": 1553,
+      "mean_rgb": [
+        0.6060000061988831,
+        0.5770000219345093,
+        0.5239999890327454
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        0.562
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-068",
+      "center": [
+        -2.1027467442981096,
+        -0.5147787854075432,
+        0.45568752384104705
+      ],
+      "extents": [
+        0.3995381412041584,
+        0.3376420885324478,
+        0.2580636703602477
+      ],
+      "yaw": -2.5198017585184895,
+      "n_points": 1326,
+      "mean_rgb": [
+        0.7120000123977661,
+        0.6890000104904175,
+        0.5820000171661377
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.499,
+        0.837
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-068",
+        "asset_id": "ASSET-001",
+        "tag": "CV-001",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-069",
+      "center": [
+        -1.79716760736427,
+        0.492183904349804,
+        0.444987518853511
+      ],
+      "extents": [
+        0.5894324369556667,
+        0.3703937143087389,
+        0.4272527684400779
+      ],
+      "yaw": -2.845509175294412,
+      "n_points": 2056,
+      "mean_rgb": [
+        0.44999998807907104,
+        0.4090000092983246,
+        0.35199999809265137
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.49,
+        1.86
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-070",
+      "center": [
+        -1.7755201001325571,
+        -0.011896289139986027,
+        -0.05396277238370044
+      ],
+      "extents": [
+        0.5802891546864184,
+        0.9527493748068809,
+        0.3724210666845851
+      ],
+      "yaw": -2.5679772865081163,
+      "n_points": 4562,
+      "mean_rgb": [
+        0.5049999952316284,
+        0.5090000033378601,
+        0.46000000834465027
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.695,
+        1.647
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-071",
+      "center": [
+        -1.604498464847304,
+        -0.7037599690258504,
+        0.2746440574403429
+      ],
+      "extents": [
+        0.6470133456235416,
+        0.6371346816420556,
+        0.5440012988746271
+      ],
+      "yaw": 0.8403811789768967,
+      "n_points": 2562,
+      "mean_rgb": [
+        0.5070000290870667,
+        0.4729999899864197,
+        0.4300000071525574
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.161,
+        0.798
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-072",
+      "center": [
+        -1.5954829576017135,
+        -0.6797691372036934,
+        1.0137610241717678
+      ],
+      "extents": [
+        1.3709940518427883,
+        0.8570019525289534,
+        0.6933456878649542
+      ],
+      "yaw": 2.6412373017016386,
+      "n_points": 7560,
+      "mean_rgb": [
+        0.6100000143051147,
+        0.5569999814033508,
+        0.4699999988079071
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.075,
+        0.932
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-073",
+      "center": [
+        -0.8054351243243699,
+        -0.396940368488431,
+        0.7349305201048573
+      ],
+      "extents": [
+        0.548613697501417,
+        0.48065795406699185,
+        0.33125119190780705
+      ],
+      "yaw": 2.855499733629817,
+      "n_points": 2384,
+      "mean_rgb": [
+        0.7429999709129333,
+        0.7210000157356262,
+        0.6679999828338623
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.546,
+        1.026
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-074",
+      "center": [
+        -0.8311837335541254,
+        -0.05742233246564866,
+        0.5455159688005333
+      ],
+      "extents": [
+        0.33729983898479987,
+        0.24576912164688108,
+        0.290172681822788
+      ],
+      "yaw": 1.7100875101809976,
+      "n_points": 1398,
+      "mean_rgb": [
+        0.8240000009536743,
+        0.7519999742507935,
+        0.7509999871253967
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.003,
+        1.248
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-074",
+        "asset_id": "ASSET-026",
+        "tag": "PT-002",
+        "asset_class": "PRESSURE_TRANSMITTER",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "PRESSURE_TRANSMITTER placed on a 'valve_assembly' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-075",
+      "center": [
+        -2.5824121228774795,
+        -1.013231013417244,
+        0.020983366599054587
+      ],
+      "extents": [
+        0.3087562526113409,
+        0.23724671483039872,
+        0.19579001367159404
+      ],
+      "yaw": -2.441080683385155,
+      "n_points": 372,
+      "mean_rgb": [
+        0.4560000002384186,
+        0.3700000047683716,
+        0.28200000524520874
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.051,
+        0.288
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-075",
+        "asset_id": "ASSET-015",
+        "tag": "P-003",
+        "asset_class": "PROCESS_PUMP",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "PROCESS_PUMP placed on a 'pump' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "C - standard"
+      }
+    },
+    {
+      "object_id": "OBJ-076",
+      "center": [
+        -2.067071190633292,
+        -0.5880293518304825,
+        -1.436718074975814
+      ],
+      "extents": [
+        1.1051906875129394,
+        0.8127273142337799,
+        0.39596780602293724
+      ],
+      "yaw": 3.0288305267456668,
+      "n_points": 4031,
+      "mean_rgb": [
+        0.36399999260902405,
+        0.31200000643730164,
+        0.28600001335144043
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.189,
+        1.001
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-077",
+      "center": [
+        -1.5068701916483163,
+        -0.15882150888442984,
+        -1.3624278074184841
+      ],
+      "extents": [
+        0.5278501627528137,
+        0.9610350131988528,
+        0.3521748160198367
+      ],
+      "yaw": 0.9072752887202786,
+      "n_points": 8108,
+      "mean_rgb": [
+        0.5099999904632568,
+        0.4749999940395355,
+        0.4399999976158142
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.544,
+        1.505
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-078",
+      "center": [
+        -2.749925007832952,
+        -0.8202133104205132,
+        -1.0160047455941212
+      ],
+      "extents": [
+        0.4653217821511033,
+        0.6200561672449112,
+        0.16036629597211666
+      ],
+      "yaw": 1.7448538959656148,
+      "n_points": 326,
+      "mean_rgb": [
+        0.4569999873638153,
+        0.4490000009536743,
+        0.46799999475479126
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        0.673
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-079",
+      "center": [
+        -1.7529434576374352,
+        -0.9345132291316987,
+        -1.3258700155461536
+      ],
+      "extents": [
+        1.4422438327992415,
+        0.3753960967063904,
+        0.7482772210077501
+      ],
+      "yaw": 3.0193746700907367,
+      "n_points": 5546,
+      "mean_rgb": [
+        0.46299999952316284,
+        0.4300000071525574,
+        0.42500001192092896
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.061,
+        0.436
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-080",
+      "center": [
+        -0.8165905958199354,
+        -0.9977865266799927,
+        -1.5066238829699343
+      ],
+      "extents": [
+        0.42299978908871905,
+        0.2562938976287843,
+        0.24778978046057498
+      ],
+      "yaw": 2.2880139510110373,
+      "n_points": 1245,
+      "mean_rgb": [
+        0.597000002861023,
+        0.5360000133514404,
+        0.492000013589859
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.057,
+        0.313
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-080",
+        "asset_id": "ASSET-016",
+        "tag": "P-004",
+        "asset_class": "PROCESS_PUMP",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "PROCESS_PUMP placed on a 'pump' object near the route",
+        "health_score": 72,
+        "condition_state": "watch",
+        "issue_code": "SEAL_DEGRADATION",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-081",
+      "center": [
+        -1.134321436721685,
+        -0.7068789052963257,
+        -1.276368654909466
+      ],
+      "extents": [
+        0.3961877619800586,
+        0.5130985927581786,
+        0.299085541394188
+      ],
+      "yaw": 1.454396772352938,
+      "n_points": 2293,
+      "mean_rgb": [
+        0.578000009059906,
+        0.5220000147819519,
+        0.4569999873638153
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.22,
+        0.733
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-082",
+      "center": [
+        -2.276307910254744,
+        0.10721752524375927,
+        -1.1880551892615412
+      ],
+      "extents": [
+        0.24101212486319706,
+        1.1882303643226626,
+        0.29695288532738306
+      ],
+      "yaw": 2.771525529082067,
+      "n_points": 2029,
+      "mean_rgb": [
+        0.4169999957084656,
+        0.4009999930858612,
+        0.382999986410141
+      ],
+      "class": "vertical_pipe",
+      "label_confidence": 0.45,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.696,
+        1.884
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-083",
+      "center": [
+        -2.2231494242833167,
+        -0.9681190764904022,
+        -0.07686423624072687
+      ],
+      "extents": [
+        0.3619335903255099,
+        0.3139874577522277,
+        0.25288276112782937
+      ],
+      "yaw": 1.8729864777685434,
+      "n_points": 437,
+      "mean_rgb": [
+        0.3160000145435333,
+        0.2809999883174896,
+        0.2199999988079071
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.058,
+        0.372
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-083",
+        "asset_id": "ASSET-021",
+        "tag": "M-003",
+        "asset_class": "ELECTRIC_MOTOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "ELECTRIC_MOTOR placed on a 'pump' object near the route",
+        "health_score": 81,
+        "condition_state": "watch",
+        "issue_code": "MISALIGNMENT",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-084",
+      "center": [
+        -2.211367473865872,
+        0.6254992783069611,
+        0.42741550023374514
+      ],
+      "extents": [
+        0.8897056289676466,
+        0.27852581739425664,
+        0.2968599356026643
+      ],
+      "yaw": 1.7004026475098204,
+      "n_points": 813,
+      "mean_rgb": [
+        0.38499999046325684,
+        0.34700000286102295,
+        0.27399998903274536
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.669,
+        1.948
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-085",
+      "center": [
+        -2.285638162922255,
+        0.7275557541847228,
+        1.4043003056721561
+      ],
+      "extents": [
+        1.0151220955064875,
+        0.10778169393539427,
+        0.11421061127688972
+      ],
+      "yaw": 1.5503141084745,
+      "n_points": 1062,
+      "mean_rgb": [
+        0.7020000219345093,
+        0.6679999828338623,
+        0.5649999976158142
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.857,
+        1.964
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-086",
+      "center": [
+        -2.084562147089344,
+        -0.03134618028998375,
+        0.9897799095794023
+      ],
+      "extents": [
+        0.7112951008833996,
+        0.41985716819763186,
+        0.1688588416165887
+      ],
+      "yaw": 1.7506975024093467,
+      "n_points": 2696,
+      "mean_rgb": [
+        0.6579999923706055,
+        0.6330000162124634,
+        0.5609999895095825
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.942,
+        1.362
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-087",
+      "center": [
+        -1.9510354368486955,
+        -0.8981901249289512,
+        -1.7636841425774024
+      ],
+      "extents": [
+        0.6296095256319131,
+        0.4338482815027237,
+        0.3265269339944368
+      ],
+      "yaw": -3.0559826054816135,
+      "n_points": 1062,
+      "mean_rgb": [
+        0.46299999952316284,
+        0.4009999930858612,
+        0.35499998927116394
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.068,
+        0.502
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-087",
+        "asset_id": "ASSET-017",
+        "tag": "P-005",
+        "asset_class": "PROCESS_PUMP",
+        "mapping_method": "pinned_faulty_target",
+        "mapping_confidence": 0.8,
+        "reason": "pre-determined faulty target (lowest health, criticality A) pinned to a team-confirmed object",
+        "health_score": 44,
+        "condition_state": "attention_required",
+        "issue_code": "FOULING",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-088",
+      "center": [
+        -1.986764700871607,
+        -0.977953329384327,
+        0.7817543587095385
+      ],
+      "extents": [
+        0.35247582342971956,
+        0.29042738139629354,
+        0.2863084273477515
+      ],
+      "yaw": -2.3967251973158343,
+      "n_points": 574,
+      "mean_rgb": [
+        0.36800000071525574,
+        0.3179999887943268,
+        0.257999986410141
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.06,
+        0.35
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-088",
+        "asset_id": "ASSET-019",
+        "tag": "M-001",
+        "asset_class": "ELECTRIC_MOTOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "ELECTRIC_MOTOR placed on a 'pump' object near the route",
+        "health_score": 77,
+        "condition_state": "watch",
+        "issue_code": "MISALIGNMENT",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-089",
+      "center": [
+        -1.4191346873812225,
+        -0.8556797611713409,
+        0.11026730475561941
+      ],
+      "extents": [
+        1.1979024145114399,
+        0.550850431919098,
+        0.8032525736111995
+      ],
+      "yaw": -2.9436936020070648,
+      "n_points": 3515,
+      "mean_rgb": [
+        0.6200000047683716,
+        0.5929999947547913,
+        0.5640000104904175
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.052,
+        0.603
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-090",
+      "center": [
+        -1.8663794945806198,
+        0.06540739841759205,
+        -1.403570657270097
+      ],
+      "extents": [
+        0.5168147465273385,
+        0.46163356050848964,
+        0.25929521485113655
+      ],
+      "yaw": 1.310445177060652,
+      "n_points": 2982,
+      "mean_rgb": [
+        0.3889999985694885,
+        0.3610000014305115,
+        0.3240000009536743
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.018,
+        1.479
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-091",
+      "center": [
+        -1.894421140977249,
+        0.5495796853303909,
+        -1.3678390597311836
+      ],
+      "extents": [
+        0.2834909205471747,
+        0.4700083982944489,
+        0.34578877154357146
+      ],
+      "yaw": 1.818589196876693,
+      "n_points": 1235,
+      "mean_rgb": [
+        0.30300000309944153,
+        0.2809999883174896,
+        0.26100000739097595
+      ],
+      "class": "instrument",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.498,
+        1.968
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-091",
+        "asset_id": "ASSET-028",
+        "tag": "VS-001",
+        "asset_class": "VIBRATION_SENSOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "VIBRATION_SENSOR placed on a 'instrument' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-092",
+      "center": [
+        -1.4964686770554778,
+        -0.20854050099849705,
+        -2.9910854202549797
+      ],
+      "extents": [
+        0.866503559843437,
+        0.5928692209720611,
+        0.39927622077206826
+      ],
+      "yaw": -3.102347248091274,
+      "n_points": 2837,
+      "mean_rgb": [
+        0.4779999852180481,
+        0.4020000100135803,
+        0.39100000262260437
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.678,
+        1.271
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-093",
+      "center": [
+        -1.5045704703529343,
+        0.6286397421360016,
+        -0.4967877168998282
+      ],
+      "extents": [
+        0.8096383419071945,
+        0.3043240618705749,
+        0.40064999960334546
+      ],
+      "yaw": 2.551754456230963,
+      "n_points": 1137,
+      "mean_rgb": [
+        0.5789999961853027,
+        0.5460000038146973,
+        0.5049999952316284
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.659,
+        1.964
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-094",
+      "center": [
+        -1.719806347273356,
+        -0.19147740036249158,
+        1.2240699021360606
+      ],
+      "extents": [
+        0.6823381696371769,
+        0.7520172184705733,
+        0.41408169725940763
+      ],
+      "yaw": 2.3166039206746487,
+      "n_points": 2873,
+      "mean_rgb": [
+        0.7310000061988831,
+        0.7049999833106995,
+        0.6269999742507935
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.616,
+        1.368
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-095",
+      "center": [
+        -1.7122292522357156,
+        0.6324275678396225,
+        0.02078579113083177
+      ],
+      "extents": [
+        0.6124508619951898,
+        0.24655637621879578,
+        0.10545359961961534
+      ],
+      "yaw": 3.0943353594121765,
+      "n_points": 342,
+      "mean_rgb": [
+        0.4569999873638153,
+        0.42500001192092896,
+        0.382999986410141
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.692,
+        1.939
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-096",
+      "center": [
+        -1.3780300065804796,
+        0.5455170400440692,
+        -1.304830050029045
+      ],
+      "extents": [
+        0.5479557147769204,
+        0.4546937271952628,
+        0.26000677878290296
+      ],
+      "yaw": -2.7705848241104545,
+      "n_points": 2356,
+      "mean_rgb": [
+        0.4099999964237213,
+        0.38199999928474426,
+        0.35100001096725464
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.501,
+        1.956
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-097",
+      "center": [
+        -1.0722619258319606,
+        -0.12945420682430264,
+        -0.1161229066651003
+      ],
+      "extents": [
+        0.5314129887131482,
+        1.7580049622058869,
+        0.31172149594362886
+      ],
+      "yaw": 3.039168663650668,
+      "n_points": 10000,
+      "mean_rgb": [
+        0.503000020980835,
+        0.3840000033378601,
+        0.3630000054836273
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.175,
+        1.933
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-098",
+      "center": [
+        -1.0358440884822837,
+        -0.8515654927492142,
+        -2.0900213086710226
+      ],
+      "extents": [
+        0.536498175641309,
+        0.5454774081707,
+        0.42931739365043653
+      ],
+      "yaw": -2.8275904230805455,
+      "n_points": 2324,
+      "mean_rgb": [
+        0.7120000123977661,
+        0.6790000200271606,
+        0.652999997138977
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.059,
+        0.604
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-099",
+      "center": [
+        -1.256056973979903,
+        0.3773015140427742,
+        -0.1299681092037557
+      ],
+      "extents": [
+        0.11107493170683369,
+        0.7606540360185318,
+        0.06804020153411913
+      ],
+      "yaw": 1.1893591393842777,
+      "n_points": 1464,
+      "mean_rgb": [
+        0.4950000047683716,
+        0.3319999873638153,
+        0.3149999976158142
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.18,
+        1.941
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-100",
+      "center": [
+        -1.1128878595344112,
+        -0.2715441418811679,
+        -1.2078559511081837
+      ],
+      "extents": [
+        0.2947726042361888,
+        0.4969617459923029,
+        0.1380887777462587
+      ],
+      "yaw": 0.929523718893048,
+      "n_points": 2111,
+      "mean_rgb": [
+        0.5950000286102295,
+        0.5600000023841858,
+        0.5210000276565552
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.663,
+        1.16
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-100",
+        "asset_id": "ASSET-011",
+        "tag": "CV-011",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-101",
+      "center": [
+        -1.080931133783001,
+        -0.7274952766299247,
+        0.23719772418741863
+      ],
+      "extents": [
+        0.4292229918128657,
+        0.5385107237100601,
+        0.30109567254740777
+      ],
+      "yaw": 0.9930717022446279,
+      "n_points": 823,
+      "mean_rgb": [
+        0.4339999854564667,
+        0.41999998688697815,
+        0.3919999897480011
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.186,
+        0.725
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-102",
+      "center": [
+        -0.1965528524463278,
+        -0.2690204858779906,
+        -1.746469259443208
+      ],
+      "extents": [
+        1.2074002406025395,
+        1.7202972412109379,
+        1.0202129601687693
+      ],
+      "yaw": 1.4296103932638986,
+      "n_points": 6921,
+      "mean_rgb": [
+        0.5339999794960022,
+        0.48899999260902405,
+        0.4580000042915344
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.054,
+        1.774
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-103",
+      "center": [
+        -0.8632664320989913,
+        0.10789157509803754,
+        -1.3606564730900896
+      ],
+      "extents": [
+        0.7086149772304097,
+        1.1848104500770567,
+        0.44832509064497
+      ],
+      "yaw": 2.6670976477823807,
+      "n_points": 11913,
+      "mean_rgb": [
+        0.5839999914169312,
+        0.550000011920929,
+        0.5090000033378601
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.698,
+        1.883
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-104",
+      "center": [
+        -0.39701651800902343,
+        -0.8215140038728714,
+        -1.2747887987422568
+      ],
+      "extents": [
+        0.5123238786157958,
+        0.6127456176280975,
+        0.1455694396533006
+      ],
+      "yaw": 0.8043097227950274,
+      "n_points": 939,
+      "mean_rgb": [
+        0.1420000046491623,
+        0.11699999868869781,
+        0.09700000286102295
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.055,
+        0.668
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-105",
+      "center": [
+        -0.2929049348381807,
+        0.25670767366886127,
+        -1.58141006806245
+      ],
+      "extents": [
+        0.42020464914217875,
+        1.001899856328964,
+        0.36743541629668974
+      ],
+      "yaw": 2.708775444357751,
+      "n_points": 4249,
+      "mean_rgb": [
+        0.6129999756813049,
+        0.550000011920929,
+        0.5099999904632568
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.939,
+        1.941
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-106",
+      "center": [
+        0.21316730551178287,
+        -0.31907949507236477,
+        -1.931558624163109
+      ],
+      "extents": [
+        0.6682971433489274,
+        1.1763038444519043,
+        0.6138495758576232
+      ],
+      "yaw": 1.9348372865869403,
+      "n_points": 3960,
+      "mean_rgb": [
+        0.7519999742507935,
+        0.6029999852180481,
+        0.4519999921321869
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.276,
+        1.452
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-107",
+      "center": [
+        0.06515793539414823,
+        0.723735637664795,
+        -0.6714660086332225
+      ],
+      "extents": [
+        1.2148076137271644,
+        0.11649262309074404,
+        0.33138835193847727
+      ],
+      "yaw": -3.099299323410719,
+      "n_points": 1782,
+      "mean_rgb": [
+        0.7089999914169312,
+        0.6740000247955322,
+        0.6330000162124634
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.848,
+        1.965
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-108",
+      "center": [
+        -1.2340852290328956,
+        0.7247065103054047,
+        -0.8559257439859617
+      ],
+      "extents": [
+        1.3857360973463257,
+        0.12032700061798096,
+        0.6038448538773349
+      ],
+      "yaw": -3.05509964924074,
+      "n_points": 1964,
+      "mean_rgb": [
+        0.5350000262260437,
+        0.4959999918937683,
+        0.4480000138282776
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.848,
+        1.968
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-109",
+      "center": [
+        0.043188141555152576,
+        -0.47877553492784486,
+        -3.3773462043359554
+      ],
+      "extents": [
+        0.9247715376699849,
+        1.3030075925588611,
+        0.5559501896743199
+      ],
+      "yaw": 2.553614852744331,
+      "n_points": 2117,
+      "mean_rgb": [
+        0.43299999833106995,
+        0.4000000059604645,
+        0.38100001215934753
+      ],
+      "class": "shelving_rack",
+      "label_confidence": 0.4,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        1.356
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-110",
+      "center": [
+        -0.7054777937520973,
+        -0.4378414437174797,
+        -3.122878627040603
+      ],
+      "extents": [
+        0.6589368863045413,
+        0.5086691349744796,
+        0.2507916985955494
+      ],
+      "yaw": 3.1134316621163896,
+      "n_points": 2086,
+      "mean_rgb": [
+        0.5490000247955322,
+        0.5090000033378601,
+        0.5210000276565552
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.491,
+        0.999
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-111",
+      "center": [
+        -0.8162527705279414,
+        -0.6989421188831328,
+        -2.3281475017152387
+      ],
+      "extents": [
+        0.3310269327955695,
+        0.6282610869407653,
+        0.2347150831500543
+      ],
+      "yaw": 2.578220722525941,
+      "n_points": 453,
+      "mean_rgb": [
+        0.5559999942779541,
+        0.5180000066757202,
+        0.4830000102519989
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.17,
+        0.798
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-112",
+      "center": [
+        -0.65275748339143,
+        -0.5519065654277802,
+        -1.9919379700746163
+      ],
+      "extents": [
+        0.3655463224452884,
+        0.37953828573226933,
+        0.38589132952407534
+      ],
+      "yaw": 3.133378889252918,
+      "n_points": 813,
+      "mean_rgb": [
+        0.6269999742507935,
+        0.5849999785423279,
+        0.5249999761581421
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.441,
+        0.821
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-112",
+        "asset_id": "ASSET-008",
+        "tag": "CV-008",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-113",
+      "center": [
+        -0.945625509481403,
+        -0.9106974884867667,
+        -2.9658037552242535
+      ],
+      "extents": [
+        1.0644867390236499,
+        0.43669014275074003,
+        0.458808623617092
+      ],
+      "yaw": 2.752988255844537,
+      "n_points": 1132,
+      "mean_rgb": [
+        0.6159999966621399,
+        0.5609999895095825,
+        0.5339999794960022
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.054,
+        0.491
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-114",
+      "center": [
+        -0.4962599758959581,
+        -0.760311782360077,
+        0.5696049300347846
+      ],
+      "extents": [
+        0.5161520678030715,
+        0.7370035529136654,
+        0.5673596809978712
+      ],
+      "yaw": 1.7316002069489937,
+      "n_points": 2516,
+      "mean_rgb": [
+        0.6949999928474426,
+        0.5899999737739563,
+        0.4950000047683716
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.054,
+        0.791
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-115",
+      "center": [
+        -0.5640056577080399,
+        -0.9583965599536896,
+        0.3285504960839978
+      ],
+      "extents": [
+        0.31257398814303206,
+        0.334005343914032,
+        0.16699881123752325
+      ],
+      "yaw": -2.6544219111021423,
+      "n_points": 461,
+      "mean_rgb": [
+        0.6930000185966492,
+        0.6079999804496765,
+        0.5440000295639038
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.058,
+        0.392
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-115",
+        "asset_id": "ASSET-018",
+        "tag": "P-006",
+        "asset_class": "PROCESS_PUMP",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "PROCESS_PUMP placed on a 'pump' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-116",
+      "center": [
+        -0.5762009137279357,
+        -0.5270158872008324,
+        -2.246642120918944
+      ],
+      "extents": [
+        0.3376528737939582,
+        0.3306823784112931,
+        0.2314901907401017
+      ],
+      "yaw": 1.4086985326784316,
+      "n_points": 447,
+      "mean_rgb": [
+        0.7070000171661377,
+        0.6830000281333923,
+        0.6439999938011169
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.491,
+        0.821
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-116",
+        "asset_id": "ASSET-005",
+        "tag": "CV-005",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "C - standard"
+      }
+    },
+    {
+      "object_id": "OBJ-117",
+      "center": [
+        -0.2548081093924651,
+        -0.4458175547420979,
+        -1.3496484506445643
+      ],
+      "extents": [
+        0.5017311252520442,
+        0.49105558365583424,
+        0.2254192354487491
+      ],
+      "yaw": -2.6429044050513606,
+      "n_points": 1562,
+      "mean_rgb": [
+        0.29499998688697815,
+        0.24300000071525574,
+        0.20000000298023224
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.492,
+        0.983
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-118",
+      "center": [
+        -0.07647632692471926,
+        0.4904774761199951,
+        -3.347274721077287
+      ],
+      "extents": [
+        1.4271237634847904,
+        0.584173994064331,
+        0.4709535273805512
+      ],
+      "yaw": 2.702565543760044,
+      "n_points": 1109,
+      "mean_rgb": [
+        0.17399999499320984,
+        0.1459999978542328,
+        0.1340000033378601
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.381,
+        1.966
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-119",
+      "center": [
+        0.6268433487543632,
+        -0.2088732144236563,
+        -1.210091006101687
+      ],
+      "extents": [
+        0.9293143505669224,
+        1.7866644698381426,
+        0.789379305306964
+      ],
+      "yaw": -3.0529738285354138,
+      "n_points": 7892,
+      "mean_rgb": [
+        0.6039999723434448,
+        0.6110000014305115,
+        0.4560000002384186
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.081,
+        1.867
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-120",
+      "center": [
+        0.3556064896296325,
+        -0.2927753859758377,
+        -3.1695844638698953
+      ],
+      "extents": [
+        0.346495630497082,
+        0.2205056780576706,
+        0.1418607740699117
+      ],
+      "yaw": 3.0995558945730886,
+      "n_points": 414,
+      "mean_rgb": [
+        0.48500001430511475,
+        0.4659999907016754,
+        0.41999998688697815
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.78,
+        1.0
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-120",
+        "asset_id": "ASSET-012",
+        "tag": "CV-012",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-121",
+      "center": [
+        0.8971602050041592,
+        -0.6351266909390688,
+        -3.0861841629092566
+      ],
+      "extents": [
+        0.685362275702474,
+        0.7831809090077877,
+        0.4079428481165277
+      ],
+      "yaw": -2.7575077305856563,
+      "n_points": 3130,
+      "mean_rgb": [
+        0.5699999928474426,
+        0.5180000066757202,
+        0.453000009059906
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.156,
+        0.939
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-122",
+      "center": [
+        0.9858277529033639,
+        -0.2792241603136063,
+        -2.017115644383345
+      ],
+      "extents": [
+        0.7337085736065322,
+        1.1971414506435394,
+        0.7420094438755436
+      ],
+      "yaw": 2.2353447545489487,
+      "n_points": 3661,
+      "mean_rgb": [
+        0.4830000102519989,
+        0.335999995470047,
+        0.29499998688697815
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.305,
+        1.502
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-123",
+      "center": [
+        0.6932629100705886,
+        -0.8838308990001683,
+        -3.371276378804566
+      ],
+      "extents": [
+        0.8025007378557907,
+        0.4952248311042775,
+        0.35047144484041326
+      ],
+      "yaw": -2.707521449576649,
+      "n_points": 455,
+      "mean_rgb": [
+        0.6790000200271606,
+        0.6269999742507935,
+        0.5910000205039978
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.052,
+        0.547
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-124",
+      "center": [
+        0.872409694112996,
+        -0.0752435471862553,
+        3.44551884924469
+      ],
+      "extents": [
+        0.40186702098141913,
+        0.4278670825064185,
+        0.18677946469751566
+      ],
+      "yaw": 3.084041344694332,
+      "n_points": 266,
+      "mean_rgb": [
+        0.3089999854564667,
+        0.2529999911785126,
+        0.2370000034570694
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.894,
+        1.322
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-124",
+        "asset_id": "ASSET-004",
+        "tag": "CV-004",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "A - production critical"
+      }
+    },
+    {
+      "object_id": "OBJ-125",
+      "center": [
+        1.1939301166024197,
+        -0.32587594151496885,
+        3.213979622262193
+      ],
+      "extents": [
+        0.7125193535021224,
+        0.9843440115451813,
+        0.5877509720862627
+      ],
+      "yaw": -3.0626134841397223,
+      "n_points": 5174,
+      "mean_rgb": [
+        0.2409999966621399,
+        0.2029999941587448,
+        0.17299999296665192
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.365,
+        1.349
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-126",
+      "center": [
+        1.1721958259373972,
+        0.059247310161590766,
+        -3.4354983809480557
+      ],
+      "extents": [
+        1.0905303664114943,
+        1.0496803760528568,
+        0.23142009067505803
+      ],
+      "yaw": 3.129209120812353,
+      "n_points": 3663,
+      "mean_rgb": [
+        0.328000009059906,
+        0.2919999957084656,
+        0.28700000047683716
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.717,
+        1.767
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-127",
+      "center": [
+        1.2987947484273015,
+        -0.6619571000337601,
+        2.6005919492919953
+      ],
+      "extents": [
+        0.9658435722245929,
+        0.9363020360469818,
+        0.8412700482661982
+      ],
+      "yaw": 1.5637368191804095,
+      "n_points": 4901,
+      "mean_rgb": [
+        0.6690000295639038,
+        0.4490000009536743,
+        0.37700000405311584
+      ],
+      "class": "pressure_vessel",
+      "label_confidence": 0.6,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        0.989
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-128",
+      "center": [
+        1.2585709397958276,
+        0.2446454708278179,
+        3.4870659746949606
+      ],
+      "extents": [
+        0.5604222571354356,
+        0.6556718268990517,
+        0.4827901420965334
+      ],
+      "yaw": -2.834217310670126,
+      "n_points": 2105,
+      "mean_rgb": [
+        0.527999997138977,
+        0.47200000286102295,
+        0.4099999964237213
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.1,
+        1.755
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-129",
+      "center": [
+        1.3761302862738436,
+        -0.9185940772294998,
+        3.1648884748329316
+      ],
+      "extents": [
+        0.5120275201005309,
+        0.4237502992153167,
+        0.4526382073543695
+      ],
+      "yaw": 2.5622527259075074,
+      "n_points": 939,
+      "mean_rgb": [
+        0.3059999942779541,
+        0.2630000114440918,
+        0.2290000021457672
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        0.476
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-129",
+        "asset_id": "ASSET-020",
+        "tag": "M-002",
+        "asset_class": "ELECTRIC_MOTOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "ELECTRIC_MOTOR placed on a 'pump' object near the route",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-130",
+      "center": [
+        1.4805962435475781,
+        -0.1641198074817657,
+        -1.5332957453438114
+      ],
+      "extents": [
+        0.9379569397647477,
+        1.874843213558197,
+        0.7244152833275745
+      ],
+      "yaw": 2.429864564675816,
+      "n_points": 4909,
+      "mean_rgb": [
+        0.6159999966621399,
+        0.5759999752044678,
+        0.5189999938011169
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.081,
+        1.956
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-131",
+      "center": [
+        1.312152493110543,
+        0.5874916575849056,
+        -0.48751525938461804
+      ],
+      "extents": [
+        1.0683162488300724,
+        0.38310620933771133,
+        1.2388765942217472
+      ],
+      "yaw": 1.5093406245099215,
+      "n_points": 3676,
+      "mean_rgb": [
+        0.5609999895095825,
+        0.5189999938011169,
+        0.460999995470047
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.579,
+        1.962
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-132",
+      "center": [
+        1.714723927225824,
+        -0.5799825101904572,
+        2.183156354699378
+      ],
+      "extents": [
+        0.7510769507496788,
+        1.1009261644259092,
+        0.5991021643456373
+      ],
+      "yaw": 3.022477030251741,
+      "n_points": 6303,
+      "mean_rgb": [
+        0.5559999942779541,
+        0.5130000114440918,
+        0.3889999985694885
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        1.153
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-133",
+      "center": [
+        1.5242478361944467,
+        -0.8671755656600002,
+        -3.2247322819300868
+      ],
+      "extents": [
+        0.5016814592710263,
+        0.5155166655778878,
+        0.3548178325769313
+      ],
+      "yaw": 2.471605330505782,
+      "n_points": 536,
+      "mean_rgb": [
+        0.6990000009536743,
+        0.671999990940094,
+        0.6510000228881836
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.058,
+        0.574
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-134",
+      "center": [
+        1.8698886937263863,
+        -0.8831968531012535,
+        3.0638200537554448
+      ],
+      "extents": [
+        1.123649404766851,
+        0.4959266954660415,
+        0.8978065976353904
+      ],
+      "yaw": 1.3174141143082403,
+      "n_points": 3680,
+      "mean_rgb": [
+        0.640999972820282,
+        0.5580000281333923,
+        0.4519999921321869
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.052,
+        0.548
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-135",
+      "center": [
+        1.740939326660324,
+        0.1318937481939793,
+        -1.5370444201876239
+      ],
+      "extents": [
+        0.7071012162319535,
+        1.232009056508541,
+        0.4511129738816899
+      ],
+      "yaw": 0.8586486172999485,
+      "n_points": 5020,
+      "mean_rgb": [
+        0.5759999752044678,
+        0.5419999957084656,
+        0.4860000014305115
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.699,
+        1.931
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-136",
+      "center": [
+        3.2833353714609927,
+        0.7222414442896843,
+        -1.254522406794176
+      ],
+      "extents": [
+        0.9244228597163371,
+        0.12026493847370157,
+        0.4629217863065397
+      ],
+      "yaw": -2.8846281068056085,
+      "n_points": 1060,
+      "mean_rgb": [
+        0.4950000047683716,
+        0.4410000145435333,
+        0.36899998784065247
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.845,
+        1.965
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-137",
+      "center": [
+        2.071297043378821,
+        -0.23503902554512024,
+        -1.7238607352882143
+      ],
+      "extents": [
+        0.47918069394511614,
+        1.7603318095207214,
+        0.323511641921869
+      ],
+      "yaw": -2.6472969045905246,
+      "n_points": 5401,
+      "mean_rgb": [
+        0.6010000109672546,
+        0.5799999833106995,
+        0.5189999938011169
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.068,
+        1.828
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-138",
+      "center": [
+        2.3908980483388627,
+        -0.17792317509651184,
+        -1.3487250100490542
+      ],
+      "extents": [
+        0.6630815459424932,
+        1.8925754380226136,
+        0.6898550569997852
+      ],
+      "yaw": 1.9675328649191608,
+      "n_points": 5894,
+      "mean_rgb": [
+        0.45899999141693115,
+        0.39500001072883606,
+        0.34299999475479126
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.059,
+        1.951
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-139",
+      "center": [
+        2.383358418385925,
+        0.623039916753769,
+        -0.6222098699501868
+      ],
+      "extents": [
+        0.826230390225065,
+        0.2934518885612488,
+        0.6154005858133624
+      ],
+      "yaw": -2.9673833246632193,
+      "n_points": 2517,
+      "mean_rgb": [
+        0.46700000762939453,
+        0.41200000047683716,
+        0.3330000042915344
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.659,
+        1.953
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-140",
+      "center": [
+        1.8482129102852813,
+        -0.08189926385879517,
+        -3.277757970459113
+      ],
+      "extents": [
+        0.7815276500433153,
+        0.7129088020324708,
+        0.7287269545678836
+      ],
+      "yaw": 2.357768183624167,
+      "n_points": 3449,
+      "mean_rgb": [
+        0.5509999990463257,
+        0.5249999761581421,
+        0.5059999823570251
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.745,
+        1.458
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-141",
+      "center": [
+        2.649745556362977,
+        -0.2823526617139578,
+        -3.1593864054790735
+      ],
+      "extents": [
+        0.7826660355333086,
+        0.4220682270824909,
+        0.29422917756160927
+      ],
+      "yaw": -3.1285624686490805,
+      "n_points": 2151,
+      "mean_rgb": [
+        0.5870000123977661,
+        0.5299999713897705,
+        0.5019999742507935
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.69,
+        1.112
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-142",
+      "center": [
+        2.409833066673851,
+        -0.8569803923368453,
+        -3.1397382669229548
+      ],
+      "extents": [
+        0.766204343921601,
+        0.47492514252662665,
+        0.3955769219770582
+      ],
+      "yaw": -3.0421936770038607,
+      "n_points": 1911,
+      "mean_rgb": [
+        0.765999972820282,
+        0.7250000238418579,
+        0.699999988079071
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.089,
+        0.563
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-142",
+        "asset_id": "ASSET-024",
+        "tag": "M-006",
+        "asset_class": "ELECTRIC_MOTOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "ELECTRIC_MOTOR placed on a 'pump' object",
+        "health_score": 45,
+        "condition_state": "attention_required",
+        "issue_code": "OVERHEATING",
+        "criticality": "C - standard"
+      }
+    },
+    {
+      "object_id": "OBJ-143",
+      "center": [
+        3.173208043758055,
+        -0.5500251278281212,
+        0.1726330387212599
+      ],
+      "extents": [
+        0.6844986560399116,
+        0.8708564788103104,
+        0.519158754045631
+      ],
+      "yaw": 0.9130713942464463,
+      "n_points": 5501,
+      "mean_rgb": [
+        0.38600000739097595,
+        0.3709999918937683,
+        0.3529999852180481
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.198,
+        1.068
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-144",
+      "center": [
+        3.2108249073420847,
+        -0.8244656231999394,
+        -2.80437713407853
+      ],
+      "extents": [
+        0.9886294425426048,
+        0.608200179934502,
+        0.831169060079954
+      ],
+      "yaw": -2.7220724287863147,
+      "n_points": 5454,
+      "mean_rgb": [
+        0.8169999718666077,
+        0.75,
+        0.7120000123977661
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.054,
+        0.663
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-145",
+      "center": [
+        3.44919159790117,
+        -0.27390205219388003,
+        -0.18781277038795993
+      ],
+      "extents": [
+        1.3485460013812185,
+        1.499967609345913,
+        0.7443940802768492
+      ],
+      "yaw": -2.3971534098394476,
+      "n_points": 7030,
+      "mean_rgb": [
+        0.5569999814033508,
+        0.5070000290870667,
+        0.49000000953674316
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.159,
+        1.659
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-146",
+      "center": [
+        3.33842702449627,
+        -0.8136365580558778,
+        -0.8226923703774793
+      ],
+      "extents": [
+        0.4835690344384215,
+        0.5977932977676392,
+        0.5511540126234707
+      ],
+      "yaw": 1.6832087514114817,
+      "n_points": 2505,
+      "mean_rgb": [
+        0.7059999704360962,
+        0.6859999895095825,
+        0.6660000085830688
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.07,
+        0.668
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-147",
+      "center": [
+        3.650986187669142,
+        -0.6850174134969714,
+        -2.3451559691199373
+      ],
+      "extents": [
+        0.856881143851352,
+        0.5299685251712793,
+        0.49536265367035975
+      ],
+      "yaw": 1.1054067038037885,
+      "n_points": 3589,
+      "mean_rgb": [
+        0.7699999809265137,
+        0.675000011920929,
+        0.6420000195503235
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.233,
+        0.763
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-148",
+      "center": [
+        3.376443520585357,
+        -0.7188730025291442,
+        -1.426905808799436
+      ],
+      "extents": [
+        0.5307397308581524,
+        0.8018302106857302,
+        0.5408554436631662
+      ],
+      "yaw": 1.6452140074203463,
+      "n_points": 6367,
+      "mean_rgb": [
+        0.7459999918937683,
+        0.6589999794960022,
+        0.5580000281333923
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.063,
+        0.865
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-149",
+      "center": [
+        3.6587490075501616,
+        -0.07414845600724224,
+        -0.3970179236749871
+      ],
+      "extents": [
+        0.3256490565591288,
+        0.5025921580195426,
+        0.3831238039364364
+      ],
+      "yaw": 1.5120366600733268,
+      "n_points": 2543,
+      "mean_rgb": [
+        0.5950000286102295,
+        0.5770000219345093,
+        0.5569999814033508
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.858,
+        1.36
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-150",
+      "center": [
+        3.6832920370038433,
+        -0.21497809778898963,
+        -0.707638777308297
+      ],
+      "extents": [
+        0.3840727988075031,
+        0.6706411991268394,
+        0.34444771834863996
+      ],
+      "yaw": 2.158738685574581,
+      "n_points": 2018,
+      "mean_rgb": [
+        0.5989999771118164,
+        0.5799999833106995,
+        0.5569999814033508
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.633,
+        1.303
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-151",
+      "center": [
+        3.820039625157075,
+        -0.03710973501205439,
+        -1.7669915438679813
+      ],
+      "extents": [
+        1.0651805648760533,
+        1.344446668624878,
+        0.5235221015737127
+      ],
+      "yaw": 1.6103980747618234,
+      "n_points": 8005,
+      "mean_rgb": [
+        0.6819999814033508,
+        0.6370000243186951,
+        0.578000009059906
+      ],
+      "class": "shelving_rack",
+      "label_confidence": 0.4,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.474,
+        1.818
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-152",
+      "center": [
+        3.693335604295225,
+        -0.23998401116579776,
+        -1.0064983575421693
+      ],
+      "extents": [
+        0.3417814179375218,
+        0.6671404979377985,
+        0.2274108983286649
+      ],
+      "yaw": 3.087060220925579,
+      "n_points": 1848,
+      "mean_rgb": [
+        0.6880000233650208,
+        0.6740000247955322,
+        0.6579999923706055
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.609,
+        1.277
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-153",
+      "center": [
+        1.8447885516275475,
+        0.5324953754246236,
+        -3.26780984227091
+      ],
+      "extents": [
+        0.5723553203889241,
+        0.5065570148825645,
+        0.6652792956994084
+      ],
+      "yaw": 1.6196365785762599,
+      "n_points": 814,
+      "mean_rgb": [
+        0.382999986410141,
+        0.3370000123977661,
+        0.2720000147819519
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.462,
+        1.969
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-154",
+      "center": [
+        1.9810598549455598,
+        -0.5184990284591914,
+        1.987238641867587
+      ],
+      "extents": [
+        0.22159401963597553,
+        0.9792857246100904,
+        0.13167730972007308
+      ],
+      "yaw": 1.6120286565859183,
+      "n_points": 2094,
+      "mean_rgb": [
+        0.621999979019165,
+        0.5640000104904175,
+        0.4189999997615814
+      ],
+      "class": "vertical_pipe",
+      "label_confidence": 0.45,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.175,
+        1.154
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-155",
+      "center": [
+        1.8224478289211334,
+        -0.4673727318644524,
+        -2.324164427933069
+      ],
+      "extents": [
+        0.5059708308487141,
+        0.4194444447755814,
+        0.4240024293960173
+      ],
+      "yaw": 2.924167498329794,
+      "n_points": 823,
+      "mean_rgb": [
+        0.6890000104904175,
+        0.6349999904632568,
+        0.5960000157356262
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.506,
+        0.925
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-156",
+      "center": [
+        2.2163065021784547,
+        -0.9420127826929092,
+        -1.9996518297454227
+      ],
+      "extents": [
+        0.570246528689534,
+        0.35117966532707234,
+        0.3824637196827681
+      ],
+      "yaw": 2.0693886990428307,
+      "n_points": 1883,
+      "mean_rgb": [
+        0.4440000057220459,
+        0.4050000011920929,
+        0.40799999237060547
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.065,
+        0.417
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-157",
+      "center": [
+        2.002190111909793,
+        -0.9284162950515747,
+        -3.2356534115929265
+      ],
+      "extents": [
+        0.4303585028008504,
+        0.37945042610168467,
+        0.2960002986302833
+      ],
+      "yaw": 2.0560200051110025,
+      "n_points": 405,
+      "mean_rgb": [
+        0.7710000276565552,
+        0.75,
+        0.7390000224113464
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.065,
+        0.444
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-157",
+        "asset_id": "ASSET-022",
+        "tag": "M-004",
+        "asset_class": "ELECTRIC_MOTOR",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "ELECTRIC_MOTOR placed on a 'pump' object",
+        "health_score": 69,
+        "condition_state": "degraded",
+        "issue_code": "CURRENT_IMBALANCE",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-158",
+      "center": [
+        2.02771856037039,
+        0.1445927381515503,
+        3.4736188230118628
+      ],
+      "extents": [
+        1.060248262494098,
+        1.2266486644744874,
+        0.4611428888832737
+      ],
+      "yaw": 3.0330182400220473,
+      "n_points": 3509,
+      "mean_rgb": [
+        0.5090000033378601,
+        0.4560000002384186,
+        0.37299999594688416
+      ],
+      "class": "shelving_rack",
+      "label_confidence": 0.4,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.714,
+        1.941
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-159",
+      "center": [
+        2.495315221816247,
+        -1.0313558638095857,
+        2.67821840038564
+      ],
+      "extents": [
+        0.5061326952247537,
+        0.14065769910812365,
+        0.39764294977476644
+      ],
+      "yaw": -2.7727384128623953,
+      "n_points": 1161,
+      "mean_rgb": [
+        0.8560000061988831,
+        0.8009999990463257,
+        0.6940000057220459
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.081,
+        0.222
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-159",
+        "asset_id": "ASSET-013",
+        "tag": "P-001",
+        "asset_class": "PROCESS_PUMP",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "PROCESS_PUMP placed on a 'pump' object",
+        "health_score": 69,
+        "condition_state": "degraded",
+        "issue_code": "MISALIGNMENT",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-160",
+      "center": [
+        3.0187475346439894,
+        -0.8399264127016067,
+        2.290528542480623
+      ],
+      "extents": [
+        1.4124095134498447,
+        0.5801398360729217,
+        0.8465386020120974
+      ],
+      "yaw": 3.0093583899742082,
+      "n_points": 5555,
+      "mean_rgb": [
+        0.6850000023841858,
+        0.6230000257492065,
+        0.5299999713897705
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        0.633
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-161",
+      "center": [
+        2.7068010704089343,
+        -0.9188469469547271,
+        3.139759699677113
+      ],
+      "extents": [
+        0.6663437204789346,
+        0.40495744466781625,
+        0.5825347383655585
+      ],
+      "yaw": 3.0521527812999225,
+      "n_points": 2849,
+      "mean_rgb": [
+        0.597000002861023,
+        0.5680000185966492,
+        0.5289999842643738
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.062,
+        0.467
+      ],
+      "touches_floor": true,
+      "asset": {
+        "object_id": "OBJ-161",
+        "asset_id": "ASSET-014",
+        "tag": "P-002",
+        "asset_class": "PROCESS_PUMP",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "PROCESS_PUMP placed on a 'pump' object",
+        "health_score": 45,
+        "condition_state": "attention_required",
+        "issue_code": "CAVITATION_RISK",
+        "criticality": "C - standard"
+      }
+    },
+    {
+      "object_id": "OBJ-162",
+      "center": [
+        2.5582991768586347,
+        0.1974367938004434,
+        -3.2973730859788897
+      ],
+      "extents": [
+        0.2500564827089298,
+        0.47573945391923184,
+        0.1984770375228168
+      ],
+      "yaw": 2.514165221020191,
+      "n_points": 896,
+      "mean_rgb": [
+        0.5649999976158142,
+        0.5709999799728394,
+        0.4880000054836273
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.143,
+        1.618
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-162",
+        "asset_id": "ASSET-027",
+        "tag": "PT-003",
+        "asset_class": "PRESSURE_TRANSMITTER",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.45,
+        "reason": "PRESSURE_TRANSMITTER placed on a 'valve_assembly' object",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-163",
+      "center": [
+        2.7575507297545427,
+        0.2281313771009446,
+        3.47931075233793
+      ],
+      "extents": [
+        0.31523121119541375,
+        1.0426460993289948,
+        0.31799271399542745
+      ],
+      "yaw": 1.235346403904956,
+      "n_points": 865,
+      "mean_rgb": [
+        0.33399999141693115,
+        0.2669999897480011,
+        0.2029999941587448
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.89,
+        1.932
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-164",
+      "center": [
+        2.923578301993139,
+        -0.4778928598761559,
+        2.2747731651083103
+      ],
+      "extents": [
+        1.2544659927365072,
+        0.4967687541246414,
+        0.914477278714043
+      ],
+      "yaw": 0.8751857639527667,
+      "n_points": 9535,
+      "mean_rgb": [
+        0.7239999771118164,
+        0.6919999718666077,
+        0.6370000243186951
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.457,
+        0.953
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-165",
+      "center": [
+        3.2445128354758346,
+        -0.11911409378051768,
+        3.512923206571896
+      ],
+      "extents": [
+        0.6382730237875784,
+        1.6650978231430051,
+        0.23038688397210966
+      ],
+      "yaw": 2.9965108803651566,
+      "n_points": 2445,
+      "mean_rgb": [
+        0.7059999704360962,
+        0.6639999747276306,
+        0.6019999980926514
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.231,
+        1.896
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-166",
+      "center": [
+        3.135613806437968,
+        -0.9758295375108719,
+        -1.5288574278463005
+      ],
+      "extents": [
+        0.31737277225114485,
+        0.30963697791099554,
+        0.17451591013543277
+      ],
+      "yaw": 1.534612673310307,
+      "n_points": 1060,
+      "mean_rgb": [
+        0.734000027179718,
+        0.5699999928474426,
+        0.3709999918937683
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.052,
+        0.362
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-167",
+      "center": [
+        3.216981687100657,
+        0.6906634920835495,
+        -1.8597805723282577
+      ],
+      "extents": [
+        0.23322453812046132,
+        0.1817025220394135,
+        0.13958048392197703
+      ],
+      "yaw": -2.949716065489901,
+      "n_points": 290,
+      "mean_rgb": [
+        0.4880000054836273,
+        0.42899999022483826,
+        0.36500000953674316
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.783,
+        1.965
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-168",
+      "center": [
+        3.291304034654975,
+        -0.3168910801410675,
+        -3.141004519032887
+      ],
+      "extents": [
+        0.36015685146561616,
+        0.2427862644195557,
+        0.15088472156725674
+      ],
+      "yaw": -3.0210031091392087,
+      "n_points": 705,
+      "mean_rgb": [
+        0.6340000033378601,
+        0.550000011920929,
+        0.5059999823570251
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.745,
+        0.988
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-168",
+        "asset_id": "ASSET-010",
+        "tag": "CV-010",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-169",
+      "center": [
+        3.221716087732874,
+        0.7164264595508576,
+        -0.5968572455329668
+      ],
+      "extents": [
+        0.9190828877870967,
+        0.11638757586479176,
+        0.6621551192142685
+      ],
+      "yaw": -3.0258463475983066,
+      "n_points": 2360,
+      "mean_rgb": [
+        0.45899999141693115,
+        0.4020000100135803,
+        0.3240000009536743
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.841,
+        1.958
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-170",
+      "center": [
+        3.4622638110818253,
+        -0.8536816054582597,
+        3.4533907644063264
+      ],
+      "extents": [
+        0.4513130570192342,
+        0.29180764436721807,
+        0.2796254766460678
+      ],
+      "yaw": -2.6890858802641167,
+      "n_points": 278,
+      "mean_rgb": [
+        0.4560000002384186,
+        0.3409999907016754,
+        0.24699999392032623
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.183,
+        0.475
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-171",
+      "center": [
+        3.647512400252058,
+        -0.9211375463008881,
+        -1.8391905605525836
+      ],
+      "extents": [
+        0.6670753765890332,
+        0.27919539690017703,
+        0.7488202836650641
+      ],
+      "yaw": -3.025613253243939,
+      "n_points": 2453,
+      "mean_rgb": [
+        0.796999990940094,
+        0.6859999895095825,
+        0.6830000281333923
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.122,
+        0.401
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-172",
+      "center": [
+        3.537501948391199,
+        0.6086955809593201,
+        -1.7615369202919455
+      ],
+      "extents": [
+        0.5384112763550434,
+        0.32587960481643674,
+        0.2932590267963086
+      ],
+      "yaw": -3.0902911854002637,
+      "n_points": 650,
+      "mean_rgb": [
+        0.47999998927116394,
+        0.42500001192092896,
+        0.36000001430511475
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.629,
+        1.955
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-173",
+      "center": [
+        3.855247748305396,
+        -0.7815874245762823,
+        2.703055195636642
+      ],
+      "extents": [
+        1.0290832861292496,
+        0.6916763252019889,
+        0.5233781226843722
+      ],
+      "yaw": 1.9013514252341281,
+      "n_points": 1583,
+      "mean_rgb": [
+        0.3790000081062317,
+        0.335999995470047,
+        0.2879999876022339
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.056,
+        0.747
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-174",
+      "center": [
+        3.594635963495498,
+        -0.9048338860273362,
+        3.229251177244602
+      ],
+      "extents": [
+        0.3398126448793165,
+        0.41581386446952806,
+        0.1922328596474281
+      ],
+      "yaw": -3.065470350598807,
+      "n_points": 200,
+      "mean_rgb": [
+        0.23399999737739563,
+        0.1720000058412552,
+        0.12099999934434891
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.07,
+        0.486
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-175",
+      "center": [
+        3.866030780016155,
+        -0.025186019837855955,
+        0.3438390512844013
+      ],
+      "extents": [
+        0.7701540457794817,
+        1.3333121663331993,
+        0.2716991673132968
+      ],
+      "yaw": -2.8230701823820485,
+      "n_points": 3188,
+      "mean_rgb": [
+        0.6050000190734863,
+        0.5860000252723694,
+        0.5419999957084656
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.491,
+        1.824
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-176",
+      "center": [
+        3.7263843772830323,
+        -0.855067182183266,
+        1.6238243430881711
+      ],
+      "extents": [
+        1.1872411050740332,
+        0.5523374783992758,
+        1.0036184080191015
+      ],
+      "yaw": 1.4157186025003534,
+      "n_points": 7395,
+      "mean_rgb": [
+        0.5519999861717224,
+        0.5049999952316284,
+        0.453000009059906
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.052,
+        0.604
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-177",
+      "center": [
+        3.4742930189266303,
+        -0.9085904687643052,
+        0.5817956831412145
+      ],
+      "extents": [
+        1.429868700775053,
+        0.4460307228565218,
+        1.2847515021107148
+      ],
+      "yaw": -2.703365549926956,
+      "n_points": 7858,
+      "mean_rgb": [
+        0.5989999771118164,
+        0.5759999752044678,
+        0.5529999732971191
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.051,
+        0.497
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-178",
+      "center": [
+        3.7560284677802165,
+        0.37502621889114374,
+        -0.4201729627535033
+      ],
+      "extents": [
+        0.33710589765764065,
+        0.7329777812957763,
+        0.30910651288347163
+      ],
+      "yaw": -3.1413484182684823,
+      "n_points": 1165,
+      "mean_rgb": [
+        0.3019999861717224,
+        0.2840000092983246,
+        0.2240000069141388
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.192,
+        1.925
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-179",
+      "center": [
+        3.8642903014258363,
+        -0.4400927421450615,
+        1.966191376231199
+      ],
+      "extents": [
+        0.39718172222002085,
+        0.16508081734180446,
+        0.16223121415359937
+      ],
+      "yaw": -2.9375517375903764,
+      "n_points": 1019,
+      "mean_rgb": [
+        0.5389999747276306,
+        0.5289999842643738,
+        0.49300000071525574
+      ],
+      "class": "valve_assembly",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.66,
+        0.825
+      ],
+      "touches_floor": false,
+      "asset": {
+        "object_id": "OBJ-179",
+        "asset_id": "ASSET-006",
+        "tag": "CV-006",
+        "asset_class": "CONTROL_VALVE",
+        "mapping_method": "procedural_class_compatible",
+        "mapping_confidence": 0.55,
+        "reason": "CONTROL_VALVE placed on a 'valve_assembly' object",
+        "health_score": 96,
+        "condition_state": "healthy",
+        "issue_code": "NORMAL",
+        "criticality": "B - important"
+      }
+    },
+    {
+      "object_id": "OBJ-180",
+      "center": [
+        3.7477137684463644,
+        -0.2250025094486773,
+        -2.673429556180683
+      ],
+      "extents": [
+        0.5432223797404491,
+        0.35642573695629837,
+        0.25676373790891704
+      ],
+      "yaw": 1.3708789387187859,
+      "n_points": 730,
+      "mean_rgb": [
+        0.6499999761581421,
+        0.5820000171661377,
+        0.49799999594688416
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.78,
+        1.136
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-181",
+      "center": [
+        3.966325334732759,
+        0.0703528159856796,
+        2.1273801572769413
+      ],
+      "extents": [
+        1.101648511841681,
+        1.353032808303833,
+        0.5231907513359741
+      ],
+      "yaw": 1.7498127310722646,
+      "n_points": 7428,
+      "mean_rgb": [
+        0.4189999997615814,
+        0.39100000262260437,
+        0.35499998927116394
+      ],
+      "class": "shelving_rack",
+      "label_confidence": 0.4,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.577,
+        1.93
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-182",
+      "center": [
+        3.9677478762547826,
+        0.4309748389944434,
+        1.3683103289468685
+      ],
+      "extents": [
+        0.512424809316898,
+        0.7086011225730181,
+        0.4598773043989522
+      ],
+      "yaw": 1.4331957735051493,
+      "n_points": 1462,
+      "mean_rgb": [
+        0.4830000102519989,
+        0.4399999976158142,
+        0.36899998784065247
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.26,
+        1.968
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-183",
+      "center": [
+        3.963781591007106,
+        0.15955636948347096,
+        2.9293681248570045
+      ],
+      "extents": [
+        0.3639228180241556,
+        1.2032985097169877,
+        0.28780724185955064
+      ],
+      "yaw": 3.019340564094119,
+      "n_points": 2059,
+      "mean_rgb": [
+        0.4099999964237213,
+        0.38600000739097595,
+        0.34200000762939453
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.741,
+        1.944
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-184",
+      "center": [
+        3.9937913368090814,
+        0.33473129961639636,
+        -1.4017378493982897
+      ],
+      "extents": [
+        0.37173066413584377,
+        0.6568406920880079,
+        0.18752749613952452
+      ],
+      "yaw": 2.98574596546487,
+      "n_points": 721,
+      "mean_rgb": [
+        0.3190000057220459,
+        0.27399998903274536,
+        0.23600000143051147
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.189,
+        1.846
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-185",
+      "center": [
+        3.978224768934088,
+        -0.19773486793041226,
+        1.2058402405610584
+      ],
+      "extents": [
+        0.7814693615370216,
+        0.809799462556839,
+        0.30663834529869727
+      ],
+      "yaw": 1.995960316405078,
+      "n_points": 2757,
+      "mean_rgb": [
+        0.7379999756813049,
+        0.7070000171661377,
+        0.6430000066757202
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.58,
+        1.39
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-186",
+      "center": [
+        3.892361208826466,
+        0.25437942996621127,
+        3.3607116266433725
+      ],
+      "extents": [
+        0.7653323372196501,
+        1.0505752262473105,
+        0.27276720604648386
+      ],
+      "yaw": 2.5143324685919914,
+      "n_points": 1394,
+      "mean_rgb": [
+        0.4339999854564667,
+        0.4189999997615814,
+        0.3779999911785126
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.912,
+        1.963
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-187",
+      "center": [
+        4.0126532041649945,
+        0.31838228926062584,
+        2.6127282004623544
+      ],
+      "extents": [
+        0.3569135304587009,
+        0.5026434138417244,
+        0.22374583037312018
+      ],
+      "yaw": 1.7696833395078726,
+      "n_points": 751,
+      "mean_rgb": [
+        0.4429999887943268,
+        0.42800000309944153,
+        0.3529999852180481
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.25,
+        1.753
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-188",
+      "center": [
+        3.9823840719631156,
+        0.5277374744415284,
+        2.4505157961583
+      ],
+      "extents": [
+        0.23987890378800364,
+        0.5033275902271271,
+        0.1130414497729979
+      ],
+      "yaw": 1.8922035705703797,
+      "n_points": 906,
+      "mean_rgb": [
+        0.35499998927116394,
+        0.37700000405311584,
+        0.29100000858306885
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.459,
+        1.962
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-189",
+      "center": [
+        3.9859542058449637,
+        0.6277920542657376,
+        0.35921726365771034
+      ],
+      "extents": [
+        0.16652533568105318,
+        0.31133500248193735,
+        0.15158246573244671
+      ],
+      "yaw": 1.9635123544128803,
+      "n_points": 222,
+      "mean_rgb": [
+        0.37700000405311584,
+        0.3440000116825104,
+        0.28700000047683716
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.655,
+        1.966
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-190",
+      "center": [
+        4.091204197839377,
+        0.4328965496271849,
+        1.0891156487045481
+      ],
+      "extents": [
+        0.3046799743667941,
+        0.4022075034677982,
+        0.10766214638168117
+      ],
+      "yaw": 2.6636846191300183,
+      "n_points": 256,
+      "mean_rgb": [
+        0.3970000147819519,
+        0.35899999737739563,
+        0.3109999895095825
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.415,
+        1.817
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-191",
+      "center": [
+        4.1517198788683185,
+        -0.8304721987247468,
+        1.578467476662279
+      ],
+      "extents": [
+        0.5060350534483877,
+        0.33601658225059505,
+        0.19392454403357068
+      ],
+      "yaw": 1.7253966054798744,
+      "n_points": 244,
+      "mean_rgb": [
+        0.33399999141693115,
+        0.2980000078678131,
+        0.24500000476837158
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.185,
+        0.521
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-192",
+      "center": [
+        4.125516300788556,
+        -0.3419279013946652,
+        0.7856010574760547
+      ],
+      "extents": [
+        0.6696853764664815,
+        0.7468676187843084,
+        0.20152677660819812
+      ],
+      "yaw": 1.604509772262104,
+      "n_points": 1395,
+      "mean_rgb": [
+        0.7210000157356262,
+        0.6740000247955322,
+        0.6269999742507935
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.468,
+        1.215
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-193",
+      "center": [
+        -4.753639853943658,
+        -0.012039925158023712,
+        2.1918117128347374
+      ],
+      "extents": [
+        0.912759005495001,
+        1.398920392394066,
+        0.2977507900263565
+      ],
+      "yaw": 1.703001360783468,
+      "n_points": 4442,
+      "mean_rgb": [
+        0.5920000076293945,
+        0.597000002861023,
+        0.5759999752044678
+      ],
+      "class": "shelving_rack",
+      "label_confidence": 0.4,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.471,
+        1.87
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-194",
+      "center": [
+        -4.024642298307993,
+        -0.952367868423462,
+        0.21384968283144734
+      ],
+      "extents": [
+        0.5869337297112127,
+        0.3476248168945314,
+        0.34315233202028783
+      ],
+      "yaw": 3.132612398767175,
+      "n_points": 973,
+      "mean_rgb": [
+        0.703000009059906,
+        0.6620000004768372,
+        0.5839999914169312
+      ],
+      "class": "pump",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.057,
+        0.404
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-195",
+      "center": [
+        -4.179811887754484,
+        0.023814469575881958,
+        2.607635339463812
+      ],
+      "extents": [
+        0.49909455951179726,
+        1.4185025691986084,
+        0.25135737606918296
+      ],
+      "yaw": 1.082432826658712,
+      "n_points": 651,
+      "mean_rgb": [
+        0.5979999899864197,
+        0.5820000171661377,
+        0.5299999713897705
+      ],
+      "class": "electrical_cabinet",
+      "label_confidence": 0.35,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.498,
+        1.916
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-196",
+      "center": [
+        -3.5940933597617395,
+        0.14016726955771447,
+        3.1065268137309907
+      ],
+      "extents": [
+        0.21372821063851194,
+        0.6220542833209038,
+        0.25591472016428374
+      ],
+      "yaw": 1.1986155147498194,
+      "n_points": 198,
+      "mean_rgb": [
+        0.17800000309944153,
+        0.17800000309944153,
+        0.13600000739097595
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.012,
+        1.634
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-197",
+      "center": [
+        -2.8387468176528508,
+        -0.6148593344166875,
+        2.210393945822956
+      ],
+      "extents": [
+        0.561834068077517,
+        1.020246190652251,
+        0.36530852971421734
+      ],
+      "yaw": -2.5133014980380595,
+      "n_points": 2652,
+      "mean_rgb": [
+        0.41999998688697815,
+        0.33000001311302185,
+        0.21899999678134918
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.058,
+        1.078
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-198",
+      "center": [
+        -2.3424955299119055,
+        -0.5716198127157986,
+        3.2570190915939605
+      ],
+      "extents": [
+        0.3377785557724998,
+        1.1177440705522896,
+        0.20846923384556293
+      ],
+      "yaw": 1.4301873914486263,
+      "n_points": 953,
+      "mean_rgb": [
+        0.9399999976158142,
+        0.9129999876022339,
+        0.859000027179718
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        1.17
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-199",
+      "center": [
+        -2.104260793302273,
+        0.3328748919069766,
+        -3.4985741156377386
+      ],
+      "extents": [
+        0.7856856868857807,
+        0.4418364521861075,
+        0.11393027473007085
+      ],
+      "yaw": -3.1374694883233603,
+      "n_points": 243,
+      "mean_rgb": [
+        0.26899999380111694,
+        0.17399999499320984,
+        0.12200000137090683
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.295,
+        1.737
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-200",
+      "center": [
+        -1.7409935642667886,
+        -0.9098777627944946,
+        -3.041583341058534
+      ],
+      "extents": [
+        0.8200908751652454,
+        0.44486561298370364,
+        0.4043497833787131
+      ],
+      "yaw": 1.0322356488932856,
+      "n_points": 1632,
+      "mean_rgb": [
+        0.3790000081062317,
+        0.34200000762939453,
+        0.3230000138282776
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.051,
+        0.496
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-201",
+      "center": [
+        -1.7110144870780724,
+        -0.672706785798073,
+        3.39320977387997
+      ],
+      "extents": [
+        0.5351129043488729,
+        0.5322220265865323,
+        0.6244285078684129
+      ],
+      "yaw": 2.006879262461581,
+      "n_points": 1041,
+      "mean_rgb": [
+        0.3970000147819519,
+        0.3190000057220459,
+        0.26499998569488525
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.244,
+        0.776
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-202",
+      "center": [
+        -1.4842729586054884,
+        0.35911036321893314,
+        3.6501539602852886
+      ],
+      "extents": [
+        0.5237339235394267,
+        0.7956237969920036,
+        0.2501507579391204
+      ],
+      "yaw": 0.7947406892062073,
+      "n_points": 820,
+      "mean_rgb": [
+        0.6620000004768372,
+        0.6449999809265137,
+        0.5540000200271606
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.144,
+        1.94
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-203",
+      "center": [
+        -1.4101924534719537,
+        -0.8153223875164987,
+        3.5525082656180054
+      ],
+      "extents": [
+        0.5258772182893663,
+        0.623566886782646,
+        0.24482378320712855
+      ],
+      "yaw": -2.537597086359641,
+      "n_points": 724,
+      "mean_rgb": [
+        0.6320000290870667,
+        0.6110000014305115,
+        0.5870000123977661
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.056,
+        0.679
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-204",
+      "center": [
+        0.3215682730495239,
+        0.08968221545219418,
+        3.7187002894216694
+      ],
+      "extents": [
+        0.7985227188513846,
+        1.3405961334705352,
+        0.4210396165554189
+      ],
+      "yaw": 2.632383267696571,
+      "n_points": 736,
+      "mean_rgb": [
+        0.675000011920929,
+        0.6600000262260437,
+        0.628000020980835
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.602,
+        1.943
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-205",
+      "center": [
+        -0.7737418631556551,
+        -0.19948800563812258,
+        3.663924232078445
+      ],
+      "extents": [
+        0.6827128430932172,
+        1.818036117553711,
+        0.3152415920063372
+      ],
+      "yaw": 3.0542967872946343,
+      "n_points": 5365,
+      "mean_rgb": [
+        0.7820000052452087,
+        0.7749999761581421,
+        0.7680000066757202
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.074,
+        1.893
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-206",
+      "center": [
+        -1.4686617598488287,
+        0.65394909709692,
+        -2.828565616287044
+      ],
+      "extents": [
+        0.9333855480913618,
+        0.23940448701381678,
+        0.12846235841217593
+      ],
+      "yaw": 3.1271747684810385,
+      "n_points": 442,
+      "mean_rgb": [
+        0.5839999914169312,
+        0.531000018119812,
+        0.4699999988079071
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.717,
+        1.957
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-207",
+      "center": [
+        -1.3393914336188038,
+        -1.0279030415415764,
+        3.298043022496084
+      ],
+      "extents": [
+        0.2934203691229945,
+        0.20447487890720373,
+        0.2625791262560765
+      ],
+      "yaw": 0.7961051241985672,
+      "n_points": 272,
+      "mean_rgb": [
+        0.8220000267028809,
+        0.37599998712539673,
+        0.414000004529953
+      ],
+      "class": "crate",
+      "label_confidence": 0.45,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.053,
+        0.257
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-208",
+      "center": [
+        -1.0155944202543152,
+        0.22436499118804937,
+        -3.2996134532822867
+      ],
+      "extents": [
+        0.4704119934920584,
+        1.0110235607624056,
+        0.6302682396032544
+      ],
+      "yaw": 1.4728971647910218,
+      "n_points": 1184,
+      "mean_rgb": [
+        0.39800000190734863,
+        0.36500000953674316,
+        0.34299999475479126
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.902,
+        1.913
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-209",
+      "center": [
+        -1.1736430770032777,
+        -0.817352738380432,
+        -3.4431238234034525
+      ],
+      "extents": [
+        0.15492841717852507,
+        0.6269847917556765,
+        0.1423275879293733
+      ],
+      "yaw": 2.770024597817522,
+      "n_points": 202,
+      "mean_rgb": [
+        0.3160000145435333,
+        0.30399999022483826,
+        0.3019999861717224
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.052,
+        0.679
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-210",
+      "center": [
+        0.18544502236128493,
+        0.487253702506423,
+        -1.0769625944030705
+      ],
+      "extents": [
+        1.045428736092756,
+        0.5984082563221454,
+        0.1280459970567812
+      ],
+      "yaw": 3.0977917207761165,
+      "n_points": 862,
+      "mean_rgb": [
+        0.6710000038146973,
+        0.628000020980835,
+        0.5419999957084656
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.371,
+        1.969
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-211",
+      "center": [
+        1.2880961057631652,
+        -0.707667316198349,
+        -0.4745128074339695
+      ],
+      "extents": [
+        0.8439539592559369,
+        0.8341794753074645,
+        0.6114229568752398
+      ],
+      "yaw": 1.83005279327748,
+      "n_points": 7750,
+      "mean_rgb": [
+        0.3240000009536743,
+        0.30300000309944153,
+        0.25699999928474426
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.058,
+        0.892
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-212",
+      "center": [
+        1.2081057880721664,
+        -0.6936823956668376,
+        1.8232257441382778
+      ],
+      "extents": [
+        0.5693498079627273,
+        0.8619460073113441,
+        0.552790187659551
+      ],
+      "yaw": 1.1303430528623082,
+      "n_points": 4680,
+      "mean_rgb": [
+        0.16200000047683716,
+        0.1340000033378601,
+        0.11599999666213989
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.058,
+        0.92
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-213",
+      "center": [
+        1.0892983602633932,
+        0.7482653421163559,
+        -3.1904030901671634
+      ],
+      "extents": [
+        0.9652572191278607,
+        0.07239887952804569,
+        0.2471585288031069
+      ],
+      "yaw": -3.056438885371986,
+      "n_points": 404,
+      "mean_rgb": [
+        0.30799999833106995,
+        0.2709999978542328,
+        0.23199999332427979
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.895,
+        1.967
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-214",
+      "center": [
+        2.6053619194576045,
+        0.6673915416002274,
+        -3.211543006407893
+      ],
+      "extents": [
+        0.7312364685774053,
+        0.23751760125160215,
+        0.3279856269844359
+      ],
+      "yaw": -3.003716485822406,
+      "n_points": 338,
+      "mean_rgb": [
+        0.29600000381469727,
+        0.25600001215934753,
+        0.23800000548362732
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.732,
+        1.969
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-215",
+      "center": [
+        2.726326254060553,
+        -0.376136177778244,
+        3.4574755477555024
+      ],
+      "extents": [
+        0.4776813465716273,
+        0.368206491470337,
+        0.1533603993793377
+      ],
+      "yaw": 1.5925090283679282,
+      "n_points": 440,
+      "mean_rgb": [
+        0.3959999978542328,
+        0.38100001215934753,
+        0.3449999988079071
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.623,
+        0.991
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-216",
+      "center": [
+        3.946658487361672,
+        0.2826523362100124,
+        -2.4662965391433747
+      ],
+      "extents": [
+        0.4835380692271919,
+        1.0037603548169136,
+        0.5528009998175211
+      ],
+      "yaw": 2.9728246996369605,
+      "n_points": 1335,
+      "mean_rgb": [
+        0.4880000054836273,
+        0.4059999883174896,
+        0.28299999237060547
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.964,
+        1.968
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-217",
+      "center": [
+        4.080176764892559,
+        0.40204256042838094,
+        -0.7864129800335247
+      ],
+      "extents": [
+        0.42526751583719724,
+        0.7313377287983893,
+        0.24110265933408637
+      ],
+      "yaw": 1.4123185642101905,
+      "n_points": 317,
+      "mean_rgb": [
+        0.026000000536441803,
+        0.01899999938905239,
+        0.007000000216066837
+      ],
+      "class": "clutter",
+      "label_confidence": 0.2,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.219,
+        1.951
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-218",
+      "center": [
+        -3.2157222637660707,
+        -0.6255951374769211,
+        3.496161712769064
+      ],
+      "extents": [
+        0.5354689533015746,
+        0.9915152800083162,
+        0.28635614743325366
+      ],
+      "yaw": -2.9664876781098326,
+      "n_points": 297,
+      "mean_rgb": [
+        0.6129999756813049,
+        0.5799999833106995,
+        0.5239999890327454
+      ],
+      "class": "wire_trolley",
+      "label_confidence": 0.3,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        0.062,
+        1.053
+      ],
+      "touches_floor": true
+    },
+    {
+      "object_id": "OBJ-219",
+      "center": [
+        -0.6198743866891953,
+        0.7332632315158845,
+        -2.350654988132545
+      ],
+      "extents": [
+        1.34806160844198,
+        0.09140141248703004,
+        0.27760913186378433
+      ],
+      "yaw": 3.133315826470479,
+      "n_points": 1229,
+      "mean_rgb": [
+        0.9139999747276306,
+        0.9020000100135803,
+        0.8970000147819519
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.871,
+        1.962
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-220",
+      "center": [
+        2.5783603832421704,
+        0.744095829129219,
+        -2.381988719321785
+      ],
+      "extents": [
+        1.3635163092908749,
+        0.08227627277374261,
+        0.30734368031185155
+      ],
+      "yaw": 3.1180788929340246,
+      "n_points": 1186,
+      "mean_rgb": [
+        0.8679999709129333,
+        0.8539999723434448,
+        0.847000002861023
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.886,
+        1.968
+      ],
+      "touches_floor": false
+    },
+    {
+      "object_id": "OBJ-221",
+      "center": [
+        2.774430821812239,
+        0.7272870451211929,
+        1.4020514301878109
+      ],
+      "extents": [
+        1.3468014012988774,
+        0.11551672101020816,
+        0.28419741911892366
+      ],
+      "yaw": 1.5447988142033617,
+      "n_points": 1667,
+      "mean_rgb": [
+        0.8629999756813049,
+        0.8460000157356262,
+        0.8330000042915344
+      ],
+      "class": "ceiling_pipe",
+      "label_confidence": 0.55,
+      "label_source": "heuristic_v0",
+      "height_above_floor": [
+        1.853,
+        1.968
+      ],
+      "touches_floor": false
+    }
+  ]
+}

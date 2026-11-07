@@ -22,16 +22,17 @@
     </script>
     <script src="https://unpkg.com/@babel/standalone@7.26.2/babel.min.js"></script>
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased">
+  <body>
     <div id="root">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:monospace;color:#34d399;gap:12px;">
-        <div>Loading Valmet SpatialSense 3D Boiler Room Engine...</div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;font-size:13px;color:#4b5662;background:#e9ecef;gap:10px;">
+        <div>Loading Valmet DNA SpatialSense...</div>
       </div>
     </div>
 
     <script type="module">
       async function bootApp() {
         const files = [
+          '/src/ui/status.js',
           '/src/data/valmetDataset.js',
           '/src/data/challengeBriefMissions.js',
           '/src/utils/dataPipeline.js',

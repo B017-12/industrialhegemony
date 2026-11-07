@@ -51,3 +51,61 @@ Then open **http://localhost:5173** in your browser.
 - **File**: [`src/components/EdgeCopilotAndArHud.jsx`](src/components/EdgeCopilotAndArHud.jsx) & [`src/utils/copilotEngine.js`](src/utils/copilotEngine.js)
 - Click **"AR HUD"** in the top-right of the inspector panel to open the simulated **Mobile AR Field View** anchored to the physical QR tag (`QR-SYN-0001` to `QR-SYN-0030`) with a synced hands-free LOTO checklist.
 - Use the bottom **Offline Edge AI Copilot** bar to run preset or custom natural-language queries with explicit asset, event, work order, and SOP document citations.
+
+---
+
+## Python pipeline & backend (branch `feat/pipeline`)
+
+Real extraction from `Equipment Room.ply` (the same boiler room as `Industrial Boiler Room (1).mp4`) and a
+grounded copilot over the Excel builder pack. CPU only; ~40 s end to end.
+
+### Setup
+```bash
+# challenge files are read-only; link them in (paths are gitignored)
+mkdir -p data/raw
+ln -s "/path/to/VALMET/Equipment Room.ply" data/raw/equipment_room.ply
+ln -s "/path/to/VALMET/Valmet_SinceAI_2026_Synthetic_Industrial_Metaverse_Builder_Pack (1) (2) (1).xlsx" data/raw/builder_pack.xlsx
+uv sync                                   # Python 3.12 env
+uv run python -m pipeline.run_all         # writes public/assets/*.json + equipment_room_splats.bin
+uv run uvicorn backend.app:app --port 8000
+npm run dev                               # Vite proxies /api -> :8000
+# open http://localhost:5173/viewer.html  # photoreal scan + extracted frames + rails + walking avatar + diagnosis
+uv run pytest                             # 11 tests: route invariants, API contract, grounding
+```
+Copilot LLM: copy `.env.example` to `.env`, set `LLM_MODEL=google:<model>` + `GEMINI_API_KEY`. Without them the
+copilot answers deterministically from the same evidence (mode `fallback`).
+
+### Stages (`pipeline/`)
+| stage | what it does | output |
+|---|---|---|
+| clean | memmap the 3DGS PLY; keep splats with sigmoid(opacity) > 0.1 and max scale < 0.3 (912k of 1.68M); world frame = (x, −y, −z) | `splats_clean.npz`, `public/assets/equipment_room_splats.bin` |
+| orient | floor/ceiling from the height histogram + RANSAC (floor tilt 0.34°) | `transform.json`, sanity renders |
+| export_splat | room-cropped, ceiling-cut Gaussian splats in the world frame (1.0M splats, 33 MB; gitignored) | `public/assets/equipment_room.splat` |
+| excel | all 16 sheets into an in-memory store (telemetry append supported) | `public/assets/pack_assets.json` |
+| segment | floor/ceiling/wall removal → 4 cm voxels → bridged connected components → recursive watershed / spatial split → oriented boxes | 221 objects |
+| label | heuristic class + explicit `label_confidence`, per-object thumbnails for a VLM pass | `objects.json` |
+| rails | per-height-band occupancy; body clearance = distance − half-width; rails = medial axis of the walkable area (**left = right nearest obstacle**) | `public/assets/rails.json` |
+| map | P-005 (ASSET-017, FOULING, health 44) pinned to a confirmed pump; other 29 assets placed procedurally by class, healthy ones along the route | `public/assets/registry.json`, `objects.json` |
+| navigate | min-cost route pulled onto the rails; collision check per band; left/right clearance per sample; proximity timeline | `public/assets/path.json`, `timeline.json` |
+
+Scene choices that survive re-segmentation (target position, start) live in `pipeline/scene_config.json`.
+
+### Scan viewer (`viewer.html`, `src/viewer/`)
+Separate page from the prototype app, rendering the real pipeline output: photoreal splats via
+`@mkkellogg/gaussian-splats-3d` (point-cloud fallback), object frames coloured by Excel condition with
+demo-2-style labels, rails, the route, an avatar walking it with a 1.5 m proximity ring and live "nearby"
+list, click-to-inspect, and the copilot diagnosis on arrival. Space = walk/pause. Runs at ~1M splats on an
+Intel Iris Xe.
+
+### Backend (`backend/`)
+Routes follow the pack's `API_Contract` sheet: `GET /api/assets`, `/api/assets/{id}`, `/telemetry` (+ `POST` append),
+`/events`, `/documents`, `/api/scene/anchors`, `POST /api/copilot/query`, `POST /api/work-orders/draft` (DRAFT only),
+plus `/api/scene/objects`, `/api/sim/{rails,path,timeline}`, `/api/assets/{id}/status-line`.
+The copilot builds a deterministic evidence pack (telemetry trends vs healthy peers, events, work orders, matching
+historical cases, data-quality issues, docs), computes confidence (model confidence − data-quality and mapping
+penalties), and strips any cited ID that does not exist in the pack. `src/api.js` is the frontend client.
+
+### Honest limitations
+- Class labels are heuristic (many objects are `clutter`); the VLM labelling pass needs a Gemini key.
+- Scene units are not calibrated (room height reads 2.05 units).
+- `telemetry_full_14d_30min.csv` and `DOC-ASSET-*.md` are referenced by the pack but were not provided.

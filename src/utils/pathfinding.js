@@ -57,7 +57,7 @@ export const NAV_EDGES = [
 
   // Cross-aisle Centerline Rails (South to Mid)
   { from: 'N-S-WEST2', to: 'N-M-WEST2', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-WEST-OUTER' },
-  { from: 'N-S-WEST1', to: 'N-M-WEST1', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-WEST-INNER' },
+  { from: 'N-S-WEST1', to: 'N-M-WEST1', has_stairs: true, min_width: 0.85, rail_id: 'RAIL-WEST-INNER-STEP' },
   { from: 'N-S-CENTER', to: 'N-M-STEP', has_stairs: true, min_width: 0.75, rail_id: 'RAIL-CATWALK-STAIR' },
   { from: 'N-M-STEP', to: 'N-M-WEST1', has_stairs: true, min_width: 0.75, rail_id: 'RAIL-CATWALK-WEST' },
   { from: 'N-M-STEP', to: 'N-N-CENTER', has_stairs: true, min_width: 0.75, rail_id: 'RAIL-CATWALK-NORTH' },
@@ -313,8 +313,9 @@ export const INITIAL_FLEET_AGENTS = [
   {
     agent_id: 'R1',
     name: 'AMR-Unit-01 (West Patrol)',
+    role: 'Wheeled AMR',
     type: 'robot',
-    color: '#f97316',
+    color: '#d96b27',
     homeNodeId: 'N-S-WEST1',
     hitboxSize: [0.58, 1.35, 0.58],
     assignedAssetId: 'ASSET-003', // CV-003
@@ -323,8 +324,9 @@ export const INITIAL_FLEET_AGENTS = [
   {
     agent_id: 'R2',
     name: 'AMR-Unit-02 (East Skid)',
+    role: 'Wheeled AMR',
     type: 'robot',
-    color: '#a855f7',
+    color: '#49a942',
     homeNodeId: 'N-S-EAST1',
     hitboxSize: [0.58, 1.35, 0.58],
     assignedAssetId: 'ASSET-014', // P-002
@@ -333,8 +335,9 @@ export const INITIAL_FLEET_AGENTS = [
   {
     agent_id: 'H1',
     name: 'Tech-Lead-01 (Field Ops)',
+    role: 'Field Operator',
     type: 'human',
-    color: '#06b6d4',
+    color: '#1f6fb2',
     homeNodeId: 'N-ENTRY',
     hitboxSize: [0.52, 1.72, 0.46],
     assignedAssetId: 'ASSET-024', // M-006
