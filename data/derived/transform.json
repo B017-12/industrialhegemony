@@ -1,0 +1,24 @@
+{
+  "frame": "world = (x, -y_ply, -z_ply); y up; units = PLY units (scene_scale not yet calibrated)",
+  "floor_y": -1.183,
+  "ceiling_y": 0.868,
+  "room_height": 2.05,
+  "floor_slab_points": 134020,
+  "floor_normal": [
+    -0.0027000000700354576,
+    1.0,
+    -0.005400000140070915
+  ],
+  "floor_tilt_deg": 0.34,
+  "floor_ransac_inlier_frac": 0.829,
+  "frac_points_below_floor": 0.0045,
+  "frac_points_above_floor": 0.8011,
+  "floor_extent_xz": [
+    -4.612,
+    3.408,
+    -3.294,
+    3.658
+  ],
+  "scene_scale": 1.0,
+  "scene_scale_calibrated": false
+}
