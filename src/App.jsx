@@ -87,10 +87,59 @@ export default function App() {
   // only hand-verified whole objects (chairs, pallet truck) move; their volumes cover the entire object
   const splatMover = useSplatMover(sceneCtx, sceneEdit.edits, sceneEdit.movablesBaseById);
 
-  const cvSceneObjects = useMemo(
-    () => applyCvOverrides(baseCvSceneObjects, mergeEditOverrides(cvOverridesMap, sceneEdit.overrides)),
-    [baseCvSceneObjects, cvOverridesMap, sceneEdit.overrides]
-  );
+  // User-moved CV objects: { [object_id]: { dx, dz } } display-frame offsets from the scanned position
+  const [objectMoves, setObjectMoves] = useState({});
+
+  const cvSceneObjects = useMemo(() => {
+    const merged = applyCvOverrides(
+      baseCvSceneObjects,
+      mergeEditOverrides(cvOverridesMap, sceneEdit.overrides)
+    );
+    const ids = Object.keys(objectMoves);
+    if (!ids.length || !merged?.objects?.length) return merged;
+    const identity = [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ];
+    const moved = merged.objects.map((o) => {
+      const mv = objectMoves[o.object_id];
+      if (!mv || (Math.abs(mv.dx) < 1e-4 && Math.abs(mv.dz) < 1e-4)) return o;
+      const rdx = mv.dx;
+      const rdz = -mv.dz;
+      const shift = (v) => (Array.isArray(v) ? [v[0] + rdx, v[1], v[2] + rdz] : v);
+      const origObb = o._origObb
+        ? o._origObb
+        : o.obb
+        ? { center: o.obb.center, extent: o.obb.extent, rotation: o.obb.rotation || identity }
+        : {
+            center: o.center,
+            extent: (o.aabb_max || [0.5, 0.5, 0.5]).map((v, i) =>
+              Math.abs(v - (o.aabb_min?.[i] ?? 0))
+            ),
+            rotation: identity
+          };
+      return {
+        ...o,
+        _moved: mv,
+        _origObb: origObb,
+        center: shift(o.center),
+        aabb_min: shift(o.aabb_min),
+        aabb_max: shift(o.aabb_max),
+        obb: o.obb ? { ...o.obb, center: shift(o.obb.center) } : o.obb
+      };
+    });
+    return { ...merged, objects: moved };
+  }, [baseCvSceneObjects, cvOverridesMap, sceneEdit.overrides, objectMoves]);
+
+  const handleMoveCvObject = (objectId, dxOrMove, dz = 0) => {
+    const mv =
+      typeof dxOrMove === 'object' && dxOrMove !== null
+        ? { dx: Number(dxOrMove.dx) || 0, dz: Number(dxOrMove.dz) || 0 }
+        : { dx: Number(dxOrMove) || 0, dz: Number(dz) || 0 };
+    setObjectMoves((prev) => ({ ...prev, [objectId]: mv }));
+  };
+  const handleResetCvMoves = () => setObjectMoves({});
 
   // Load CV 3D OBB segmentation & video evidence bundle on startup
   useEffect(() => {
@@ -1696,6 +1745,9 @@ export default function App() {
           cvSceneObjects={cvSceneObjects}
           showAllCvDetections={showAllCvDetections}
           onToggleShowAllCvDetections={setShowAllCvDetections}
+          objectMoves={objectMoves}
+          onMoveCvObject={handleMoveCvObject}
+          onResetCvMoves={handleResetCvMoves}
           selectedCvObjectId={selectedCvObjectId}
           onSelectCvObject={(obj) => {
             if (obj?.object_id) setSelectedCvObjectId(obj.object_id);

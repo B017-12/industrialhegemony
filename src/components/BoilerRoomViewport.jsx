@@ -25,6 +25,7 @@ import { obbMatrix, rawToDisplay, EVIDENCE_PHOTO_MAP } from '../utils/cvEngine.j
 import { STRUCTURAL_BOILER_OBJECTS } from '../data/valmetDataset.js';
 import { statusOf, humanize } from '../ui/status.js';
 import FloorMinimap from './FloorMinimap.jsx';
+import HolographicArAssetMenu from './HolographicArAssetMenu.jsx';
 
 // ISA-101 High-Performance HMI palette: colour reserved for abnormal states; normal is neutral steel/emerald
 const HEALTH_COLORS = {
@@ -501,10 +502,27 @@ export default function BoilerRoomViewport({
   onToggleShowAllCvDetections,
   selectedCvObjectId = null,
   onSelectCvObject,
-  // Scene editing (src/sceneEdit): called once with the live three/Spark handles after init
-  onSceneReady
+  onSceneReady,
+  objectMoves = {},
+  onMoveCvObject,
+  onResetCvMoves
 }) {
   const mountRef = useRef(null);
+  // ---- Move-Objects mode (click an object, drag it to a new spot; splats are cut out + re-instanced) ----
+  const [moveMode, setMoveMode] = useState(false);
+  const [moveSelectedId, setMoveSelectedId] = useState(null);
+  const moveModeRef = useRef(false);
+  const objectMovesRef = useRef({});
+  const moveCbRef = useRef(null);
+  const moveDragRef = useRef(null);
+  const ghostsRef = useRef(new Map());
+  const hideEditRef = useRef({ edit: null, key: '' });
+  const cvSceneObjectsRef = useRef(null);
+  const applySplatMovesRef = useRef(null);
+  moveModeRef.current = moveMode;
+  objectMovesRef.current = objectMoves;
+  moveCbRef.current = onMoveCvObject;
+  cvSceneObjectsRef.current = cvSceneObjects;
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
   const controlsRef = useRef(null);
@@ -717,6 +735,90 @@ export default function BoilerRoomViewport({
       setClickedUnboundCvObj(obj);
     }
   }, [selectedCvObjectId]);
+
+  // ======== Move-Objects: GPU SplatEditSdf Displacement (60 FPS, zero duplicate SplatMeshes!) ========
+  // Spark's SplatEditSdf supports a native world-space `displace` Vector3 in the vertex shader
+  // (`pos += sdfDisplaceScale.xyz * modulate`). Mounting a single SplatEdit on `scene` translates
+  // the 3D Gaussian Splats inside each moved object's 3D OBB directly on the GPU!
+  const getSrcObb = (obj) =>
+    obj._origObb ??
+    obj.obb ?? {
+      center: obj.center,
+      extent: (obj.aabb_max || [0.5, 0.5, 0.5]).map((v, i) => Math.abs(v - (obj.aabb_min?.[i] ?? 0))),
+      rotation: [
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+      ]
+    };
+
+  const makeDisplacedWorldBoxSdf = (src, move) => {
+    const sdf = new SplatEditSdf({
+      type: SplatEditSdfType.BOX,
+      opacity: 1,
+      color: new THREE.Color(1.08, 1.14, 1.22),
+      displace: new THREE.Vector3(move.dx || 0, move.dy || 0, move.dz || 0),
+      invert: false
+    });
+    const dispCenter = rawToDisplay(src.center);
+    sdf.position.set(dispCenter[0], dispCenter[1], dispCenter[2]);
+    const r = src.rotation || [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ];
+    // Convert raw PLY rotation R to display/world rotation D * R * D where D = diag(1, -1, -1)
+    const rotM = new THREE.Matrix4().set(
+      r[0][0], -r[0][1], -r[0][2], 0,
+      -r[1][0], r[1][1], r[1][2], 0,
+      -r[2][0], r[2][1], r[2][2], 0,
+      0, 0, 0, 1
+    );
+    sdf.quaternion.setFromRotationMatrix(rotM);
+    const pad = 0.04;
+    sdf.scale.set(
+      src.extent[0] * 0.5 + pad,
+      src.extent[1] * 0.5 + pad,
+      src.extent[2] * 0.5 + pad
+    );
+    return sdf;
+  };
+
+  applySplatMovesRef.current = (moves) => {
+    const scene = sceneRef.current;
+    const mesh = splatMeshRef.current;
+    if (!scene || !mesh) return;
+    const objs = cvSceneObjectsRef.current?.objects || [];
+    const byId = new Map(objs.map((o) => [o.object_id, o]));
+    const ids = Object.keys(moves || {})
+      .filter((id) => byId.has(id) && Math.abs(moves[id].dx) + Math.abs(moves[id].dz) > 1e-4)
+      .sort();
+
+    const key = ids
+      .map((id) => `${id}:${moves[id].dx.toFixed(3)},${moves[id].dz.toFixed(3)}`)
+      .join('|');
+    if (hideEditRef.current.key === key) return;
+
+    const prev = hideEditRef.current.edit;
+    if (prev?.parent) prev.parent.remove(prev);
+
+    let edit = null;
+    if (ids.length > 0) {
+      edit = new SplatEdit({
+        rgbaBlendMode: SplatEditRgbaBlendMode.MULTIPLY,
+        softEdge: 0.02
+      });
+      ids.forEach((id) => {
+        const obj = byId.get(id);
+        if (obj) {
+          edit.add(makeDisplacedWorldBoxSdf(getSrcObb(obj), moves[id]));
+        }
+      });
+      scene.add(edit);
+    }
+    hideEditRef.current = { edit, key };
+    mesh.updateGenerator?.();
+  };
 
   // 1. Initialize Three.js Scene + @sparkjsdev/spark 3DGS + Clean CAD Room + Click-Only Interaction
   useEffect(() => {
@@ -1164,6 +1266,114 @@ export default function BoilerRoomViewport({
       setClickedScreenAnchor(null);
       if (onSelectWorker) onSelectWorker(null);
     };
+
+    // ======== Move-Objects mode: capture-phase handlers (run BEFORE OrbitControls / click picking) ========
+    const NON_MOVABLE_CLASSES = ['pipe', 'door', 'sign'];
+    const pickMovable = (clientX, clientY) => {
+      const grp = cvUnboundObbGroupRef.current;
+      if (!grp) return null;
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const picks = grp.children.filter((c) => c.isMesh && c.userData?.cvObject);
+      const hits = raycaster.intersectObjects(picks, false);
+      let best = null;
+      let bestVol = Infinity;
+      for (const h of hits) {
+        const o = h.object.userData.cvObject;
+        if (NON_MOVABLE_CLASSES.includes(o.class)) continue;
+        const ext = o.obb?.extent || [1, 1, 1];
+        const vol = ext[0] * ext[1] * ext[2];
+        if (vol < bestVol) {
+          bestVol = vol;
+          best = h; // prefer the smallest (most specific) object under the finger
+        }
+      }
+      return best;
+    };
+    const groundHit = (clientX, clientY, planeY) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -planeY);
+      const pt = new THREE.Vector3();
+      return raycaster.ray.intersectPlane(plane, pt) ? pt : null;
+    };
+    const onMoveDown = (e) => {
+      if (!moveModeRef.current) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      const hit = pickMovable(e.clientX, e.clientY);
+      if (!hit) return; // empty space: let OrbitControls orbit as usual
+      const start = groundHit(e.clientX, e.clientY, hit.point.y);
+      if (!start) return;
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      const obj = hit.object.userData.cvObject;
+      try {
+        renderer.domElement.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      const src = obj._origObb ?? obj.obb ?? { center: obj.center };
+      const origDisp = rawToDisplay(src.center);
+      const base = objectMovesRef.current[obj.object_id] || { dx: 0, dz: 0 };
+      const nodes = cvUnboundObbGroupRef.current.children
+        .filter((c) => c.userData?.cvObject?.object_id === obj.object_id)
+        .map((node) => ({ node, pos: node.position.clone() }));
+      moveDragRef.current = {
+        id: obj.object_id,
+        pointerId: e.pointerId,
+        planeY: hit.point.y,
+        start,
+        base,
+        total: { ...base },
+        origDisp,
+        nodes,
+        moved: false,
+        downX: e.clientX,
+        downY: e.clientY
+      };
+      setMoveSelectedId(obj.object_id);
+      renderer.domElement.style.cursor = 'grabbing';
+    };
+    const onMoveMove = (e) => {
+      const d = moveDragRef.current;
+      if (!d || e.pointerId !== d.pointerId) return;
+      e.stopImmediatePropagation();
+      if (!d.moved && Math.hypot(e.clientX - d.downX, e.clientY - d.downY) > 6) d.moved = true;
+      if (!d.moved) return;
+      const p = groundHit(e.clientX, e.clientY, d.planeY);
+      if (!p) return;
+      let dx = d.base.dx + (p.x - d.start.x);
+      let dz = d.base.dz + (p.z - d.start.z);
+      // keep the object inside the room footprint
+      dx = Math.max(-4.6 - d.origDisp[0], Math.min(4.6 - d.origDisp[0], dx));
+      dz = Math.max(-3.4 - d.origDisp[2], Math.min(3.4 - d.origDisp[2], dz));
+      d.total = { dx, dz };
+      applySplatMovesRef.current?.({ ...objectMovesRef.current, [d.id]: d.total });
+      d.nodes.forEach(({ node, pos }) => {
+        node.position.set(pos.x + (dx - d.base.dx), pos.y, pos.z - (dz - d.base.dz));
+      });
+    };
+    const onMoveUp = (e) => {
+      const d = moveDragRef.current;
+      if (!d || e.pointerId !== d.pointerId) return;
+      e.stopImmediatePropagation();
+      try {
+        renderer.domElement.releasePointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      moveDragRef.current = null;
+      renderer.domElement.style.cursor = '';
+      if (d.moved && moveCbRef.current) moveCbRef.current(d.id, d.total);
+    };
+    renderer.domElement.addEventListener('pointerdown', onMoveDown, true);
+    renderer.domElement.addEventListener('pointermove', onMoveMove, true);
+    renderer.domElement.addEventListener('pointerup', onMoveUp, true);
+    renderer.domElement.addEventListener('pointercancel', onMoveUp, true);
 
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
     renderer.domElement.addEventListener('pointermove', handlePointerMove);
@@ -2044,6 +2254,10 @@ export default function BoilerRoomViewport({
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
+      renderer.domElement.removeEventListener('pointerdown', onMoveDown, true);
+      renderer.domElement.removeEventListener('pointermove', onMoveMove, true);
+      renderer.domElement.removeEventListener('pointerup', onMoveUp, true);
+      renderer.domElement.removeEventListener('pointercancel', onMoveUp, true);
       renderer.domElement.removeEventListener('pointermove', handlePointerMove);
       renderer.domElement.removeEventListener('pointerup', handlePointerUp);
       renderer.domElement.removeEventListener('wheel', handleWheel);
@@ -2125,6 +2339,7 @@ export default function BoilerRoomViewport({
           displayGroup.add(mesh);
           splatMeshRef.current = mesh;
           mesh.visible = viewMode !== 'cad';
+          applySplatMovesRef.current?.(objectMovesRef.current);
           if (pcObj) pcObj.visible = false;
           setSplatReady(true);
           setLoadingState(null);
@@ -2217,8 +2432,14 @@ export default function BoilerRoomViewport({
     const allObjects = cvSceneObjects?.objects || [];
     if (!allObjects.length) return;
 
+    const MOVABLE_EXCLUDED = ['pipe', 'door', 'sign'];
     const objectsToRender = allObjects.filter((o) => {
-      if (o.source === 'structure_plane' || o.asset_id) return false;
+      if (o.source === 'structure_plane') return false;
+      if (moveMode) {
+        // In Move mode every movable detected object (bound or unbound) is shown & pickable
+        return !MOVABLE_EXCLUDED.includes(o.class);
+      }
+      if (o.asset_id) return false;
       if (showAllCvDetections) return true;
       return o.object_id === selectedCvObjectId;
     });
@@ -2228,10 +2449,15 @@ export default function BoilerRoomViewport({
     const unitEdgesGeo = new THREE.EdgesGeometry(GEO_CACHE.unitBox);
 
     objectsToRender.forEach((obj) => {
-      const isSelectedCv = obj.object_id === selectedCvObjectId;
+      const isSelectedCv = moveMode ? obj.object_id === moveSelectedId : obj.object_id === selectedCvObjectId;
       const isPipe = obj.class === 'pipe';
+      const isMovedObj = Boolean(obj._moved);
       const colorHex = isSelectedCv
         ? 0x38bdf8
+        : moveMode
+        ? isMovedObj
+          ? 0xf59e0b
+          : 0x22c55e
         : isPipe
         ? 0x64748b
         : 0xa855f7;
@@ -2240,7 +2466,7 @@ export default function BoilerRoomViewport({
       const wireMat = new THREE.LineDashedMaterial({
         color: colorHex,
         transparent: true,
-        opacity: isSelectedCv ? 0.98 : isPipe ? 0.32 : 0.62,
+        opacity: isSelectedCv ? 0.98 : moveMode ? 0.7 : isPipe ? 0.32 : 0.62,
         dashSize: 0.04,
         gapSize: 0.025,
         depthWrite: false
@@ -2249,6 +2475,7 @@ export default function BoilerRoomViewport({
       const lineSegs = new THREE.LineSegments(unitEdgesGeo, wireMat);
       lineSegs.computeLineDistances();
       lineSegs.applyMatrix4(mat);
+      lineSegs.raycast = () => {};
       lineSegs.userData = { cvObject: obj };
       cvGroup.add(lineSegs);
 
@@ -2256,7 +2483,7 @@ export default function BoilerRoomViewport({
       const pickMat = new THREE.MeshBasicMaterial({
         color: colorHex,
         transparent: true,
-        opacity: isSelectedCv ? 0.16 : 0.01,
+        opacity: isSelectedCv ? 0.16 : moveMode ? 0.05 : 0.01,
         depthWrite: false
       });
       const pickMesh = new THREE.Mesh(GEO_CACHE.unitBox, pickMat);
@@ -2264,7 +2491,12 @@ export default function BoilerRoomViewport({
       pickMesh.userData = { cvObject: obj };
       cvGroup.add(pickMesh);
     });
-  }, [cvSceneObjects, showAllCvDetections, selectedCvObjectId]);
+  }, [cvSceneObjects, showAllCvDetections, selectedCvObjectId, moveMode, moveSelectedId]);
+
+  // Keep splat cut-outs / ghost copies in sync with committed moves, view mode and scene reloads
+  useEffect(() => {
+    applySplatMovesRef.current?.(objectMoves);
+  }, [objectMoves, cvSceneObjects, splatReady, viewMode, activeRoomScene]);
 
   // Build 30 Bound Contoured & CV OBB Asset Models
   useEffect(() => {
@@ -2948,323 +3180,160 @@ export default function BoilerRoomViewport({
         </>
       )}
 
-      {/* On-Click Bound Asset Callout Popover */}
+      {/* Interactive Holographic AR Field Service Asset HUD Menu */}
       {clickedPopoverAsset && clickedScreenAnchor && clickedSt && (
+        <HolographicArAssetMenu
+          asset={clickedPopoverAsset}
+          assets={assets}
+          screenAnchor={clickedScreenAnchor}
+          evidencePhoto={
+            clickedPopoverAsset.cvObject?.object_id
+              ? EVIDENCE_PHOTO_MAP[clickedPopoverAsset.cvObject.object_id]
+              : null
+          }
+          onClose={() => {
+            setClickedPopoverAssetId(null);
+            setClickedScreenAnchor(null);
+          }}
+          onSelectAsset={(id) => {
+            onSelectAsset(id);
+            setClickedPopoverAssetId(id);
+          }}
+          onUpdateTelemetry={onUpdateTelemetry}
+          onExecuteMaintenanceAction={onExecuteMaintenanceAction}
+          onCenterAsset={() => handleFocusSelected()}
+          onMoveObject={onMoveCvObject}
+          objectMoves={objectMoves}
+        />
+      )}
+
+      {/* On-Click Unbound CV Object Popover (with 1-Click 3D Splat Separation & Move Controls) */}
+      {clickedUnboundCvObj && !clickedPopoverAsset && (
         <div
           style={{
-            left: clickedScreenAnchor.x,
-            top: clickedScreenAnchor.y
+            right: 16,
+            bottom: 52,
+            background: 'rgba(6, 16, 26, 0.94)',
+            border: '1.5px solid #00f2ff',
+            boxShadow: '0 0 24px rgba(0, 242, 255, 0.35)',
+            color: '#ecfeff',
+            width: '340px'
           }}
           className="vp-popover"
         >
-          <div className="vp-popover-head">
-            <span className={`sdot ${clickedSt.cls}`} style={{ marginTop: '4px' }} />
+          <div className="vp-popover-head" style={{ borderBottom: '1px solid rgba(0,242,255,0.25)' }}>
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div className="row" style={{ gap: '6px' }}>
-                <span className="mono" style={{ fontWeight: 600 }}>
-                  {clickedPopoverAsset.tag}
+              <div className="row" style={{ gap: '6px', flexWrap: 'wrap' }}>
+                <span className="mono" style={{ fontWeight: 800, color: '#00f2ff', fontSize: '13px' }}>
+                  {clickedUnboundCvObj.label || humanize(clickedUnboundCvObj.class)}
                 </span>
-                <span className="mono muted">{clickedPopoverAsset.asset_id}</span>
-                {clickedPopoverAsset.cvObject?.object_id && (
-                  <span className="status info mono" style={{ fontSize: '10px' }}>
-                    {clickedPopoverAsset.cvObject.object_id}
-                  </span>
-                )}
-                <span className={`status ${clickedSt.cls}`} style={{ marginLeft: 'auto' }}>
-                  {clickedSt.label} Â· {clickedPopoverAsset.health_score}%
-                </span>
-              </div>
-              <div className="text-2 truncate" style={{ fontSize: '12px', marginTop: '2px' }}>
-                {clickedPopoverAsset.service_description}
-              </div>
-              <div className="mono muted" style={{ fontSize: '11px', marginTop: '2px' }}>
-                {clickedPopoverAsset.cvObject
-                  ? `${(clickedPopoverAsset.cvObject.splat_count || 0).toLocaleString()} splats Â· ${humanize(
-                      clickedPopoverAsset.cvObject.mapping_method
-                    )}`
-                  : `mesh ${clickedScreenAnchor.meshIdx} (${clickedScreenAnchor.triCount}k tris)`}
-              </div>
-            </div>
-            <button
-              className="btn btn-sm btn-icon"
-              onClick={() => {
-                setClickedPopoverAssetId(null);
-                setClickedScreenAnchor(null);
-              }}
-              aria-label="Close callout"
-            >
-              âœ•
-            </button>
-          </div>
-
-          <div className="vp-popover-body">
-            {/* Live Telemetry Waveform + Diagnostic & Dispatch Block (above Pressure & Vibration) */}
-            {(() => {
-              const vib = Number(clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1);
-              const press = Number(clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5);
-              const temp = Number(clickedPopoverAsset.telemetry?.temperature_c ?? 48.0);
-              const assignedWorker = (exerciseWorkers || []).find(
-                (w) => w.targetAssetId === clickedPopoverAsset.asset_id && w.state !== 'STANDBY'
-              );
-              const standbyWorker =
-                (exerciseWorkers || []).find(
-                  (w) => w.id === selectedWorkerId && w.state === 'STANDBY'
-                ) || (exerciseWorkers || []).find((w) => w.state === 'STANDBY');
-
-              const waveColor =
-                clickedPopoverAsset.health_status === 'attention_required'
-                  ? '#ef4444'
-                  : clickedPopoverAsset.health_status === 'degraded'
-                  ? '#f97316'
-                  : clickedPopoverAsset.health_status === 'watch'
-                  ? '#eab308'
-                  : '#38bdf8';
-
-              // Build 12-point live waveform from current vibration & pressure signature
-              const pts = Array.from({ length: 12 }, (_, idx) => {
-                const x = (idx / 11) * 240;
-                const normV = Math.min(1, Math.max(0.08, vib / 9.5));
-                const ripple = Math.sin(idx * 1.35 + vib) * (0.08 + normV * 0.18);
-                const y = 38 - Math.min(34, Math.max(4, (normV + ripple) * 30));
-                return `${x.toFixed(1)},${y.toFixed(1)}`;
-              }).join(' ');
-
-              return (
-                <div
-                  style={{
-                    background: 'rgba(15, 23, 42, 0.92)',
-                    border: '1px solid #334155',
-                    borderRadius: '4px',
-                    padding: '7px 9px',
-                    marginBottom: '7px',
-                    color: '#f8fafc'
-                  }}
-                >
-                  <div className="row" style={{ justifyContent: 'space-between', fontSize: '10.5px' }}>
-                    <span className="mono" style={{ color: waveColor, fontWeight: 700 }}>
-                      {humanize(clickedPopoverAsset.status_reason || 'NORMAL_OPERATION')}
-                    </span>
-                    <span className="mono" style={{ color: '#94a3b8' }}>
-                      {clickedPopoverAsset.line_id} Â· { temp.toFixed(1) }Â°C
-                    </span>
-                  </div>
-
-                  {/* Live Telemetry Sparkline Waveform SVG */}
-                  <svg
-                    viewBox="0 0 240 42"
-                    style={{
-                      width: '100%',
-                      height: '40px',
-                      marginTop: '4px',
-                      marginBottom: '4px',
-                      display: 'block'
-                    }}
-                  >
-                    <line
-                      x1="0"
-                      y1="14"
-                      x2="240"
-                      y2="14"
-                      stroke="rgba(239, 68, 68, 0.35)"
-                      strokeDasharray="3 3"
-                      strokeWidth="1"
-                    />
-                    <polyline
-                      fill="none"
-                      stroke={waveColor}
-                      strokeWidth="2"
-                      points={pts}
-                    />
-                  </svg>
-
-                  <div
-                    className="row"
-                    style={{
-                      justifyContent: 'space-between',
-                      fontSize: '10.5px',
-                      borderTop: '1px solid rgba(51, 65, 85, 0.7)',
-                      paddingTop: '5px'
-                    }}
-                  >
-                    {assignedWorker ? (
-                      <span className="mono" style={{ color: '#4ade80', fontWeight: 600 }}>
-                        {assignedWorker.id}{' '}
-                        {assignedWorker.state === 'REPAIRING'
-                          ? `Repairing (${Math.round(assignedWorker.repairProgress || 0)}%)`
-                          : `En Route â†’ ${clickedPopoverAsset.tag}`}
-                      </span>
-                    ) : (
-                      <span className="mono" style={{ color: '#cbd5e1' }}>
-                        {clickedPopoverAsset.esdf_reachable !== false
-                          ? 'ESDF Approach Clear (â‰¥0.33m)'
-                          : 'Elevated Valve Â· Floor Standoff'}
-                      </span>
-                    )}
-
-                    {!assignedWorker && standbyWorker && onAssignWorkerToFault && (
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-primary"
-                        style={{ padding: '1px 7px', fontSize: '10px' }}
-                        onClick={() => onAssignWorkerToFault(standbyWorker.id, clickedPopoverAsset)}
-                        title={`Send ${standbyWorker.id} from entrance to ${clickedPopoverAsset.tag}`}
-                      >
-                        Dispatch {standbyWorker.id}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-
-            <div className="metric-grid">
-              <div className="metric">
-                <div className="k">Pressure</div>
-                <div className="v mono" style={{ fontSize: '13px' }}>
-                  {clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5}
-                  <small>bar</small>
-                </div>
-                {onQuickMutateTelemetry && (
-                  <input
-                    type="range"
-                    min="2.0"
-                    max="9.5"
-                    step="0.1"
-                    value={clickedPopoverAsset.telemetry?.pressure_bar ?? 5.5}
-                    onChange={(ev) => {
-                      const val = parseFloat(ev.target.value);
-                      onQuickMutateTelemetry(
-                        clickedPopoverAsset.asset_id,
-                        { pressure_bar: val },
-                        val < 3.8 || val > 8.2 ? 'PRESSURE_DEVIATION' : null
-                      );
-                    }}
-                    style={{ width: '100%', marginTop: '4px', accentColor: '#38bdf8' }}
-                    title="Drag to interactively adjust live Pressure (bar)"
-                  />
-                )}
-              </div>
-              <div className="metric">
-                <div className="k">Vibration</div>
-                <div className="v mono" style={{ fontSize: '13px' }}>
-                  {clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1}
-                  <small>mm/s</small>
-                </div>
-                {onQuickMutateTelemetry && (
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="9.5"
-                    step="0.1"
-                    value={clickedPopoverAsset.telemetry?.vibration_mms ?? 2.1}
-                    onChange={(ev) => {
-                      const val = parseFloat(ev.target.value);
-                      onQuickMutateTelemetry(
-                        clickedPopoverAsset.asset_id,
-                        { vibration_mms: val },
-                        val >= 6.0
-                          ? 'HIGH_VIBRATION_ALARM'
-                          : val < 3.5
-                          ? 'NORMAL_OPERATION'
-                          : null
-                      );
-                    }}
-                    style={{ width: '100%', marginTop: '4px', accentColor: '#ef4444' }}
-                    title="Drag to interactively simulate Vibration (mm/s)"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="vp-popover-actions">
-              <button className="btn btn-sm" onClick={handleFocusSelected}>
-                Center Camera
-              </button>
-              <button
-                className="btn btn-sm"
-                onClick={() => {
-                  if (onOpenArHud) onOpenArHud();
-                }}
-              >
-                Verify ({clickedPopoverAsset.qr_id})
-              </button>
-              <button
-                className="btn btn-sm"
-                onClick={() => {
-                  if (onQuickMutateTelemetry) {
-                    onQuickMutateTelemetry(
-                      clickedPopoverAsset.asset_id,
-                      {
-                        vibration_mms: 1.6,
-                        bearing_temp_c: 54.0,
-                        stiction_index: 0.12,
-                        position_pct: clickedPopoverAsset.telemetry?.setpoint_pct || 64.0
-                      },
-                      'NORMAL_OPERATION'
-                    );
-                  }
-                }}
-              >
-                Restore Nominal
-              </button>
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() => {
-                  if (onQuickMutateTelemetry) {
-                    onQuickMutateTelemetry(
-                      clickedPopoverAsset.asset_id,
-                      {
-                        vibration_mms: 7.8,
-                        bearing_temp_c: 86.0,
-                        stiction_index: 0.65
-                      },
-                      'CRITICAL_FAULT_INJECTED'
-                    );
-                  }
-                }}
-              >
-                Inject Fault
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* On-Click Unbound CV Object Popover (when exploring all 441 CV OBBs) */}
-      {clickedUnboundCvObj && !clickedPopoverAsset && (
-        <div style={{ right: 16, bottom: 52 }} className="vp-popover">
-          <div className="vp-popover-head">
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div className="row" style={{ gap: '6px' }}>
-                <span className="mono" style={{ fontWeight: 700 }}>
+                <span className="mono" style={{ fontSize: '11px', color: '#94a3b8' }}>
                   {clickedUnboundCvObj.object_id}
                 </span>
-                <span className="status info">
-                  CV Class: {humanize(clickedUnboundCvObj.class)} (
-                  {Math.round((clickedUnboundCvObj.class_confidence || 0.75) * 100)}%)
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: '10px',
+                    padding: '1px 6px',
+                    borderRadius: '3px',
+                    background: 'rgba(0,242,255,0.16)',
+                    border: '1px solid rgba(0,242,255,0.45)',
+                    color: '#00f2ff'
+                  }}
+                >
+                  {Math.round((clickedUnboundCvObj.class_confidence || 0.75) * 100)}% CV
                 </span>
               </div>
-              <div className="mono muted" style={{ fontSize: '11px', marginTop: '3px' }}>
-                {(clickedUnboundCvObj.splat_count || 0).toLocaleString()} splats Â·{' '}
-                {(clickedUnboundCvObj.voxel_count || 0).toLocaleString()} voxels Â· Unbound 3D OBB
+              <div className="mono" style={{ fontSize: '11px', marginTop: '3px', color: '#94a3b8' }}>
+                {(clickedUnboundCvObj.splat_count || 0).toLocaleString()} splats ·{' '}
+                {(clickedUnboundCvObj.voxel_count || 0).toLocaleString()} voxels · Movable 3D Splat Object
               </div>
             </div>
             <button
               className="btn btn-sm btn-icon"
+              style={{ background: 'transparent', color: '#94a3b8', border: '1px solid rgba(148,163,184,0.3)' }}
               onClick={() => setClickedUnboundCvObj(null)}
             >
-              âœ•
+              ✕
             </button>
           </div>
-          {EVIDENCE_PHOTO_MAP[clickedUnboundCvObj.object_id] && (
-            <div className="vp-popover-body">
+          <div className="vp-popover-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {EVIDENCE_PHOTO_MAP[clickedUnboundCvObj.object_id] && (
               <img
                 src={EVIDENCE_PHOTO_MAP[clickedUnboundCvObj.object_id]}
                 alt={clickedUnboundCvObj.object_id}
                 style={{ width: '100%', height: '95px', objectFit: 'cover', borderRadius: '3px' }}
               />
+            )}
+            <div
+              style={{
+                padding: '8px',
+                borderRadius: '4px',
+                background: 'rgba(0, 242, 255, 0.08)',
+                border: '1px solid rgba(0, 242, 255, 0.3)'
+              }}
+            >
+              <div className="row" style={{ justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span className="mono" style={{ fontSize: '10px', color: '#00f2ff', fontWeight: 700 }}>
+                  ✥ SEPARATE & MOVE 3D OBJECT SPLATS
+                </span>
+                <button
+                  onClick={() => {
+                    setMoveMode((m) => !m);
+                    setMoveSelectedId(clickedUnboundCvObj.object_id);
+                  }}
+                  style={{
+                    fontSize: '10px',
+                    padding: '2px 7px',
+                    borderRadius: '3px',
+                    border: '1px solid #00f2ff',
+                    background: moveMode ? '#00f2ff' : 'transparent',
+                    color: moveMode ? '#04121d' : '#00f2ff',
+                    fontFamily: 'var(--mono)',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {moveMode ? 'Drag Mode: ON' : 'Enable 3D Drag'}
+                </button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px' }}>
+                {[
+                  { label: '◀ Left', dx: -0.6, dz: 0 },
+                  { label: '▲ Fwd', dx: 0, dz: 0.6 },
+                  { label: '▼ Back', dx: 0, dz: -0.6 },
+                  { label: 'Right ▶', dx: 0.6, dz: 0 },
+                  { label: '↺ Reset', reset: true }
+                ].map((b) => (
+                  <button
+                    key={b.label}
+                    onClick={() => {
+                      if (!onMoveCvObject) return;
+                      const oid = clickedUnboundCvObj.object_id;
+                      const cur = objectMoves?.[oid] || { dx: 0, dz: 0 };
+                      if (b.reset) {
+                        onMoveCvObject(oid, 0, 0);
+                      } else {
+                        onMoveCvObject(oid, cur.dx + b.dx, cur.dz + b.dz);
+                      }
+                    }}
+                    style={{
+                      padding: '5px 3px',
+                      borderRadius: '3px',
+                      border: '1px solid rgba(0,242,255,0.4)',
+                      background: 'rgba(15, 23, 42, 0.85)',
+                      color: '#ecfeff',
+                      fontSize: '10px',
+                      fontFamily: 'var(--mono)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {b.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -3322,6 +3391,35 @@ export default function BoilerRoomViewport({
             title="Toggle between showing only the 30 bound Valmet asset OBBs vs all 441 CV-detected OBBs"
           >
             {showAllCvDetections ? 'All 441 CV OBBs: ON' : '30 Bound OBBs'}
+          </button>
+        )}
+
+        <button
+          className={moveMode ? 'on' : ''}
+          onClick={() => {
+            setMoveMode((m) => !m);
+            if (!moveMode && onToggleShowAllCvDetections && !showAllCvDetections) {
+              onToggleShowAllCvDetections(true);
+            }
+          }}
+          style={{
+            borderColor: moveMode ? '#00f2ff' : undefined,
+            background: moveMode ? '#0891b2' : undefined,
+            color: moveMode ? '#fff' : undefined,
+            fontWeight: moveMode ? 700 : undefined
+          }}
+          title="Click & drag any 3D object (Forklift, IBC Tote, Crated Unit, Workbench, Pump, Valve) to separate and move its 3D Gaussian Splats in real time"
+        >
+          {moveMode ? '✥ Move Objects: ON (Drag 3D)' : '✥ Move Objects'}
+        </button>
+
+        {Object.keys(objectMoves || {}).length > 0 && onResetCvMoves && (
+          <button
+            onClick={() => onResetCvMoves()}
+            style={{ borderColor: '#f59e0b', color: '#b45309', fontWeight: 600 }}
+            title="Reset all moved 3D objects back to their original scanned positions"
+          >
+            Reset Moves ({Object.keys(objectMoves).length})
           </button>
         )}
 

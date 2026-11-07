@@ -12,6 +12,7 @@
           "three": "/assets/vendor/three.module.min.js",
           "three/addons/postprocessing/Pass.js": "/assets/vendor/Pass.js",
           "three/examples/jsm/controls/OrbitControls.js": "/assets/vendor/OrbitControls.js",
+          "three/examples/jsm/controls/TransformControls.js": "https://esm.sh/three@0.178.0/examples/jsm/controls/TransformControls.js?external=three",
           "three/examples/jsm/loaders/PLYLoader.js": "/assets/vendor/PLYLoader.js",
           "@sparkjsdev/spark": "/assets/vendor/spark.module.min.js",
           "lucide-react": "https://esm.sh/lucide-react@0.460.0?deps=react@18.3.1"
@@ -22,6 +23,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/index.css" />
+    <link rel="stylesheet" href="/src/components/sceneInspector.css" />
     <script src="https://unpkg.com/@babel/standalone@7.26.2/babel.min.js"></script>
   </head>
   <body>
@@ -42,8 +44,15 @@
           '/src/utils/cvEngine.js',
           '/src/utils/exerciseEngine.js',
           '/src/utils/copilotEngine.js',
+          '/src/sceneApi.js',
+          '/src/sceneEdit/splatMover.js',
+          '/src/sceneEdit/useSceneEdits.js',
+          '/src/sceneEdit/useSplatMover.js',
           '/src/components/FloorMinimap.jsx',
           '/src/components/CvReviewPanel.jsx',
+          '/src/components/SceneInspectorPanel.jsx',
+          '/src/components/SceneEditPanel.jsx',
+          '/src/components/HolographicArAssetMenu.jsx',
           '/src/components/BoilerRoomViewport.jsx',
           '/src/components/AssetInspectorPanel.jsx',
           '/src/components/EdgeCopilotAndArHud.jsx',
@@ -57,6 +66,7 @@
           'three': `${origin}/assets/vendor/three.module.min.js`,
           'three/addons/postprocessing/Pass.js': `${origin}/assets/vendor/Pass.js`,
           'three/examples/jsm/controls/OrbitControls.js': `${origin}/assets/vendor/OrbitControls.js`,
+          'three/examples/jsm/controls/TransformControls.js': 'https://esm.sh/three@0.178.0/examples/jsm/controls/TransformControls.js?external=three',
           'three/examples/jsm/loaders/PLYLoader.js': `${origin}/assets/vendor/PLYLoader.js`,
           '@sparkjsdev/spark': `${origin}/assets/vendor/spark.module.min.js`,
           'lucide-react': 'https://esm.sh/lucide-react@0.460.0?deps=react@18.3.1'
@@ -69,6 +79,8 @@
             if (!r.ok) throw new Error(`Failed to fetch ${file}: HTTP ${r.status}`);
             return r.text();
           });
+          // Strip CSS imports (loaded via <link> in <head>)
+          code = code.replace(/import\s+['"][^'"]+\.css['"]\s*;?/g, '');
           for (const [origPath, bUrl] of Object.entries(blobUrls)) {
             const baseName = origPath.split('/').pop().replace(/\.(jsx|js)$/, '');
             const regex = new RegExp(`(['"])(\\.\\.?\\/[\\w\\/.-]*\\/${baseName}|\\.\\/${baseName})(\\.(jsx|js))?\\1`, 'g');

@@ -248,7 +248,8 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
       Math.max(0.22, Number(extent[2].toFixed(3)))
     ];
 
-    const navTarget = navTargetByAssetId.get(asset.asset_id);
+    // A user-moved object invalidates its pre-baked ESDF approach pose; recompute from its new floor position
+    const navTarget = cvObj._moved ? null : navTargetByAssetId.get(asset.asset_id);
     let approachDisp;
     if (navTarget?.approach?.position) {
       approachDisp = rawToDisplay(navTarget.approach.position);
