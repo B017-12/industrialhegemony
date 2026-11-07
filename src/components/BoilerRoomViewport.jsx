@@ -3172,17 +3172,47 @@ export default function BoilerRoomViewport({
             setClickedScreenAnchor(null);
           }}
           onSelectAsset={(id) => {
-            onSelectAsset(id);
-            setClickedPopoverAssetId(id);
+            const target = assets.find((a) => a.asset_id === id) || id;
+            onSelectAsset(target);
+            setClickedPopoverAssetId(typeof id === 'string' ? id : id?.asset_id);
           }}
-          onUpdateTelemetry={onUpdateTelemetry}
-          onExecuteMaintenanceAction={onExecuteMaintenanceAction}
+          onUpdateTelemetry={onQuickMutateTelemetry}
+          onExecuteMaintenanceAction={(assetId, action) => {
+            const targetAsset = assets.find((a) => a.asset_id === assetId) || clickedPopoverAsset;
+            if (!targetAsset) return;
+            if (action === 'dispatch') {
+              const idle =
+                exerciseWorkers.find((w) => w.state === 'STANDBY') || exerciseWorkers[0];
+              if (idle && onAssignWorkerToFault) {
+                onAssignWorkerToFault(idle.id, targetAsset);
+              }
+            } else if (action === 'restore' && onQuickMutateTelemetry) {
+              onQuickMutateTelemetry(
+                targetAsset.asset_id,
+                {
+                  vibration_mms: 1.4,
+                  bearing_temp_c: 52.0,
+                  stiction_index: 0.08
+                },
+                'NORMAL_OPERATION'
+              );
+            } else if (action === 'inject_fault' && onQuickMutateTelemetry) {
+              onQuickMutateTelemetry(
+                targetAsset.asset_id,
+                {
+                  vibration_mms: 8.4,
+                  bearing_temp_c: 88.5,
+                  stiction_index: 0.72
+                },
+                'CRITICAL_FAULT_INJECTED'
+              );
+            }
+          }}
           onCenterAsset={() => handleFocusSelected()}
           onMoveObject={onMoveCvObject}
           objectMoves={objectMoves}
         />
       )}
-
       {/* On-Click Unbound CV Object Popover (with 1-Click 3D Splat Separation & Move Controls) */}
       {clickedUnboundCvObj && !clickedPopoverAsset && (
         <div
