@@ -1,0 +1,32 @@
+[project]
+name = "valmet-spatialsense-pipeline"
+version = "0.1.0"
+description = "3DGS semantic extraction, navigation rails and grounded copilot backend for the Valmet x Since AI 2026 challenge"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.13",
+    "pandas>=2.2",
+    "openpyxl>=3.1",
+    "scikit-image>=0.24",
+    "pillow>=10.4",
+    "fastapi>=0.162.0",
+    "uvicorn[standard]>=0.54.0",
+    "pydantic>=2.8",
+    "pydantic-ai-slim[google,openai]>=2.66.0",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+filterwarnings = ["ignore::SyntaxWarning", "ignore::DeprecationWarning"]
