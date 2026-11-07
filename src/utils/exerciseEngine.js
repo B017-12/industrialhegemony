@@ -245,6 +245,7 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
 
     return {
       ...w,
+      manualControl: false,
       state: 'WALKING_TO_FAULT',
       trafficStatus: 'CLEAR',
       blockingUnitId: null,
@@ -293,7 +294,7 @@ export function stepExerciseSimulation(
           (w.state === 'WALKING_TO_FAULT' || w.state === 'REPAIRING')
       );
       if (!alreadyAssigned) {
-        const idleWorker = nextWorkers.find((w) => w.state === 'STANDBY');
+        const idleWorker = nextWorkers.find((w) => w.state === 'STANDBY' && !w.manualControl);
         if (idleWorker) {
           nextWorkers = assignWorkerToAsset(
             nextWorkers,
@@ -315,6 +316,44 @@ export function stepExerciseSimulation(
 
   for (let i = 0; i < nextWorkers.length; i++) {
     const w = nextWorkers[i];
+
+    // If user is manually driving this technician (W/A/S/D or Touch D-Pad), preserve manual pose & allow proximity repair
+    if (w.manualControl) {
+      w.position = [...(w.pos || w.position || w.slotPos)];
+      w.pos = [...w.position];
+      w.trafficStatus = 'CLEAR';
+      w.blockingUnitId = null;
+      w.lockedNodeId = null;
+
+      // Check if manually driven technician is standing next to a faulted asset (<1.05m in X-Z)
+      const nearFault = (assets || []).find((a) => {
+        if (a.health_status !== 'attention_required' && a.health_status !== 'degraded') return false;
+        const app = a.approach_point || a.position;
+        const dApp = Math.hypot(app[0] - w.pos[0], app[2] - w.pos[2]);
+        const dObj = Math.hypot(a.position[0] - w.pos[0], a.position[2] - w.pos[2]);
+        return Math.min(dApp, dObj) <= 1.08;
+      });
+
+      if (nearFault) {
+        w.state = 'REPAIRING';
+        w.targetAssetId = nearFault.asset_id;
+        w.targetTag = nearFault.tag;
+        w.repairProgress = Math.min(100, (w.repairProgress || 0) + dt * 28);
+        if (w.repairProgress >= 100) {
+          completedAssetIds.push(nearFault.asset_id);
+          w.repairProgress = 0;
+          w.state = 'STANDBY';
+          w.targetAssetId = null;
+          w.targetTag = null;
+        }
+      } else {
+        w.state = 'STANDBY';
+        w.targetAssetId = null;
+        w.targetTag = null;
+        w.repairProgress = 0;
+      }
+      continue;
+    }
 
     if (w.state === 'STANDBY') {
       w.pos = [...w.slotPos];

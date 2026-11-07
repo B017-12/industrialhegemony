@@ -420,6 +420,28 @@ export default function App() {
     );
   };
 
+  const handleManualUpdateWorkerPose = (workerId, nextX, nextZ, nextAngle, manualControl = true) => {
+    if (!workerId) return;
+    setExerciseWorkers((prev) =>
+      prev.map((w) => {
+        if (w.id !== workerId) return w;
+        if (!manualControl) {
+          return {
+            ...w,
+            manualControl: false
+          };
+        }
+        return {
+          ...w,
+          manualControl: true,
+          pos: [nextX, -1.02, nextZ],
+          position: [nextX, -1.02, nextZ],
+          angle: nextAngle
+        };
+      })
+    );
+  };
+
   const handleInjectRandomFault = () => {
     const healthyCandidates = pipeline.assets.filter((a) => a.health_status === 'healthy');
     const pool = healthyCandidates.length > 0 ? healthyCandidates : pipeline.assets;
@@ -1587,6 +1609,7 @@ export default function App() {
           onAddWorker={handleAddWorker}
           onDeleteWorker={handleDeleteWorker}
           onAssignWorkerToFault={handleAssignWorkerToFault}
+          onManualUpdateWorkerPose={handleManualUpdateWorkerPose}
           onInjectRandomFault={handleInjectRandomFault}
           autoDispatch={autoDispatch}
           onToggleAutoDispatch={setAutoDispatch}

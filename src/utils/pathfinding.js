@@ -251,28 +251,26 @@ export function resolveObstacleCollisions(
       }
     }
 
-    // 2. If no CV OBBs loaded yet, resolve against AABBs
-    if (CV_OBB_FOOTPRINTS.length === 0) {
-      for (const b of list) {
-        const minX = b.minX - radius;
-        const maxX = b.maxX + radius;
-        const minZ = b.minZ - radius;
-        const maxZ = b.maxZ + radius;
+    // 2. Always also resolve against the 30 bound asset AABBs & static room structures
+    for (const b of list) {
+      const minX = b.minX - radius;
+      const maxX = b.maxX + radius;
+      const minZ = b.minZ - radius;
+      const maxZ = b.maxZ + radius;
 
-        if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
-          hitAny = true;
-          const dLeft = nx - minX;
-          const dRight = maxX - nx;
-          const dFront = nz - minZ;
-          const dBack = maxZ - nz;
+      if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
+        hitAny = true;
+        const dLeft = nx - minX;
+        const dRight = maxX - nx;
+        const dFront = nz - minZ;
+        const dBack = maxZ - nz;
 
-          const minPen = Math.min(dLeft, dRight, dFront, dBack);
-          const eps = 0.008;
-          if (minPen === dLeft) nx = minX - eps;
-          else if (minPen === dRight) nx = maxX + eps;
-          else if (minPen === dFront) nz = minZ - eps;
-          else nz = maxZ + eps;
-        }
+        const minPen = Math.min(dLeft, dRight, dFront, dBack);
+        const eps = 0.008;
+        if (minPen === dLeft) nx = minX - eps;
+        else if (minPen === dRight) nx = maxX + eps;
+        else if (minPen === dFront) nz = minZ - eps;
+        else nz = maxZ + eps;
       }
     }
 
@@ -280,17 +278,17 @@ export function resolveObstacleCollisions(
   }
 
   // If still wedged between two touching boxes and previous valid position is provided, slide along open axis
-  if (prevX !== null && prevZ !== null && isPointInObstacle(nx, nz, radius * 0.8, list)) {
+  if (prevX !== null && prevZ !== null && isPointInObstacle(nx, nz, radius * 0.85, list)) {
     const tryX = resolveSingleStep(x, prevZ, radius, list);
-    if (!isPointInObstacle(tryX[0], tryX[1], radius * 0.8, list)) return tryX;
+    if (!isPointInObstacle(tryX[0], tryX[1], radius * 0.85, list)) return tryX;
     const tryZ = resolveSingleStep(prevX, z, radius, list);
-    if (!isPointInObstacle(tryZ[0], tryZ[1], radius * 0.8, list)) return tryZ;
+    if (!isPointInObstacle(tryZ[0], tryZ[1], radius * 0.85, list)) return tryZ;
     return [prevX, prevZ];
   }
 
   return [
-    Math.max(-4.8, Math.min(4.8, nx)),
-    Math.max(-3.6, Math.min(3.6, nz))
+    Math.max(-4.35, Math.min(3.85, nx)),
+    Math.max(-3.25, Math.min(3.45, nz))
   ];
 }
 
@@ -318,7 +316,130 @@ function resolveSingleStep(x, z, radius, list) {
       }
     }
   }
+  for (const b of list || []) {
+    const minX = b.minX - radius;
+    const maxX = b.maxX + radius;
+    const minZ = b.minZ - radius;
+    const maxZ = b.maxZ + radius;
+    if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
+      const dLeft = nx - minX;
+      const dRight = maxX - nx;
+      const dFront = nz - minZ;
+      const dBack = maxZ - nz;
+      const minPen = Math.min(dLeft, dRight, dFront, dBack);
+      const eps = 0.01;
+      if (minPen === dLeft) nx = minX - eps;
+      else if (minPen === dRight) nx = maxX + eps;
+      else if (minPen === dFront) nz = minZ - eps;
+      else nz = maxZ + eps;
+    }
+  }
   return [nx, nz];
+}
+
+/**
+ * Forward Lookahead + Swept Sub-Step Collision Solver for Manual Technician Movement (W/A/S/D & Touch D-Pad).
+ * Ensures that if any CV OBB, bound equipment asset, peer technician, or wall is in front of the technician,
+ * forward motion stops cleanly before collision and reports the blocking object for the AR Visor HUD.
+ */
+export function resolveManualTechnicianStep(
+  prevX,
+  prevZ,
+  moveAngle,
+  stepDist,
+  radius = 0.28,
+  obstacles = null,
+  peerWorkers = [],
+  selfId = null
+) {
+  const list = obstacles || buildCollisionBoxes();
+  const dirX = Math.sin(moveAngle);
+  const dirZ = Math.cos(moveAngle);
+
+  // 1. Check 3-feeler forward lookahead cone (center, -22 deg left shoulder, +22 deg right shoulder)
+  const feelerAngles = [moveAngle, moveAngle - 0.38, moveAngle + 0.38];
+  const probeDist = Math.max(0.12, Math.abs(stepDist)) + 0.10;
+  let blockedBy = null;
+  let minBlockerDist = Infinity;
+
+  for (const ang of feelerAngles) {
+    const fx = prevX + Math.sin(ang) * probeDist;
+    const fz = prevZ + Math.cos(ang) * probeDist;
+    const hitObs = isPointInObstacle(fx, fz, radius, list);
+    if (hitObs) {
+      const cx = hitObs.centre ? hitObs.centre[0] : hitObs.cx ?? fx;
+      const cz = hitObs.centre ? hitObs.centre[1] : hitObs.cz ?? fz;
+      const d = Math.hypot(cx - prevX, cz - prevZ);
+      if (d < minBlockerDist) {
+        minBlockerDist = d;
+        blockedBy = hitObs.tag || hitObs.asset_id || hitObs.id || 'Room Object';
+      }
+    }
+    for (const pw of peerWorkers || []) {
+      if (!pw || pw.id === selfId) continue;
+      const ppos = pw.position || pw.pos;
+      if (!ppos) continue;
+      const pd = Math.hypot(fx - ppos[0], fz - ppos[2]);
+      if (pd < radius + 0.24) {
+        blockedBy = pw.id;
+        minBlockerDist = Math.min(minBlockerDist, Math.hypot(ppos[0] - prevX, ppos[2] - prevZ));
+      }
+    }
+  }
+
+  // 2. Sub-step movement in 3 increments so fast frames can never tunnel through thin pipes/valves
+  let curX = prevX;
+  let curZ = prevZ;
+  const subSteps = 3;
+  const subDist = stepDist / subSteps;
+
+  for (let s = 0; s < subSteps; s++) {
+    const candX = Math.max(-4.35, Math.min(3.85, curX + dirX * subDist));
+    const candZ = Math.max(-3.25, Math.min(3.45, curZ + dirZ * subDist));
+    const [resX, resZ] = resolveObstacleCollisions(candX, candZ, radius, list, curX, curZ);
+
+    // Check peer worker collision
+    let peerBlocked = false;
+    for (const pw of peerWorkers || []) {
+      if (!pw || pw.id === selfId) continue;
+      const ppos = pw.position || pw.pos;
+      if (!ppos) continue;
+      if (Math.hypot(resX - ppos[0], resZ - ppos[2]) < radius + 0.22) {
+        peerBlocked = true;
+        blockedBy = blockedBy || pw.id;
+        break;
+      }
+    }
+
+    if (peerBlocked || isPointInObstacle(resX, resZ, radius * 0.92, list)) {
+      // Try sliding gently along X or Z if only glancing an angled obstacle
+      const [slideX, slideXZ] = resolveObstacleCollisions(candX, curZ, radius, list, curX, curZ);
+      if (!peerBlocked && !isPointInObstacle(slideX, slideXZ, radius * 0.95, list)) {
+        curX = slideX;
+        curZ = slideXZ;
+        continue;
+      }
+      const [slideZX, slideZ] = resolveObstacleCollisions(curX, candZ, radius, list, curX, curZ);
+      if (!peerBlocked && !isPointInObstacle(slideZX, slideZ, radius * 0.95, list)) {
+        curX = slideZX;
+        curZ = slideZ;
+        continue;
+      }
+      // Dead-on obstacle in front: stop cleanly before contact!
+      break;
+    }
+
+    curX = resX;
+    curZ = resZ;
+  }
+
+  return {
+    x: Number(curX.toFixed(4)),
+    z: Number(curZ.toFixed(4)),
+    blocked: Boolean(blockedBy),
+    obstacleLabel: blockedBy,
+    obstacleDist: Number.isFinite(minBlockerDist) ? Number(minBlockerDist.toFixed(2)) : null
+  };
 }
 
 /**
