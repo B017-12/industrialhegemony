@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bell,
+  Camera,
   CheckCircle2,
   ClipboardList,
   ExternalLink,
@@ -37,18 +38,87 @@ import {
   assignWorkerToAsset,
   stepExerciseSimulation
 } from './utils/exerciseEngine.js';
+import {
+  fetchCvSceneBundle,
+  applyCvOverrides,
+  syncAssetsWithCvObjects,
+  saveStoredOverrides,
+  clearStoredOverrides
+} from './utils/cvEngine.js';
 import { CHALLENGE_BRIEF_MISSIONS } from './data/challengeBriefMissions.js';
 import { statusOf, humanize, sortBySeverity } from './ui/status.js';
 import BoilerRoomViewport from './components/BoilerRoomViewport.jsx';
 import AssetInspectorPanel from './components/AssetInspectorPanel.jsx';
+import CvReviewPanel from './components/CvReviewPanel.jsx';
 import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopilotAndArHud.jsx';
 
 export default function App() {
   const [pipeline, setPipeline] = useState(() => createInitialDataPipeline());
   const [liveStreaming, setLiveStreaming] = useState(true);
 
-  const [selectedAssetId, setSelectedAssetId] = useState('ASSET-003');
-  const [activeNav, setActiveNav] = useState('alerts'); // 'assets' | 'alerts' | 'navigate' | 'workorders' | 'copilot' | 'settings'
+  const [selectedAssetId, setSelectedAssetId] = useState('ASSET-014'); // Default to P-002 (Video-evidence bound pump)
+  const [activeNav, setActiveNav] = useState('alerts'); // 'alerts' | 'assets' | 'cv_review' | 'navigate' | 'workorders' | 'copilot' | 'settings'
+
+  // Computer Vision & 3DGS state (from ahmad_branch)
+  const [viewMode, setViewMode] = useState('splat'); // 'splat' | 'hybrid' | 'cad' (Defaults to Photoreal 3DGS .spz!)
+  const [ceilingCutaway, setCeilingCutaway] = useState(true);
+  const [showAllCvDetections, setShowAllCvDetections] = useState(false); // Defaults to 30 bound OBBs only
+  const [baseCvSceneObjects, setBaseCvSceneObjects] = useState(null);
+  const [fileCvOverrides, setFileCvOverrides] = useState({});
+  const [cvOverridesMap, setCvOverridesMap] = useState({});
+  const [evidenceFrames, setEvidenceFrames] = useState({});
+  const [cvMetrics, setCvMetrics] = useState(null);
+  const [selectedCvObjectId, setSelectedCvObjectId] = useState('OBJ-0185');
+
+  const cvSceneObjects = useMemo(
+    () => applyCvOverrides(baseCvSceneObjects, cvOverridesMap),
+    [baseCvSceneObjects, cvOverridesMap]
+  );
+
+  // Load CV 3D OBB segmentation & video evidence bundle on startup
+  useEffect(() => {
+    let alive = true;
+    fetchCvSceneBundle()
+      .then((bundle) => {
+        if (!alive) return;
+        setBaseCvSceneObjects(bundle.baseSceneObjects);
+        setFileCvOverrides(bundle.fileOverrides);
+        setCvOverridesMap(bundle.overridesMap);
+        setEvidenceFrames(bundle.evidenceFrames);
+        setCvMetrics(bundle.segmentationMetrics);
+      })
+      .catch((err) => {
+        console.warn('Could not load CV scene bundle:', err);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Synchronize the 30 Valmet assets with their bound 3D CV OBBs whenever CV overrides change
+  useEffect(() => {
+    if (!cvSceneObjects?.objects?.length) return;
+    setPipeline((prev) => ({
+      ...prev,
+      assets: syncAssetsWithCvObjects(prev.assets, cvSceneObjects, evidenceFrames)
+    }));
+  }, [cvSceneObjects, evidenceFrames]);
+
+  const handlePatchCvOverride = (patchMap) => {
+    setCvOverridesMap((prev) => {
+      const next = { ...prev };
+      Object.entries(patchMap).forEach(([objId, fields]) => {
+        next[objId] = { ...(next[objId] || {}), ...fields };
+      });
+      saveStoredOverrides(next);
+      return next;
+    });
+  };
+
+  const handleResetCvOverrides = () => {
+    clearStoredOverrides();
+    setCvOverridesMap(fileCvOverrides);
+  };
 
   const selectedAsset = useMemo(
     () =>
@@ -103,11 +173,11 @@ export default function App() {
   const fileInputRef = useRef(null);
   const [customPlyBuffer, setCustomPlyBuffer] = useState(null);
   const [sceneStats, setSceneStats] = useState({
-    sourceFile: 'Equipment Room.ply',
+    sourceFile: 'Equipment Room.ply (.spz)',
     rawVertices: 1676481,
-    activeSplats: 269219,
+    activeSplats: 820511,
     anchoredAssets: 30,
-    structuralFrames: pipeline.structuralObjects.length
+    structuralFrames: 441
   });
 
   const simContextRef = useRef({
@@ -136,7 +206,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, [liveStreaming, exercisePaused]);
 
-  // Simulation Exercise Engine Tick (60ms) — pauses cleanly when exercisePaused is true so user can batch multiple faults!
+  // Simulation Exercise Engine Tick (60ms)
   useEffect(() => {
     if (!exerciseMode) return;
     const tick = setInterval(() => {
@@ -276,7 +346,8 @@ export default function App() {
           a.asset_id.toLowerCase().includes(q) ||
           a.service_description.toLowerCase().includes(q) ||
           a.area_name.toLowerCase().includes(q) ||
-          a.status_reason.toLowerCase().includes(q)
+          a.status_reason.toLowerCase().includes(q) ||
+          (a.cvObject?.object_id || '').toLowerCase().includes(q)
         );
       }
       return true;
@@ -290,18 +361,25 @@ export default function App() {
       const found = pipeline.assets.find(
         (a) => a.asset_id === assetOrId || a.tag === assetOrId
       );
-      if (found) setSelectedAssetId(found.asset_id);
+      if (found) {
+        setSelectedAssetId(found.asset_id);
+        if (found.cvObject?.object_id) {
+          setSelectedCvObjectId(found.cvObject.object_id);
+        }
+      }
       return;
     }
     if (assetOrId.asset_id) {
       setSelectedAssetId(assetOrId.asset_id);
+      if (assetOrId.cvObject?.object_id) {
+        setSelectedCvObjectId(assetOrId.cvObject.object_id);
+      }
     }
   };
 
   const handleMutateTelemetry = (assetId, patch, customReason = null) => {
     setPipeline((prev) => {
       const next = updateAssetTelemetryInMemory(prev, assetId, patch, customReason);
-      // If a fault was just injected in Exercise Mode, automatically dispatch an available standby worker from the line!
       if (exerciseMode && customReason && customReason !== 'NORMAL_OPERATION') {
         const updatedAsset = next.assets.find((a) => a.asset_id === assetId);
         if (updatedAsset) {
@@ -453,7 +531,7 @@ export default function App() {
             <path d="M12 14.5L16.5 6.5H19L12 19L5 6.5H7.5L12 14.5Z" fill="#7CD476" fillOpacity="0.65" />
           </svg>
           <span className="brand-word">VALMET</span>
-          <span className="brand-product">DNA SpatialSense</span>
+          <span className="brand-product">DNA SpatialSense · 3DGS + CV</span>
         </div>
 
         <nav className="breadcrumb" aria-label="Plant hierarchy">
@@ -469,8 +547,8 @@ export default function App() {
               setActiveRoomScene(e.target.value);
             }}
           >
-            <option value="equipment_room">Area 01 — Equipment Room</option>
-            <option value="boiler_room">Area 02 — Boiler House</option>
+            <option value="equipment_room">Area 01 — Equipment Room (.spz)</option>
+            <option value="boiler_room">Area 02 — Boiler House (.spz)</option>
           </select>
         </nav>
 
@@ -504,6 +582,15 @@ export default function App() {
               <span>Watch</span>
             </button>
           </div>
+
+          <button
+            className="live-toggle"
+            onClick={() => setActiveNav('cv_review')}
+            title="Open Computer Vision 3D Object Detection & Label Review (441 OBBs)"
+          >
+            <Camera size={13} />
+            <span>CV Detections ({cvSceneObjects?.objects?.length || 441})</span>
+          </button>
 
           <button
             className="live-toggle"
@@ -595,6 +682,14 @@ export default function App() {
             title="Asset Register"
           >
             <List size={18} />
+          </button>
+
+          <button
+            className={activeNav === 'cv_review' ? 'active' : ''}
+            onClick={() => setActiveNav('cv_review')}
+            title="Computer Vision 3D Object Detection & Label Review (441 OBBs)"
+          >
+            <Camera size={18} />
           </button>
 
           <button
@@ -860,6 +955,11 @@ export default function App() {
                               {asset.tag}
                             </span>
                             <span className="mono muted">{asset.asset_id}</span>
+                            {asset.cvObject?.object_id && (
+                              <span className="mono muted" style={{ fontSize: '10.5px' }}>
+                                · {asset.cvObject.object_id}
+                              </span>
+                            )}
                             <span className="spacer" />
                             <span className={`status ${st.cls}`}>
                               {st.label} · {asset.health_score}%
@@ -969,7 +1069,7 @@ export default function App() {
                     className="input"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Filter by tag, service, or area..."
+                    placeholder="Filter by tag, OBJ-ID, service, or area..."
                   />
                 </div>
 
@@ -1028,6 +1128,24 @@ export default function App() {
                 </table>
               </div>
             </>
+          )}
+
+          {activeNav === 'cv_review' && (
+            <CvReviewPanel
+              cvSceneObjects={cvSceneObjects}
+              cvMetrics={cvMetrics}
+              evidenceFrames={evidenceFrames}
+              assets={pipeline.assets}
+              selectedCvObjectId={selectedCvObjectId}
+              onSelectCvObject={(obj) => {
+                if (obj?.object_id) setSelectedCvObjectId(obj.object_id);
+              }}
+              onSelectAsset={handleSelectAsset}
+              showAllCvDetections={showAllCvDetections}
+              onToggleShowAllCvDetections={setShowAllCvDetections}
+              onPatchCvOverride={handlePatchCvOverride}
+              onResetCvOverrides={handleResetCvOverrides}
+            />
           )}
 
           {activeNav === 'navigate' && (
@@ -1303,7 +1421,7 @@ export default function App() {
               <div className="panel-body">
                 <div className="section stack">
                   <div className="section-title">
-                    <span>3D Capture Source</span>
+                    <span>3D Capture Source (.spz / .ply)</span>
                   </div>
 
                   <div>
@@ -1319,12 +1437,38 @@ export default function App() {
                       }}
                     >
                       <option value="equipment_room">
-                        Area 01 — Equipment Room (269,219 splats)
+                        Area 01 — Equipment Room (.spz · 1.67M raw splats)
                       </option>
                       <option value="boiler_room">
-                        Area 02 — Boiler House (121,537 splats)
+                        Area 02 — Boiler House (.spz · 1.50M raw splats)
                       </option>
                     </select>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>3D Rendering Mode</span>
+                    </div>
+                    <div className="seg">
+                      <button
+                        className={viewMode === 'splat' ? 'active' : ''}
+                        onClick={() => setViewMode('splat')}
+                      >
+                        3DGS (.spz)
+                      </button>
+                      <button
+                        className={viewMode === 'hybrid' ? 'active' : ''}
+                        onClick={() => setViewMode('hybrid')}
+                      >
+                        Hybrid
+                      </button>
+                      <button
+                        className={viewMode === 'cad' ? 'active' : ''}
+                        onClick={() => setViewMode('cad')}
+                      >
+                        Clean CAD
+                      </button>
+                    </div>
                   </div>
 
                   <div className="row">
@@ -1350,41 +1494,26 @@ export default function App() {
 
                 <div className="section stack">
                   <div className="section-title">
-                    <span>Reconstruction Layers</span>
+                    <span>Computer Vision &amp; Layers</span>
                   </div>
 
-                  <div>
-                    <div className="field-label">
-                      <span>CAD / Point-cloud blend</span>
-                      <span className="mono">{semanticBlend}% CAD</span>
-                    </div>
+                  <label className="check">
                     <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={semanticBlend}
-                      onChange={(e) => setSemanticBlend(Number(e.target.value))}
+                      type="checkbox"
+                      checked={ceilingCutaway}
+                      onChange={(e) => setCeilingCutaway(e.target.checked)}
                     />
-                    <div className="help" style={{ marginTop: '4px' }}>
-                      0% shows raw LiDAR/Gaussian point cloud; 100% shows extracted CAD
-                      geometry.
-                    </div>
-                  </div>
+                    <span>Automatic ceiling cutaway when orbiting from above</span>
+                  </label>
 
-                  <div>
-                    <div className="field-label">
-                      <span>Point cloud splat size</span>
-                      <span className="mono">{pointSize.toFixed(3)}</span>
-                    </div>
+                  <label className="check">
                     <input
-                      type="range"
-                      min="0.015"
-                      max="0.09"
-                      step="0.005"
-                      value={pointSize}
-                      onChange={(e) => setPointSize(Number(e.target.value))}
+                      type="checkbox"
+                      checked={showAllCvDetections}
+                      onChange={(e) => setShowAllCvDetections(e.target.checked)}
                     />
-                  </div>
+                    <span>Show all 441 CV-detected OBBs (off = 30 bound only)</span>
+                  </label>
 
                   <label className="check">
                     <input
@@ -1455,6 +1584,17 @@ export default function App() {
           autoDispatch={autoDispatch}
           onToggleAutoDispatch={setAutoDispatch}
           onArTrafficSignalChange={setArTrafficSignal}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          ceilingCutaway={ceilingCutaway}
+          onToggleCeilingCutaway={setCeilingCutaway}
+          cvSceneObjects={cvSceneObjects}
+          showAllCvDetections={showAllCvDetections}
+          onToggleShowAllCvDetections={setShowAllCvDetections}
+          selectedCvObjectId={selectedCvObjectId}
+          onSelectCvObject={(obj) => {
+            if (obj?.object_id) setSelectedCvObjectId(obj.object_id);
+          }}
         />
 
         {/* 4. RIGHT ASSET INSPECTOR */}
@@ -1470,6 +1610,10 @@ export default function App() {
           draftedWoBanner={draftedWoBanner}
           onMutateTelemetry={handleMutateTelemetry}
           pipelineMeta={pipeline}
+          onOpenCvReview={(objId) => {
+            if (objId) setSelectedCvObjectId(objId);
+            setActiveNav('cv_review');
+          }}
         />
       </div>
 
@@ -1477,17 +1621,21 @@ export default function App() {
       <footer className="statusbar">
         <span>
           <span className="conn-dot" />
-          <span>Valmet DNA Historian: Online</span>
+          <span>Valmet DNA Historian &amp; 3DGS Engine: Online</span>
         </span>
         <span className="mono">
-          Scene: {sceneStats.sourceFile} ({sceneStats.activeSplats.toLocaleString()} pts)
+          Scene: {sceneStats.sourceFile} ({sceneStats.activeSplats.toLocaleString()} splats)
         </span>
-        <span className="mono">Assets: {pipeline.assets.length} anchored</span>
+        <span className="mono">
+          CV OBBs: {cvSceneObjects?.objects?.length || 441} ({pipeline.assets.length} bound)
+        </span>
         <span className="mono">
           Rev. {pipeline.version} ({pipeline.lastUpdated})
         </span>
         <span className="right mono">
-          Selected: {selectedAsset?.tag} [{selectedAsset?.position.map((v) => v.toFixed(2)).join(', ')} m]
+          Selected: {selectedAsset?.tag}{' '}
+          {selectedAsset?.cvObject?.object_id ? `(${selectedAsset.cvObject.object_id})` : ''} [
+          {selectedAsset?.position.map((v) => v.toFixed(2)).join(', ')} m]
         </span>
       </footer>
 

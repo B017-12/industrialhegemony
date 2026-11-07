@@ -1,0 +1,18 @@
+{
+  "url": "/assets/equipment_room.spz",
+  "fileType": "spz",
+  "fallbackUrl": "/assets/equipment_room.ply",
+  "sourceBytes": 395651019,
+  "bytes": 30627537,
+  "cropBox": [
+    -5.2,
+    -1.7,
+    -4.2,
+    4.5,
+    1.7,
+    3.8
+  ],
+  "minOpacity": 0.01,
+  "seconds": 25.4,
+  "generatedAt": "2026-11-07T11:47:11.259Z"
+}

@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { QrCode, FileText, Wrench, CheckCircle2 } from 'lucide-react';
+import { QrCode, FileText, Wrench, CheckCircle2, Camera, Box } from 'lucide-react';
 import {
   statusOf,
   humanize,
   telemetryLabel,
   telemetryUnit
 } from '../ui/status.js';
+import { EVIDENCE_PHOTO_MAP } from '../utils/cvEngine.js';
 
 /**
  * 3D Asset Contour & Planar Datum Preview
@@ -188,7 +189,8 @@ export default function AssetInspectorPanel({
   onDraftWorkOrder,
   draftedWoBanner,
   onMutateTelemetry,
-  pipelineMeta
+  pipelineMeta,
+  onOpenCvReview
 }) {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'diagnosis' | 'telemetry' | 'procedure'
 
@@ -214,6 +216,9 @@ export default function AssetInspectorPanel({
 
   const rootCauseStep = selectedAsset.decision_tree?.[2];
   const actionStep = selectedAsset.decision_tree?.[3];
+  const cvObj = selectedAsset.cvObject || null;
+  const cvEvidencePhoto =
+    cvObj?.evidence_photo || (cvObj?.object_id ? EVIDENCE_PHOTO_MAP[cvObj.object_id] : null);
 
   return (
     <aside className="inspector" aria-label="Asset inspector">
@@ -249,6 +254,14 @@ export default function AssetInspectorPanel({
           <span className="mono">{selectedAsset.line_id}</span>
           <span>•</span>
           <span className="mono">{selectedAsset.qr_id}</span>
+          {cvObj?.object_id && (
+            <>
+              <span>•</span>
+              <span className="mono" style={{ color: 'var(--brand)', fontWeight: 600 }}>
+                {cvObj.object_id}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -315,7 +328,71 @@ export default function AssetInspectorPanel({
               </div>
             </div>
 
-            {/* 2. 3D Geometry & Attachment Seam Preview */}
+            {/* 2. Computer Vision 3DGS Binding & Video Evidence Crop (from ahmad_branch) */}
+            {cvObj && (
+              <div className="section stack">
+                <div className="section-title">
+                  <span>
+                    <Box size={12} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
+                    CV 3DGS Segmentation &amp; Binding
+                  </span>
+                  <span className="status info mono">
+                    {cvObj.object_id} · {humanize(cvObj.mapping_method)}
+                  </span>
+                </div>
+
+                {cvEvidencePhoto && (
+                  <div className="cv-evidence-card">
+                    <div className="cv-evidence-head">
+                      <Camera size={12} />
+                      <span>COLMAP Video Evidence Projection ({cvObj.object_id})</span>
+                      {cvObj.evidence_frames?.[0] && (
+                        <span className="mono muted" style={{ marginLeft: 'auto' }}>
+                          {cvObj.evidence_frames[0]}
+                        </span>
+                      )}
+                    </div>
+                    <img
+                      src={cvEvidencePhoto}
+                      alt={`CV Video Evidence for ${selectedAsset.tag} (${cvObj.object_id})`}
+                      className="cv-evidence-img"
+                    />
+                    {cvObj.mapping_notes && (
+                      <div className="cv-evidence-notes">{cvObj.mapping_notes}</div>
+                    )}
+                  </div>
+                )}
+
+                <dl className="kv">
+                  <dt>3D Object ID</dt>
+                  <dd className="mono">{cvObj.object_id}</dd>
+                  <dt>Detected CV Class</dt>
+                  <dd>
+                    {humanize(cvObj.detected_class)} (conf{' '}
+                    {Math.round((cvObj.class_confidence || 0.75) * 100)}%)
+                  </dd>
+                  <dt>Gaussian Splats</dt>
+                  <dd className="mono">
+                    {(cvObj.splat_count || 0).toLocaleString()} splats ·{' '}
+                    {(cvObj.voxel_count || 0).toLocaleString()} voxels
+                  </dd>
+                  <dt>Mapping Method</dt>
+                  <dd>{humanize(cvObj.mapping_method)}</dd>
+                </dl>
+
+                {onOpenCvReview && (
+                  <button
+                    className="btn btn-sm btn-block"
+                    onClick={() => onOpenCvReview(cvObj.object_id)}
+                  >
+                    <Camera size={12} />
+                    <span>Inspect / Rebind in CV Detection Review</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* 3. 3D Geometry & Attachment Seam Preview */}
             <div className="section stack">
               <div className="section-title">
                 <span>Extracted 3D Geometry</span>
@@ -326,7 +403,7 @@ export default function AssetInspectorPanel({
               <AssetContourMiniViewer asset={selectedAsset} />
             </div>
 
-            {/* 3. Process Topology */}
+            {/* 4. Process Topology */}
             <div className="section stack">
               <div className="section-title">
                 <span>Process Coupling</span>
@@ -360,7 +437,7 @@ export default function AssetInspectorPanel({
               </div>
             </div>
 
-            {/* 4. Engineering Properties */}
+            {/* 5. Engineering Properties */}
             <div className="section">
               <div className="section-title">
                 <span>Engineering &amp; Spatial Metadata</span>

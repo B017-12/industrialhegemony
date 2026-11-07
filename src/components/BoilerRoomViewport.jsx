@@ -2,7 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
-import { Wrench, Plus, Trash2, Zap, Pause, Play } from 'lucide-react';
+import {
+  SparkRenderer,
+  SplatMesh,
+  SplatEdit,
+  SplatEditRgbaBlendMode,
+  SplatEditSdf,
+  SplatEditSdfType
+} from '@sparkjsdev/spark';
+import { Wrench, Plus, Trash2, Zap, Pause, Play, Eye, Layers, Camera } from 'lucide-react';
 import {
   NAV_NODES,
   NAV_EDGES,
@@ -11,17 +19,18 @@ import {
   resolveObstacleCollisions
 } from '../utils/pathfinding.js';
 import { computeArTrafficSignal } from '../utils/exerciseEngine.js';
+import { obbMatrix, rawToDisplay, EVIDENCE_PHOTO_MAP } from '../utils/cvEngine.js';
 import { STRUCTURAL_BOILER_OBJECTS } from '../data/valmetDataset.js';
 import { statusOf, humanize } from '../ui/status.js';
+import FloorMinimap from './FloorMinimap.jsx';
 
-// ISA-101 High-Performance HMI palette: colour reserved for abnormal states; normal is neutral steel grey
+// ISA-101 High-Performance HMI palette: colour reserved for abnormal states; normal is neutral steel/emerald
 const HEALTH_COLORS = {
-  attention_required: 0xc62828, // Alarm Red
-  degraded: 0xe06c00,           // High / Degraded Orange
-  watch: 0xc99400,              // Watch Amber
-  healthy: 0x6b7682             // Neutral Industrial Steel
+  attention_required: 0xef4444, // Alarm Red
+  degraded: 0xf97316,           // High / Degraded Orange
+  watch: 0xeab308,              // Watch Amber
+  healthy: 0x38bdf8             // Crisp Cyan/Steel for 3DGS & CAD visibility
 };
-
 
 /**
  * Shared Geometry Cache for High-Performance Photorealistic CAD Rendering
@@ -37,13 +46,10 @@ const GEO_CACHE = {
   motorBarrel: new THREE.CylinderGeometry(0.25, 0.25, 0.56, 22),
   motorBox: new THREE.BoxGeometry(0.18, 0.16, 0.18),
   sensorHead: new THREE.CylinderGeometry(0.14, 0.14, 0.20, 18),
-  contourDot: new THREE.SphereGeometry(0.022, 8, 8)
+  contourDot: new THREE.SphereGeometry(0.022, 8, 8),
+  unitBox: new THREE.BoxGeometry(1, 1, 1)
 };
 
-/**
- * Builds realistic industrial CAD equipment meshes (metallic steel bodies + color-coded actuator/status housings)
- * that sit inside the clean reconstructed CAD room — just like semantic_extraction_demo_2.mp4!
- */
 function createProceduralEquipmentMesh(asset, colorHex) {
   const group = new THREE.Group();
   const [sx, sy, sz] = asset.bbox_size;
@@ -134,15 +140,9 @@ function createProceduralEquipmentMesh(asset, colorHex) {
   return { group, solidMat, accentMat: steelMat };
 }
 
-/**
- * Builds the Clean Industrial CAD Room Architecture (Concrete Floor, Walls, Overhead HVAC Ducts,
- * IBC Tote Rack, Pipe Manifold Rack, Forklift Bay) so when Semantic World is active,
- * all noisy point-cloud "white dots" disappear completely and the room looks like a crisp 3D CAD environment!
- */
 function createCleanIndustrialRoomArchitecture() {
   const room = new THREE.Group();
 
-  // 1. Neutral Industrial Epoxy Concrete Floor (ISA-101 mid-light grey)
   const floorMat = new THREE.MeshStandardMaterial({
     color: 0xbec5cd,
     roughness: 0.78,
@@ -153,7 +153,6 @@ function createCleanIndustrialRoomArchitecture() {
   floor.position.set(0, -1.045, 1.6);
   room.add(floor);
 
-  // 2. Industrial Light-Grey Painted Concrete Walls
   const wallMat = new THREE.MeshStandardMaterial({
     color: 0xdbe0e5,
     roughness: 0.88,
@@ -172,7 +171,6 @@ function createCleanIndustrialRoomArchitecture() {
   eastWall.position.set(5.65, 1.05, 1.6);
   room.add(eastWall);
 
-  // 3. Overhead Galvanized HVAC & Steam Ductwork
   const ductMat = new THREE.MeshStandardMaterial({
     color: 0x9aa4ae,
     metalness: 0.5,
@@ -193,52 +191,131 @@ function createCleanIndustrialRoomArchitecture() {
   crossDuct2.position.set(2.1, 2.35, 1.6);
   room.add(crossDuct2);
 
-  // 4. Back-Wall Stacked IBC Tote Wall & Pipe Manifold Frame
   const toteMat = new THREE.MeshStandardMaterial({
     color: 0xeef1f4,
     roughness: 0.4,
     metalness: 0.1
   });
-  const cageMat = new THREE.LineBasicMaterial({ color: 0x8a949e });
+  const cageMat = new THREE.LineBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.45 });
 
-  for (let row = 0; row < 2; row++) {
-    for (let col = 0; col < 4; col++) {
-      const toteGeo = new THREE.BoxGeometry(0.82, 0.85, 0.82);
+  [-3.8, -2.5, -1.2, 0.1].forEach((xPos) => {
+    [0.0, 1.15].forEach((yOff) => {
+      const toteGeo = new THREE.BoxGeometry(1.05, 1.02, 1.05);
       const tote = new THREE.Mesh(toteGeo, toteMat);
-      tote.position.set(-3.4 + col * 0.92, -0.58 + row * 0.90, 3.65);
+      tote.position.set(xPos, -0.50 + yOff, 3.55);
       room.add(tote);
 
       const cage = new THREE.LineSegments(new THREE.EdgesGeometry(toteGeo), cageMat);
       cage.position.copy(tote.position);
       room.add(cage);
-    }
-  }
+    });
+  });
 
-  // Industrial Manifold Rack on East Wall
-  const blueRackMat = new THREE.MeshStandardMaterial({
-    color: 0x4b6b88,
-    metalness: 0.45,
+  const pillarMat = new THREE.MeshStandardMaterial({
+    color: 0x64748b,
+    metalness: 0.55,
     roughness: 0.4
   });
-  const rackFrame = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.65, 0.16), blueRackMat);
-  rackFrame.position.set(2.1, -0.15, 3.72);
-  room.add(rackFrame);
-
-  // Safety Guardrail in Mid-Bay (aligned 1:1 with STATIC_ROOM_OBSTACLES collider)
-  const yellowMat = new THREE.MeshStandardMaterial({
-    color: 0xc99400,
-    metalness: 0.3,
-    roughness: 0.4
+  [
+    [-4.8, 0.5],
+    [-4.8, 3.2],
+    [4.8, 0.5],
+    [4.8, 3.2]
+  ].forEach(([px, pz]) => {
+    const col = new THREE.Mesh(new THREE.BoxGeometry(0.24, 4.2, 0.24), pillarMat);
+    col.position.set(px, 1.05, pz);
+    room.add(col);
   });
-  const yellowRail = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.38, 0.72), yellowMat);
-  yellowRail.position.set(0.88, -0.82, 1.05);
-  room.add(yellowRail);
+
+  const headerPipeMat = new THREE.MeshStandardMaterial({
+    color: 0x7c8794,
+    metalness: 0.65,
+    roughness: 0.3
+  });
+  const feedHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 8.6, 16), headerPipeMat);
+  feedHeader.rotation.z = Math.PI / 2;
+  feedHeader.position.set(0, -0.25, 2.35);
+  room.add(feedHeader);
+
+  const returnHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 8.6, 16), headerPipeMat);
+  returnHeader.rotation.z = Math.PI / 2;
+  returnHeader.position.set(0, 0.35, 2.35);
+  room.add(returnHeader);
 
   return room;
 }
 
-function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0.56, 1.45, 0.52]) {
+function createHumanoidRig(colorHex = 0x10b981, isHuman = false, hitboxSize = [0.56, 1.45, 0.56]) {
   const root = new THREE.Group();
+  const bodyGroup = new THREE.Group();
+  root.add(bodyGroup);
+
+  const mainMat = new THREE.MeshStandardMaterial({
+    color: colorHex,
+    roughness: 0.25,
+    metalness: 0.65
+  });
+  const darkMat = new THREE.MeshStandardMaterial({
+    color: 0x1e293b,
+    roughness: 0.5,
+    metalness: 0.4
+  });
+  const visorMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.42, 0.18), mainMat);
+  torso.position.y = 0.72;
+  bodyGroup.add(torso);
+
+  const head = new THREE.Mesh(
+    isHuman ? new THREE.SphereGeometry(0.12, 16, 16) : new THREE.BoxGeometry(0.21, 0.19, 0.21),
+    isHuman ? darkMat : mainMat
+  );
+  head.position.y = 1.06;
+  bodyGroup.add(head);
+
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.055, 0.04), visorMat);
+  visor.position.set(0, 1.06, 0.1);
+  bodyGroup.add(visor);
+
+  const leftLegPivot = new THREE.Group();
+  leftLegPivot.position.set(-0.08, 0.5, 0);
+  const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.46, 10), darkMat);
+  leftLeg.position.y = -0.23;
+  leftLegPivot.add(leftLeg);
+  bodyGroup.add(leftLegPivot);
+
+  const rightLegPivot = new THREE.Group();
+  rightLegPivot.position.set(0.08, 0.5, 0);
+  const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.46, 10), darkMat);
+  rightLeg.position.y = -0.23;
+  rightLegPivot.add(rightLeg);
+  bodyGroup.add(rightLegPivot);
+
+  const leftArmPivot = new THREE.Group();
+  leftArmPivot.position.set(-0.19, 0.9, 0);
+  const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.36, 10), mainMat);
+  leftArm.position.y = -0.18;
+  leftArmPivot.add(leftArm);
+  bodyGroup.add(leftArmPivot);
+
+  const rightArmPivot = new THREE.Group();
+  rightArmPivot.position.set(0.19, 0.9, 0);
+  const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.36, 10), mainMat);
+  rightArm.position.y = -0.18;
+  rightArmPivot.add(rightArm);
+
+  const wrenchGroup = new THREE.Group();
+  const wrenchShaft = new THREE.Mesh(
+    new THREE.BoxGeometry(0.03, 0.26, 0.05),
+    new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7, roughness: 0.25 })
+  );
+  wrenchShaft.position.set(0, -0.34, 0.08);
+  wrenchShaft.rotation.x = Math.PI / 3;
+  wrenchGroup.add(wrenchShaft);
+  wrenchGroup.visible = false;
+  rightArmPivot.add(wrenchGroup);
+
+  bodyGroup.add(rightArmPivot);
 
   const [hx, hy, hz] = hitboxSize;
   const hitboxGeo = new THREE.BoxGeometry(hx, hy, hz);
@@ -246,147 +323,21 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   const hitboxMat = new THREE.LineBasicMaterial({
     color: colorHex,
     transparent: true,
-    opacity: 0.48
+    opacity: 0.42
   });
   const hitboxWire = new THREE.LineSegments(hitboxEdges, hitboxMat);
   hitboxWire.position.y = hy * 0.5;
   root.add(hitboxWire);
 
-  const bodyGroup = new THREE.Group();
-  root.add(bodyGroup);
-
-  const primaryMat = new THREE.MeshStandardMaterial({
-    color: colorHex,
-    metalness: isHuman ? 0.18 : 0.65,
-    roughness: isHuman ? 0.45 : 0.32
-  });
-  const darkJointMat = new THREE.MeshStandardMaterial({
-    color: 0x1e293b,
-    metalness: 0.5,
-    roughness: 0.4
-  });
-  const visorMat = new THREE.MeshStandardMaterial({
-    color: 0x38bdf8,
-    emissive: 0x0284c7,
-    emissiveIntensity: 0.9
-  });
-
-  const torso = new THREE.Mesh(
-    new THREE.BoxGeometry(isHuman ? 0.30 : 0.32, isHuman ? 0.46 : 0.42, 0.19),
-    primaryMat
-  );
-  torso.position.y = 0.76;
-  bodyGroup.add(torso);
-
-  if (isHuman) {
-    // High-visibility reflective safety vest band across human technician torso
-    const vestBandMat = new THREE.MeshStandardMaterial({
-      color: 0xeab308,
-      emissive: 0xca8a04,
-      emissiveIntensity: 0.25,
-      roughness: 0.3
-    });
-    const vestBand = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.07, 0.20), vestBandMat);
-    vestBand.position.y = 0.78;
-    bodyGroup.add(vestBand);
-
-    // Human face/head + industrial safety hard-hat
-    const skinMat = new THREE.MeshStandardMaterial({
-      color: 0xf1c27d,
-      roughness: 0.55,
-      metalness: 0.05
-    });
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 16), skinMat);
-    head.position.y = 1.13;
-    bodyGroup.add(head);
-
-    // Safety glasses / visor
-    const glasses = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.045, 0.04), darkJointMat);
-    glasses.position.set(0, 1.14, 0.10);
-    bodyGroup.add(glasses);
-
-    // Industrial Hard-Hat Dome + Brim
-    const helmetMat = new THREE.MeshStandardMaterial({
-      color: colorHex,
-      roughness: 0.25,
-      metalness: 0.2
-    });
-    const helmetDome = new THREE.Mesh(
-      new THREE.SphereGeometry(0.13, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55),
-      helmetMat
-    );
-    helmetDome.position.y = 1.15;
-    bodyGroup.add(helmetDome);
-
-    const helmetBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.145, 0.145, 0.02, 16), helmetMat);
-    helmetBrim.position.set(0, 1.16, 0.015);
-    bodyGroup.add(helmetBrim);
-  } else {
-    // Autonomous AMR Robot Head + Glowing LiDAR Visor
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.19, 0.22), primaryMat);
-    head.position.y = 1.10;
-    bodyGroup.add(head);
-
-    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.06, 0.05), visorMat);
-    visor.position.set(0, 1.10, 0.10);
-    bodyGroup.add(visor);
-  }
-
-  const leftLegPivot = new THREE.Group();
-  leftLegPivot.position.set(-0.085, 0.52, 0);
-  const leftLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.48, 0.105), darkJointMat);
-  leftLegMesh.position.y = -0.24;
-  leftLegPivot.add(leftLegMesh);
-  bodyGroup.add(leftLegPivot);
-
-  const rightLegPivot = new THREE.Group();
-  rightLegPivot.position.set(0.085, 0.52, 0);
-  const rightLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.48, 0.105), darkJointMat);
-  rightLegMesh.position.y = -0.24;
-  rightLegPivot.add(rightLegMesh);
-  bodyGroup.add(rightLegPivot);
-
-  const leftArmPivot = new THREE.Group();
-  leftArmPivot.position.set(-0.20, 0.94, 0);
-  const leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.38, 0.085), primaryMat);
-  leftArmMesh.position.y = -0.18;
-  leftArmPivot.add(leftArmMesh);
-  bodyGroup.add(leftArmPivot);
-
-  const rightArmPivot = new THREE.Group();
-  rightArmPivot.position.set(0.20, 0.94, 0);
-  const rightArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.38, 0.085), primaryMat);
-  rightArmMesh.position.y = -0.18;
-  rightArmPivot.add(rightArmMesh);
-
-  // 3D Steel Wrench Tool in Right Hand (visible during REPAIRING state)
-  const toolMat = new THREE.MeshStandardMaterial({
-    color: 0xe2e8f0,
-    metalness: 0.85,
-    roughness: 0.2
-  });
-  const wrenchGroup = new THREE.Group();
-  const wrenchShaft = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.04, 0.26), toolMat);
-  wrenchShaft.position.set(0, -0.35, 0.11);
-  wrenchGroup.add(wrenchShaft);
-  const wrenchJaw = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.03, 12), toolMat);
-  wrenchJaw.rotation.z = Math.PI / 2;
-  wrenchJaw.position.set(0, -0.35, 0.24);
-  wrenchGroup.add(wrenchJaw);
-  wrenchGroup.visible = false;
-  rightArmPivot.add(wrenchGroup);
-
-  bodyGroup.add(rightArmPivot);
-
-  const radarGeo = new THREE.RingGeometry(0.96, 1.0, 36);
-  radarGeo.rotateX(-Math.PI / 2);
-  const radarMat = new THREE.MeshBasicMaterial({
+  const ringGeo = new THREE.RingGeometry(0.95, 1.0, 48);
+  const ringMat = new THREE.MeshBasicMaterial({
     color: colorHex,
     side: THREE.DoubleSide,
     transparent: true,
     opacity: 0.28
   });
-  const radarRing = new THREE.Mesh(radarGeo, radarMat);
+  const radarRing = new THREE.Mesh(ringGeo, ringMat);
+  radarRing.rotation.x = -Math.PI / 2;
   radarRing.position.y = 0.02;
   root.add(radarRing);
 
@@ -403,6 +354,31 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   };
 
   return root;
+}
+
+function parsePrecomputedSplatBin(arrayBuffer) {
+  const count = Math.floor(arrayBuffer.byteLength / 16);
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const dataView = new DataView(arrayBuffer);
+  const u8 = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < count; i++) {
+    const byteOffset = i * 16;
+    const i3 = i * 3;
+    positions[i3] = dataView.getFloat32(byteOffset, true);
+    positions[i3 + 1] = dataView.getFloat32(byteOffset + 4, true);
+    positions[i3 + 2] = dataView.getFloat32(byteOffset + 8, true);
+
+    colors[i3] = u8[byteOffset + 12] / 255;
+    colors[i3 + 1] = u8[byteOffset + 13] / 255;
+    colors[i3 + 2] = u8[byteOffset + 14] / 255;
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  return { geometry, count };
 }
 
 function parseCustomPlyArrayBuffer(arrayBuffer) {
@@ -510,7 +486,17 @@ export default function BoilerRoomViewport({
   onInjectRandomFault,
   autoDispatch = true,
   onToggleAutoDispatch,
-  onArTrafficSignalChange
+  onArTrafficSignalChange,
+  // CV & 3DGS props from ahmad_branch integration
+  viewMode = 'splat', // 'splat' | 'hybrid' | 'cad'
+  onViewModeChange,
+  ceilingCutaway = true,
+  onToggleCeilingCutaway,
+  cvSceneObjects,
+  showAllCvDetections = false,
+  onToggleShowAllCvDetections,
+  selectedCvObjectId = null,
+  onSelectCvObject
 }) {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
@@ -518,7 +504,12 @@ export default function BoilerRoomViewport({
   const controlsRef = useRef(null);
   const pointCloudMatRef = useRef(null);
   const pointCloudObjRef = useRef(null);
+  const splatDisplayGroupRef = useRef(null);
+  const splatMeshRef = useRef(null);
+  const ceilingCutEditRef = useRef(null);
+  const cvUnboundObbGroupRef = useRef(null);
   const cadRoomGroupRef = useRef(null);
+  const gridHelperRef = useRef(null);
   const assetGroupRef = useRef(null);
   const structuralGroupRef = useRef(null);
   const pathGroupRef = useRef(null);
@@ -536,9 +527,10 @@ export default function BoilerRoomViewport({
   // STRICT INTERACTION RULE:
   // Nothing pops up or shows object details until the user explicitly clicks/interacts with a 3D object!
   const [clickedPopoverAssetId, setClickedPopoverAssetId] = useState(null);
+  const [clickedUnboundCvObj, setClickedUnboundCvObj] = useState(null);
   const [clickedScreenAnchor, setClickedScreenAnchor] = useState(null);
   const [workerOverlays, setWorkerOverlays] = useState([]);
-  const [arTrafficOverride, setArTrafficOverride] = useState('AUTO'); // 'AUTO' | 'RED' | 'YELLOW' | 'GREEN'
+  const [arTrafficOverride, setArTrafficOverride] = useState('AUTO');
   const [liveArSignal, setLiveArSignal] = useState({
     light: 'GREEN',
     headline: 'GREEN LIGHT — PROCEED',
@@ -553,7 +545,8 @@ export default function BoilerRoomViewport({
   const manualPosRef = useRef(null);
   const laserSweepStateRef = useRef({ active: false, zPos: -4.5 });
 
-  const [loadingState, setLoadingState] = useState('Loading Equipment Room.ply 3D Scene...');
+  const [loadingState, setLoadingState] = useState('Loading 3D Gaussian Splatting (.spz) Scene...');
+  const [splatReady, setSplatReady] = useState(false);
   const [isWasdWalking, setIsWasdWalking] = useState(false);
 
   const stateRef = useRef({
@@ -579,7 +572,11 @@ export default function BoilerRoomViewport({
     exercisePaused,
     exerciseWorkers,
     selectedWorkerId,
-    arTrafficOverride
+    arTrafficOverride,
+    viewMode,
+    ceilingCutaway,
+    showAllCvDetections,
+    selectedCvObjectId
   });
 
   useEffect(() => {
@@ -606,7 +603,11 @@ export default function BoilerRoomViewport({
       exercisePaused,
       exerciseWorkers,
       selectedWorkerId,
-      arTrafficOverride
+      arTrafficOverride,
+      viewMode,
+      ceilingCutaway,
+      showAllCvDetections,
+      selectedCvObjectId
     };
   }, [
     assets,
@@ -631,7 +632,11 @@ export default function BoilerRoomViewport({
     exercisePaused,
     exerciseWorkers,
     selectedWorkerId,
-    arTrafficOverride
+    arTrafficOverride,
+    viewMode,
+    ceilingCutaway,
+    showAllCvDetections,
+    selectedCvObjectId
   ]);
 
   useEffect(() => {
@@ -640,66 +645,127 @@ export default function BoilerRoomViewport({
     if (onSemanticBlendChange) onSemanticBlendChange(0);
   }, [laserSweepTrigger]);
 
-  // 1. Initialize Three.js Scene + Clean CAD Room + Click-Only Interaction
+  // Fly camera to selected CV object when user clicks through the CV Review / Crop Tour queue
+  useEffect(() => {
+    if (!selectedCvObjectId || !cvSceneObjects?.objects || !cameraRef.current || !controlsRef.current) {
+      return;
+    }
+    const obj = cvSceneObjects.objects.find((o) => o.object_id === selectedCvObjectId);
+    if (!obj) return;
+    const [dx, dy, dz] = rawToDisplay(obj.obb?.center ?? obj.center);
+    controlsRef.current.target.set(dx, dy, dz);
+    cameraRef.current.position.set(dx * 0.65, dy + 0.85, dz - 1.65);
+    controlsRef.current.update();
+    if (!obj.asset_id) {
+      setClickedUnboundCvObj(obj);
+    }
+  }, [selectedCvObjectId]);
+
+  // 1. Initialize Three.js Scene + @sparkjsdev/spark 3DGS + Clean CAD Room + Click-Only Interaction
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xd7dbe0);
-    scene.fog = new THREE.FogExp2(0xd7dbe0, 0.022);
+    scene.background = new THREE.Color(0x0b1220);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
-      50,
+      52,
       container.clientWidth / container.clientHeight,
-      0.1,
+      0.03,
       100
     );
-    // Zoomed-out default perspective so the entire equipment room and worker staging line fit comfortably
-    camera.position.set(0.2, 3.35, -4.85);
+    // Start inside the Equipment Room looking at P-005, P-002, M-004, M-005, CV-009 (matches ahmad_branch interior view)
+    camera.position.set(1.42, -0.12, -1.28);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0.1, -0.35, 1.55);
+    controls.target.set(-0.32, -0.45, 0.95);
     controls.enableDamping = true;
     controls.dampingFactor = 0.07;
     controls.maxDistance = 18;
-    controls.minDistance = 0.4;
+    controls.minDistance = 0.2;
     controls.update();
     controlsRef.current = controls;
 
-    // Neutral industrial lighting for ISA-101 light viewport
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x9aa4ae, 1.15);
+    // Neutral industrial lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 1.45);
     scene.add(hemiLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.15);
     dirLight.position.set(4, 9, -4);
     scene.add(dirLight);
     const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.55);
     fillLight.position.set(-5, 4, 5);
     scene.add(fillLight);
 
-    // Subtle Floor Grid
+    // Subtle Floor Grid (shown in CAD mode)
     const gridHelper = new THREE.GridHelper(11.5, 23, 0x9aa3ad, 0xb4bcc5);
-    gridHelper.position.set(0, -1.04, 1.6);
+    gridHelper.position.set(0, -1.16, 0.2);
+    gridHelper.visible = false;
     scene.add(gridHelper);
+    gridHelperRef.current = gridHelper;
 
-    // Clean Industrial CAD Room Architecture
+    // Clean Industrial CAD Room Architecture (shown in CAD mode)
     const cadRoomGroup = createCleanIndustrialRoomArchitecture();
+    cadRoomGroup.visible = false;
     scene.add(cadRoomGroup);
     cadRoomGroupRef.current = cadRoomGroup;
+
+    // ==================== AHMAD_BRANCH 3DGS DISPLAY FRAME + CEILING CUTAWAY ====================
+    // 1. SparkRenderer at scene root (required for @sparkjsdev/spark SplatMesh to draw)
+    try {
+      const sparkRenderer = new SparkRenderer({ renderer, enableLod: false });
+      scene.add(sparkRenderer);
+      sparkRendererRef.current = sparkRenderer;
+    } catch (err) {
+      console.warn('SparkRenderer init warning:', err);
+    }
+
+    // 2. Display-frame group rotated 180 deg around X (maps raw PLY y-down to Three.js y-up)
+    const splatDisplayGroup = new THREE.Group();
+    splatDisplayGroup.name = 'display-frame';
+    splatDisplayGroup.rotation.set(Math.PI, 0, 0);
+    scene.add(splatDisplayGroup);
+    splatDisplayGroupRef.current = splatDisplayGroup;
+
+    // 3. CeilingCutaway SplatEdit mounted at SCENE ROOT (where +Y is up, matching ahmad_branch Viewer.jsx)
+    try {
+      const ceilingEdit = new SplatEdit({
+        rgbaBlendMode: SplatEditRgbaBlendMode.MULTIPLY,
+        softEdge: 0.04
+      });
+      const ceilingPlane = new SplatEditSdf({
+        type: SplatEditSdfType.PLANE,
+        opacity: 0
+      });
+      ceilingPlane.rotation.x = Math.PI / 2;
+      // floorY = -1.035, ceilingY = 0.811 -> cutY = -1.035 + 0.78 * (0.811 - (-1.035)) = 0.405
+      ceilingPlane.position.set(0, 0.405, 0);
+      ceilingEdit.add(ceilingPlane);
+      ceilingEdit.visible = false;
+      scene.add(ceilingEdit);
+      ceilingCutEditRef.current = ceilingEdit;
+    } catch (err) {
+      console.warn('CeilingCutaway SplatEdit init warning:', err);
+    }
+
+    // 4. Unbound CV OBB group (inside display-frame so raw PLY OBB matrices align 1:1 with the splat!)
+    const cvUnboundObbGroup = new THREE.Group();
+    splatDisplayGroup.add(cvUnboundObbGroup);
+    cvUnboundObbGroupRef.current = cvUnboundObbGroup;
 
     // Semantic Segmentation Sweep Plane
     const laserGroup = new THREE.Group();
     const laserPlaneGeo = new THREE.PlaneGeometry(11.5, 4.5);
     const laserPlaneMat = new THREE.MeshBasicMaterial({
-      color: 0x1f6fb2,
+      color: 0x38bdf8,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.22,
@@ -709,7 +775,7 @@ export default function BoilerRoomViewport({
     laserGroup.add(
       new THREE.LineSegments(
         new THREE.EdgesGeometry(laserPlaneGeo),
-        new THREE.LineBasicMaterial({ color: 0x1f6fb2 })
+        new THREE.LineBasicMaterial({ color: 0x38bdf8 })
       )
     );
     laserGroup.position.set(0, 0.5, -3.2);
@@ -725,16 +791,15 @@ export default function BoilerRoomViewport({
     const exerciseGroup = new THREE.Group();
     const exercisePathGroup = new THREE.Group();
 
-    // Clear rig map on new scene mount (prevents React 18 StrictMode stale parent references)
     exerciseWorkerRigsRef.current.clear();
 
     // Staging Station Line Pad on Floor (z = -0.32) where workers stand in a line
     const stagingPadGeo = new THREE.PlaneGeometry(5.2, 0.56);
     stagingPadGeo.rotateX(-Math.PI / 2);
     const stagingPadMat = new THREE.MeshBasicMaterial({
-      color: 0x1f6fb2,
+      color: 0x38bdf8,
       transparent: true,
-      opacity: 0.14,
+      opacity: 0.18,
       side: THREE.DoubleSide
     });
     const stagingPad = new THREE.Mesh(stagingPadGeo, stagingPadMat);
@@ -743,12 +808,12 @@ export default function BoilerRoomViewport({
 
     const stagingBorder = new THREE.LineSegments(
       new THREE.EdgesGeometry(stagingPadGeo),
-      new THREE.LineBasicMaterial({ color: 0x1f6fb2, transparent: true, opacity: 0.65 })
+      new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 })
     );
     stagingBorder.position.copy(stagingPad.position);
     exerciseGroup.add(stagingBorder);
 
-    // 3D AR Traffic Red-Light / Green-Light Virtual Floor Gate & Beacon (visible in 1st-Person AR Mode)
+    // 3D AR Traffic Red-Light / Green-Light Virtual Floor Gate & Beacon
     const arGateGroup = new THREE.Group();
     const gateBarGeo = new THREE.BoxGeometry(0.95, 0.03, 0.12);
     const gateBarMat = new THREE.MeshBasicMaterial({
@@ -801,66 +866,52 @@ export default function BoilerRoomViewport({
     fleetGroup.add(h1Rig);
     secondaryRigsRef.current = { R2: r2Rig, H1: h1Rig };
 
-    // Load Equipment Room.ply binary (for Raw Scan mode or Laser Sweep transition)
-    fetch('/assets/equipment_room_splats.bin')
-      .then((res) => {
-        if (!res.ok) return fetch('/assets/boiler_room_splats.bin');
-        return res;
-      })
-      .then((res) => res.arrayBuffer())
-      .then((buffer) => {
-        const dv = new DataView(buffer);
-        const count = dv.getInt32(0, true);
-        const positions = new Float32Array(count * 3);
-        const colors = new Float32Array(count * 3);
-
-        let offset = 4;
-        for (let i = 0; i < count; i++) {
-          positions[i * 3 + 0] = dv.getFloat32(offset + 0, true);
-          positions[i * 3 + 1] = dv.getFloat32(offset + 4, true);
-          positions[i * 3 + 2] = dv.getFloat32(offset + 8, true);
-
-          const r = dv.getUint8(offset + 12) / 255;
-          const g = dv.getUint8(offset + 13) / 255;
-          const b = dv.getUint8(offset + 14) / 255;
-          colors[i * 3 + 0] = Math.min(1, r * 1.1);
-          colors[i * 3 + 1] = Math.min(1, g * 1.1);
-          colors[i * 3 + 2] = Math.min(1, b * 1.1);
-          offset += 16;
+    // 3D Gaussian Splatting Soft-Disc Shader Buffer (with automatic CeilingCutaway clipping at y > 0.405)
+    const fallbackGeo = new THREE.BufferGeometry();
+    const fallbackMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uPointSize: { value: 18.0 },
+        uOpacity: { value: 0.94 },
+        uCutEnabled: { value: 0.0 },
+        uCutY: { value: 0.405 }
+      },
+      vertexShader: `
+        attribute vec3 color;
+        varying vec3 vColor;
+        varying float vCutAlpha;
+        uniform float uPointSize;
+        uniform float uCutEnabled;
+        uniform float uCutY;
+        void main() {
+          vColor = color;
+          vCutAlpha = (uCutEnabled > 0.5 && position.y > uCutY) ? 0.0 : 1.0;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mvPosition;
+          float dist = max(0.35, -mvPosition.z);
+          gl_PointSize = clamp(uPointSize / dist, 1.5, 26.0) * vCutAlpha;
         }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        const material = new THREE.PointsMaterial({
-          size: 0.045,
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.0, // Hidden at 100% Semantic Mode so there are ZERO noisy white dots!
-          sizeAttenuation: true
-        });
-
-        const pointsObj = new THREE.Points(geometry, material);
-        pointsObj.visible = false; // Completely hidden in 100% Semantic CAD World
-        scene.add(pointsObj);
-        pointCloudObjRef.current = pointsObj;
-        pointCloudMatRef.current = material;
-        setLoadingState(null);
-        if (onLoadStats) {
-          onLoadStats({
-            sourceFile: 'Equipment Room.ply',
-            rawVertices: 1676481,
-            activeSplats: count,
-            anchoredAssets: 30,
-            structuralFrames: STRUCTURAL_BOILER_OBJECTS.length
-          });
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        varying float vCutAlpha;
+        uniform float uOpacity;
+        void main() {
+          if (vCutAlpha < 0.05) discard;
+          vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+          float r2 = dot(cxy, cxy);
+          if (r2 > 1.0) discard;
+          float alpha = exp(-3.2 * r2) * uOpacity * vCutAlpha;
+          gl_FragColor = vec4(vColor, alpha);
         }
-      })
-      .catch((err) => {
-        console.error('Error loading splats:', err);
-        setLoadingState(null);
-      });
+      `,
+      transparent: true,
+      depthWrite: true
+    });
+    const fallbackPoints = new THREE.Points(fallbackGeo, fallbackMat);
+    fallbackPoints.visible = true;
+    scene.add(fallbackPoints);
+    pointCloudObjRef.current = fallbackPoints;
+    pointCloudMatRef.current = fallbackMat;
 
     // Keyboard WASD / Arrow Keys / Delete Worker Listener
     const handleKeyDown = (e) => {
@@ -896,8 +947,7 @@ export default function BoilerRoomViewport({
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
-    // Raycaster ONLY on Click / PointerUp — ZERO passive labels or popups!
-    // When you click/interact with an object, its floating callout badge + control card appears anchored to it.
+    // Raycaster ONLY on Click / PointerUp — ZERO passive label clutter!
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let pointerDownPos = { x: 0, y: 0 };
@@ -916,7 +966,7 @@ export default function BoilerRoomViewport({
 
       raycaster.setFromCamera(mouse, camera);
 
-      // 0. Check Exercise Mode Workers FIRST so clicking a worker selects them (for Delete or manual dispatch)
+      // 0. Check Exercise Mode Workers FIRST
       if (stateRef.current.exerciseMode && exerciseGroupRef.current) {
         const workerHits = raycaster.intersectObjects(exerciseGroupRef.current.children, true);
         if (workerHits.length > 0) {
@@ -931,7 +981,7 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // 1. Check 30 Contoured 3D Assets
+      // 1. Check 30 Bound Assets / OBBs
       if (assetGroupRef.current) {
         const hits = raycaster.intersectObjects(assetGroupRef.current.children, true);
         if (hits.length > 0) {
@@ -945,12 +995,34 @@ export default function BoilerRoomViewport({
             const clickedAsset = obj.userData.asset;
             onSelectAsset(clickedAsset);
             setClickedPopoverAssetId(clickedAsset.asset_id);
+            setClickedUnboundCvObj(null);
+            if (clickedAsset.cvObject?.object_id && onSelectCvObject) {
+              onSelectCvObject(clickedAsset.cvObject);
+            }
             return;
           }
         }
       }
 
-      // 2. Check Floor Waypoint Hazard Nodes
+      // 2. Check Unbound CV OBBs (when "Show All 441 CV Detections" is enabled)
+      if (stateRef.current.showAllCvDetections && cvUnboundObbGroupRef.current) {
+        const cvHits = raycaster.intersectObjects(cvUnboundObbGroupRef.current.children, true);
+        if (cvHits.length > 0) {
+          let cvMesh = cvHits[0].object;
+          while (cvMesh && !cvMesh.userData?.cvObject) {
+            cvMesh = cvMesh.parent;
+          }
+          if (cvMesh?.userData?.cvObject) {
+            const cvObj = cvMesh.userData.cvObject;
+            setClickedUnboundCvObj(cvObj);
+            setClickedPopoverAssetId(null);
+            if (onSelectCvObject) onSelectCvObject(cvObj);
+            return;
+          }
+        }
+      }
+
+      // 3. Check Floor Waypoint Hazard Nodes
       if (navGraphGroupRef.current) {
         const navHits = raycaster.intersectObjects(navGraphGroupRef.current.children, true);
         if (navHits.length > 0) {
@@ -962,8 +1034,9 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // 3. Clicked on empty space -> hide the Popover Card and deselect worker
+      // 4. Clicked on empty space -> hide Popover Card and deselect worker
       setClickedPopoverAssetId(null);
+      setClickedUnboundCvObj(null);
       setClickedScreenAnchor(null);
       if (onSelectWorker) onSelectWorker(null);
     };
@@ -1031,7 +1104,21 @@ export default function BoilerRoomViewport({
       const st = stateRef.current;
       const obstacles = buildCollisionBoxes(st.assets);
 
-      // Animate AI Semantic Laser Wave if triggered (sweeps from Raw Point Cloud -> Clean 3D CAD World!)
+      // Automatic Ceiling Cutaway (ported from ahmad_branch CeilingCutaway.jsx):
+      // Only active when camera is above ceilingY (0.811) AND ceilingCutaway toggle is enabled.
+      // Views from inside the room (camera.position.y <= 0.811) are untouched!
+      const isAboveCeiling =
+        Boolean(st.ceilingCutaway) &&
+        !st.arFirstPersonMode &&
+        camera.position.y > 0.811;
+      if (pointCloudMatRef.current?.uniforms?.uCutEnabled) {
+        pointCloudMatRef.current.uniforms.uCutEnabled.value = isAboveCeiling ? 1.0 : 0.0;
+      }
+      if (ceilingCutEditRef.current && ceilingCutEditRef.current.visible !== isAboveCeiling) {
+        ceilingCutEditRef.current.visible = isAboveCeiling;
+      }
+
+      // Animate AI Semantic Laser Wave if triggered
       if (laserSweepStateRef.current.active && laserWaveMeshRef.current) {
         laserWaveMeshRef.current.visible = true;
         laserSweepStateRef.current.zPos += dt * 3.0;
@@ -1048,13 +1135,11 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // Toggle visibility between Simulation Exercise Mode and Standard Fleet Patrol Mode
       if (fleetGroupRef.current) fleetGroupRef.current.visible = !st.exerciseMode;
       if (pathGroupRef.current) pathGroupRef.current.visible = !st.exerciseMode;
       if (exerciseGroupRef.current) exerciseGroupRef.current.visible = Boolean(st.exerciseMode);
       if (exercisePathGroupRef.current) exercisePathGroupRef.current.visible = Boolean(st.exerciseMode);
 
-      // WASD / Arrow Keys Manual Walking vs. Exercise Mode vs. Centerline Rail Patrol
       const keys = keysPressedRef.current;
       const anyWasdDown =
         keys.w || keys.s || keys.a || keys.d || keys.arrowup || keys.arrowdown || keys.arrowleft || keys.arrowright;
@@ -1067,7 +1152,6 @@ export default function BoilerRoomViewport({
       let focusWorkerId = null;
 
       if (st.exerciseMode) {
-        // Animate all Simulation Exercise Workers (standing in a line, walking with traffic rules, repairing, returning)
         const rigMap = exerciseWorkerRigsRef.current;
         const exGroup = exerciseGroupRef.current;
         const activeIds = new Set(st.exerciseWorkers.map((w) => w.id));
@@ -1137,7 +1221,6 @@ export default function BoilerRoomViewport({
             rig.userData.leftLegPivot.rotation.x = walkCycle;
             rig.userData.rightLegPivot.rotation.x = -walkCycle;
             if (isRepairing) {
-              // Active tool repair arm motion
               const wrenchSwing = st.exercisePaused ? 0 : Math.sin(now * 0.022) * 0.38;
               rig.userData.rightArmPivot.rotation.x = -1.05 + wrenchSwing;
               rig.userData.leftArmPivot.rotation.x = -0.65;
@@ -1170,7 +1253,6 @@ export default function BoilerRoomViewport({
           }
         });
 
-        // Update 3D Floor Intersection Block Signals (Red = Locked by Worker, Green = Clear)
         if (navGraphGroupRef.current) {
           const lockedNodeSet = new Set();
           st.exerciseWorkers.forEach((w) => {
@@ -1218,7 +1300,6 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // Compute AR Red-Light / Yellow-Light / Green-Light Traffic Signal for current avatar
       const trafficPeers = st.exerciseMode
         ? st.exerciseWorkers
         : [
@@ -1293,7 +1374,6 @@ export default function BoilerRoomViewport({
 
         let moveDir = 0;
         if (keys.w || keys.arrowup) {
-          // Red Light in AR Mode gates forward motion while still allowing backing up or turning
           moveDir = st.arFirstPersonMode && activeSignal.light === 'RED' ? 0 : 1;
         }
         if (keys.s || keys.arrowdown) moveDir = -1;
@@ -1303,12 +1383,10 @@ export default function BoilerRoomViewport({
           const prevZ = manualPosRef.current.z;
           const nx = prevX + Math.sin(manualPosRef.current.angle) * speed * moveDir;
           const nz = prevZ + Math.cos(manualPosRef.current.angle) * speed * moveDir;
-          // Sub-step collision resolution with smooth wall/equipment sliding
           const [rx, rz] = resolveObstacleCollisions(nx, nz, 0.26, obstacles, prevX, prevZ);
           manualPosRef.current.x = rx;
           manualPosRef.current.z = rz;
         } else {
-          // Ensure resting position is also outside any equipment
           const [rx, rz] = resolveObstacleCollisions(
             manualPosRef.current.x,
             manualPosRef.current.z,
@@ -1364,7 +1442,6 @@ export default function BoilerRoomViewport({
         );
       }
 
-      // Secondary Multi-Agent Fleet Rigs (R2, H1) + Mutual Traffic Avoidance in Standard Mode
       const secRigs = secondaryRigsRef.current;
       if (!st.exerciseMode && secRigs.R2 && secRigs.H1) {
         secRigs.R2.visible = Boolean(st.multiAgentEnabled);
@@ -1396,7 +1473,6 @@ export default function BoilerRoomViewport({
             );
           }
 
-          // Enforce mutual personal-space traffic separation across R1, R2, H1
           const activeRigs = [primaryRigRef.current, secRigs.R2, secRigs.H1].filter(Boolean);
           const minSep = 0.66;
           for (let i = 0; i < activeRigs.length; i++) {
@@ -1422,7 +1498,6 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // Update 3D AR Traffic Virtual Floor Gate & Beacon in 1st-Person AR Mode
       if (arTrafficGateRef.current) {
         arTrafficGateRef.current.visible = Boolean(st.arFirstPersonMode);
         if (st.arFirstPersonMode) {
@@ -1444,7 +1519,6 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // First-Person AR Camera Mode: Position camera slightly behind & above the avatar so the robot body never blocks your view!
       if (st.arFirstPersonMode) {
         const eyeX = primarySample.position[0] + primarySample.tangent[0] * 0.35;
         const eyeY = primarySample.position[1] + 1.32;
@@ -1460,8 +1534,10 @@ export default function BoilerRoomViewport({
         controls.update();
       }
 
-      // Proximity & Click Highlighting across all 30 Contoured Assets
+      // Proximity & Click Highlighting across all 30 Bound Assets
       const nearby = [];
+      const isPureSplat = st.viewMode === 'splat';
+
       st.assets.forEach((asset) => {
         const dx = asset.position[0] - primarySample.position[0];
         const dy = asset.position[1] - primarySample.position[1];
@@ -1484,28 +1560,31 @@ export default function BoilerRoomViewport({
           const isAbnormal = asset.health_status !== 'healthy';
           const semanticAlpha = revealedByLaser ? st.semanticBlend / 100 : 0.04;
           const baseBoxOpacity = isClickedOpen || isSelected
-            ? 0.22
+            ? 0.24
             : isAbnormal
-            ? 0.10
-            : 0.02;
+            ? 0.14
+            : 0.03;
           const baseEdgeOpacity = isClickedOpen || isSelected
-            ? 0.98
+            ? 1.0
             : isAbnormal
-            ? 0.82
+            ? 0.90
             : isWithinRadius
-            ? 0.45
-            : 0.18;
+            ? 0.65
+            : 0.42;
 
-          meshBundle.fillMat.opacity = baseBoxOpacity * semanticAlpha;
-          meshBundle.edgeMat.opacity = baseEdgeOpacity * Math.max(0.15, semanticAlpha);
+          meshBundle.fillMat.opacity = baseBoxOpacity * Math.max(0.4, semanticAlpha);
+          meshBundle.edgeMat.opacity = baseEdgeOpacity * Math.max(0.4, semanticAlpha);
 
           if (meshBundle.equipMats) {
-            meshBundle.equipMats.solidMat.opacity = Math.max(0.25, semanticAlpha * 0.95);
-            meshBundle.equipMats.accentMat.opacity = Math.max(0.25, semanticAlpha * 0.95);
-            meshBundle.equipGroup.visible = semanticAlpha > 0.08;
+            // In pure Photoreal 3DGS mode, hide solid procedural CAD meshes so the real Gaussian Splatting pump/valve/motor hardware is 100% visible inside its CV OBB!
+            const showEquipMesh = !isPureSplat && semanticAlpha > 0.08;
+            meshBundle.equipGroup.visible = showEquipMesh;
+            if (showEquipMesh) {
+              meshBundle.equipMats.solidMat.opacity = Math.max(0.25, semanticAlpha * 0.92);
+              meshBundle.equipMats.accentMat.opacity = Math.max(0.25, semanticAlpha * 0.92);
+            }
           }
 
-          // Real-Time Physical Vibration Jitter on Faulty Rotating Equipment
           if (meshBundle.equipGroup && (asset.telemetry?.vibration_mms || 0) > 4.5) {
             meshBundle.equipGroup.position.x = Math.sin(now * 0.055) * 0.014;
             meshBundle.equipGroup.position.y = Math.cos(now * 0.065) * 0.010;
@@ -1515,17 +1594,16 @@ export default function BoilerRoomViewport({
 
           if (meshBundle.backPlaneMat) {
             meshBundle.backPlaneMat.opacity =
-              st.showContourModels && isClickedOpen ? 0.72 * semanticAlpha : 0;
+              st.showContourModels && isClickedOpen ? 0.65 : 0;
           }
-          // Only show the 12 cyan contour dots on the object you are actively interacting with (or in radar) so the scene stays super clean!
           if (meshBundle.contourGroup) {
             meshBundle.contourGroup.visible = Boolean(
-              st.showContourModels && (isClickedOpen || isWithinRadius) && semanticAlpha > 0.2
+              st.showContourModels && (isClickedOpen || isWithinRadius)
             );
           }
 
           if (isClickedOpen) {
-            const s = 1.08 + Math.sin(now * 0.008) * 0.03;
+            const s = 1.06 + Math.sin(now * 0.008) * 0.025;
             meshBundle.group.scale.set(s, s, s);
           } else {
             meshBundle.group.scale.set(1, 1, 1);
@@ -1533,7 +1611,6 @@ export default function BoilerRoomViewport({
         }
       });
 
-      // Project 3D anchor positions for clicked asset popover AND active exercise worker repair badges
       labelTick++;
       if (labelTick % 3 === 0 && container) {
         nearby.sort((a, b) => a.distanceToAvatar - b.distanceToAvatar);
@@ -1617,61 +1694,106 @@ export default function BoilerRoomViewport({
     };
   }, []);
 
-  // Switch between Equipment Room.ply and Industrial Boiler Room (1).ply
+  // Load Photorealistic 3D Gaussian Splats via @sparkjsdev/spark SplatMesh (.spz) with binary fallback
   useEffect(() => {
-    if (!sceneRef.current || !pointCloudObjRef.current || customPlyBuffer) return;
+    const displayGroup = splatDisplayGroupRef.current;
+    const pcObj = pointCloudObjRef.current;
+    if (!displayGroup || customPlyBuffer) return;
+
     const isEquip = activeRoomScene === 'equipment_room';
-    const binUrl = isEquip
-      ? '/assets/equipment_room_splats.bin'
-      : '/assets/boiler_room_splats.bin';
-    const label = isEquip ? 'Equipment Room.ply' : 'Industrial Boiler Room (1).ply';
+    const spzUrl = isEquip ? '/assets/equipment_room.spz' : '/assets/boiler_room.spz';
+    const binUrl = isEquip ? '/assets/equipment_room_splats.bin' : '/assets/boiler_room_splats.bin';
+    const label = isEquip ? 'Equipment Room.ply (.spz)' : 'Boiler Room.ply (.spz)';
     const rawTotal = isEquip ? 1676481 : 1506136;
 
-    fetch(binUrl)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch ${binUrl}`);
-        return res.arrayBuffer();
-      })
-      .then((buffer) => {
-        const dv = new DataView(buffer);
-        const count = dv.getInt32(0, true);
-        const positions = new Float32Array(count * 3);
-        const colors = new Float32Array(count * 3);
+    let cancelled = false;
+    setLoadingState(`Loading ${label} 3D Gaussian Splats...`);
 
-        let offset = 4;
-        for (let i = 0; i < count; i++) {
-          positions[i * 3 + 0] = dv.getFloat32(offset + 0, true);
-          positions[i * 3 + 1] = dv.getFloat32(offset + 4, true);
-          positions[i * 3 + 2] = dv.getFloat32(offset + 8, true);
+    if (splatMeshRef.current) {
+      displayGroup.remove(splatMeshRef.current);
+      splatMeshRef.current = null;
+    }
+    if (pcObj) {
+      pcObj.visible = false;
+    }
 
-          const r = dv.getUint8(offset + 12) / 255;
-          const g = dv.getUint8(offset + 13) / 255;
-          const b = dv.getUint8(offset + 14) / 255;
-          colors[i * 3 + 0] = Math.min(1, r * 1.1);
-          colors[i * 3 + 1] = Math.min(1, g * 1.1);
-          colors[i * 3 + 2] = Math.min(1, b * 1.1);
-          offset += 16;
+    const loadFallbackBin = () => {
+      if (!pcObj || cancelled) return;
+      fetch(binUrl)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.arrayBuffer();
+        })
+        .then((buffer) => {
+          if (cancelled) return;
+          const { geometry, count } = parsePrecomputedSplatBin(buffer);
+          pcObj.geometry.dispose();
+          pcObj.geometry = geometry;
+          pcObj.visible = viewMode !== 'cad';
+          setSplatReady(true);
+          setLoadingState(null);
+          if (onLoadStats) {
+            onLoadStats({
+              sourceFile: label,
+              rawVertices: rawTotal,
+              activeSplats: count,
+              anchoredAssets: assets.length,
+              structuralFrames: cvSceneObjects?.objects?.length || 441
+            });
+          }
+        })
+        .catch((err) => {
+          console.warn('Fallback splat bin error:', err);
+          if (!cancelled) setLoadingState(null);
+        });
+    };
+
+    try {
+      const mesh = new SplatMesh({
+        url: spzUrl,
+        fileType: 'spz',
+        lod: false,
+        onProgress: (ev) => {
+          if (cancelled) return;
+          if (ev.total > 0) {
+            const pct = Math.min(99, Math.round((ev.loaded / ev.total) * 100));
+            setLoadingState(`Streaming ${label}… ${pct}%`);
+          }
         }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        pointCloudObjRef.current.geometry.dispose();
-        pointCloudObjRef.current.geometry = geometry;
-        if (onLoadStats) {
-          onLoadStats({
-            sourceFile: label,
-            rawVertices: rawTotal,
-            activeSplats: count,
-            anchoredAssets: assets.length,
-            structuralFrames: STRUCTURAL_BOILER_OBJECTS.length
-          });
-        }
-      })
-      .catch((err) => {
-        console.error('Error switching room binary:', err);
       });
+
+      mesh.initialized
+        .then(() => {
+          if (cancelled) return;
+          displayGroup.add(mesh);
+          splatMeshRef.current = mesh;
+          mesh.visible = viewMode !== 'cad';
+          if (pcObj) pcObj.visible = false;
+          setSplatReady(true);
+          setLoadingState(null);
+          const numSplats = mesh.packedSplats?.numSplats || (isEquip ? 466000 : 450000);
+          if (onLoadStats) {
+            onLoadStats({
+              sourceFile: label,
+              rawVertices: rawTotal,
+              activeSplats: numSplats,
+              anchoredAssets: assets.length,
+              structuralFrames: cvSceneObjects?.objects?.length || 441
+            });
+          }
+        })
+        .catch((err) => {
+          console.warn('Spark .spz load failed, using binary splat fallback:', err);
+          loadFallbackBin();
+        });
+    } catch (err) {
+      console.warn('SplatMesh init failed, using binary splat fallback:', err);
+      loadFallbackBin();
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [activeRoomScene]);
 
   // Custom PLY Upload
@@ -1682,6 +1804,11 @@ export default function BoilerRoomViewport({
       const { geometry, count } = parseCustomPlyArrayBuffer(customPlyBuffer);
       pointCloudObjRef.current.geometry.dispose();
       pointCloudObjRef.current.geometry = geometry;
+      pointCloudObjRef.current.visible = viewMode !== 'cad';
+      if (splatMeshRef.current) splatMeshRef.current.visible = false;
+      if (pointCloudMatRef.current?.uniforms?.uOpacity) {
+        pointCloudMatRef.current.uniforms.uOpacity.value = 1.0;
+      }
       setLoadingState(null);
       if (onLoadStats) {
         onLoadStats({
@@ -1698,25 +1825,91 @@ export default function BoilerRoomViewport({
     }
   }, [customPlyBuffer]);
 
-  // Completely hide noisy point-cloud dots when Semantic World >= 80% so the scene is 100% clean CAD!
+  // Update 3D View Mode ('splat' | 'hybrid' | 'cad')
   useEffect(() => {
-    if (!pointCloudMatRef.current || !pointCloudObjRef.current) return;
-    pointCloudMatRef.current.size = pointSize;
-    const blendFactor = semanticBlend / 100;
-    if (semanticBlend >= 80) {
-      // 100% Clean CAD Mode: ZERO white dots!
-      pointCloudObjRef.current.visible = false;
-      pointCloudMatRef.current.opacity = 0;
-    } else {
-      pointCloudObjRef.current.visible = true;
-      pointCloudMatRef.current.opacity = 1.0 - blendFactor * 1.15;
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    const isCadOnly = viewMode === 'cad';
+    scene.background = new THREE.Color(isCadOnly ? 0xd7dbe0 : 0x0b1220);
+    scene.fog = isCadOnly ? new THREE.FogExp2(0xd7dbe0, 0.022) : null;
+
+    if (splatMeshRef.current) {
+      splatMeshRef.current.visible = !isCadOnly;
+      if (pointCloudObjRef.current) pointCloudObjRef.current.visible = false;
+    } else if (pointCloudObjRef.current) {
+      pointCloudObjRef.current.visible = !isCadOnly;
     }
     if (cadRoomGroupRef.current) {
-      cadRoomGroupRef.current.visible = semanticBlend >= 25;
+      cadRoomGroupRef.current.visible = viewMode !== 'splat';
     }
-  }, [pointSize, semanticBlend]);
+    if (gridHelperRef.current) {
+      gridHelperRef.current.visible = isCadOnly;
+    }
+  }, [viewMode, splatReady]);
 
-  // Build 30 Contoured 3D Asset Models
+  // Render Unbound CV OBBs when "Show All 441 CV Detections" is enabled (or when an unbound CV object is selected in Review Mode)
+  useEffect(() => {
+    const cvGroup = cvUnboundObbGroupRef.current;
+    if (!cvGroup) return;
+
+    while (cvGroup.children.length > 0) {
+      cvGroup.remove(cvGroup.children[0]);
+    }
+
+    const allObjects = cvSceneObjects?.objects || [];
+    if (!allObjects.length) return;
+
+    const objectsToRender = allObjects.filter((o) => {
+      if (o.source === 'structure_plane' || o.asset_id) return false;
+      if (showAllCvDetections) return true;
+      return o.object_id === selectedCvObjectId;
+    });
+
+    if (objectsToRender.length === 0) return;
+
+    const unitEdgesGeo = new THREE.EdgesGeometry(GEO_CACHE.unitBox);
+
+    objectsToRender.forEach((obj) => {
+      const isSelectedCv = obj.object_id === selectedCvObjectId;
+      const isPipe = obj.class === 'pipe';
+      const colorHex = isSelectedCv
+        ? 0x38bdf8
+        : isPipe
+        ? 0x64748b
+        : 0xa855f7;
+
+      const mat = obbMatrix(obj);
+      const wireMat = new THREE.LineDashedMaterial({
+        color: colorHex,
+        transparent: true,
+        opacity: isSelectedCv ? 0.98 : isPipe ? 0.32 : 0.62,
+        dashSize: 0.04,
+        gapSize: 0.025,
+        depthWrite: false
+      });
+
+      const lineSegs = new THREE.LineSegments(unitEdgesGeo, wireMat);
+      lineSegs.computeLineDistances();
+      lineSegs.applyMatrix4(mat);
+      lineSegs.userData = { cvObject: obj };
+      cvGroup.add(lineSegs);
+
+      // Invisible pick box for raycasting unbound CV OBBs
+      const pickMat = new THREE.MeshBasicMaterial({
+        color: colorHex,
+        transparent: true,
+        opacity: isSelectedCv ? 0.16 : 0.01,
+        depthWrite: false
+      });
+      const pickMesh = new THREE.Mesh(GEO_CACHE.unitBox, pickMat);
+      pickMesh.applyMatrix4(mat);
+      pickMesh.userData = { cvObject: obj };
+      cvGroup.add(pickMesh);
+    });
+  }, [cvSceneObjects, showAllCvDetections, selectedCvObjectId]);
+
+  // Build 30 Bound Contoured & CV OBB Asset Models
   useEffect(() => {
     const assetGroup = assetGroupRef.current;
     const structuralGroup = structuralGroupRef.current;
@@ -1728,11 +1921,14 @@ export default function BoilerRoomViewport({
     assetMeshMapRef.current.clear();
 
     assets.forEach((asset) => {
-      const colorHex = HEALTH_COLORS[asset.health_status] || 0x10b981;
+      const colorHex = HEALTH_COLORS[asset.health_status] || 0x38bdf8;
       const [sx, sy, sz] = asset.bbox_size;
 
       const group = new THREE.Group();
       group.position.set(asset.position[0], asset.position[1], asset.position[2]);
+      if (asset.cvObject?.yaw_deg) {
+        group.rotation.y = THREE.MathUtils.degToRad(asset.cvObject.yaw_deg);
+      }
       group.userData = { asset };
 
       const { group: equipGroup, solidMat, accentMat } = createProceduralEquipmentMesh(asset, colorHex);
@@ -1743,7 +1939,7 @@ export default function BoilerRoomViewport({
       const fillMat = new THREE.MeshBasicMaterial({
         color: colorHex,
         transparent: true,
-        opacity: 0.06,
+        opacity: 0.08,
         depthWrite: false
       });
       const boxMesh = new THREE.Mesh(boxGeo, fillMat);
@@ -1754,7 +1950,7 @@ export default function BoilerRoomViewport({
       const edgeMat = new THREE.LineBasicMaterial({
         color: colorHex,
         transparent: true,
-        opacity: 0.85
+        opacity: 0.9
       });
       const wireMesh = new THREE.LineSegments(edgesGeo, edgeMat);
       group.add(wireMesh);
@@ -1968,7 +2164,6 @@ export default function BoilerRoomViewport({
     const rigMap = exerciseWorkerRigsRef.current;
     const activeIds = new Set(exerciseWorkers.map((w) => w.id));
 
-    // Remove deleted workers from 3D group
     for (const [id, rig] of rigMap.entries()) {
       if (!activeIds.has(id)) {
         exerciseGroup.remove(rig);
@@ -1976,7 +2171,6 @@ export default function BoilerRoomViewport({
       }
     }
 
-    // Add or update existing workers
     exerciseWorkers.forEach((w) => {
       const wpos = w.position || w.pos || [0, -1.02, -0.32];
       let rig = rigMap.get(w.id);
@@ -2004,7 +2198,6 @@ export default function BoilerRoomViewport({
       }
     });
 
-    // Rebuild active worker route tubes in exercisePathGroup
     while (exercisePathGroup.children.length > 0) {
       exercisePathGroup.remove(exercisePathGroup.children[0]);
     }
@@ -2046,15 +2239,26 @@ export default function BoilerRoomViewport({
     }
   }, [exerciseWorkers, exerciseMode, railMode]);
 
+  const handleInteriorCamera = () => {
+    if (arFirstPersonMode) onToggleArFirstPerson(false);
+    manualPosRef.current = null;
+    setIsWasdWalking(false);
+    if (!cameraRef.current || !controlsRef.current) return;
+    cameraRef.current.position.set(1.42, -0.12, -1.28);
+    controlsRef.current.target.set(-0.32, -0.45, 0.95);
+    controlsRef.current.update();
+  };
+
   const handleResetCamera = () => {
     if (arFirstPersonMode) onToggleArFirstPerson(false);
     manualPosRef.current = null;
     setIsWasdWalking(false);
     setClickedPopoverAssetId(null);
+    setClickedUnboundCvObj(null);
     setClickedScreenAnchor(null);
     if (!cameraRef.current || !controlsRef.current) return;
-    cameraRef.current.position.set(0.2, 3.35, -4.85);
-    controlsRef.current.target.set(0.1, -0.35, 1.55);
+    cameraRef.current.position.set(0.2, 3.15, -4.45);
+    controlsRef.current.target.set(-0.2, -0.35, 0.25);
     controlsRef.current.update();
   };
 
@@ -2063,7 +2267,16 @@ export default function BoilerRoomViewport({
     if (!cameraRef.current || !controlsRef.current || !selectedAsset) return;
     const [x, y, z] = selectedAsset.position;
     controlsRef.current.target.set(x, y, z);
-    cameraRef.current.position.set(x * 0.5, y + 1.35, z - 2.45);
+    // Keep camera inside the room looking toward the asset (like ahmad_branch flyTo)
+    const dirX = -x;
+    const dirZ = -z;
+    const len = Math.hypot(dirX, dirZ) || 1;
+    const dist = 1.45;
+    cameraRef.current.position.set(
+      x + (dirX / len) * dist,
+      Math.min(0.28, Math.max(-0.65, y + 0.32)),
+      z + (dirZ / len) * dist
+    );
     controlsRef.current.update();
   };
 
@@ -2071,6 +2284,9 @@ export default function BoilerRoomViewport({
     ? assets.find((a) => a.asset_id === clickedPopoverAssetId)
     : null;
   const clickedSt = clickedPopoverAsset ? statusOf(clickedPopoverAsset) : null;
+  const clickedPhoto = clickedPopoverAsset?.cvObject?.object_id
+    ? EVIDENCE_PHOTO_MAP[clickedPopoverAsset.cvObject.object_id]
+    : null;
 
   return (
     <main className="viewport">
@@ -2081,7 +2297,7 @@ export default function BoilerRoomViewport({
         <div className={`exercise-banner ${exercisePaused ? 'paused' : ''}`}>
           <div className="row" style={{ gap: '6px', flexWrap: 'wrap' }}>
             <span className={`status ${exercisePaused ? 'medium' : 'info'}`}>
-              {exercisePaused ? 'TIME PAUSED — BATCH FAULT SETUP' : 'SIMULATION EXERCISE'}
+              {exercisePaused ? 'TIME PAUSED — BATCH FAULT SETUP' : 'SIMULATION EXERCISE · 3DGS + CV'}
             </span>
             <span className="mono muted" style={{ marginLeft: 'auto' }}>
               {exerciseWorkers.filter((w) => w.state === 'STANDBY').length}/{exerciseWorkers.length} at line
@@ -2089,8 +2305,8 @@ export default function BoilerRoomViewport({
           </div>
           <div className="exercise-banner-sub">
             {exercisePaused
-              ? 'Time is frozen. Click multiple equipment items and inject faults (or assign workers in Alerts), then click Resume Time to dispatch all units together.'
-              : 'Inject faults on components (or use Pause Time to batch multiple faults). Standby technicians walk out using right-hand traffic rules, repair with a live tool indicator, and return to the line.'}
+              ? 'Time is frozen. Click multiple equipment OBBs and inject faults (or assign workers in Alerts), then click Resume Time to dispatch all units together.'
+              : 'Photoreal 3DGS (.spz) with CV-detected 3D OBBs. Inject faults on components; standby technicians walk out using right-hand traffic rules, repair, and return.'}
           </div>
           <div className="row" style={{ gap: '5px', marginTop: '5px', flexWrap: 'wrap' }}>
             {onToggleExercisePaused && (
@@ -2240,7 +2456,7 @@ export default function BoilerRoomViewport({
         </>
       )}
 
-      {/* On-Click Asset Callout Popover */}
+      {/* On-Click Bound Asset Callout Popover */}
       {clickedPopoverAsset && clickedScreenAnchor && clickedSt && (
         <div
           style={{
@@ -2257,6 +2473,11 @@ export default function BoilerRoomViewport({
                   {clickedPopoverAsset.tag}
                 </span>
                 <span className="mono muted">{clickedPopoverAsset.asset_id}</span>
+                {clickedPopoverAsset.cvObject?.object_id && (
+                  <span className="status info mono" style={{ fontSize: '10px' }}>
+                    {clickedPopoverAsset.cvObject.object_id}
+                  </span>
+                )}
                 <span className={`status ${clickedSt.cls}`} style={{ marginLeft: 'auto' }}>
                   {clickedSt.label} · {clickedPopoverAsset.health_score}%
                 </span>
@@ -2265,8 +2486,11 @@ export default function BoilerRoomViewport({
                 {clickedPopoverAsset.service_description}
               </div>
               <div className="mono muted" style={{ fontSize: '11px', marginTop: '2px' }}>
-                mesh {clickedScreenAnchor.meshIdx} ({clickedScreenAnchor.triCount}k tris) ·{' '}
-                {clickedPopoverAsset.contourModel?.contourPointCount || 12} seam pts
+                {clickedPopoverAsset.cvObject
+                  ? `${(clickedPopoverAsset.cvObject.splat_count || 0).toLocaleString()} splats · ${humanize(
+                      clickedPopoverAsset.cvObject.mapping_method
+                    )}`
+                  : `mesh ${clickedScreenAnchor.meshIdx} (${clickedScreenAnchor.triCount}k tris)`}
               </div>
             </div>
             <button
@@ -2282,6 +2506,21 @@ export default function BoilerRoomViewport({
           </div>
 
           <div className="vp-popover-body">
+            {clickedPhoto && (
+              <img
+                src={clickedPhoto}
+                alt={`CV Evidence ${clickedPopoverAsset.tag}`}
+                style={{
+                  width: '100%',
+                  height: '92px',
+                  objectFit: 'cover',
+                  borderRadius: '3px',
+                  border: '1px solid var(--border)',
+                  marginBottom: '6px'
+                }}
+              />
+            )}
+
             <div className="metric-grid">
               <div className="metric">
                 <div className="k">Pressure</div>
@@ -2353,6 +2592,44 @@ export default function BoilerRoomViewport({
         </div>
       )}
 
+      {/* On-Click Unbound CV Object Popover (when exploring all 441 CV OBBs) */}
+      {clickedUnboundCvObj && !clickedPopoverAsset && (
+        <div style={{ right: 16, bottom: 52 }} className="vp-popover">
+          <div className="vp-popover-head">
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="row" style={{ gap: '6px' }}>
+                <span className="mono" style={{ fontWeight: 700 }}>
+                  {clickedUnboundCvObj.object_id}
+                </span>
+                <span className="status info">
+                  CV Class: {humanize(clickedUnboundCvObj.class)} (
+                  {Math.round((clickedUnboundCvObj.class_confidence || 0.75) * 100)}%)
+                </span>
+              </div>
+              <div className="mono muted" style={{ fontSize: '11px', marginTop: '3px' }}>
+                {(clickedUnboundCvObj.splat_count || 0).toLocaleString()} splats ·{' '}
+                {(clickedUnboundCvObj.voxel_count || 0).toLocaleString()} voxels · Unbound 3D OBB
+              </div>
+            </div>
+            <button
+              className="btn btn-sm btn-icon"
+              onClick={() => setClickedUnboundCvObj(null)}
+            >
+              ✕
+            </button>
+          </div>
+          {EVIDENCE_PHOTO_MAP[clickedUnboundCvObj.object_id] && (
+            <div className="vp-popover-body">
+              <img
+                src={EVIDENCE_PHOTO_MAP[clickedUnboundCvObj.object_id]}
+                alt={clickedUnboundCvObj.object_id}
+                style={{ width: '100%', height: '95px', objectFit: 'cover', borderRadius: '3px' }}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       {loadingState && (
         <div className="vp-loading">
           <div className="vp-loading-box">
@@ -2362,49 +2639,96 @@ export default function BoilerRoomViewport({
         </div>
       )}
 
-      {/* Top-right Viewport Camera Toolbar */}
+      {/* Top-right Viewport Camera & 3DGS/CV Toolbar */}
       <div className="vp-toolbar">
+        {onViewModeChange && (
+          <>
+            <button
+              className={viewMode === 'splat' ? 'on' : ''}
+              onClick={() => onViewModeChange('splat')}
+              title="Photoreal 3D Gaussian Splatting (.spz) + CV OBB Wireframes"
+            >
+              3DGS Scan (.spz)
+            </button>
+            <button
+              className={viewMode === 'hybrid' ? 'on' : ''}
+              onClick={() => onViewModeChange('hybrid')}
+              title="Hybrid: Photoreal 3DGS Scan + Extracted 3D CAD Equipment"
+            >
+              Hybrid 3DGS+CAD
+            </button>
+            <button
+              className={viewMode === 'cad' ? 'on' : ''}
+              onClick={() => onViewModeChange('cad')}
+              title="Clean 3D CAD Facility Reconstruction"
+            >
+              Clean CAD
+            </button>
+          </>
+        )}
+
+        {onToggleCeilingCutaway && viewMode !== 'cad' && (
+          <button
+            className={ceilingCutaway ? 'on' : ''}
+            onClick={() => onToggleCeilingCutaway(!ceilingCutaway)}
+            title="Automatically cut away ceiling splats when viewing from above"
+          >
+            Ceiling Cutaway
+          </button>
+        )}
+
+        {onToggleShowAllCvDetections && (
+          <button
+            className={showAllCvDetections ? 'on' : ''}
+            onClick={() => onToggleShowAllCvDetections(!showAllCvDetections)}
+            title="Toggle between showing only the 30 bound Valmet asset OBBs vs all 441 CV-detected OBBs"
+          >
+            {showAllCvDetections ? 'All 441 CV OBBs: ON' : '30 Bound OBBs'}
+          </button>
+        )}
+
         {onToggleExercisePaused && (
           <button
             className={exercisePaused ? 'on' : ''}
             onClick={() => onToggleExercisePaused(!exercisePaused)}
             title="Pause or resume simulation time to batch multiple faults"
           >
-            {exercisePaused ? '▶ Resume Time' : '⏸ Pause Time'}
+            {exercisePaused ? '▶ Resume' : '⏸ Pause'}
           </button>
         )}
-        {onToggleExerciseMode && (
-          <button
-            className={exerciseMode ? 'on' : ''}
-            onClick={() => onToggleExerciseMode(!exerciseMode)}
-            title="Toggle Simulation Exercise Mode (Workers line up & repair injected faults)"
-          >
-            {exerciseMode ? 'Exercise Mode: ON' : 'Exercise Mode'}
-          </button>
-        )}
-        {isWasdWalking && (
-          <button
-            className="on"
-            onClick={() => {
-              manualPosRef.current = null;
-              setIsWasdWalking(false);
-              if (onSimPlayingChange) onSimPlayingChange(true);
-            }}
-          >
-            Resume Auto-Patrol
-          </button>
-        )}
+
         <button
           className={arFirstPersonMode ? 'on' : ''}
           onClick={() => onToggleArFirstPerson(!arFirstPersonMode)}
         >
-          {arFirstPersonMode ? 'Exit 1st-Person AR' : '1st-Person AR POV'}
+          {arFirstPersonMode ? 'Exit 1st-Person AR' : '1st-Person AR'}
         </button>
         <button onClick={handleFocusSelected}>
           Focus {selectedAsset?.tag || 'Asset'}
         </button>
-        <button onClick={handleResetCamera}>Reset View</button>
+        <button onClick={handleInteriorCamera} title="Jump inside the 3DGS room scan">
+          Interior View
+        </button>
+        <button onClick={handleResetCamera} title="Top-down overview with automatic ceiling cutaway">
+          Overview
+        </button>
       </div>
+
+      {/* Bottom-left 2D Floor Occupancy & ESDF Minimap (ported from ahmad_branch) */}
+      {!arFirstPersonMode && (
+        <FloorMinimap
+          assets={assets}
+          selectedAsset={selectedAsset}
+          onSelectAsset={(asset) => {
+            onSelectAsset(asset);
+            setClickedPopoverAssetId(asset.asset_id);
+          }}
+          exerciseMode={exerciseMode}
+          exerciseWorkers={exerciseWorkers}
+          activePathPoints={activeProfile === 'human' ? humanPath?.points : robotPath?.points}
+          cvObjectCount={cvSceneObjects?.objects?.length || 441}
+        />
+      )}
 
       {/* Bottom-left Compact Legend */}
       <div className="vp-chip bottom-left">
@@ -2415,31 +2739,13 @@ export default function BoilerRoomViewport({
           <kbd>D</kbd> Walk
         </span>
         <span>·</span>
-        <span>Click equipment to inspect</span>
-        {exerciseMode ? (
-          <>
-            <span>·</span>
-            <span>Click worker + <kbd>Del</kbd> to remove</span>
-          </>
-        ) : (
+        <span>Click 3D OBB to inspect</span>
+        {exerciseMode && (
           <>
             <span>·</span>
             <span>
-              <span className="legend-swatch" style={{ background: '#d96b27' }} />
-              AMR R1
+              Click worker + <kbd>Del</kbd> to remove
             </span>
-            {multiAgentEnabled && (
-              <>
-                <span>
-                  <span className="legend-swatch" style={{ background: '#49a942' }} />
-                  AMR R2
-                </span>
-                <span>
-                  <span className="legend-swatch" style={{ background: '#1f6fb2' }} />
-                  Operator H1
-                </span>
-              </>
-            )}
           </>
         )}
       </div>
