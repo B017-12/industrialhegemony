@@ -103,7 +103,7 @@ function loadSplats() {
     .addSplatScene('/assets/equipment_room.splat', {
       splatAlphaRemovalThreshold: 10,
       showLoadingUI: false,
-      onProgress: (pct) => setLoading(`Loading scan… ${Math.round(pct)}%`)
+      onProgress: (pct) => setLoading(`Loading scan... ${Math.round(pct)}%`)
     })
     .then(() => setLoading(null));
 }
@@ -337,7 +337,7 @@ function select(objectId) {
 async function diagnose(assetId) {
   const sec = $('diagnosis');
   $('diag-panel').hidden = false;
-  sec.innerHTML = '<h2>AI diagnosis</h2><p class="muted">Asking the copilot…</p>';
+  sec.innerHTML = '<h2>AI diagnosis</h2><p class="muted">Asking the copilot...</p>';
   let ans;
   try {
     ans = await askCopilot(assetId, 'Diagnose this asset and recommend the next safe inspection steps.');
@@ -469,7 +469,7 @@ async function main() {
   $('stats').innerHTML =
     `<b>${objectsDoc.objects.length}</b> objects framed · <b>${mapped}</b> mapped to Excel assets · ` +
     `target <b>${esc(path.target.tag)}</b> (${esc(path.target.issue_code)})<br>` +
-    `route <b>${path.length_m} m</b> · ${path.checks.collision_free ? 'collision-free ✓' : 'COLLISION ✗'} · ` +
+    `route <b>${path.length_m} m</b> · ${path.checks.collision_free ? 'collision-free PASS' : 'COLLISION FAIL'} · ` +
     `rail |L−R| median <b>${m.median} m</b>`;
 
   // overview camera: above the room (ceiling is cut away in the splat export), looking at the route

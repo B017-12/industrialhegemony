@@ -1,0 +1,98 @@
+{
+  "version": "tab2-segmentation-1",
+  "filter": {
+    "input": 1676481,
+    "dropped_low_opacity": 762150,
+    "dropped_large_covariance": 59958,
+    "dropped_sor_outliers": 33862,
+    "sor_limit": 0.06499,
+    "kept": 820511,
+    "params": {
+      "min_opacity": 0.1,
+      "max_sigma": 0.05,
+      "sor_k": 16,
+      "sor_alpha": 2.0
+    }
+  },
+  "voxels": {
+    "voxel": 0.02,
+    "min_weight": 0.3,
+    "voxels": 238517,
+    "dropped_sparse_voxels": 201556
+  },
+  "structure_planes": [
+    "floor",
+    "ceiling"
+  ],
+  "rejected_wall_candidates": 0,
+  "instances": {
+    "candidate_voxels": 171614,
+    "pipe_seed_segments": 132,
+    "hdbscan_clusters": 571,
+    "pipe_edges_absorbed": 13,
+    "oversized_split": 14,
+    "fragments_merged": 61,
+    "assembly_merges": 143,
+    "noise_fraction": 0.3105,
+    "comparison": {
+      "dbscan_eps0.045_ms12": {
+        "clusters_ge25": 574,
+        "noise_fraction": 0.2918,
+        "median_voxels": 65.0,
+        "largest_cluster_voxels": 7147,
+        "clusters_over_1p5_units": 6,
+        "silhouette_sample": 0.0638
+      },
+      "pipes_then_hdbscan_merge_split": {
+        "clusters_ge25": 655,
+        "noise_fraction": 0.3105,
+        "median_voxels": 83.0,
+        "largest_cluster_voxels": 2657,
+        "clusters_over_1p5_units": 4,
+        "silhouette_sample": 0.1641
+      }
+    }
+  },
+  "quality_filter_dropped": {
+    "floating_unsupported": 172,
+    "too_few_splats": 41,
+    "too_thin": 3
+  },
+  "stable_ids": {
+    "previous_objects": 439,
+    "matched": 439,
+    "new_ids": 0,
+    "matched_against": "_analysis/er_pipeline/scene_objects.run1.json"
+  },
+  "mapping": {
+    "bound": 30,
+    "by_method": {
+      "procedural_fallback": 10,
+      "procedural_class_match": 17,
+      "video_evidence": 3
+    },
+    "human_pinned": 3,
+    "review_excluded": 3
+  },
+  "metrics": {
+    "objects_total": 441,
+    "structure": 2,
+    "equipment_and_pipes": 439,
+    "per_class": {
+      "pipe": 220,
+      "other": 118,
+      "pump": 44,
+      "cabinet": 25,
+      "crate": 12,
+      "valve": 11,
+      "trolley": 7,
+      "floor": 1,
+      "ceiling": 1,
+      "tank": 1,
+      "motor": 1
+    },
+    "median_splats_per_object": 272.0,
+    "bound_assets": 30
+  },
+  "runtime_s": 261.4
+}

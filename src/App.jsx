@@ -1,12 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Activity,
+  X,
   Bell,
+  Building,
+  Camera,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   ExternalLink,
+  Eye,
   List,
   MessageSquare,
   Navigation,
+  PanelLeftClose,
+  PanelRightClose,
   Pause,
   Play,
   Plus,
@@ -14,6 +23,7 @@ import {
   RotateCcw,
   Search,
   Sliders,
+  Target,
   Trash2,
   Upload,
   Wrench,
@@ -28,7 +38,8 @@ import {
   computeAStarPath,
   INITIAL_FLEET_AGENTS,
   coordinateMultiAgentFleet,
-  buildCollisionBoxes
+  buildCollisionBoxes,
+  setCvNavigationData
 } from './utils/pathfinding.js';
 import {
   createInitialExerciseWorkers,
@@ -37,18 +48,117 @@ import {
   assignWorkerToAsset,
   stepExerciseSimulation
 } from './utils/exerciseEngine.js';
+import {
+  fetchCvSceneBundle,
+  applyCvOverrides,
+  syncAssetsWithCvObjects,
+  saveStoredOverrides,
+  clearStoredOverrides
+} from './utils/cvEngine.js';
 import { CHALLENGE_BRIEF_MISSIONS } from './data/challengeBriefMissions.js';
 import { statusOf, humanize, sortBySeverity } from './ui/status.js';
 import BoilerRoomViewport from './components/BoilerRoomViewport.jsx';
 import AssetInspectorPanel from './components/AssetInspectorPanel.jsx';
+import CvReviewPanel from './components/CvReviewPanel.jsx';
 import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopilotAndArHud.jsx';
 
 export default function App() {
   const [pipeline, setPipeline] = useState(() => createInitialDataPipeline());
   const [liveStreaming, setLiveStreaming] = useState(true);
 
-  const [selectedAssetId, setSelectedAssetId] = useState('ASSET-003');
-  const [activeNav, setActiveNav] = useState('alerts'); // 'assets' | 'alerts' | 'navigate' | 'workorders' | 'copilot' | 'settings'
+  const [selectedAssetId, setSelectedAssetId] = useState('ASSET-014'); // Default to P-002 (Video-evidence bound pump)
+  const [activeNav, setActiveNav] = useState('alerts'); // 'alerts' | 'assets' | 'cv_review' | 'navigate' | 'workorders' | 'copilot' | 'settings'
+
+  // Application Mode: 'consumer' (Matterport-style clean twin) | 'technician' (Siemens-style engineering twin)
+  const [appMode, setAppMode] = useState('consumer');
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(false);
+  const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
+
+  // Computer Vision & 3DGS state (from ahmad_branch)
+  const [viewMode, setViewMode] = useState('splat'); // 'splat' | 'hybrid' | 'cad' (Defaults to Photoreal 3DGS .spz!)
+  const [ceilingCutaway, setCeilingCutaway] = useState(true);
+  const [showAllCvDetections, setShowAllCvDetections] = useState(false); // Defaults to 30 bound OBBs only
+  const [baseCvSceneObjects, setBaseCvSceneObjects] = useState(null);
+  const [fileCvOverrides, setFileCvOverrides] = useState({});
+  const [cvOverridesMap, setCvOverridesMap] = useState({});
+  const [evidenceFrames, setEvidenceFrames] = useState({});
+  const [cvMetrics, setCvMetrics] = useState(null);
+  const [navTargets, setNavTargets] = useState(null);
+  const [navData, setNavData] = useState(null);
+  const [selectedCvObjectId, setSelectedCvObjectId] = useState('OBJ-0185');
+
+  const cvSceneObjects = useMemo(
+    () => applyCvOverrides(baseCvSceneObjects, cvOverridesMap),
+    [baseCvSceneObjects, cvOverridesMap]
+  );
+
+  // Load CV 3D OBB segmentation & video evidence bundle on startup
+  useEffect(() => {
+    let alive = true;
+    fetchCvSceneBundle()
+      .then((bundle) => {
+        if (!alive) return;
+        setBaseCvSceneObjects(bundle.baseSceneObjects);
+        setFileCvOverrides(bundle.fileOverrides);
+        setCvOverridesMap(bundle.overridesMap);
+        setEvidenceFrames(bundle.evidenceFrames);
+        setCvMetrics(bundle.segmentationMetrics);
+        setNavTargets(bundle.navTargets);
+        setNavData(bundle.navData);
+      })
+      .catch((err) => {
+        console.warn('Could not load CV scene bundle:', err);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Synchronize the 30 Valmet assets with their bound 3D CV OBBs & ESDF navigation whenever CV overrides change
+  useEffect(() => {
+    if (!cvSceneObjects?.objects?.length) return;
+    setCvNavigationData(cvSceneObjects, navTargets, navData);
+    setPipeline((prev) => {
+      const syncedAssets = syncAssetsWithCvObjects(
+        prev.assets,
+        cvSceneObjects,
+        evidenceFrames,
+        navTargets
+      );
+      setExerciseWorkers((prevWorkers) => {
+        let nextW = prevWorkers;
+        for (const w of prevWorkers) {
+          if (w.state === 'WALKING_TO_FAULT' && w.targetAssetId) {
+            const targetAsset = syncedAssets.find((a) => a.asset_id === w.targetAssetId);
+            if (targetAsset) {
+              nextW = assignWorkerToAsset(nextW, w.id, targetAsset, hazardNodes, railMode);
+            }
+          }
+        }
+        return nextW;
+      });
+      return {
+        ...prev,
+        assets: syncedAssets
+      };
+    });
+  }, [cvSceneObjects, evidenceFrames, navTargets, navData]);
+
+  const handlePatchCvOverride = (patchMap) => {
+    setCvOverridesMap((prev) => {
+      const next = { ...prev };
+      Object.entries(patchMap).forEach(([objId, fields]) => {
+        next[objId] = { ...(next[objId] || {}), ...fields };
+      });
+      saveStoredOverrides(next);
+      return next;
+    });
+  };
+
+  const handleResetCvOverrides = () => {
+    clearStoredOverrides();
+    setCvOverridesMap(fileCvOverrides);
+  };
 
   const selectedAsset = useMemo(
     () =>
@@ -75,8 +185,9 @@ export default function App() {
   const [proximityRadius, setProximityRadius] = useState(1.75);
   const [nearbyAssets, setNearbyAssets] = useState([]);
 
-  // Simulation Exercise Mode (Workers line up at staging station, walk to injected faults, fix & return)
-  const [exerciseMode, setExerciseMode] = useState(true);
+  // Simulation Exercise Mode (Workers permanently in exercise mode in Technical Mode)
+  const exerciseMode = true;
+  const setExerciseMode = () => {};
   const [exercisePaused, setExercisePaused] = useState(false);
   const [exerciseWorkers, setExerciseWorkers] = useState(() => createInitialExerciseWorkers(4));
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
@@ -103,11 +214,11 @@ export default function App() {
   const fileInputRef = useRef(null);
   const [customPlyBuffer, setCustomPlyBuffer] = useState(null);
   const [sceneStats, setSceneStats] = useState({
-    sourceFile: 'Equipment Room.ply',
+    sourceFile: 'Equipment Room.ply (.spz)',
     rawVertices: 1676481,
-    activeSplats: 269219,
+    activeSplats: 820511,
     anchoredAssets: 30,
-    structuralFrames: pipeline.structuralObjects.length
+    structuralFrames: 441
   });
 
   const simContextRef = useRef({
@@ -136,7 +247,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, [liveStreaming, exercisePaused]);
 
-  // Simulation Exercise Engine Tick (60ms) — pauses cleanly when exercisePaused is true so user can batch multiple faults!
+  // Simulation Exercise Engine Tick (60ms)
   useEffect(() => {
     if (!exerciseMode) return;
     const tick = setInterval(() => {
@@ -276,7 +387,8 @@ export default function App() {
           a.asset_id.toLowerCase().includes(q) ||
           a.service_description.toLowerCase().includes(q) ||
           a.area_name.toLowerCase().includes(q) ||
-          a.status_reason.toLowerCase().includes(q)
+          a.status_reason.toLowerCase().includes(q) ||
+          (a.cvObject?.object_id || '').toLowerCase().includes(q)
         );
       }
       return true;
@@ -284,24 +396,43 @@ export default function App() {
     return sortBySeverity(list);
   }, [pipeline.assets, statusFilter, searchQuery]);
 
+  const handleToggleLeftTab = (navKey) => {
+    if (isLeftPanelOpen && activeNav === navKey) {
+      setIsLeftPanelOpen(false);
+    } else {
+      setActiveNav(navKey);
+      setIsLeftPanelOpen(true);
+    }
+  };
+
   const handleSelectAsset = (assetOrId) => {
     if (!assetOrId) return;
     if (typeof assetOrId === 'string') {
       const found = pipeline.assets.find(
         (a) => a.asset_id === assetOrId || a.tag === assetOrId
       );
-      if (found) setSelectedAssetId(found.asset_id);
+      if (found) {
+        setSelectedAssetId(found.asset_id);
+        if (found.cvObject?.object_id) {
+          setSelectedCvObjectId(found.cvObject.object_id);
+        }
+      }
       return;
     }
     if (assetOrId.asset_id) {
       setSelectedAssetId(assetOrId.asset_id);
+      if (assetOrId.cvObject?.object_id) {
+        setSelectedCvObjectId(assetOrId.cvObject.object_id);
+      }
+      if (appMode === 'technician') {
+        setIsRightPanelOpen(true);
+      }
     }
   };
 
   const handleMutateTelemetry = (assetId, patch, customReason = null) => {
     setPipeline((prev) => {
       const next = updateAssetTelemetryInMemory(prev, assetId, patch, customReason);
-      // If a fault was just injected in Exercise Mode, automatically dispatch an available standby worker from the line!
       if (exerciseMode && customReason && customReason !== 'NORMAL_OPERATION') {
         const updatedAsset = next.assets.find((a) => a.asset_id === assetId);
         if (updatedAsset) {
@@ -333,6 +464,28 @@ export default function App() {
     setExerciseMode(true);
     setExerciseWorkers((prev) =>
       assignWorkerToAsset(prev, workerId, asset, hazardNodes, railMode)
+    );
+  };
+
+  const handleManualUpdateWorkerPose = (workerId, nextX, nextZ, nextAngle, manualControl = true) => {
+    if (!workerId) return;
+    setExerciseWorkers((prev) =>
+      prev.map((w) => {
+        if (w.id !== workerId) return w;
+        if (!manualControl) {
+          return {
+            ...w,
+            manualControl: false
+          };
+        }
+        return {
+          ...w,
+          manualControl: true,
+          pos: [nextX, -1.02, nextZ],
+          position: [nextX, -1.02, nextZ],
+          angle: nextAngle
+        };
+      })
     );
   };
 
@@ -453,7 +606,7 @@ export default function App() {
             <path d="M12 14.5L16.5 6.5H19L12 19L5 6.5H7.5L12 14.5Z" fill="#7CD476" fillOpacity="0.65" />
           </svg>
           <span className="brand-word">VALMET</span>
-          <span className="brand-product">DNA SpatialSense</span>
+          <span className="brand-product">DNA SpatialSense · 3D Digital Twin</span>
         </div>
 
         <nav className="breadcrumb" aria-label="Plant hierarchy">
@@ -469,50 +622,117 @@ export default function App() {
               setActiveRoomScene(e.target.value);
             }}
           >
-            <option value="equipment_room">Area 01 — Equipment Room</option>
-            <option value="boiler_room">Area 02 — Boiler House</option>
+            <option value="equipment_room">Area 01 — Equipment Room (.spz)</option>
+            <option value="boiler_room">Area 02 — Boiler House (.spz)</option>
           </select>
         </nav>
 
-        <div className="topbar-right">
-          <div className="alarm-counter" title="Open Alerts & Fault Dispatch">
-            <button
-              onClick={() => {
-                setActiveNav('alerts');
-              }}
-            >
-              <span className="sq" style={{ background: 'var(--critical)' }} />
-              <span className="mono">{counts.critical}</span>
-              <span>Alarm</span>
-            </button>
-            <button
-              onClick={() => {
-                setActiveNav('alerts');
-              }}
-            >
-              <span className="sq" style={{ background: 'var(--high)' }} />
-              <span className="mono">{counts.high}</span>
-              <span>Degraded</span>
-            </button>
-            <button
-              onClick={() => {
-                setActiveNav('alerts');
-              }}
-            >
-              <span className="sq" style={{ background: 'var(--medium)' }} />
-              <span className="mono">{counts.medium}</span>
-              <span>Watch</span>
-            </button>
-          </div>
-
+        {/* Mode Switcher Segmented Pill */}
+        <div className="mode-switcher" role="radiogroup" aria-label="Application Mode">
           <button
-            className="live-toggle"
-            onClick={() => setLiveStreaming((s) => !s)}
-            title="Toggle historian live polling"
+            className={`mode-btn ${appMode === 'consumer' ? 'active consumer' : ''}`}
+            onClick={() => setAppMode('consumer')}
+            title="Consumer Mode — Clean, surface-level spatial overview"
           >
-            <span className={`live-dot ${liveStreaming ? 'on' : ''}`} />
-            <span>{liveStreaming ? 'Live telemetry' : 'Polling paused'}</span>
+            <Eye size={13} />
+            <span>Consumer Mode</span>
           </button>
+          <button
+            className={`mode-btn ${appMode === 'technician' ? 'active technician' : ''}`}
+            onClick={() => setAppMode('technician')}
+            title="Technical Mode — In-depth database telemetry, dispatch & CV diagnostics"
+          >
+            <Wrench size={13} />
+            <span>Technical Console</span>
+          </button>
+        </div>
+
+        <div className="topbar-right">
+          {/* Permanent Upload .PLY file button available in both modes at all times */}
+          <button
+            className="topbar-upload-ply"
+            onClick={() => fileInputRef.current?.click()}
+            title="Upload custom .PLY / Point Cloud scan file"
+          >
+            <Upload size={13} />
+            <span>Upload .PLY</span>
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".ply"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+
+          {/* Technical Mode Specific Quick Controls */}
+          {appMode === 'technician' && (
+            <>
+              <div className="alarm-counter" title="Open Alerts & Fault Dispatch">
+                <button
+                  onClick={() => {
+                    setActiveNav('alerts');
+                    setIsLeftPanelOpen(true);
+                  }}
+                >
+                  <span className="sq" style={{ background: 'var(--critical)' }} />
+                  <span className="mono">{counts.critical}</span>
+                  <span>Alarm</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveNav('alerts');
+                    setIsLeftPanelOpen(true);
+                  }}
+                >
+                  <span className="sq" style={{ background: 'var(--high)' }} />
+                  <span className="mono">{counts.high}</span>
+                  <span>Degraded</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveNav('alerts');
+                    setIsLeftPanelOpen(true);
+                  }}
+                >
+                  <span className="sq" style={{ background: 'var(--medium)' }} />
+                  <span className="mono">{counts.medium}</span>
+                  <span>Watch</span>
+                </button>
+              </div>
+
+              <button
+                className="live-toggle"
+                onClick={() => {
+                  setActiveNav('cv_review');
+                  setIsLeftPanelOpen(true);
+                }}
+                title="Open Computer Vision 3D Object Detection & Label Review (441 OBBs)"
+              >
+                <Camera size={13} />
+                <span>CV Detections ({cvSceneObjects?.objects?.length || 441})</span>
+              </button>
+
+              <button
+                className="live-toggle"
+                onClick={() => setLiveStreaming((s) => !s)}
+                title="Toggle historian live polling"
+              >
+                <span className={`live-dot ${liveStreaming ? 'on' : ''}`} />
+                <span>{liveStreaming ? 'Live telemetry' : 'Polling paused'}</span>
+              </button>
+
+              <button
+                className="live-toggle"
+                onClick={() => setIsArHudOpen(true)}
+                title="Open mobile field verification dialog"
+              >
+                <QrCode size={13} />
+                <span>Field Verify</span>
+              </button>
+            </>
+          )}
 
           <a
             href="/viewer.html"
@@ -524,15 +744,6 @@ export default function App() {
             <ExternalLink size={12} />
           </a>
 
-          <button
-            className="live-toggle"
-            onClick={() => setIsArHudOpen(true)}
-            title="Open mobile field verification dialog"
-          >
-            <QrCode size={13} />
-            <span>Field Verify</span>
-          </button>
-
           <div className="user-chip">
             <span className="avatar">MV</span>
             <span>M. Virtanen</span>
@@ -540,187 +751,237 @@ export default function App() {
         </div>
       </header>
 
-      {/* ==================== ISA-101 ACTIVE ALARM STRIP ==================== */}
-      <div className="alarm-strip" role="region" aria-label="Active process alarms">
-        <div className="alarm-strip-label">
-          <span className="sdot critical" />
-          <span>Active Alarms ({activeAlarms.length})</span>
+      {/* ==================== ISA-101 ACTIVE ALARM STRIP (Technical Mode Only) ==================== */}
+      {appMode === 'technician' && (
+        <div className="alarm-strip" role="region" aria-label="Active process alarms">
+          <div className="alarm-strip-label">
+            <span className="sdot critical" />
+            <span>Active Alarms ({activeAlarms.length})</span>
+          </div>
+          <div className="alarm-items">
+            {activeAlarms.map((alarm) => {
+              const st = statusOf(alarm);
+              return (
+                <button
+                  key={alarm.asset_id}
+                  className="alarm-item"
+                  onClick={() => handleSelectAsset(alarm)}
+                  title={`${alarm.tag} — ${alarm.service_description}`}
+                >
+                  <span className={`sdot ${st.cls}`} />
+                  <span className="tag">{alarm.tag}</span>
+                  <span className="desc">{humanize(alarm.status_reason)}</span>
+                  <span className={`health ${st.cls} mono`}>{alarm.health_score}%</span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            className="view-all"
+            onClick={() => {
+              setActiveNav('alerts');
+              setIsLeftPanelOpen(true);
+            }}
+          >
+            Manage in Alerts ({allFaultedAndWatchAssets.length})
+          </button>
         </div>
-        <div className="alarm-items">
-          {activeAlarms.map((alarm) => {
-            const st = statusOf(alarm);
-            return (
+      )}
+
+      {/* ==================== WORKSPACE ==================== */}
+      <div
+        className={`workspace ${
+          appMode === 'consumer' ? 'consumer-mode' : 'technical-mode'
+        }`}
+      >
+        {/* Floating Horizontal Navigation Tabs Bar (Technical Mode) */}
+        {appMode === 'technician' && (
+          <div className="tech-horizontal-nav" role="tablist" aria-label="Technical console modules">
+            <button
+              type="button"
+              className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'alerts' ? 'active' : ''}`}
+              onClick={() => handleToggleLeftTab('alerts')}
+              title="Alerts, Fault Injection & Line Dispatch"
+            >
+              <Bell size={13} />
+              <span>Alerts &amp; Faults</span>
+              {allFaultedAndWatchAssets.length > 0 && (
+                <span className="tech-badge alert">{allFaultedAndWatchAssets.length}</span>
+              )}
+            </button>
+            <button
+              type="button"
+              className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'assets' ? 'active' : ''}`}
+              onClick={() => handleToggleLeftTab('assets')}
+              title="Asset Register"
+            >
+              <List size={13} />
+              <span>Assets</span>
+              <span className="tech-badge">{pipeline.assets.length}</span>
+            </button>
+            <button
+              type="button"
+              className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'cv_review' ? 'active' : ''}`}
+              onClick={() => handleToggleLeftTab('cv_review')}
+              title="Computer Vision 3D OBB Review"
+            >
+              <Camera size={13} />
+              <span>CV Review</span>
+              <span className="tech-badge">{cvSceneObjects?.objects?.length || 441}</span>
+            </button>
+            <button
+              type="button"
+              className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'navigate' ? 'active' : ''}`}
+              onClick={() => handleToggleLeftTab('navigate')}
+              title="Mobility & Fleet Routing"
+            >
+              <Navigation size={13} />
+              <span>Routing</span>
+            </button>
+            <button
+              type="button"
+              className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'workorders' ? 'active' : ''}`}
+              onClick={() => handleToggleLeftTab('workorders')}
+              title="SAP PM Work Orders & Scenarios"
+            >
+              <ClipboardList size={13} />
+              <span>Orders</span>
+              {workOrderAssets.length > 0 && (
+                <span className="tech-badge order">{workOrderAssets.length}</span>
+              )}
+            </button>
+            <button
+              type="button"
+              className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'copilot' ? 'active' : ''}`}
+              onClick={() => handleToggleLeftTab('copilot')}
+              title="Edge AI Diagnostic Assistant"
+            >
+              <MessageSquare size={13} />
+              <span>Copilot</span>
+            </button>
+            <button
+              type="button"
+              className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'settings' ? 'active' : ''}`}
+              onClick={() => handleToggleLeftTab('settings')}
+              title="Scene & Display Settings"
+            >
+              <Sliders size={13} />
+              <span>Settings</span>
+            </button>
+
+            <div className="tech-nav-divider" />
+
+            <button
+              type="button"
+              className={`tech-nav-pill ${isRightPanelOpen ? 'active' : ''}`}
+              onClick={() => setIsRightPanelOpen((open) => !open)}
+              title="Toggle Asset Telemetry Inspector"
+            >
+              <Activity size={13} />
+              <span>Inspector {selectedAsset ? `(${selectedAsset.tag})` : ''}</span>
+            </button>
+          </div>
+        )}
+
+        {/* 1. LEFT TECHNICAL CONSOLE (COLLAPSIBLE SLIDE-OUT DRAWER) */}
+        {appMode === 'technician' && isLeftPanelOpen && (
+          <aside className="sidepanel tech-sidepanel">
+            <div className="tech-panel-header">
+              <div className="tech-panel-header-info">
+                <span className="tech-panel-title">
+                  {activeNav === 'alerts' && 'System Alerts & Dispatch'}
+                  {activeNav === 'assets' && 'Asset Register'}
+                  {activeNav === 'cv_review' && 'CV 3D Detections & Crops'}
+                  {activeNav === 'navigate' && 'Mobility & Fleet Routing'}
+                  {activeNav === 'workorders' && 'Work Orders & Scenarios'}
+                  {activeNav === 'copilot' && 'Edge AI Diagnostic Copilot'}
+                  {activeNav === 'settings' && 'Scene & Display Settings'}
+                </span>
+                <span className="tech-panel-count">
+                  {activeNav === 'alerts' && `${allFaultedAndWatchAssets.length} active`}
+                  {activeNav === 'assets' && `${filteredAssets.length} of ${pipeline.assets.length}`}
+                  {activeNav === 'cv_review' && `${cvSceneObjects?.objects?.length || 441} OBBs`}
+                  {activeNav === 'navigate' && 'Multi-Agent Fleet'}
+                  {activeNav === 'workorders' && `${workOrderAssets.length} open`}
+                  {activeNav === 'copilot' && 'Online'}
+                  {activeNav === 'settings' && '3DGS + CAD'}
+                </span>
+              </div>
               <button
-                key={alarm.asset_id}
-                className="alarm-item"
-                onClick={() => handleSelectAsset(alarm)}
-                title={`${alarm.tag} — ${alarm.service_description}`}
+                type="button"
+                className="tech-panel-close"
+                onClick={() => setIsLeftPanelOpen(false)}
+                title="Collapse panel"
+                aria-label="Collapse panel"
               >
-                <span className={`sdot ${st.cls}`} />
-                <span className="tag">{alarm.tag}</span>
-                <span className="desc">{humanize(alarm.status_reason)}</span>
-                <span className={`health ${st.cls} mono`}>{alarm.health_score}%</span>
+                <X size={15} />
               </button>
-            );
-          })}
-        </div>
-        <button
-          className="view-all"
-          onClick={() => {
-            setActiveNav('alerts');
-          }}
-        >
-          Manage in Alerts ({allFaultedAndWatchAssets.length})
-        </button>
-      </div>
+            </div>
 
-      {/* ==================== 4-COLUMN WORKSPACE ==================== */}
-      <div className="workspace">
-        {/* 1. LEFT ICON NAVIGATION RAIL */}
-        <nav className="navrail" aria-label="Primary tools">
-          <button
-            className={activeNav === 'alerts' ? 'active' : ''}
-            onClick={() => setActiveNav('alerts')}
-            title="Alerts, Fault Injection & Worker Dispatch"
-          >
-            <Bell size={18} />
-            {allFaultedAndWatchAssets.length > 0 && (
-              <span className="badge-dot">{allFaultedAndWatchAssets.length}</span>
-            )}
-          </button>
+              {activeNav === 'alerts' && (
+                <>
+                  
 
-          <button
-            className={activeNav === 'assets' ? 'active' : ''}
-            onClick={() => setActiveNav('assets')}
-            title="Asset Register"
-          >
-            <List size={18} />
-          </button>
+                  <div className="panel-toolbar stack" style={{ gap: '8px' }}>
+                    <div className="row" style={{ gap: '6px' }}>
+                      <button
+                        className={`btn btn-sm ${exercisePaused ? 'btn-primary' : ''}`}
+                        style={{ flex: 1 }}
+                        onClick={() => setExercisePaused((p) => !p)}
+                        title="Freeze time to inject multiple faults at once before workers walk out"
+                      >
+                        {exercisePaused ? <Play size={12} /> : <Pause size={12} />}
+                        <span>{exercisePaused ? 'Resume Time' : 'Pause Time'}</span>
+                      </button>
+                      <button
+                        className="btn btn-sm"
+                        onClick={handleRestoreAllNominal}
+                        title="Reset all components to healthy nominal state"
+                      >
+                        <CheckCircle2 size={12} />
+                        <span>Clear All</span>
+                      </button>
+                    </div>
 
-          <button
-            className={activeNav === 'navigate' ? 'active' : ''}
-            onClick={() => setActiveNav('navigate')}
-            title="Routing & Autonomous Fleet"
-          >
-            <Navigation size={18} />
-          </button>
+                    <div className="row" style={{ gap: '6px' }}>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        style={{ flex: 1 }}
+                        onClick={() => {
+                          if (!selectedAsset) return;
+                          handleMutateTelemetry(
+                            selectedAsset.asset_id,
+                            {
+                              vibration_mms: 8.2,
+                              bearing_temp_c: 88.0,
+                              stiction_index: 0.66
+                            },
+                            'CRITICAL_FAULT_INJECTED'
+                          );
+                        }}
+                      >
+                        <Zap size={12} />
+                        <span>Fault {selectedAsset?.tag}</span>
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        style={{ flex: 1 }}
+                        onClick={handleInjectRandomFault}
+                      >
+                        <Zap size={12} />
+                        <span>Random Fault</span>
+                      </button>
+                    </div>
 
-          <button
-            className={activeNav === 'workorders' ? 'active' : ''}
-            onClick={() => setActiveNav('workorders')}
-            title="Work Orders & Evaluation Scenarios"
-          >
-            <ClipboardList size={18} />
-            {workOrderAssets.length > 0 && (
-              <span className="badge-dot">{workOrderAssets.length}</span>
-            )}
-          </button>
-
-          <button
-            className={activeNav === 'copilot' ? 'active' : ''}
-            onClick={() => setActiveNav('copilot')}
-            title="Diagnostic Assistant"
-          >
-            <MessageSquare size={18} />
-          </button>
-
-          <button
-            className={`rail-bottom ${activeNav === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveNav('settings')}
-            title="Scene & Display Settings"
-          >
-            <Sliders size={18} />
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".ply"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </nav>
-
-        {/* 2. MODE-BASED LEFT SIDE PANEL */}
-        <aside className="sidepanel">
-          {activeNav === 'alerts' && (
-            <>
-              <div className="panel-header">
-                <span className="panel-title">System Alerts &amp; Dispatch</span>
-                <span className="panel-count">{allFaultedAndWatchAssets.length} active</span>
-              </div>
-
-              <div className="panel-toolbar stack" style={{ gap: '8px' }}>
-                <div className="row" style={{ gap: '6px' }}>
-                  <button
-                    className={`btn btn-sm ${exercisePaused ? 'btn-primary' : ''}`}
-                    style={{ flex: 1 }}
-                    onClick={() => setExercisePaused((p) => !p)}
-                    title="Freeze time to inject multiple faults at once before workers walk out"
-                  >
-                    {exercisePaused ? <Play size={12} /> : <Pause size={12} />}
-                    <span>{exercisePaused ? 'Resume Time' : 'Pause Time'}</span>
-                  </button>
-                  <button
-                    className="btn btn-sm"
-                    onClick={handleRestoreAllNominal}
-                    title="Reset all components to healthy nominal state"
-                  >
-                    <CheckCircle2 size={12} />
-                    <span>Clear All</span>
-                  </button>
-                </div>
-
-                <div className="row" style={{ gap: '6px' }}>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    style={{ flex: 1 }}
-                    onClick={() => {
-                      if (!selectedAsset) return;
-                      handleMutateTelemetry(
-                        selectedAsset.asset_id,
-                        {
-                          vibration_mms: 8.2,
-                          bearing_temp_c: 88.0,
-                          stiction_index: 0.66
-                        },
-                        'CRITICAL_FAULT_INJECTED'
-                      );
-                    }}
-                  >
-                    <Zap size={12} />
-                    <span>Fault {selectedAsset?.tag}</span>
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    style={{ flex: 1 }}
-                    onClick={handleInjectRandomFault}
-                  >
-                    <Zap size={12} />
-                    <span>Random Fault</span>
-                  </button>
-                </div>
-
-                <label className="check">
-                  <input
-                    type="checkbox"
-                    checked={exerciseMode}
-                    onChange={(e) => setExerciseMode(e.target.checked)}
-                  />
-                  <span>Simulation Exercise Mode (Line Dispatch)</span>
-                </label>
-
-                {exerciseMode && (
-                  <label className="check">
-                    <input
-                      type="checkbox"
-                      checked={autoDispatch}
-                      onChange={(e) => setAutoDispatch(e.target.checked)}
-                    />
-                    <span>Auto-dispatch standby workers to all active faults</span>
-                  </label>
-                )}
-              </div>
+                    <label className="check">
+                      <input
+                        type="checkbox"
+                        checked={autoDispatch}
+                        onChange={(e) => setAutoDispatch(e.target.checked)}
+                      />
+                      <span>Auto-dispatch standby workers to all active faults</span>
+                    </label>
+                  </div>
 
               <div className="panel-body">
                 {/* WORKER STAGING LINE ROSTER */}
@@ -860,6 +1121,11 @@ export default function App() {
                               {asset.tag}
                             </span>
                             <span className="mono muted">{asset.asset_id}</span>
+                            {asset.cvObject?.object_id && (
+                              <span className="mono muted" style={{ fontSize: '10.5px' }}>
+                                · {asset.cvObject.object_id}
+                              </span>
+                            )}
                             <span className="spacer" />
                             <span className={`status ${st.cls}`}>
                               {st.label} · {asset.health_score}%
@@ -867,7 +1133,7 @@ export default function App() {
                           </div>
 
                           <div className="text-2" style={{ fontSize: '12px' }}>
-                            {asset.service_description} —{' '}
+                            {asset.service_description}  — {' '}
                             <strong style={{ color: 'var(--text)' }}>
                               {humanize(asset.status_reason)}
                             </strong>
@@ -954,12 +1220,7 @@ export default function App() {
 
           {activeNav === 'assets' && (
             <>
-              <div className="panel-header">
-                <span className="panel-title">Asset Register</span>
-                <span className="panel-count">
-                  {filteredAssets.length} of {pipeline.assets.length}
-                </span>
-              </div>
+              
 
               <div className="panel-toolbar">
                 <div className="input-wrap">
@@ -969,7 +1230,7 @@ export default function App() {
                     className="input"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Filter by tag, service, or area..."
+                    placeholder="Filter by tag, OBJ-ID, service, or area..."
                   />
                 </div>
 
@@ -1028,6 +1289,24 @@ export default function App() {
                 </table>
               </div>
             </>
+          )}
+
+          {activeNav === 'cv_review' && (
+            <CvReviewPanel
+              cvSceneObjects={cvSceneObjects}
+              cvMetrics={cvMetrics}
+              evidenceFrames={evidenceFrames}
+              assets={pipeline.assets}
+              selectedCvObjectId={selectedCvObjectId}
+              onSelectCvObject={(obj) => {
+                if (obj?.object_id) setSelectedCvObjectId(obj.object_id);
+              }}
+              onSelectAsset={handleSelectAsset}
+              showAllCvDetections={showAllCvDetections}
+              onToggleShowAllCvDetections={setShowAllCvDetections}
+              onPatchCvOverride={handlePatchCvOverride}
+              onResetCvOverrides={handleResetCvOverrides}
+            />
           )}
 
           {activeNav === 'navigate' && (
@@ -1215,10 +1494,7 @@ export default function App() {
 
           {activeNav === 'workorders' && (
             <>
-              <div className="panel-header">
-                <span className="panel-title">Work Orders &amp; Scenarios</span>
-                <span className="panel-count">{workOrderAssets.length} open</span>
-              </div>
+              
 
               <div className="panel-body">
                 <div className="section" style={{ padding: 0 }}>
@@ -1296,14 +1572,12 @@ export default function App() {
 
           {activeNav === 'settings' && (
             <>
-              <div className="panel-header">
-                <span className="panel-title">Scene &amp; Display</span>
-              </div>
+              
 
               <div className="panel-body">
                 <div className="section stack">
                   <div className="section-title">
-                    <span>3D Capture Source</span>
+                    <span>3D Capture Source (.spz / .ply)</span>
                   </div>
 
                   <div>
@@ -1319,12 +1593,38 @@ export default function App() {
                       }}
                     >
                       <option value="equipment_room">
-                        Area 01 — Equipment Room (269,219 splats)
+                        Area 01  —  Equipment Room (.spz · 1.67M raw splats)
                       </option>
                       <option value="boiler_room">
-                        Area 02 — Boiler House (121,537 splats)
+                        Area 02  —  Boiler House (.spz · 1.50M raw splats)
                       </option>
                     </select>
+                  </div>
+
+                  <div>
+                    <div className="field-label">
+                      <span>3D Rendering Mode</span>
+                    </div>
+                    <div className="seg">
+                      <button
+                        className={viewMode === 'splat' ? 'active' : ''}
+                        onClick={() => setViewMode('splat')}
+                      >
+                        3DGS (.spz)
+                      </button>
+                      <button
+                        className={viewMode === 'hybrid' ? 'active' : ''}
+                        onClick={() => setViewMode('hybrid')}
+                      >
+                        Hybrid
+                      </button>
+                      <button
+                        className={viewMode === 'cad' ? 'active' : ''}
+                        onClick={() => setViewMode('cad')}
+                      >
+                        Clean CAD
+                      </button>
+                    </div>
                   </div>
 
                   <div className="row">
@@ -1350,41 +1650,26 @@ export default function App() {
 
                 <div className="section stack">
                   <div className="section-title">
-                    <span>Reconstruction Layers</span>
+                    <span>Computer Vision &amp; Layers</span>
                   </div>
 
-                  <div>
-                    <div className="field-label">
-                      <span>CAD / Point-cloud blend</span>
-                      <span className="mono">{semanticBlend}% CAD</span>
-                    </div>
+                  <label className="check">
                     <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={semanticBlend}
-                      onChange={(e) => setSemanticBlend(Number(e.target.value))}
+                      type="checkbox"
+                      checked={ceilingCutaway}
+                      onChange={(e) => setCeilingCutaway(e.target.checked)}
                     />
-                    <div className="help" style={{ marginTop: '4px' }}>
-                      0% shows raw LiDAR/Gaussian point cloud; 100% shows extracted CAD
-                      geometry.
-                    </div>
-                  </div>
+                    <span>Automatic ceiling cutaway when orbiting from above</span>
+                  </label>
 
-                  <div>
-                    <div className="field-label">
-                      <span>Point cloud splat size</span>
-                      <span className="mono">{pointSize.toFixed(3)}</span>
-                    </div>
+                  <label className="check">
                     <input
-                      type="range"
-                      min="0.015"
-                      max="0.09"
-                      step="0.005"
-                      value={pointSize}
-                      onChange={(e) => setPointSize(Number(e.target.value))}
+                      type="checkbox"
+                      checked={showAllCvDetections}
+                      onChange={(e) => setShowAllCvDetections(e.target.checked)}
                     />
-                  </div>
+                    <span>Show all 441 CV-detected OBBs (off = 30 bound only)</span>
+                  </label>
 
                   <label className="check">
                     <input
@@ -1407,57 +1692,79 @@ export default function App() {
               </div>
             </>
           )}
-        </aside>
+          </aside>
+        )}
 
-        {/* 3. CENTER 3D VIEWPORT */}
-        <BoilerRoomViewport
-          activeRoomScene={activeRoomScene}
-          assets={pipeline.assets}
-          selectedAsset={selectedAsset}
-          onSelectAsset={handleSelectAsset}
-          semanticBlend={semanticBlend}
-          onSemanticBlendChange={setSemanticBlend}
-          laserSweepTrigger={laserSweepTrigger}
-          showStructuralBoxes={showStructuralBoxes}
-          showContourModels={showContourModels}
-          activeProfile={activeProfile}
-          railMode={railMode}
-          multiAgentEnabled={multiAgentEnabled}
-          fleetAssignments={fleetAssignments}
-          showDualComparison={showDualComparison}
-          humanPath={humanPath}
-          robotPath={robotPath}
-          hazardNodes={hazardNodes}
-          onToggleHazardNode={handleToggleHazardNode}
-          simPlaying={simPlaying}
-          onSimPlayingChange={setSimPlaying}
-          simProgress={simProgress}
-          onSimProgressChange={setSimProgress}
-          proximityRadius={proximityRadius}
-          onNearbyAssetsChange={setNearbyAssets}
-          pointSize={pointSize}
-          arFirstPersonMode={arFirstPersonMode}
-          onToggleArFirstPerson={setArFirstPersonMode}
-          onQuickMutateTelemetry={handleMutateTelemetry}
-          onOpenArHud={() => setIsArHudOpen(true)}
-          customPlyBuffer={customPlyBuffer}
-          onLoadStats={setSceneStats}
-          exerciseMode={exerciseMode}
-          onToggleExerciseMode={setExerciseMode}
-          exercisePaused={exercisePaused}
-          onToggleExercisePaused={setExercisePaused}
-          exerciseWorkers={exerciseWorkers}
-          selectedWorkerId={selectedWorkerId}
-          onSelectWorker={setSelectedWorkerId}
-          onAddWorker={handleAddWorker}
-          onDeleteWorker={handleDeleteWorker}
-          onInjectRandomFault={handleInjectRandomFault}
-          autoDispatch={autoDispatch}
-          onToggleAutoDispatch={setAutoDispatch}
-          onArTrafficSignalChange={setArTrafficSignal}
-        />
+      {/* 2. CENTER 3D VIEWPORT */}
+      <BoilerRoomViewport
+        appMode={appMode}
+        showWorkers={appMode === 'technician'}
+        onSwitchToTechnicianMode={(asset) => {
+          if (asset) handleSelectAsset(asset);
+          setAppMode('technician');
+          setIsRightPanelOpen(true);
+        }}
+        activeRoomScene={activeRoomScene}
+        assets={pipeline.assets}
+        selectedAsset={selectedAsset}
+        onSelectAsset={handleSelectAsset}
+        semanticBlend={semanticBlend}
+        onSemanticBlendChange={setSemanticBlend}
+        laserSweepTrigger={laserSweepTrigger}
+        showStructuralBoxes={showStructuralBoxes}
+        showContourModels={showContourModels}
+        activeProfile={activeProfile}
+        railMode={railMode}
+        multiAgentEnabled={multiAgentEnabled}
+        fleetAssignments={fleetAssignments}
+        showDualComparison={showDualComparison}
+        humanPath={humanPath}
+        robotPath={robotPath}
+        hazardNodes={hazardNodes}
+        onToggleHazardNode={handleToggleHazardNode}
+        simPlaying={simPlaying}
+        onSimPlayingChange={setSimPlaying}
+        simProgress={simProgress}
+        onSimProgressChange={setSimProgress}
+        proximityRadius={proximityRadius}
+        onNearbyAssetsChange={setNearbyAssets}
+        pointSize={pointSize}
+        arFirstPersonMode={arFirstPersonMode}
+        onToggleArFirstPerson={setArFirstPersonMode}
+        onQuickMutateTelemetry={handleMutateTelemetry}
+        onOpenArHud={() => setIsArHudOpen(true)}
+        customPlyBuffer={customPlyBuffer}
+        onLoadStats={setSceneStats}
+        exerciseMode={exerciseMode}
+        onToggleExerciseMode={setExerciseMode}
+        exercisePaused={exercisePaused}
+        onToggleExercisePaused={setExercisePaused}
+        exerciseWorkers={exerciseWorkers}
+        selectedWorkerId={selectedWorkerId}
+        onSelectWorker={setSelectedWorkerId}
+        onAddWorker={handleAddWorker}
+        onDeleteWorker={handleDeleteWorker}
+        onAssignWorkerToFault={handleAssignWorkerToFault}
+        onManualUpdateWorkerPose={handleManualUpdateWorkerPose}
+        onInjectRandomFault={handleInjectRandomFault}
+        autoDispatch={autoDispatch}
+        onToggleAutoDispatch={setAutoDispatch}
+        onArTrafficSignalChange={setArTrafficSignal}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        ceilingCutaway={ceilingCutaway}
+        onToggleCeilingCutaway={setCeilingCutaway}
+        cvSceneObjects={cvSceneObjects}
+        showAllCvDetections={showAllCvDetections}
+        onToggleShowAllCvDetections={setShowAllCvDetections}
+        selectedCvObjectId={selectedCvObjectId}
+        onSelectCvObject={(obj) => {
+          if (obj?.object_id) setSelectedCvObjectId(obj.object_id);
+        }}
+      />
 
-        {/* 4. RIGHT ASSET INSPECTOR */}
+      {/* 3. RIGHT ASSET INSPECTOR (COLLAPSIBLE SLIDE-OUT DRAWER) */}
+      {appMode === 'technician' && isRightPanelOpen && (
         <AssetInspectorPanel
           assets={pipeline.assets}
           selectedAsset={selectedAsset}
@@ -1470,26 +1777,47 @@ export default function App() {
           draftedWoBanner={draftedWoBanner}
           onMutateTelemetry={handleMutateTelemetry}
           pipelineMeta={pipeline}
+          onOpenCvReview={(objId) => {
+            if (objId) setSelectedCvObjectId(objId);
+            setActiveNav('cv_review');
+            setIsLeftPanelOpen(true);
+          }}
+          onClose={() => setIsRightPanelOpen(false)}
         />
-      </div>
+      )}
+    </div>
 
-      {/* ==================== BOTTOM STATUS BAR ==================== */}
-      <footer className="statusbar">
-        <span>
-          <span className="conn-dot" />
-          <span>Valmet DNA Historian: Online</span>
-        </span>
-        <span className="mono">
-          Scene: {sceneStats.sourceFile} ({sceneStats.activeSplats.toLocaleString()} pts)
-        </span>
-        <span className="mono">Assets: {pipeline.assets.length} anchored</span>
-        <span className="mono">
-          Rev. {pipeline.version} ({pipeline.lastUpdated})
-        </span>
+    {/* ==================== BOTTOM STATUS BAR ==================== */}
+    <footer className={`statusbar ${appMode === 'consumer' ? 'consumer-statusbar' : ''}`}>
+      <span>
+        <span className="conn-dot" />
+        <span>Valmet DNA Historian &amp; 3DGS Engine: Online</span>
+      </span>
+      {appMode === 'technician' ? (
+        <>
+          <span className="mono">
+            Scene: {sceneStats.sourceFile} ({sceneStats.activeSplats.toLocaleString()} splats)
+          </span>
+          <span className="mono">
+            CV OBBs: {cvSceneObjects?.objects?.length || 441} ({pipeline.assets.length} bound)
+          </span>
+          <span className="mono">
+            Rev. {pipeline.version} ({pipeline.lastUpdated})
+          </span>
+          <span className="right mono">
+            Selected: {selectedAsset?.tag}{' '}
+            {selectedAsset?.cvObject?.object_id ? `(${selectedAsset.cvObject.object_id})` : ''} [
+            {selectedAsset?.position.map((v) => v.toFixed(2)).join(', ')} m]
+          </span>
+        </>
+      ) : (
         <span className="right mono">
-          Selected: {selectedAsset?.tag} [{selectedAsset?.position.map((v) => v.toFixed(2)).join(', ')} m]
+          {selectedAsset
+            ? `Selected: ${selectedAsset.tag} — ${selectedAsset.service_description}`
+            : 'Click any equipment in the 3D twin to inspect'}
         </span>
-      </footer>
+      )}
+    </footer>
 
       <MobileArFieldHudModal
         isOpen={isArHudOpen}

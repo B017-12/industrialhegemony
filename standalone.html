@@ -4,28 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Valmet SpatialSense | Semantic 3D Boiler Room & Autonomous Field Copilot</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/src/index.css" />
     <script type="importmap">
       {
         "imports": {
           "react": "https://esm.sh/react@18.3.1",
           "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
-          "three": "https://esm.sh/three@0.170.0",
-          "three/examples/jsm/controls/OrbitControls.js": "https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls.js",
-          "three/examples/jsm/loaders/PLYLoader.js": "https://esm.sh/three@0.170.0/examples/jsm/loaders/PLYLoader.js",
+          "three": "/assets/vendor/three.module.min.js",
+          "three/addons/postprocessing/Pass.js": "/assets/vendor/Pass.js",
+          "three/examples/jsm/controls/OrbitControls.js": "/assets/vendor/OrbitControls.js",
+          "three/examples/jsm/loaders/PLYLoader.js": "/assets/vendor/PLYLoader.js",
+          "@sparkjsdev/spark": "/assets/vendor/spark.module.min.js",
           "lucide-react": "https://esm.sh/lucide-react@0.460.0?deps=react@18.3.1"
         }
       }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/index.css" />
     <script src="https://unpkg.com/@babel/standalone@7.26.2/babel.min.js"></script>
   </head>
   <body>
     <div id="root">
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;font-size:13px;color:#4b5662;background:#e9ecef;gap:10px;">
-        <div>Loading Valmet DNA SpatialSense...</div>
+        <div>Loading Valmet DNA SpatialSense (3DGS + CV)...</div>
       </div>
     </div>
 
@@ -37,22 +39,45 @@
           '/src/data/challengeBriefMissions.js',
           '/src/utils/dataPipeline.js',
           '/src/utils/pathfinding.js',
+          '/src/utils/cvEngine.js',
           '/src/utils/exerciseEngine.js',
           '/src/utils/copilotEngine.js',
+          '/src/components/FloorMinimap.jsx',
+          '/src/components/CvReviewPanel.jsx',
           '/src/components/BoilerRoomViewport.jsx',
           '/src/components/AssetInspectorPanel.jsx',
           '/src/components/EdgeCopilotAndArHud.jsx',
           '/src/App.jsx'
         ];
 
+        const origin = window.location.origin;
+        const bareMap = {
+          'react': 'https://esm.sh/react@18.3.1',
+          'react-dom/client': 'https://esm.sh/react-dom@18.3.1/client',
+          'three': `${origin}/assets/vendor/three.module.min.js`,
+          'three/addons/postprocessing/Pass.js': `${origin}/assets/vendor/Pass.js`,
+          'three/examples/jsm/controls/OrbitControls.js': `${origin}/assets/vendor/OrbitControls.js`,
+          'three/examples/jsm/loaders/PLYLoader.js': `${origin}/assets/vendor/PLYLoader.js`,
+          '@sparkjsdev/spark': `${origin}/assets/vendor/spark.module.min.js`,
+          'lucide-react': 'https://esm.sh/lucide-react@0.460.0?deps=react@18.3.1'
+        };
+
         const blobUrls = {};
 
         for (const file of files) {
-          let code = await fetch(file).then((r) => r.text());
+          let code = await fetch(file).then((r) => {
+            if (!r.ok) throw new Error(`Failed to fetch ${file}: HTTP ${r.status}`);
+            return r.text();
+          });
           for (const [origPath, bUrl] of Object.entries(blobUrls)) {
             const baseName = origPath.split('/').pop().replace(/\.(jsx|js)$/, '');
             const regex = new RegExp(`(['"])(\\.\\.?\\/[\\w\\/.-]*\\/${baseName}|\\.\\/${baseName})(\\.(jsx|js))?\\1`, 'g');
             code = code.replace(regex, `"${bUrl}"`);
+          }
+          for (const [bareKey, fullUrl] of Object.entries(bareMap)) {
+            const escaped = bareKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const bareRegex = new RegExp(`from\\s+(['"])${escaped}\\1`, 'g');
+            code = code.replace(bareRegex, `from "${fullUrl}"`);
           }
           const transpiled = window.Babel.transform(code, {
             presets: ['react'],
@@ -62,8 +87,8 @@
           blobUrls[file] = URL.createObjectURL(blob);
         }
 
-        const React = (await import('react')).default;
-        const ReactDOM = (await import('react-dom/client')).default;
+        const React = (await import('https://esm.sh/react@18.3.1')).default;
+        const ReactDOM = (await import('https://esm.sh/react-dom@18.3.1/client')).default;
         const AppModule = await import(blobUrls['/src/App.jsx']);
         const App = AppModule.default;
 

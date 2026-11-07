@@ -8,6 +8,8 @@
 
 import {
   NAV_NODES,
+  FRONT_ENTRY_SLOTS,
+  FRONT_ENTRY_YAW,
   computeAStarPath,
   resolveObstacleCollisions,
   samplePathAtProgress,
@@ -26,17 +28,23 @@ const WORKER_PALETTE = [
 ];
 
 /**
- * Computes the [x, y, z] position for a worker slot in the horizontal staging line at the South Station.
+ * Computes the [x, y, z] position for a worker slot at the Front Entrance (`front_entry` from ahmad_branch).
  */
 export function computeStagingSlotPosition(index, totalCount) {
-  const spacing = 0.68;
-  const startX = -((Math.max(1, totalCount) - 1) * spacing) * 0.5;
-  const x = Math.max(-4.2, Math.min(4.2, startX + index * spacing));
-  return [Number(x.toFixed(2)), -1.02, -0.32];
+  if (index < FRONT_ENTRY_SLOTS.length) {
+    return [...FRONT_ENTRY_SLOTS[index]];
+  }
+  const extraIdx = index - FRONT_ENTRY_SLOTS.length + 1;
+  const lastSlot = FRONT_ENTRY_SLOTS[FRONT_ENTRY_SLOTS.length - 1];
+  return [
+    Number((lastSlot[0] - extraIdx * 0.35).toFixed(3)),
+    -1.02,
+    Number((lastSlot[2] + extraIdx * 0.25).toFixed(3))
+  ];
 }
 
 /**
- * Creates the initial lineup of workers standing in a neat row at the staging station.
+ * Creates the initial lineup of workers standing at the Front Entrance (`front_entry`).
  */
 export function createInitialExerciseWorkers(count = 4) {
   const specs = [
@@ -57,12 +65,13 @@ export function createInitialExerciseWorkers(count = 4) {
       slotPos,
       pos: [...slotPos],
       position: [...slotPos],
-      angle: 0, // Facing North (+Z) into the boiler room
+      angle: FRONT_ENTRY_YAW, // Facing into the equipment room from front_entry
       state: 'STANDBY', // 'STANDBY' | 'WALKING_TO_FAULT' | 'REPAIRING' | 'RETURNING'
       trafficStatus: 'CLEAR', // 'CLEAR' | 'YIELDING' | 'PASSING_RIGHT'
       targetAssetId: null,
       targetTag: null,
       pathPoints: [],
+      outboundPathPoints: [],
       pathProgress: 0,
       pathLength: 0,
       repairProgress: 0
@@ -87,7 +96,7 @@ export function rebalanceStagingLine(workers) {
     if (w.state === 'STANDBY') {
       updated.pos = [...slotPos];
       updated.position = [...slotPos];
-      updated.angle = 0;
+      updated.angle = FRONT_ENTRY_YAW;
     }
     return updated;
   });
@@ -104,7 +113,7 @@ export function addExerciseWorker(workers, type = 'human') {
     num++;
   }
   const id = `${prefix}${String(num).padStart(2, '0')}`;
-  const humanNames = ['M. Heikkinen', 'T. Koskinen', 'L. Järvinen', 'K. Lehtonen', 'P. Salminen', 'E. Tuominen'];
+  const humanNames = ['M. Heikkinen', 'T. Koskinen', 'L. Jarvinen', 'K. Lehtonen', 'P. Salminen', 'E. Tuominen'];
   const name = isRobot
     ? `AMR-Unit-${String(num).padStart(2, '0')}`
     : humanNames[(num - 1) % humanNames.length];
@@ -218,18 +227,17 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
   return workers.map((w) => {
     if (w.id !== workerId) return w;
 
-    // Pass worker's actual 3D position (`w.pos`) so they step straight North from their slot
-    // into the nearest South Corridor node while avoiding congested aisles.
+    const targetPt = asset.approach_point || asset.position;
     const path = computeAStarPath(
       w.pos,
-      asset.position || asset.approach_point,
+      targetPt,
       w.type,
       hazardNodes,
       railMode,
       congestionMap
     );
 
-    const pts = path.points?.length ? [[...w.pos], ...path.points.slice(1)] : [[...w.pos], [...asset.position]];
+    const pts = path.points?.length ? [[...w.pos], ...path.points.slice(1)] : [[...w.pos], [...targetPt]];
     let len = 0;
     for (let i = 1; i < pts.length; i++) {
       len += euclidean3D(pts[i - 1], pts[i]);
@@ -237,6 +245,7 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
 
     return {
       ...w,
+      manualControl: false,
       state: 'WALKING_TO_FAULT',
       trafficStatus: 'CLEAR',
       blockingUnitId: null,
@@ -246,6 +255,7 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
       targetTag: asset.tag,
       nodeIds: path.nodeIds || [],
       pathPoints: pts,
+      outboundPathPoints: pts,
       pathProgress: 0,
       pathLength: Math.max(0.5, len),
       repairProgress: 0
@@ -284,7 +294,7 @@ export function stepExerciseSimulation(
           (w.state === 'WALKING_TO_FAULT' || w.state === 'REPAIRING')
       );
       if (!alreadyAssigned) {
-        const idleWorker = nextWorkers.find((w) => w.state === 'STANDBY');
+        const idleWorker = nextWorkers.find((w) => w.state === 'STANDBY' && !w.manualControl);
         if (idleWorker) {
           nextWorkers = assignWorkerToAsset(
             nextWorkers,
@@ -307,10 +317,48 @@ export function stepExerciseSimulation(
   for (let i = 0; i < nextWorkers.length; i++) {
     const w = nextWorkers[i];
 
+    // If user is manually driving this technician (W/A/S/D or Touch D-Pad), preserve manual pose & allow proximity repair
+    if (w.manualControl) {
+      w.position = [...(w.pos || w.position || w.slotPos)];
+      w.pos = [...w.position];
+      w.trafficStatus = 'CLEAR';
+      w.blockingUnitId = null;
+      w.lockedNodeId = null;
+
+      // Check if manually driven technician is standing next to a faulted asset (<1.05m in X-Z)
+      const nearFault = (assets || []).find((a) => {
+        if (a.health_status !== 'attention_required' && a.health_status !== 'degraded') return false;
+        const app = a.approach_point || a.position;
+        const dApp = Math.hypot(app[0] - w.pos[0], app[2] - w.pos[2]);
+        const dObj = Math.hypot(a.position[0] - w.pos[0], a.position[2] - w.pos[2]);
+        return Math.min(dApp, dObj) <= 1.08;
+      });
+
+      if (nearFault) {
+        w.state = 'REPAIRING';
+        w.targetAssetId = nearFault.asset_id;
+        w.targetTag = nearFault.tag;
+        w.repairProgress = Math.min(100, (w.repairProgress || 0) + dt * 28);
+        if (w.repairProgress >= 100) {
+          completedAssetIds.push(nearFault.asset_id);
+          w.repairProgress = 0;
+          w.state = 'STANDBY';
+          w.targetAssetId = null;
+          w.targetTag = null;
+        }
+      } else {
+        w.state = 'STANDBY';
+        w.targetAssetId = null;
+        w.targetTag = null;
+        w.repairProgress = 0;
+      }
+      continue;
+    }
+
     if (w.state === 'STANDBY') {
       w.pos = [...w.slotPos];
       w.position = [...w.slotPos];
-      w.angle = 0;
+      w.angle = FRONT_ENTRY_YAW;
       w.trafficStatus = 'CLEAR';
       w.blockingUnitId = null;
       w.lockedNodeId = null;
@@ -338,19 +386,11 @@ export function stepExerciseSimulation(
         if (w.targetAssetId) {
           completedAssetIds.push(w.targetAssetId);
         }
-        // Compute congestion-aware return path from current position back to worker's staging slot
-        const congestionMap = buildCongestionPenaltyMap(nextWorkers, w.id);
-        const returnPath = computeAStarPath(
-          w.slotPos,
-          w.pos,
-          w.type,
-          hazardNodes,
-          railMode,
-          congestionMap
-        );
-        const revPts = returnPath.points?.length
-          ? [...returnPath.points].reverse()
-          : [[...w.pos], [...w.slotPos]];
+        // Return along the exact reversed ESDF path back to the worker's Front Entrance slot (`w.slotPos`)
+        const revPts =
+          w.outboundPathPoints && w.outboundPathPoints.length >= 2
+            ? [...w.outboundPathPoints].reverse()
+            : [[...w.pos], [...w.slotPos]];
         revPts[0] = [...w.pos];
         revPts[revPts.length - 1] = [...w.slotPos];
 
@@ -362,7 +402,7 @@ export function stepExerciseSimulation(
         w.state = 'RETURNING';
         w.targetAssetId = null;
         w.targetTag = null;
-        w.nodeIds = returnPath.nodeIds ? [...returnPath.nodeIds].reverse() : [];
+        w.nodeIds = w.nodeIds ? [...w.nodeIds].reverse() : [];
         w.pathPoints = revPts;
         w.pathProgress = 0;
         w.pathLength = Math.max(0.5, rLen);
@@ -554,7 +594,7 @@ export function stepExerciseSimulation(
           w.state = 'STANDBY';
           w.pos = [...w.slotPos];
           w.position = [...w.slotPos];
-          w.angle = 0;
+          w.angle = FRONT_ENTRY_YAW;
           w.trafficStatus = 'CLEAR';
           w.blockingUnitId = null;
           w.lockedNodeId = null;
@@ -638,7 +678,7 @@ export function computeArTrafficSignal(
       : 0.72;
     return {
       light: 'RED',
-      headline: 'RED LIGHT — STOP & YIELD',
+      headline: 'RED LIGHT  —  STOP & YIELD',
       detail: `Yielding right-of-way to ${cId} (${cDist.toFixed(2)} m ahead · Intersection Block Locked)`,
       conflictingUnitId: cId,
       distanceMeters: Number(cDist.toFixed(2)),
@@ -655,7 +695,7 @@ export function computeArTrafficSignal(
     const u = nearestConflict.unit;
     return {
       light: 'RED',
-      headline: 'RED LIGHT — HOLD POSITION',
+      headline: 'RED LIGHT  —  HOLD POSITION',
       detail: `${u.id} (${u.type === 'robot' ? 'AMR' : 'Technician'}) occupying aisle ${nearestConflict.dist.toFixed(2)} m ahead`,
       conflictingUnitId: u.id,
       distanceMeters: Number(nearestConflict.dist.toFixed(2)),
@@ -672,7 +712,7 @@ export function computeArTrafficSignal(
     const d = nearestConflict?.dist ?? nearestAnyDist ?? 1.4;
     return {
       light: 'YELLOW',
-      headline: 'YELLOW LIGHT — KEEP RIGHT LANE',
+      headline: 'YELLOW LIGHT  —  KEEP RIGHT LANE',
       detail: `Passing ${u?.id || 'unit'} (${d.toFixed(2)} m) · Right-hand lane offset +0.22 m`,
       conflictingUnitId: u?.id || null,
       distanceMeters: Number(d.toFixed(2)),
@@ -683,7 +723,7 @@ export function computeArTrafficSignal(
 
   return {
     light: 'GREEN',
-    headline: 'GREEN LIGHT — PROCEED',
+    headline: 'GREEN LIGHT  —  PROCEED',
     detail: nearestAny
       ? `Corridor clear · Nearest unit ${nearestAny.id} at ${nearestAnyDist.toFixed(2)} m`
       : 'Corridor clear · Right-of-way granted',
