@@ -543,21 +543,57 @@ export default function BoilerRoomViewport({
   });
 
   // Consumer Navigation Mode: 'walk' (1st-person FPS walk) | 'orbit' (3rd-person mouse drag orbit)
-  const [navMode, setNavMode] = useState('orbit');
-  const navModeRef = useRef('orbit');
+  const [navMode, setNavMode] = useState('walk');
+  const navModeRef = useRef('walk');
   useEffect(() => {
     navModeRef.current = navMode;
   }, [navMode]);
 
+  const firstPersonPosRef = useRef({ x: 1.42, y: -0.12, z: -1.28 });
+  const firstPersonYawRef = useRef(-0.66);
+  const firstPersonPitchRef = useRef(-0.11);
+  const lastPointerPosRef = useRef({ x: 0, y: 0 });
+  const isDraggingLookRef = useRef(false);
+
   const handleSetNavMode = (newMode) => {
     setNavMode(newMode);
     navModeRef.current = newMode;
+
     if (newMode === 'walk') {
-      onToggleArFirstPerson && onToggleArFirstPerson(true);
+      if (controlsRef.current) {
+        controlsRef.current.enabled = false;
+      }
+      if (cameraRef.current) {
+        const curCam = cameraRef.current;
+        const obstacles = buildCollisionBoxes([...(STRUCTURAL_BOILER_OBJECTS || []), ...(assets || [])]);
+        const [safeX, safeZ] = resolveObstacleCollisions(curCam.position.x, curCam.position.z, 0.28, obstacles);
+        firstPersonPosRef.current = { x: safeX, y: -0.34, z: safeZ };
+        curCam.position.set(safeX, -0.34, safeZ);
+
+        const dir = new THREE.Vector3();
+        curCam.getWorldDirection(dir);
+        firstPersonYawRef.current = Math.atan2(dir.x, dir.z);
+        firstPersonPitchRef.current = Math.asin(Math.max(-0.99, Math.min(0.99, dir.y)));
+      }
     } else {
-      onToggleArFirstPerson && onToggleArFirstPerson(false);
+      if (controlsRef.current && cameraRef.current) {
+        controlsRef.current.enabled = true;
+        const cosP = Math.cos(firstPersonPitchRef.current);
+        const lX = Math.sin(firstPersonYawRef.current) * cosP;
+        const lY = Math.sin(firstPersonPitchRef.current);
+        const lZ = Math.cos(firstPersonYawRef.current) * cosP;
+        controlsRef.current.target.set(
+          cameraRef.current.position.x + lX * 2.5,
+          cameraRef.current.position.y + lY * 2.5,
+          cameraRef.current.position.z + lZ * 2.5
+        );
+        controlsRef.current.update();
+      }
     }
   };
+
+  const handleSetNavModeRef = useRef(handleSetNavMode);
+  handleSetNavModeRef.current = handleSetNavMode;
 
   // Smooth Camera Fly-To helper (ported from ahmad_branch CameraRig.jsx fitToBox / flyTo)
   const triggerCameraFlyTo = (targetPos3D, approachPos3D = null, bboxSize = [0.55, 0.55, 0.55]) => {
@@ -669,7 +705,9 @@ export default function BoilerRoomViewport({
     viewMode,
     ceilingCutaway,
     showAllCvDetections,
-    selectedCvObjectId
+    selectedCvObjectId,
+    appMode,
+    showWorkers
   });
 
   useEffect(() => {
@@ -701,7 +739,10 @@ export default function BoilerRoomViewport({
       viewMode,
       ceilingCutaway,
       showAllCvDetections,
-      selectedCvObjectId
+      selectedCvObjectId,
+      appMode,
+      showWorkers,
+      navMode
     };
   }, [
     assets,
@@ -731,7 +772,10 @@ export default function BoilerRoomViewport({
     viewMode,
     ceilingCutaway,
     showAllCvDetections,
-    selectedCvObjectId
+    selectedCvObjectId,
+    appMode,
+    showWorkers,
+    navMode
   ]);
 
   useEffect(() => {
@@ -1105,6 +1149,14 @@ export default function BoilerRoomViewport({
       }
 
       const k = e.key.toLowerCase();
+      if (k === 'v') {
+        e.preventDefault();
+        if (handleSetNavModeRef.current) {
+          const next = navModeRef.current === 'walk' ? 'orbit' : 'walk';
+          handleSetNavModeRef.current(next);
+        }
+        return;
+      }
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
         keysPressedRef.current[k] = true;
         setIsWasdWalking(true);
@@ -1195,12 +1247,26 @@ export default function BoilerRoomViewport({
 
     const handlePointerDown = (e) => {
       pointerDownPos = { x: e.clientX, y: e.clientY };
+      lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
+      isDraggingLookRef.current = true;
     };
 
     const handlePointerMove = (e) => {
       if (e.buttons > 0) {
-        // User is dragging to orbit/pan -> hand camera control back immediately (like ahmad_branch CameraRig.jsx)
         cameraFlyRef.current.active = false;
+        if (!stateRef.current.showWorkers && navModeRef.current === 'walk') {
+          const dx = e.clientX - lastPointerPosRef.current.x;
+          const dy = e.clientY - lastPointerPosRef.current.y;
+          lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
+
+          const sensitivity = 0.0032;
+          firstPersonYawRef.current -= dx * sensitivity;
+          firstPersonPitchRef.current = Math.max(
+            -1.35,
+            Math.min(1.35, firstPersonPitchRef.current - dy * sensitivity)
+          );
+          return;
+        }
         return;
       }
       const picked = pickAssetFromPointer(e.clientX, e.clientY, false);
@@ -1491,10 +1557,11 @@ export default function BoilerRoomViewport({
         }
       }
 
-      if (fleetGroupRef.current) fleetGroupRef.current.visible = !st.exerciseMode;
-      if (pathGroupRef.current) pathGroupRef.current.visible = !st.exerciseMode;
-      if (exerciseGroupRef.current) exerciseGroupRef.current.visible = Boolean(st.exerciseMode);
-      if (exercisePathGroupRef.current) exercisePathGroupRef.current.visible = Boolean(st.exerciseMode);
+      const isTechWorkersVisible = Boolean(st.showWorkers);
+      if (fleetGroupRef.current) fleetGroupRef.current.visible = false;
+      if (pathGroupRef.current) pathGroupRef.current.visible = false;
+      if (exerciseGroupRef.current) exerciseGroupRef.current.visible = isTechWorkersVisible;
+      if (exercisePathGroupRef.current) exercisePathGroupRef.current.visible = isTechWorkersVisible;
 
       const keys = keysPressedRef.current;
       const anyWasdDown = Boolean(
@@ -2012,20 +2079,121 @@ export default function BoilerRoomViewport({
           controls.target.lerp(new THREE.Vector3(lookX, lookY, lookZ), 0.28);
           controls.update();
         }
-      } else if (cameraFlyRef.current.active) {
-        // CameraRig.jsx exponentially-damped flyTo interpolation from ahmad_branch
-        const k = 1 - Math.exp(-5.8 * dt);
-        camera.position.lerp(cameraFlyRef.current.pos, k);
-        controls.target.lerp(cameraFlyRef.current.target, k);
-        controls.update();
-        if (
-          camera.position.distanceTo(cameraFlyRef.current.pos) < 0.015 &&
-          controls.target.distanceTo(cameraFlyRef.current.target) < 0.015
-        ) {
-          cameraFlyRef.current.active = false;
+      } else if (!st.showWorkers && navModeRef.current === 'walk') {
+        // First-Person Walk Mode: Disable OrbitControls to guarantee zero phasing through walls
+        if (controls.enabled) controls.enabled = false;
+
+        if (cameraFlyRef.current.active) {
+          const k = 1 - Math.exp(-5.8 * dt);
+          camera.position.lerp(cameraFlyRef.current.pos, k);
+          controls.target.lerp(cameraFlyRef.current.target, k);
+          camera.lookAt(controls.target);
+          if (
+            camera.position.distanceTo(cameraFlyRef.current.pos) < 0.015 &&
+            controls.target.distanceTo(cameraFlyRef.current.target) < 0.015
+          ) {
+            cameraFlyRef.current.active = false;
+            firstPersonPosRef.current.x = camera.position.x;
+            firstPersonPosRef.current.y = -0.34;
+            firstPersonPosRef.current.z = camera.position.z;
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            firstPersonYawRef.current = Math.atan2(dir.x, dir.z);
+            firstPersonPitchRef.current = Math.asin(Math.max(-0.99, Math.min(0.99, dir.y)));
+          }
+        } else {
+          // 1st-Person Walking & Collision Resolution
+          const forward = (keys.w || keys.arrowup || keys.KeyW ? 1 : 0) - (keys.s || keys.arrowdown || keys.KeyS ? 1 : 0);
+          const strafe = (keys.d || keys.arrowright || keys.KeyD ? 1 : 0) - (keys.a || keys.arrowleft || keys.KeyA ? 1 : 0);
+
+          let curX = firstPersonPosRef.current.x;
+          let curZ = firstPersonPosRef.current.z;
+
+          if (forward !== 0 || strafe !== 0) {
+            const walkSpeed = 1.68 * dt;
+            const yaw = firstPersonYawRef.current;
+            const fwdX = Math.sin(yaw);
+            const fwdZ = Math.cos(yaw);
+            const rightX = -Math.cos(yaw);
+            const rightZ = Math.sin(yaw);
+
+            const moveX = fwdX * forward + rightX * strafe;
+            const moveZ = fwdZ * forward + rightZ * strafe;
+            const len = Math.hypot(moveX, moveZ) || 1;
+
+            const desiredX = curX + (moveX / len) * walkSpeed;
+            const desiredZ = curZ + (moveZ / len) * walkSpeed;
+
+            const [safeX, safeZ] = resolveObstacleCollisions(
+              desiredX,
+              desiredZ,
+              0.28,
+              obstacles,
+              curX,
+              curZ
+            );
+            curX = safeX;
+            curZ = safeZ;
+            firstPersonPosRef.current.x = curX;
+            firstPersonPosRef.current.z = curZ;
+          }
+
+          // Strict eye-level floor height inside the 3DGS scan
+          camera.position.set(curX, -0.34, curZ);
+
+          const cosPitch = Math.cos(firstPersonPitchRef.current);
+          const lookDirX = Math.sin(firstPersonYawRef.current) * cosPitch;
+          const lookDirY = Math.sin(firstPersonPitchRef.current);
+          const lookDirZ = Math.cos(firstPersonYawRef.current) * cosPitch;
+
+          camera.lookAt(
+            curX + lookDirX * 2.0,
+            -0.34 + lookDirY * 2.0,
+            curZ + lookDirZ * 2.0
+          );
+
+          primarySample = {
+            position: [curX, -1.02, curZ],
+            tangent: [Math.sin(firstPersonYawRef.current), 0, Math.cos(firstPersonYawRef.current)]
+          };
         }
       } else {
-        controls.update();
+        // Orbit Mode or Technician Mode: OrbitControls enabled
+        if (!controls.enabled) controls.enabled = true;
+
+        if (cameraFlyRef.current.active) {
+          const k = 1 - Math.exp(-5.8 * dt);
+          camera.position.lerp(cameraFlyRef.current.pos, k);
+          controls.target.lerp(cameraFlyRef.current.target, k);
+          controls.update();
+          if (
+            camera.position.distanceTo(cameraFlyRef.current.pos) < 0.015 &&
+            controls.target.distanceTo(cameraFlyRef.current.target) < 0.015
+          ) {
+            cameraFlyRef.current.active = false;
+          }
+        } else {
+          // Allow WASD panning in Orbit Mode when in Consumer Mode
+          if (!st.showWorkers) {
+            const forward = (keys.w || keys.arrowup || keys.KeyW ? 1 : 0) - (keys.s || keys.arrowdown || keys.KeyS ? 1 : 0);
+            const strafe = (keys.d || keys.arrowright || keys.KeyD ? 1 : 0) - (keys.a || keys.arrowleft || keys.KeyA ? 1 : 0);
+            if (forward !== 0 || strafe !== 0) {
+              const camDir = new THREE.Vector3();
+              camera.getWorldDirection(camDir);
+              camDir.y = 0;
+              if (camDir.lengthSq() > 0.0001) camDir.normalize();
+              const rightDir = new THREE.Vector3(-camDir.z, 0, camDir.x);
+              const moveSpeed = 2.0 * dt;
+              const deltaX = (camDir.x * forward + rightDir.x * strafe) * moveSpeed;
+              const deltaZ = (camDir.z * forward + rightDir.z * strafe) * moveSpeed;
+              camera.position.x = Math.max(-5.2, Math.min(5.2, camera.position.x + deltaX));
+              camera.position.z = Math.max(-4.2, Math.min(4.2, camera.position.z + deltaZ));
+              controls.target.x = Math.max(-4.5, Math.min(4.5, controls.target.x + deltaX));
+              controls.target.z = Math.max(-3.5, Math.min(3.5, controls.target.z + deltaZ));
+            }
+          }
+          controls.update();
+        }
       }
 
       // Proximity, Hover & Selection OBB Animation (Overlays.jsx from ahmad_branch)
@@ -2152,7 +2320,7 @@ export default function BoilerRoomViewport({
         const width = container.clientWidth;
         const height = container.clientHeight;
 
-        if (st.exerciseMode && st.exerciseWorkers?.length) {
+        if (st.showWorkers && st.exerciseMode && st.exerciseWorkers?.length) {
           const overlays = [];
           st.exerciseWorkers.forEach((w) => {
             const wpos = w.position || w.pos || [0, -1.02, -0.32];
@@ -2861,6 +3029,30 @@ export default function BoilerRoomViewport({
     cameraFlyRef.current.active = true;
   };
 
+  const handleFacilityOverview = () => {
+    if (arFirstPersonMode) onToggleArFirstPerson(false);
+    manualPosRef.current = null;
+    setIsWasdWalking(false);
+    handleSetNavMode('orbit');
+    cameraFlyRef.current.pos.set(0.2, 2.8, -3.5);
+    cameraFlyRef.current.target.set(0.0, -0.45, 0.8);
+    cameraFlyRef.current.active = true;
+  };
+
+  const handleResetCameraForMode = () => {
+    setClickedPopoverAssetId(null);
+    setClickedUnboundCvObj(null);
+    setClickedScreenAnchor(null);
+    if (navModeRef.current === 'walk') {
+      firstPersonPosRef.current = { x: 1.42, y: -0.34, z: -1.28 };
+      firstPersonYawRef.current = -0.66;
+      firstPersonPitchRef.current = -0.11;
+      cameraFlyRef.current.active = false;
+    } else {
+      handleResetCamera();
+    }
+  };
+
   const handleFocusSelected = () => {
     if (arFirstPersonMode) onToggleArFirstPerson(false);
     if (!selectedAsset) return;
@@ -3401,28 +3593,28 @@ export default function BoilerRoomViewport({
             <div className="dock-mode-switch">
               <button
                 type="button"
-                className={`dock-mode-btn ${arFirstPersonMode ? 'active' : ''}`}
+                className={`dock-mode-btn ${navMode === 'walk' ? 'active' : ''}`}
                 onClick={() => handleSetNavMode('walk')}
-                title="First-Person Walking Mode"
+                title="First-Person Walking Mode (Press V to toggle)"
               >
                 <Footprints size={13} />
-                <span>Walk (AR)</span>
+                <span>Walk (V)</span>
               </button>
               <button
                 type="button"
-                className={`dock-mode-btn ${!arFirstPersonMode ? 'active' : ''}`}
+                className={`dock-mode-btn ${navMode === 'orbit' ? 'active' : ''}`}
                 onClick={() => handleSetNavMode('orbit')}
-                title="Third-Person Orbit Dragging Mode"
+                title="Third-Person Orbit Dragging Mode (Press V to toggle)"
               >
                 <RotateCw size={13} />
-                <span>Orbit</span>
+                <span>Orbit (V)</span>
               </button>
             </div>
-            <button onClick={handleInteriorCamera} title="Jump inside the 3DGS room scan">
+            <button onClick={handleResetCameraForMode} title="Reset Camera Position">
               <RotateCcw size={14} />
-              <span>Interior View</span>
+              <span>Reset Position</span>
             </button>
-            <button onClick={handleResetCamera} title="Top-down facility overview with cutaway">
+            <button onClick={handleFacilityOverview} title="Top-down facility overview with cutaway">
               <Building size={14} />
               <span>Facility Overview</span>
             </button>
@@ -3434,9 +3626,15 @@ export default function BoilerRoomViewport({
             )}
           </div>
           <div className="consumer-walk-hint">
-            <span>
-              <strong>{arFirstPersonMode ? 'Walk Mode' : 'Orbit Mode'}</strong>: Click any part in the 3D twin to open the <strong>Holographic AR Asset HUD</strong> · Drag to rotate · Scroll to zoom
-            </span>
+            {navMode === 'walk' ? (
+              <span>
+                <strong>Walk Mode</strong>: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or <kbd>Arrows</kbd> to walk · Drag mouse to look around · Press <kbd>V</kbd> for Orbit · Click any part to inspect
+              </span>
+            ) : (
+              <span>
+                <strong>Orbit Mode</strong>: Drag mouse to rotate around room · Scroll to zoom · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to pan · Press <kbd>V</kbd> for Walk
+              </span>
+            )}
           </div>
         </>
       )}
@@ -3821,6 +4019,7 @@ export default function BoilerRoomViewport({
       )}
 
       {/* Bottom-left Compact Legend */}
+      {showWorkers && (
       <div className="vp-chip bottom-left">
         <span>
           <kbd>W</kbd>
@@ -3839,6 +4038,7 @@ export default function BoilerRoomViewport({
           </>
         )}
       </div>
+      )}
     </main>
   );
 }

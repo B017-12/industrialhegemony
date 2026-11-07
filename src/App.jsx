@@ -69,8 +69,8 @@ export default function App() {
   const [activeNav, setActiveNav] = useState('alerts'); // 'alerts' | 'assets' | 'cv_review' | 'vision' | 'scene_edit' | 'navigate' | 'workorders' | 'copilot' | 'settings'
 
   // Application Mode: 'consumer' (Matterport-style clean twin) | 'technician' (Siemens-style engineering twin)
-  const [appMode, setAppMode] = useState('technician');
-  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
+  const [appMode, setAppMode] = useState('consumer');
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
 
   // Computer Vision & 3DGS state (from ahmad_branch)
@@ -249,8 +249,9 @@ export default function App() {
   const [proximityRadius, setProximityRadius] = useState(1.75);
   const [nearbyAssets, setNearbyAssets] = useState([]);
 
-  // Simulation Exercise Mode (Workers line up at staging station, walk to injected faults, fix & return)
-  const [exerciseMode, setExerciseMode] = useState(true);
+  // Simulation Exercise Mode (Workers permanently in exercise mode: line up at staging station, walk to injected faults, fix & return)
+  const exerciseMode = true;
+  const setExerciseMode = () => {};
   const [exercisePaused, setExercisePaused] = useState(false);
   const [exerciseWorkers, setExerciseWorkers] = useState(() => createInitialExerciseWorkers(4));
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
@@ -479,6 +480,9 @@ export default function App() {
         if (found.cvObject?.object_id) {
           setSelectedCvObjectId(found.cvObject.object_id);
         }
+        if (appMode === 'technician') {
+          setIsRightPanelOpen(true);
+        }
       }
       return;
     }
@@ -486,6 +490,9 @@ export default function App() {
       setSelectedAssetId(assetOrId.asset_id);
       if (assetOrId.cvObject?.object_id) {
         setSelectedCvObjectId(assetOrId.cvObject.object_id);
+      }
+      if (appMode === 'technician') {
+        setIsRightPanelOpen(true);
       }
     }
   };
@@ -1001,11 +1008,6 @@ export default function App() {
             </div>
           {activeNav === 'alerts' && (
             <>
-              <div className="panel-header">
-                <span className="panel-title">System Alerts &amp; Dispatch</span>
-                <span className="panel-count">{allFaultedAndWatchAssets.length} active</span>
-              </div>
-
               <div className="panel-toolbar stack" style={{ gap: '8px' }}>
                 <div className="row" style={{ gap: '6px' }}>
                   <button
@@ -1060,22 +1062,11 @@ export default function App() {
                 <label className="check">
                   <input
                     type="checkbox"
-                    checked={exerciseMode}
-                    onChange={(e) => setExerciseMode(e.target.checked)}
+                    checked={autoDispatch}
+                    onChange={(e) => setAutoDispatch(e.target.checked)}
                   />
-                  <span>Simulation Exercise Mode (Line Dispatch)</span>
+                  <span>Auto-dispatch standby workers to all active faults</span>
                 </label>
-
-                {exerciseMode && (
-                  <label className="check">
-                    <input
-                      type="checkbox"
-                      checked={autoDispatch}
-                      onChange={(e) => setAutoDispatch(e.target.checked)}
-                    />
-                    <span>Auto-dispatch standby workers to all active faults</span>
-                  </label>
-                )}
               </div>
 
               <div className="panel-body">
@@ -1315,13 +1306,6 @@ export default function App() {
 
           {activeNav === 'assets' && (
             <>
-              <div className="panel-header">
-                <span className="panel-title">Asset Register</span>
-                <span className="panel-count">
-                  {filteredAssets.length} of {pipeline.assets.length}
-                </span>
-              </div>
-
               <div className="panel-toolbar">
                 <div className="input-wrap">
                   <Search size={14} />
@@ -1428,10 +1412,6 @@ export default function App() {
 
           {activeNav === 'navigate' && (
             <>
-              <div className="panel-header">
-                <span className="panel-title">Navigation &amp; Fleet</span>
-              </div>
-
               <div className="panel-body">
                 <div className="section stack">
                   <div className="section-title">
@@ -1611,11 +1591,6 @@ export default function App() {
 
           {activeNav === 'workorders' && (
             <>
-              <div className="panel-header">
-                <span className="panel-title">Work Orders &amp; Scenarios</span>
-                <span className="panel-count">{workOrderAssets.length} open</span>
-              </div>
-
               <div className="panel-body">
                 <div className="section" style={{ padding: 0 }}>
                   <div className="section-title" style={{ padding: '10px 12px 0' }}>
