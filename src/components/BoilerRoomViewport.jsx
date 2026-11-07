@@ -3157,23 +3157,44 @@ export default function BoilerRoomViewport({
         </>
       )}
 
-      {/* Interactive Holographic AR Field Service Asset HUD Menu */}
-      {clickedPopoverAsset && clickedSt && (
+      {/* Interactive Holographic AR Field Service Asset HUD Menu (Bound Excel Assets + Unbound PLY Equipment) */}
+      {(clickedPopoverAsset || clickedUnboundCvObj) && (
         <HolographicArAssetMenu
-          asset={clickedPopoverAsset}
+          asset={
+            clickedPopoverAsset || {
+              asset_id: clickedUnboundCvObj.object_id,
+              tag: clickedUnboundCvObj.object_id,
+              name: `${clickedUnboundCvObj.object_id} · ${clickedUnboundCvObj.label || humanize(clickedUnboundCvObj.class)}`,
+              class: clickedUnboundCvObj.class,
+              excelClass: String(clickedUnboundCvObj.class || 'EQUIPMENT').toUpperCase(),
+              area: 'Plant Floor / Auxiliary Zone',
+              zone: 'Plant Floor / Auxiliary Zone',
+              health_score: Math.round((clickedUnboundCvObj.class_confidence || 0.88) * 100),
+              health_status: 'healthy',
+              severity: 'info',
+              status: 'normal',
+              issue_code: 'SPATIAL_CV_DETECTION',
+              issue_summary: `${(clickedUnboundCvObj.splat_count || 0).toLocaleString()} splats · ${(clickedUnboundCvObj.voxel_count || 0).toLocaleString()} voxels`,
+              recommended_action: 'Inspect spatial clearance and verify 3DGS bounding box alignment',
+              telemetry: {},
+              cvObject: clickedUnboundCvObj
+            }
+          }
           assets={assets}
           evidencePhoto={
-            clickedPopoverAsset.cvObject?.object_id
-              ? EVIDENCE_PHOTO_MAP[clickedPopoverAsset.cvObject.object_id]
+            (clickedPopoverAsset?.cvObject?.object_id || clickedUnboundCvObj?.object_id)
+              ? EVIDENCE_PHOTO_MAP[clickedPopoverAsset?.cvObject?.object_id || clickedUnboundCvObj?.object_id]
               : null
           }
           onClose={() => {
             setClickedPopoverAssetId(null);
+            setClickedUnboundCvObj(null);
             setClickedScreenAnchor(null);
           }}
           onSelectAsset={(id) => {
             const target = assets.find((a) => a.asset_id === id) || id;
             onSelectAsset(target);
+            setClickedUnboundCvObj(null);
             setClickedPopoverAssetId(typeof id === 'string' ? id : id?.asset_id);
           }}
           onUpdateTelemetry={onQuickMutateTelemetry}

@@ -75,4 +75,37 @@ When a user taps or clicks any 3D part/asset in the facility scan, display the f
 git pull origin ibrahim
 node instant_server.mjs
 ```
+(Or `node instant_server.js` — both work identically.)
 Then open `http://localhost:5173` in Safari.
+
+---
+
+## 6. Excel Workbook Data Integration & Part-Matched Transparent UI (`src/data/excelPartCatalog.js`)
+
+### Full Extraction from *Valmet x Since AI 2026 - Synthetic Industrial Metaverse Builder Data Pack.xlsx*
+- Parsed all sheets from the official Excel workbook (`Asset_Master`, `Scene_Anchors`, `Current_State`, `Telemetry`, `Alarms_Events`, `Maintenance_History`, `Knowledge_Docs`, `RAG_Corpus_Index`, and `Data_Quality`) into `src/data/excelPartCatalog.js` (`EXCEL_ASSET_RECORDS`).
+- Every asset (`ASSET-001` through `ASSET-030`) is enriched in `src/utils/dataPipeline.js` with its exact Excel item name, class, area, criticality, install/service dates, connectivity profile (`OPC_UA`, `HART`, `FOUNDATION_FIELDBUS`, `MQTT_EDGE`, `SIMULATED_API`), QR/NFC IDs, scene anchor paths, current state (`health_score`, `issue_code`, `issue_summary`, `recommended_action`), live telemetry columns, alarm events, maintenance work orders, RAG corpus documents, and data quality flags:
+  - **`CV-001`..`CV-012` (`ASSET-001`..`ASSET-012`)**: `CONTROL_VALVE` (e.g., `CV-001 · Control Valve (Utility Island)`)
+  - **`P-001`..`P-006` (`ASSET-013`..`ASSET-018`)**: `PROCESS_PUMP` (e.g., `P-005 · Process Pump (Utility Island)`)
+  - **`M-001`..`M-006` (`ASSET-019`..`ASSET-024`)**: `ELECTRIC_MOTOR` (e.g., `M-006 · Electric Motor (Stock Preparation)`)
+  - **`PT-001`..`PT-003` (`ASSET-025`..`ASSET-027`)**: `PRESSURE_TRANSMITTER` (e.g., `PT-002 · Pressure Transmitter (Utility Island)`)
+  - **`VS-001`..`VS-003` (`ASSET-028`..`ASSET-030`)**: `VIBRATION_SENSOR` (e.g., `VS-002 · Vibration Sensor (Chemical Preparation)`)
+
+### Part-Matched Transparent Images (`public/assets/parts/*.png` + Online Wikimedia Transparent PNGs)
+- Each equipment class in the PLY has both a local transparent-background hologram PNG in `public/assets/parts/` and an online Wikimedia Commons transparent part diagram URL (`🌐 Web Part Image` toggle inside the HUD):
+  - `public/assets/parts/control_valve.png` (`CONTROL_VALVE`)
+  - `public/assets/parts/process_pump.png` (`PROCESS_PUMP`)
+  - `public/assets/parts/electric_motor.png` (`ELECTRIC_MOTOR`)
+  - `public/assets/parts/pressure_transmitter.png` (`PRESSURE_TRANSMITTER`)
+  - `public/assets/parts/vibration_sensor.png` (`VIBRATION_SENSOR`)
+  - `public/assets/parts/forklift.png` (`FORKLIFT`)
+  - `public/assets/parts/ibc_tote.png` (`IBC_TOTE`)
+  - `public/assets/parts/cabinet.png` (`CABINET`)
+
+### Part-Specific Holographic UI (`src/components/HolographicArAssetMenu.jsx`)
+- Clicking **any** part in the PLY (bound Excel asset or unbound CV equipment) adapts the entire HUD to match that exact part:
+  - **Header**: Displays the exact Excel item name, Excel class badge, industrial protocol, and criticality badge.
+  - **Visual Display Switcher**: Switch between `🖼️ Transparent Part`, `🌐 Web Part Image`, and `🔬 X-Ray Cutaway`.
+  - **Part-Matched Telemetry, Callouts & LOTO**: Sensor graphs, cutaway datum callouts, mechanical health cards, LOTO steps, and SOP reference automatically adapt to the clicked part class (`CONTROL_VALVE`, `PROCESS_PUMP`, `ELECTRIC_MOTOR`, `PRESSURE_TRANSMITTER`, `VIBRATION_SENSOR`, etc.).
+  - **Tab 6 (`6. Excel Data Sheet`)**: Inspects the complete Excel workbook records (`Asset_Master`, `Scene_Anchors`, `Current_State`, `Alarms_Events`, `Maintenance_History`, `RAG_Corpus_Index`, `Data_Quality`) for the selected part.
+

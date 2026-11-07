@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { humanize } from '../ui/status.js';
+import { EXCEL_ASSET_RECORDS, getPartVisualSpec } from '../data/excelPartCatalog.js';
 
 /**
- * Lightweight, iPad-optimized Holographic AR Field Service HUD.
- * - Pre-renders complex holographic wireframes, thermal wear heatmaps, and sensor waveforms
- *   ONCE into static <canvas> data-URI images (zero per-frame SVG/DOM layout or backdrop-filter GPU blur).
- * - Matches the exact typography and layouts of the 5 AR Field Service views + 4 color themes.
+ * Part-Specific, Excel-Backed 2D Static-Image Holographic AR Field Service HUD
+ * - Adapts its transparent part image, 3D CAD cutaway callouts, sensor channels, LOTO steps,
+ *   and SOP documentation to the exact clicked part class:
+ *   CONTROL_VALVE | PROCESS_PUMP | ELECTRIC_MOTOR | PRESSURE_TRANSMITTER | VIBRATION_SENSOR | FORKLIFT | IBC_TOTE | CABINET
+ * - Grounded in the exact rows of "Valmet x Since AI 2026 - Synthetic Industrial Metaverse Builder Data Pack.xlsx"
  */
 
 const THEMES = {
@@ -64,173 +66,9 @@ const THEMES = {
 };
 
 /**
- * Generates a single static PNG data-URI for the 3D CAD Internal Cutaway & Thermal Wear Heatmap
- * so iPad Safari displays a simple static <img> with zero continuous GPU/DOM overhead.
- */
-function generateStaticCadCutawayDataUrl(asset, theme, explodePct = 0) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 560;
-  canvas.height = 300;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
-
-  // Dark industrial background with subtle grid
-  const bgGrad = ctx.createLinearGradient(0, 0, 0, 300);
-  bgGrad.addColorStop(0, '#071521');
-  bgGrad.addColorStop(1, '#030a11');
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, 560, 300);
-
-  ctx.strokeStyle = 'rgba(0, 242, 255, 0.07)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < 560; x += 28) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, 300);
-    ctx.stroke();
-  }
-  for (let y = 0; y < 300; y += 28) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(560, y);
-    ctx.stroke();
-  }
-
-  const shift = (explodePct / 100) * 26;
-
-  // Thermal Wear Heatmap radial glow at impeller core
-  const heatGrad = ctx.createRadialGradient(265, 145, 8, 265, 145, 92);
-  heatGrad.addColorStop(0, 'rgba(239, 68, 68, 0.92)');
-  heatGrad.addColorStop(0.42, 'rgba(245, 158, 11, 0.75)');
-  heatGrad.addColorStop(0.75, 'rgba(16, 185, 129, 0.35)');
-  heatGrad.addColorStop(1, 'rgba(0, 242, 255, 0)');
-  ctx.fillStyle = heatGrad;
-  ctx.beginPath();
-  ctx.arc(265, 145, 92, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Holographic wireframe styling
-  ctx.strokeStyle = theme.primary;
-  ctx.lineWidth = 1.6;
-
-  // Left suction flange & shaft housing
-  ctx.strokeRect(82 - shift, 116, 95, 58);
-  ctx.beginPath();
-  ctx.ellipse(82 - shift, 145, 16, 36, 0, 0, Math.PI * 2);
-  ctx.stroke();
-  for (let x = 100 - shift; x < 170 - shift; x += 14) {
-    ctx.beginPath();
-    ctx.moveTo(x, 116);
-    ctx.lineTo(x, 174);
-    ctx.stroke();
-  }
-
-  // Top discharge nozzle
-  ctx.strokeRect(236, 38 - shift * 0.6, 58, 52);
-  ctx.beginPath();
-  ctx.ellipse(265, 38 - shift * 0.6, 35, 11, 0, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Central volute casing & impeller blades
-  ctx.beginPath();
-  ctx.arc(265, 145, 62, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(265, 145, 42, 0, Math.PI * 2);
-  ctx.strokeStyle = '#fbbf24';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Impeller vanes
-  for (let a = 0; a < 8; a++) {
-    const rad = (a * Math.PI) / 4;
-    ctx.beginPath();
-    ctx.moveTo(265 + Math.cos(rad) * 14, 145 + Math.sin(rad) * 14);
-    ctx.lineTo(265 + Math.cos(rad + 0.35) * 42, 145 + Math.sin(rad + 0.35) * 42);
-    ctx.stroke();
-  }
-
-  // Bottom suction strainer basket
-  ctx.strokeStyle = theme.primary;
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(233, 207 + shift * 0.6, 64, 72);
-  ctx.beginPath();
-  ctx.ellipse(265, 279 + shift * 0.6, 32, 9, 0, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Strainer mesh crosshatch
-  ctx.strokeStyle = 'rgba(0, 242, 255, 0.35)';
-  ctx.lineWidth = 1;
-  for (let y = 216 + shift * 0.6; y < 274 + shift * 0.6; y += 10) {
-    ctx.beginPath();
-    ctx.moveTo(236, y);
-    ctx.lineTo(294, y);
-    ctx.stroke();
-  }
-
-  // Right drive motor & cooling fins
-  ctx.strokeStyle = theme.primary;
-  ctx.lineWidth = 1.6;
-  ctx.strokeRect(328 + shift, 102, 126, 86);
-  ctx.beginPath();
-  ctx.ellipse(454 + shift, 145, 16, 43, 0, 0, Math.PI * 2);
-  ctx.stroke();
-  for (let y = 112; y <= 178; y += 11) {
-    ctx.beginPath();
-    ctx.moveTo(338 + shift, y);
-    ctx.lineTo(442 + shift, y);
-    ctx.stroke();
-  }
-
-  // Leader line 1: Impeller Erosion
-  ctx.strokeStyle = '#fbbf24';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(276, 126);
-  ctx.lineTo(352, 54);
-  ctx.lineTo(385, 54);
-  ctx.stroke();
-  ctx.fillStyle = '#fbbf24';
-  ctx.beginPath();
-  ctx.arc(276, 126, 4.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Leader line 2: Suction Strainer Pressure Drop
-  ctx.strokeStyle = theme.primary;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(265, 245 + shift * 0.6);
-  ctx.lineTo(352, 245);
-  ctx.lineTo(385, 245);
-  ctx.stroke();
-  ctx.fillStyle = theme.primary;
-  ctx.beginPath();
-  ctx.arc(265, 245 + shift * 0.6, 4.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  // 3D XYZ coordinate triad bottom-left
-  ctx.strokeStyle = theme.primary;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(30, 272);
-  ctx.lineTo(58, 272);
-  ctx.moveTo(30, 272);
-  ctx.lineTo(30, 244);
-  ctx.moveTo(30, 272);
-  ctx.lineTo(18, 284);
-  ctx.stroke();
-  ctx.fillStyle = theme.primary;
-  ctx.font = 'bold 10px monospace';
-  ctx.fillText('X', 62, 275);
-  ctx.fillText('Z', 27, 239);
-
-  return canvas.toDataURL('image/png');
-}
-
-/**
  * Generates a static PNG sparkline image for sensor cards (zero SVG DOM overhead).
  */
-function generateStaticWaveDataUrl(values, color, width = 220, height = 46) {
+function generateStaticWaveDataUrl(values, color, width = 220, height = 42) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -241,7 +79,6 @@ function generateStaticWaveDataUrl(values, color, width = 220, height = 46) {
   const max = Math.max(...values);
   const span = Math.max(0.001, max - min);
 
-  // Subtle horizontal grid
   ctx.strokeStyle = 'rgba(148, 163, 184, 0.14)';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -251,10 +88,9 @@ function generateStaticWaveDataUrl(values, color, width = 220, height = 46) {
 
   const pts = values.map((v, i) => [
     (i / Math.max(1, values.length - 1)) * (width - 8) + 4,
-    height - 6 - ((v - min) / span) * (height - 12)
+    height - 5 - ((v - min) / span) * (height - 10)
   ]);
 
-  // Fill area under curve
   const grad = ctx.createLinearGradient(0, 0, 0, height);
   grad.addColorStop(0, color + '55');
   grad.addColorStop(1, color + '05');
@@ -266,7 +102,6 @@ function generateStaticWaveDataUrl(values, color, width = 220, height = 46) {
   ctx.closePath();
   ctx.fill();
 
-  // Stroke line
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -291,154 +126,253 @@ function HolographicArAssetMenuInner({
   onMoveObject,
   objectMoves = {}
 }) {
-  // 5 core reference views from Image 1 + Multi-Sensor Suite from Image 2
-  const [activeView, setActiveView] = useState('topology'); // 'topology' | 'multipanel' | 'badge' | 'cutaway' | 'executive' | 'sensors'
+  const [activeView, setActiveView] = useState('topology'); // 'topology' | 'multipanel' | 'badge' | 'cutaway' | 'executive' | 'excel'
   const [themeId, setThemeId] = useState('cyan');
-  const [explodePct, setExplodePct] = useState(0);
+  const [useOnlinePhoto, setUseOnlinePhoto] = useState(false);
   const [lotoChecked, setLotoChecked] = useState({
-    step1: false,
-    step2: false,
-    step3: true,
-    step4: true
+    0: false,
+    1: false,
+    2: true,
+    3: true
   });
   const [savedNotice, setSavedNotice] = useState(false);
 
   const theme = THEMES[themeId] || THEMES.cyan;
+  const excelRec = (asset?.asset_id && EXCEL_ASSET_RECORDS[asset.asset_id]) || asset?.excelRecord || null;
+  const partSpec = useMemo(() => getPartVisualSpec(asset), [asset]);
 
-  // Derived asset metrics matching reference screenshots
-  const metrics = useMemo(() => {
-    const seed =
-      (asset?.tag || 'P-005').split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) || 42;
-    const vib = Number(asset?.telemetry?.vibration_mms ?? 5.8);
-    const press = Number(asset?.telemetry?.pressure_bar ?? 2.18);
-    const temp = Number(asset?.telemetry?.temperature_c ?? 78.4);
-    const flow = Number(asset?.telemetry?.flow_m3h ?? 86.4);
-    const stiction = Number(asset?.telemetry?.stiction_index ?? 0.72);
-    const health = Number(asset?.health_score ?? 44);
+  // Part-specific metrics grounded in the Excel workbook's Telemetry & Current_State sheets
+  const partData = useMemo(() => {
+    const exTel = excelRec?.excel_telemetry || {};
+    const liveTel = asset?.telemetry || {};
+    const health = Number(asset?.health_score ?? excelRec?.health_score ?? 85);
     const isFault = health < 75;
-    const rulHours = Math.max(18, Math.round(health * 3.22));
-    const downtimeCost = isFault ? 320 : 95;
-    const nextMaintDays = Math.max(2, Math.round(health * 0.41));
-    const impellerErosionMm = (8.2 + (100 - health) * 0.075).toFixed(1);
-    const strainerDropM = (5.4 + (100 - health) * 0.081).toFixed(2);
+    const excelClass = excelRec?.asset_class || partSpec.excelClass;
 
-    const vibSeries = [];
-    const sucSeries = [];
-    const flowSeries = [];
-    const baseSeries = [];
-    for (let i = 0; i < 24; i++) {
-      const t = i / 23;
-      vibSeries.push(vib * (0.78 + 0.25 * Math.sin(t * 7 + seed) + 0.1 * Math.cos(t * 15)));
-      sucSeries.push(stiction * (0.82 + 0.2 * Math.cos(t * 6 + seed * 0.4)));
-      flowSeries.push(flow * (0.88 + 0.14 * Math.sin(t * 5 + 1.2)));
-      baseSeries.push(vib * 0.62 * (0.9 + 0.1 * Math.sin(t * 4)));
+    const issueCode =
+      (asset?.status_reason && asset.status_reason !== 'NORMAL_OPERATION'
+        ? asset.status_reason
+        : excelRec?.issue_code) || (isFault ? 'DEGRADATION_DETECTED' : 'NORMAL');
+    const issueSummary =
+      excelRec?.issue_summary || asset?.service_description || 'No significant deviation';
+    const recommendedAction =
+      excelRec?.recommended_next_check || 'Inspect component and verify baseline';
+    const urgency = (excelRec?.urgency || (health < 55 ? 'high' : health < 80 ? 'medium' : 'routine')).toUpperCase();
+    const confidencePct = Math.round((excelRec?.model_confidence ?? 0.88) * 100);
+    const rulHours = Math.max(24, Math.round(health * 3.25));
+    const downtimeCost =
+      (excelRec?.criticality || '').startsWith('A') ? 320 : (excelRec?.criticality || '').startsWith('B') ? 190 : 95;
+    const nextMaintDays = Math.max(3, Math.round((excelRec?.service_interval_days || 365) * (health / 1000)));
+
+    // Build 3 part-specific sensor rows + 4 mechanical readout cards + 2 cutaway datum values
+    let sensors = [];
+    let mechanicalCards = [];
+    let callout1Value = '';
+    let callout2Value = '';
+
+    if (excelClass === 'CONTROL_VALVE') {
+      const sp = Number(liveTel.setpoint_pct ?? exTel.position_setpoint_pct ?? 58.66);
+      const pv = Number(liveTel.position_pct ?? exTel.position_actual_pct ?? 67.79);
+      const dev = Math.abs(sp - pv);
+      const stic = Number(exTel.stiction_index ?? (liveTel.stiction_index ? liveTel.stiction_index * 14.5 : 8.22));
+      const loadPct = Number(exTel.load_for_opening_pct ?? 34.16);
+      const supplyBar = Number(liveTel.supply_air_bar ?? exTel.pneumatic_supply_bar ?? 5.85);
+      const pressBar = Number(liveTel.pressure_bar ?? exTel.process_pressure_bar ?? 4.95);
+      const flowPct = Number(exTel.process_flow_pct ?? liveTel.flow_m3h ?? 51.1);
+
+      callout1Value = `${stic.toFixed(2)} % stiction`;
+      callout2Value = `${dev.toFixed(2)} % pos error`;
+
+      sensors = [
+        { label: 'Valve Position Actual, %', value: `${pv.toFixed(1)}% (SP ${sp.toFixed(1)}%)`, base: pv, color: theme.primary },
+        { label: 'Actuator Stiction Index', value: stic.toFixed(2), base: stic, color: '#fbbf24' },
+        { label: 'Process Flow, %', value: `${flowPct.toFixed(1)}%`, base: flowPct, color: '#10b981' }
+      ];
+      mechanicalCards = [
+        { label: 'Position Tracking Deviation', val: `${(pv - sp >= 0 ? '+' : '') + (pv - sp).toFixed(2)} %`, color: dev > 3 ? '#f87171' : '#34d399' },
+        { label: 'Load for Opening', val: `${loadPct.toFixed(1)} %`, color: '#fbbf24' },
+        { label: 'Pneumatic Supply Air', val: `${supplyBar.toFixed(2)} bar`, color: theme.primary },
+        { label: 'Line Process Pressure', val: `${pressBar.toFixed(2)} bar`, color: '#38bdf8' }
+      ];
+    } else if (excelClass === 'ELECTRIC_MOTOR') {
+      const vib = Number(liveTel.vibration_mms ?? exTel.vibration_mm_s ?? 5.39);
+      const bTemp = Number(liveTel.bearing_temp_c ?? exTel.bearing_temp_c ?? 56.3);
+      const currA = Number(exTel.motor_current_a ?? 42.5);
+      const rpm = Number(exTel.speed_rpm ?? 1486.0);
+      const sigQ = Number(exTel.signal_quality_pct ?? 99.6);
+
+      callout1Value = `${bTemp.toFixed(1)} °C DE bearing`;
+      callout2Value = `${currA.toFixed(1)} A phase load`;
+
+      sensors = [
+        { label: 'RMS Vibration, mm/s', value: vib.toFixed(2), base: vib, color: theme.primary },
+        { label: 'Bearing Temperature, °C', value: `${bTemp.toFixed(1)} °C`, base: bTemp, color: '#fbbf24' },
+        { label: 'Stator Motor Current, A', value: `${currA.toFixed(1)} A`, base: currA, color: '#10b981' }
+      ];
+      mechanicalCards = [
+        { label: 'Drive-End Bearing Temp', val: `${bTemp.toFixed(1)} °C`, color: bTemp > 68 ? '#f87171' : '#fbbf24' },
+        { label: 'Motor Phase Current', val: `${currA.toFixed(2)} A`, color: theme.primary },
+        { label: 'Rotor Shaft Speed', val: `${rpm.toFixed(0)} RPM`, color: '#34d399' },
+        { label: 'Vibration Velocity (RMS)', val: `${vib.toFixed(2)} mm/s`, color: vib > 4 ? '#f87171' : '#38bdf8' }
+      ];
+    } else if (excelClass === 'PRESSURE_TRANSMITTER') {
+      const pressBar = Number(liveTel.pressure_bar ?? exTel.process_pressure_bar ?? 5.12);
+      const sigQ = Number(exTel.signal_quality_pct ?? 99.8);
+      const bias = Number(exTel.sensor_bias ?? 0.0);
+      const loopMa = 4 + (Math.min(10, Math.max(0, pressBar)) / 10) * 16;
+
+      callout1Value = `${pressBar.toFixed(3)} bar`;
+      callout2Value = `${sigQ.toFixed(1)} % signal`;
+
+      sensors = [
+        { label: 'Process Pressure, bar', value: `${pressBar.toFixed(3)} bar`, base: pressBar, color: theme.primary },
+        { label: 'HART Loop Current, mA', value: `${loopMa.toFixed(2)} mA`, base: loopMa, color: '#10b981' },
+        { label: 'Signal Quality, %', value: `${sigQ.toFixed(1)}%`, base: sigQ, color: '#38bdf8' }
+      ];
+      mechanicalCards = [
+        { label: 'Process Pressure Reading', val: `${pressBar.toFixed(3)} bar`, color: theme.primary },
+        { label: 'Transmitter Signal Quality', val: `${sigQ.toFixed(1)} %`, color: '#34d399' },
+        { label: 'Zero Calibration Bias', val: `${bias.toFixed(3)} bar`, color: '#fbbf24' },
+        { label: '4–20 mA Loop Output', val: `${loopMa.toFixed(2)} mA`, color: '#38bdf8' }
+      ];
+    } else if (excelClass === 'VIBRATION_SENSOR') {
+      const vib = Number(liveTel.vibration_mms ?? exTel.vibration_mm_s ?? 4.56);
+      const sigQ = Number(exTel.signal_quality_pct ?? 99.7);
+      const bias = Number(exTel.sensor_bias ?? 0.0);
+
+      callout1Value = `${vib.toFixed(3)} mm/s RMS`;
+      callout2Value = `2.9 Nm M8 stud`;
+
+      sensors = [
+        { label: 'Piezo Vibration, mm/s', value: `${vib.toFixed(3)} mm/s`, base: vib, color: theme.primary },
+        { label: 'IEPE Signal Quality, %', value: `${sigQ.toFixed(1)}%`, base: sigQ, color: '#10b981' },
+        { label: 'Sensor Bias Drift', value: `${bias.toFixed(3)} g`, base: 1.0 + bias, color: '#fbbf24' }
+      ];
+      mechanicalCards = [
+        { label: 'RMS Vibration Velocity', val: `${vib.toFixed(3)} mm/s`, color: vib > 3.5 ? '#f87171' : theme.primary },
+        { label: 'IEPE Signal Quality', val: `${sigQ.toFixed(1)} %`, color: '#34d399' },
+        { label: 'Accelerometer Bias', val: `${bias.toFixed(3)} g`, color: '#fbbf24' },
+        { label: 'Stud Mounting Torque', val: isFault ? '1.4 Nm (Loose)' : '2.9 Nm (OK)', color: isFault ? '#f87171' : '#38bdf8' }
+      ];
+    } else {
+      // PROCESS_PUMP & general equipment
+      const pressBar = Number(liveTel.pressure_bar ?? exTel.process_pressure_bar ?? 4.51);
+      const flowPct = Number(exTel.process_flow_pct ?? liveTel.flow_m3h ?? 64.6);
+      const vib = Number(liveTel.vibration_mms ?? exTel.vibration_mm_s ?? 5.21);
+      const bTemp = Number(liveTel.bearing_temp_c ?? exTel.bearing_temp_c ?? 56.4);
+      const currA = Number(exTel.motor_current_a ?? 45.6);
+      const rpm = Number(exTel.speed_rpm ?? 1480.1);
+
+      callout1Value = `${(8.2 + (100 - health) * 0.075).toFixed(1)} mm wear`;
+      callout2Value = `${pressBar.toFixed(2)} bar head`;
+
+      sensors = [
+        { label: 'Vibration, mm/s', value: vib.toFixed(2), base: vib, color: theme.primary },
+        { label: 'Process Flow, %', value: `${flowPct.toFixed(1)}%`, base: flowPct, color: '#10b981' },
+        { label: 'Discharge Pressure, bar', value: `${pressBar.toFixed(2)} bar`, base: pressBar, color: '#38bdf8' }
+      ];
+      mechanicalCards = [
+        { label: 'Discharge Pressure', val: `${pressBar.toFixed(2)} bar`, color: theme.primary },
+        { label: 'Process Flow Rate', val: `${flowPct.toFixed(1)} %`, color: '#34d399' },
+        { label: 'Pump Vibration (RMS)', val: `${vib.toFixed(2)} mm/s`, color: vib > 4 ? '#f87171' : '#fbbf24' },
+        { label: 'Drive Current / Speed', val: `${currA.toFixed(1)} A · ${rpm.toFixed(0)} RPM`, color: '#38bdf8' }
+      ];
     }
 
+    // Generate static sparkline URLs for each sensor channel
+    const seed =
+      (asset?.tag || 'P-005').split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) || 42;
+    const enrichedSensors = sensors.map((s, idx) => {
+      const arr = [];
+      for (let i = 0; i < 24; i++) {
+        const t = i / 23;
+        arr.push(
+          s.base * (0.86 + 0.18 * Math.sin(t * 6.5 + seed + idx * 1.7) + 0.07 * Math.cos(t * 13))
+        );
+      }
+      return {
+        ...s,
+        waveUrl: generateStaticWaveDataUrl(arr, s.color)
+      };
+    });
+
     return {
-      vib,
-      press,
-      temp,
-      flow,
-      stiction,
       health,
       isFault,
+      excelClass,
+      issueCode,
+      issueSummary,
+      recommendedAction,
+      urgency,
+      confidencePct,
       rulHours,
       downtimeCost,
       nextMaintDays,
-      impellerErosionMm,
-      strainerDropM,
-      vibSeries,
-      sucSeries,
-      flowSeries,
-      baseSeries
+      callout1Value,
+      callout2Value,
+      sensors: enrichedSensors,
+      mechanicalCards
     };
-  }, [asset]);
+  }, [asset, excelRec, partSpec, theme.primary]);
 
-  // Pre-rendered static images (computed only when asset, theme, or explode slider changes)
-  const staticCadUrl = useMemo(
-    () => generateStaticCadCutawayDataUrl(asset, theme, explodePct),
-    [asset?.asset_id, asset?.health_score, theme, explodePct]
-  );
-  const vibWaveUrl = useMemo(
-    () => generateStaticWaveDataUrl(metrics.vibSeries, theme.primary),
-    [metrics.vibSeries, theme.primary]
-  );
-  const sucWaveUrl = useMemo(
-    () => generateStaticWaveDataUrl(metrics.sucSeries, '#10b981'),
-    [metrics.sucSeries]
-  );
-  const flowWaveUrl = useMemo(
-    () => generateStaticWaveDataUrl(metrics.flowSeries, '#38bdf8'),
-    [metrics.flowSeries]
-  );
-
-  // Connected process chain for View 1 (Spatial Process Topology & Causality Flow)
+  // Connected process topology nodes for View 1 (same area or upstream/downstream)
   const topologyNodes = useMemo(() => {
-    const findByTag = (t) => assets.find((a) => a.tag === t);
-    return [
-      {
-        tag: 'P-002',
-        role: 'Suction Strainer',
-        metric: 'ΔP: 0.12 bar',
-        asset: findByTag('P-002'),
-        wave: sucWaveUrl,
-        active: false
-      },
-      {
-        tag: asset?.tag || 'P-005',
-        role: asset?.class ? humanize(asset.class) : 'Process Pump',
-        metric: `Health: ${metrics.health}%`,
-        asset,
-        wave: vibWaveUrl,
-        active: true
-      },
-      {
-        tag: 'CV-005',
-        role: 'Downstream Valve',
-        metric: 'ΔP: 0.31 bar',
-        asset: findByTag('CV-005') || findByTag('CV-001'),
-        wave: flowWaveUrl,
-        active: false
-      },
-      {
-        tag: 'PT-002',
-        role: 'Pressure Transmitter',
-        metric: `P: ${metrics.press.toFixed(2)} bar`,
-        asset: findByTag('PT-002') || findByTag('FT-002'),
-        wave: sucWaveUrl,
-        active: false
-      }
-    ];
-  }, [asset, assets, metrics.health, metrics.press, sucWaveUrl, vibWaveUrl, flowWaveUrl]);
-
-  // Utility Island fleet bars for View 5
-  const fleetRows = useMemo(() => {
-    const subset = assets.slice(0, 8);
-    if (!subset.length) {
-      return [
-        { tag: 'P-001', health: 97 },
-        { tag: 'P-002', health: 93 },
-        { tag: 'P-003', health: 76 },
-        { tag: 'P-004', health: 88 },
-        { tag: asset?.tag || 'P-005', health: metrics.health, active: true },
-        { tag: 'P-006', health: 91 },
-        { tag: 'P-007', health: 95 },
-        { tag: 'P-008', health: 92 }
-      ];
+    const areaName = excelRec?.area_name || asset?.area_name || 'Utility Island';
+    const sameArea = assets.filter(
+      (a) => (EXCEL_ASSET_RECORDS[a.asset_id]?.area_name || a.area_name) === areaName
+    );
+    const pool = sameArea.length >= 4 ? sameArea : assets;
+    const picked = [];
+    const curIdx = Math.max(0, pool.findIndex((a) => a.asset_id === asset?.asset_id));
+    for (let offset = -1; offset <= 2; offset++) {
+      const item = pool[(curIdx + offset + pool.length) % Math.max(1, pool.length)];
+      if (item) picked.push(item);
     }
+    if (!picked.length && asset) picked.push(asset);
+
+    return picked.slice(0, 4).map((a, idx) => {
+      const rec = EXCEL_ASSET_RECORDS[a.asset_id];
+      const spec = getPartVisualSpec(a);
+      const isCur = a.asset_id === asset?.asset_id;
+      return {
+        asset: a,
+        tag: a.tag,
+        role: spec.itemTypeName.replace('Pneumatic Globe ', '').replace('3-Phase Squirrel-Cage ', ''),
+        metric: isCur
+          ? `Health: ${partData.health}% (${partData.issueCode})`
+          : `Health: ${a.health_score}% · ${rec?.connectivity_profile || 'OPC_UA'}`,
+        wave: partData.sensors[idx % partData.sensors.length]?.waveUrl || partData.sensors[0]?.waveUrl,
+        active: isCur
+      };
+    });
+  }, [asset, assets, excelRec, partData]);
+
+  // Area fleet status bars for View 5
+  const fleetRows = useMemo(() => {
+    const areaName = excelRec?.area_name || asset?.area_name || 'Utility Island';
+    const sameArea = assets.filter(
+      (a) => (EXCEL_ASSET_RECORDS[a.asset_id]?.area_name || a.area_name) === areaName
+    );
+    const subset = (sameArea.length >= 3 ? sameArea : assets).slice(0, 8);
     return subset.map((a) => ({
       asset_id: a.asset_id,
       tag: a.tag,
-      health: a.asset_id === asset?.asset_id ? metrics.health : a.health_score,
+      classLabel: EXCEL_ASSET_RECORDS[a.asset_id]?.asset_class || a.asset_class,
+      health: a.asset_id === asset?.asset_id ? partData.health : a.health_score,
       active: a.asset_id === asset?.asset_id
     }));
-  }, [assets, asset, metrics.health]);
+  }, [assets, asset, excelRec, partData.health]);
 
   if (!asset) return null;
 
-  const cvObjId = asset.cvObject?.object_id;
+  const cvObjId = asset.cvObject?.object_id || asset.object_id;
   const currentMove = (cvObjId && objectMoves[cvObjId]) || { dx: 0, dz: 0 };
   const bgPhoto = evidencePhoto || '/assets/vision/frames/FRM-005.jpg';
+  const activePartImg = useOnlinePhoto ? partSpec.onlineTransparentUrl : partSpec.transparentImg;
+  const itemTitle =
+    excelRec?.excel_item_name ||
+    asset.excel_item_name ||
+    `${asset.tag} · ${partSpec.itemTypeName}`;
 
   const handleNudge = (dx, dz, reset = false) => {
     if (!onMoveObject || !cvObjId) return;
@@ -456,8 +390,8 @@ function HolographicArAssetMenuInner({
         left: '50%',
         top: '50%',
         transform: 'translate(-50%, -50%)',
-        width: activeView === 'badge' ? '480px' : 'min(880px, calc(100vw - 24px))',
-        maxHeight: 'calc(100vh - 48px)',
+        width: activeView === 'badge' ? '520px' : 'min(920px, calc(100vw - 20px))',
+        maxHeight: 'calc(100vh - 36px)',
         display: 'flex',
         flexDirection: 'column',
         background: theme.bg,
@@ -472,7 +406,7 @@ function HolographicArAssetMenuInner({
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
     >
-      {/* Top Bar: AR FIELD SERVICE badge + Theme Dots + LIVE | 60 FPS */}
+      {/* Top Header: AR FIELD SERVICE + Exact Excel Item Name + Protocol/Area Badges */}
       <div
         style={{
           display: 'flex',
@@ -485,7 +419,7 @@ function HolographicArAssetMenuInner({
           flexWrap: 'wrap'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span
             style={{
               display: 'inline-flex',
@@ -504,12 +438,37 @@ function HolographicArAssetMenuInner({
           >
             ⬡ AR FIELD SERVICE
           </span>
-          <span style={{ fontFamily: 'var(--mono)', fontWeight: 800, fontSize: '14px' }}>
-            {asset.tag}
+          <span style={{ fontFamily: 'var(--mono)', fontWeight: 900, fontSize: '14px', color: '#fff' }}>
+            {itemTitle}
           </span>
-          <span style={{ fontSize: '12px', color: theme.muted }}>
-            {asset.service_description}
+          <span
+            style={{
+              fontSize: '10px',
+              fontFamily: 'var(--mono)',
+              padding: '2px 6px',
+              borderRadius: '3px',
+              background: 'rgba(0, 242, 255, 0.14)',
+              border: `1px solid ${theme.borderSoft}`,
+              color: theme.primary
+            }}
+          >
+            {excelRec?.asset_class || partSpec.excelClass} · {excelRec?.connectivity_profile || 'OPC_UA'}
           </span>
+          {excelRec?.criticality && (
+            <span
+              style={{
+                fontSize: '10px',
+                fontFamily: 'var(--mono)',
+                padding: '2px 6px',
+                borderRadius: '3px',
+                background: 'rgba(245, 158, 11, 0.16)',
+                border: '1px solid rgba(245, 158, 11, 0.4)',
+                color: '#fbbf24'
+              }}
+            >
+              Class {excelRec.criticality}
+            </span>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -566,23 +525,25 @@ function HolographicArAssetMenuInner({
         </div>
       </div>
 
-      {/* 5 Reference Mode Switcher Tabs */}
+      {/* View Switcher Tabs (5 Reference AR Views + Full Excel Workbook Sheet View) */}
       <div
         style={{
           display: 'flex',
           gap: '4px',
           padding: '6px 10px',
-          background: 'rgba(0, 0, 0, 0.4)',
+          background: 'rgba(0, 0, 0, 0.45)',
           borderBottom: `1px solid ${theme.borderSoft}`,
-          overflowX: 'auto'
+          overflowX: 'auto',
+          alignItems: 'center'
         }}
       >
         {[
           { id: 'topology', label: '1. Topology & Causality' },
           { id: 'multipanel', label: '2. Multi-Panel HUD' },
           { id: 'badge', label: '3. Quick-Inspection Badge' },
-          { id: 'cutaway', label: '4. 3D CAD & Wear Heatmap' },
-          { id: 'executive', label: '5. Shift Manager Analytics' }
+          { id: 'cutaway', label: '4. Part Cutaway & Wear' },
+          { id: 'executive', label: '5. Shift Manager Analytics' },
+          { id: 'excel', label: '6. Excel Data Sheet' }
         ].map((tab) => {
           const on = activeView === tab.id;
           return (
@@ -606,15 +567,34 @@ function HolographicArAssetMenuInner({
             </button>
           );
         })}
+
+        <button
+          onClick={() => setUseOnlinePhoto((v) => !v)}
+          style={{
+            marginLeft: 'auto',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            border: `1px solid ${theme.borderSoft}`,
+            background: useOnlinePhoto ? 'rgba(16, 185, 129, 0.22)' : 'rgba(15, 23, 42, 0.7)',
+            color: theme.text,
+            fontFamily: 'var(--mono)',
+            fontSize: '10px',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap'
+          }}
+          title="Switch between transparent holographic CAD part image and online transparent Wikimedia part diagram"
+        >
+          {useOnlinePhoto ? '🌐 Web Part Image: ON' : '🔷 Transparent Hologram PNG'}
+        </button>
       </div>
 
-      {/* Main Static-Image-Backed Holographic Content Stage */}
+      {/* Main Content Stage */}
       <div
         style={{
           position: 'relative',
           padding: '12px',
           overflowY: 'auto',
-          backgroundImage: `linear-gradient(rgba(4, 14, 24, 0.78), rgba(4, 14, 24, 0.86)), url(${bgPhoto})`,
+          backgroundImage: `linear-gradient(rgba(4, 14, 24, 0.80), rgba(4, 14, 24, 0.88)), url(${bgPhoto})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
@@ -623,13 +603,7 @@ function HolographicArAssetMenuInner({
         {activeView === 'topology' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {/* Top 4-Node Causality Flow Chain */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '8px'
-              }}
-            >
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
               {topologyNodes.map((n) => (
                 <div
                   key={n.tag}
@@ -649,16 +623,18 @@ function HolographicArAssetMenuInner({
                   <div style={{ fontSize: '10px', color: theme.muted, marginBottom: '4px' }}>
                     {n.role}
                   </div>
-                  <img
-                    src={n.wave}
-                    alt={n.tag}
-                    style={{ width: '100%', height: '30px', display: 'block', borderRadius: '3px' }}
-                  />
+                  {n.wave && (
+                    <img
+                      src={n.wave}
+                      alt={n.tag}
+                      style={{ width: '100%', height: '28px', display: 'block', borderRadius: '3px' }}
+                    />
+                  )}
                   <div
                     style={{
                       marginTop: '4px',
                       fontFamily: 'var(--mono)',
-                      fontSize: '11px',
+                      fontSize: '10px',
                       fontWeight: 700,
                       color: n.active ? '#fbbf24' : theme.primary
                     }}
@@ -669,7 +645,7 @@ function HolographicArAssetMenuInner({
               ))}
             </div>
 
-            {/* Bottom Row: Left Warning Callout Box + Right Static Holographic CAD Overlay */}
+            {/* Bottom Row: Left Excel Diagnostic Callout + Right Transparent Part Cutout Image */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 1.25fr', gap: '12px', alignItems: 'center' }}>
               <div
                 style={{
@@ -680,54 +656,94 @@ function HolographicArAssetMenuInner({
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '28px', lineHeight: 1 }}>⚠️</span>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: '26px', fontWeight: 900 }}>
-                    {asset.tag}
+                  <span style={{ fontSize: '26px', lineHeight: 1 }}>
+                    {partData.isFault ? '⚠️' : '✅'}
                   </span>
+                  <div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: '24px', fontWeight: 900, lineHeight: 1 }}>
+                      {asset.tag}
+                    </div>
+                    <div style={{ fontSize: '11px', color: theme.primary, fontFamily: 'var(--mono)', marginTop: '2px' }}>
+                      {partSpec.itemTypeName}
+                    </div>
+                  </div>
                 </div>
+
                 <div
                   style={{
-                    marginTop: '6px',
-                    color: '#fbbf24',
+                    marginTop: '8px',
+                    color: partData.isFault ? '#fbbf24' : '#34d399',
                     fontFamily: 'var(--mono)',
-                    fontSize: '15px',
-                    fontWeight: 800,
-                    letterSpacing: '0.03em'
+                    fontSize: '14px',
+                    fontWeight: 800
                   }}
                 >
-                  {metrics.isFault ? 'ATTENTION REQUIRED' : 'NOMINAL OPERATION'}
+                  {partData.isFault ? 'ATTENTION REQUIRED' : 'HEALTHY · NOMINAL'} (Conf: {partData.confidencePct}%)
                 </div>
-                <div style={{ marginTop: '8px', fontSize: '14px', fontWeight: 700 }}>
-                  Health Score: {metrics.health}/100
-                </div>
+
                 <div style={{ marginTop: '6px', fontSize: '14px', fontWeight: 700 }}>
-                  ISSUE:{' '}
+                  Health Score: {partData.health}/100 · Area: {excelRec?.area_name || asset.area_name}
+                </div>
+
+                <div style={{ marginTop: '6px', fontSize: '13px', fontWeight: 700 }}>
+                  EXCEL ISSUE:{' '}
                   <span style={{ color: '#fbbf24' }}>
-                    {asset.anomaly_Mode || (metrics.isFault ? 'FOULING / CAVITATION' : 'NONE')}
+                    {partData.issueCode} — {partData.issueSummary}
                   </span>
                 </div>
-                <div style={{ marginTop: '8px', fontSize: '13px', color: '#e2e8f0', lineHeight: 1.4 }}>
-                  <div style={{ color: theme.muted, fontSize: '11px', fontFamily: 'var(--mono)' }}>
-                    RECOMMENDED ACTION:
+
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#e2e8f0', lineHeight: 1.4 }}>
+                  <div style={{ color: theme.muted, fontSize: '10px', fontFamily: 'var(--mono)' }}>
+                    EXCEL RECOMMENDED NEXT CHECK ({excelRec?.knowledge_doc_id || partSpec.sopDocId}):
                   </div>
-                  Inspect hydraulic path & clear suction strainer
+                  <strong style={{ color: theme.primary }}>{humanize(partData.recommendedAction)}</strong> —{' '}
+                  {excelRec?.excel_work_order
+                    ? `Last WO ${excelRec.excel_work_order.work_order_id}: ${excelRec.excel_work_order.action} (${excelRec.excel_work_order.role})`
+                    : partSpec.sopSummary}
                 </div>
               </div>
 
-              {/* Static Pre-Rendered Holographic CAD Image */}
+              {/* Transparent Part Image Card */}
               <div
                 style={{
+                  position: 'relative',
                   borderRadius: '8px',
                   overflow: 'hidden',
                   border: `1.5px solid ${theme.border}`,
-                  background: '#04101a'
+                  background:
+                    'radial-gradient(circle at center, rgba(0, 242, 255, 0.14) 0%, rgba(3, 12, 22, 0.72) 100%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '8px',
+                  minHeight: '220px'
                 }}
               >
                 <img
-                  src={staticCadUrl}
-                  alt="Static Holographic CAD"
-                  style={{ width: '100%', height: '210px', objectFit: 'cover', display: 'block' }}
+                  src={activePartImg}
+                  alt={itemTitle}
+                  onError={(e) => {
+                    e.currentTarget.src = partSpec.transparentImg;
+                  }}
+                  style={{
+                    width: '100%',
+                    maxHeight: '195px',
+                    objectFit: 'contain',
+                    display: 'block',
+                    filter: 'drop-shadow(0 0 10px rgba(0, 242, 255, 0.35))'
+                  }}
                 />
+                <div
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: '10px',
+                    color: theme.muted,
+                    marginTop: '4px'
+                  }}
+                >
+                  {excelRec?.scene_path || `/SyntheticPlant/${asset.area_id}/${asset.tag}`} · QR: {excelRec?.qr_id || asset.qr_id}
+                </div>
               </div>
             </div>
           </div>
@@ -736,7 +752,7 @@ function HolographicArAssetMenuInner({
         {/* VIEW 2: FLOATING MULTI-PANEL MODULAR HUD */}
         {activeView === 'multipanel' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr 1fr', gap: '10px', alignItems: 'stretch' }}>
-            {/* Left Panel: LIVE SENSOR DATA (30 min) */}
+            {/* Left Panel: Part-Specific Excel Sensor Channels */}
             <div
               style={{
                 padding: '10px',
@@ -748,36 +764,22 @@ function HolographicArAssetMenuInner({
                 justifyContent: 'space-between'
               }}
             >
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '12px', fontWeight: 800, color: theme.primary }}>
-                📈 LIVE SENSOR DATA (30 min)
+              <div style={{ fontFamily: 'var(--mono)', fontSize: '11px', fontWeight: 800, color: theme.primary }}>
+                📈 EXCEL TELEMETRY ({partData.excelClass})
               </div>
 
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
-                  <span>Vibration, mm/s</span>
-                  <strong style={{ fontFamily: 'var(--mono)' }}>{metrics.vib.toFixed(1)}</strong>
+              {partData.sensors.map((s) => (
+                <div key={s.label} style={{ marginTop: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                    <span>{s.label}</span>
+                    <strong style={{ fontFamily: 'var(--mono)', color: s.color }}>{s.value}</strong>
+                  </div>
+                  <img src={s.waveUrl} alt={s.label} style={{ width: '100%', height: '36px', display: 'block' }} />
                 </div>
-                <img src={vibWaveUrl} alt="Vibration" style={{ width: '100%', height: '38px', display: 'block' }} />
-              </div>
-
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-                  <span>Suction Index</span>
-                  <strong style={{ fontFamily: 'var(--mono)' }}>{metrics.stiction.toFixed(2)}</strong>
-                </div>
-                <img src={sucWaveUrl} alt="Suction" style={{ width: '100%', height: '38px', display: 'block' }} />
-              </div>
-
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-                  <span>Flow Rate, m³/h</span>
-                  <strong style={{ fontFamily: 'var(--mono)' }}>{metrics.flow.toFixed(1)}</strong>
-                </div>
-                <img src={flowWaveUrl} alt="Flow" style={{ width: '100%', height: '38px', display: 'block' }} />
-              </div>
+              ))}
             </div>
 
-            {/* Center Panel: TAG / Health / HIGH URGENCY + Static Hologram Image */}
+            {/* Center Panel: TAG / Health / Urgency + Transparent Part Image */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div
                 style={{
@@ -788,26 +790,26 @@ function HolographicArAssetMenuInner({
                   textAlign: 'center'
                 }}
               >
-                <div style={{ fontFamily: 'var(--mono)', fontSize: '18px', fontWeight: 900 }}>
-                  TAG: {asset.tag}
+                <div style={{ fontFamily: 'var(--mono)', fontSize: '17px', fontWeight: 900 }}>
+                  TAG: {asset.tag} ({partSpec.itemTypeName})
                 </div>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: '15px', fontWeight: 800, color: '#fbbf24' }}>
-                  Health: {metrics.health}/100
+                <div style={{ fontFamily: 'var(--mono)', fontSize: '14px', fontWeight: 800, color: '#fbbf24' }}>
+                  Health: {partData.health}/100 · {partData.issueCode}
                 </div>
                 <div
                   style={{
                     marginTop: '6px',
-                    padding: '4px 8px',
+                    padding: '3px 8px',
                     borderRadius: '4px',
-                    background: 'rgba(239, 68, 68, 0.25)',
-                    border: '1px solid #ef4444',
-                    color: '#fca5a5',
+                    background: partData.isFault ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.2)',
+                    border: `1px solid ${partData.isFault ? '#ef4444' : '#10b981'}`,
+                    color: partData.isFault ? '#fca5a5' : '#6ee7b7',
                     fontFamily: 'var(--mono)',
-                    fontSize: '12px',
+                    fontSize: '11px',
                     fontWeight: 800
                   }}
                 >
-                  ▲ {metrics.isFault ? 'HIGH URGENCY' : 'NORMAL PRIORITY'}
+                  ▲ URGENCY: {partData.urgency} · NEXT CHECK: {partData.recommendedAction.toUpperCase()}
                 </div>
               </div>
 
@@ -816,19 +818,27 @@ function HolographicArAssetMenuInner({
                   borderRadius: '8px',
                   overflow: 'hidden',
                   border: `1.5px solid ${theme.border}`,
-                  background: '#04101a',
-                  flex: 1
+                  background:
+                    'radial-gradient(circle at center, rgba(0, 242, 255, 0.14) 0%, rgba(3, 12, 22, 0.78) 100%)',
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px'
                 }}
               >
                 <img
-                  src={staticCadUrl}
-                  alt="Holographic Asset"
-                  style={{ width: '100%', height: '145px', objectFit: 'cover', display: 'block' }}
+                  src={activePartImg}
+                  alt={itemTitle}
+                  onError={(e) => {
+                    e.currentTarget.src = partSpec.transparentImg;
+                  }}
+                  style={{ width: '100%', height: '145px', objectFit: 'contain', display: 'block' }}
                 />
               </div>
             </div>
 
-            {/* Right Panel: LOCKOUT-TAGOUT */}
+            {/* Right Panel: Part-Specific LOCKOUT-TAGOUT & Excel RAG Doc */}
             <div
               style={{
                 padding: '10px',
@@ -840,39 +850,34 @@ function HolographicArAssetMenuInner({
                 justifyContent: 'space-between'
               }}
             >
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '12px', fontWeight: 800, color: theme.primary }}>
-                🔒 LOCKOUT-TAGOUT
+              <div style={{ fontFamily: 'var(--mono)', fontSize: '11px', fontWeight: 800, color: theme.primary }}>
+                🔒 {partData.excelClass} LOTO CHECKLIST
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                {[
-                  { key: 'step1', text: 'Isolate inlet valve' },
-                  { key: 'step2', text: 'Depressurize system' },
-                  { key: 'step3', text: 'Verify zero energy' },
-                  { key: 'step4', text: 'Apply lock & tag' }
-                ].map((item) => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '6px' }}>
+                {partSpec.lotoSteps.map((text, idx) => (
                   <label
-                    key={item.key}
+                    key={idx}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '12px',
+                      gap: '7px',
+                      fontSize: '11px',
                       cursor: 'pointer',
                       padding: '4px 6px',
                       borderRadius: '4px',
-                      background: 'rgba(0,0,0,0.3)'
+                      background: 'rgba(0,0,0,0.32)'
                     }}
                   >
                     <input
                       type="checkbox"
-                      checked={!!lotoChecked[item.key]}
+                      checked={!!lotoChecked[idx]}
                       onChange={() =>
-                        setLotoChecked((prev) => ({ ...prev, [item.key]: !prev[item.key] }))
+                        setLotoChecked((prev) => ({ ...prev, [idx]: !prev[idx] }))
                       }
                       style={{ accentColor: theme.primary }}
                     />
-                    <span>{item.text}</span>
+                    <span>{text}</span>
                   </label>
                 ))}
               </div>
@@ -887,8 +892,10 @@ function HolographicArAssetMenuInner({
                   color: theme.muted
                 }}
               >
-                📄 SOP Reference:
-                <div style={{ color: theme.text, fontWeight: 700 }}>DOC-PROCESS_PUMP-CORE</div>
+                📄 Excel SOP & RAG Asset Card:
+                <div style={{ color: theme.text, fontWeight: 700 }}>
+                  {excelRec?.knowledge_doc_id || partSpec.sopDocId} · {excelRec?.rag_doc_file || `DOC-${asset.asset_id}.md`}
+                </div>
               </div>
             </div>
           </div>
@@ -897,11 +904,10 @@ function HolographicArAssetMenuInner({
         {/* VIEW 3: MINIMALIST QUICK-INSPECTION BADGE */}
         {activeView === 'badge' && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '8px' }}>
-            {/* Static Glowing Holographic Target Ring */}
             <div
               style={{
-                width: '150px',
-                height: '150px',
+                width: '170px',
+                height: '170px',
                 borderRadius: '50%',
                 border: `3px solid ${theme.primary}`,
                 boxShadow: `inset 0 0 18px ${theme.borderSoft}`,
@@ -909,28 +915,20 @@ function HolographicArAssetMenuInner({
                 alignItems: 'center',
                 justifyContent: 'center',
                 background: 'rgba(0, 242, 255, 0.08)',
-                flexShrink: 0
+                flexShrink: 0,
+                padding: '12px'
               }}
             >
-              <div
-                style={{
-                  width: '112px',
-                  height: '112px',
-                  borderRadius: '50%',
-                  border: `1.5px dashed ${theme.primary}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: 'var(--mono)'
+              <img
+                src={activePartImg}
+                alt={asset.tag}
+                onError={(e) => {
+                  e.currentTarget.src = partSpec.transparentImg;
                 }}
-              >
-                <span style={{ fontSize: '11px', color: theme.muted }}>TARGET</span>
-                <strong style={{ fontSize: '18px', color: theme.primary }}>{asset.tag}</strong>
-              </div>
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
             </div>
 
-            {/* Right Quick-Inspection Readout Box */}
             <div
               style={{
                 flex: 1,
@@ -940,26 +938,29 @@ function HolographicArAssetMenuInner({
                 border: `2px solid ${theme.primary}`
               }}
             >
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '22px', fontWeight: 900 }}>
-                {asset.tag}
+              <div style={{ fontFamily: 'var(--mono)', fontSize: '20px', fontWeight: 900 }}>
+                {asset.tag} · {excelRec?.area_name || asset.area_name}
               </div>
-              <div style={{ fontSize: '12px', color: theme.muted, fontFamily: 'var(--mono)', marginTop: '4px' }}>
-                HEALTH
+              <div style={{ fontSize: '11px', color: theme.primary, fontFamily: 'var(--mono)' }}>
+                {partSpec.itemTypeName}
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '34px', fontWeight: 900, color: '#fbbf24', lineHeight: 1.05 }}>
-                {metrics.health}%
+              <div style={{ fontSize: '11px', color: theme.muted, fontFamily: 'var(--mono)', marginTop: '6px' }}>
+                EXCEL HEALTH SCORE ({partData.issueCode})
               </div>
-              <div style={{ fontSize: '11px', color: theme.muted, fontFamily: 'var(--mono)', marginTop: '8px' }}>
-                REMAINING USEFUL LIFE
+              <div style={{ fontFamily: 'var(--mono)', fontSize: '32px', fontWeight: 900, color: '#fbbf24', lineHeight: 1.05 }}>
+                {partData.health}%
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '20px', fontWeight: 800, color: theme.primary, marginTop: '2px' }}>
-                🕒 {metrics.rulHours} hrs
+              <div style={{ fontSize: '11px', color: theme.muted, fontFamily: 'var(--mono)', marginTop: '6px' }}>
+                SERVICE INTERVAL / RUL
+              </div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: '16px', fontWeight: 800, color: theme.primary, marginTop: '2px' }}>
+                🕒 {partData.rulHours} hrs · Every {excelRec?.service_interval_days || 365}d
               </div>
             </div>
           </div>
         )}
 
-        {/* VIEW 4: 3D CAD INTERNAL CUTAWAY & WEAR HEATMAP (STATIC IMAGE + CALLOUTS) */}
+        {/* VIEW 4: PART-SPECIFIC TRANSPARENT CUTAWAY & WEAR HEATMAP */}
         {activeView === 'cutaway' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: '12px', alignItems: 'stretch' }}>
             <div
@@ -968,78 +969,63 @@ function HolographicArAssetMenuInner({
                 borderRadius: '8px',
                 overflow: 'hidden',
                 border: `1.5px solid ${theme.primary}`,
-                background: '#030a11'
+                background:
+                  'radial-gradient(circle at center, rgba(0, 242, 255, 0.14) 0%, rgba(3, 10, 18, 0.92) 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '255px',
+                padding: '16px'
               }}
             >
               <img
-                src={staticCadUrl}
-                alt="3D CAD Cutaway & Wear Heatmap"
-                style={{ width: '100%', height: '250px', objectFit: 'cover', display: 'block' }}
+                src={activePartImg}
+                alt={itemTitle}
+                onError={(e) => {
+                  e.currentTarget.src = partSpec.transparentImg;
+                }}
+                style={{
+                  width: '100%',
+                  maxHeight: '225px',
+                  objectFit: 'contain',
+                  display: 'block',
+                  filter: 'drop-shadow(0 0 12px rgba(0, 242, 255, 0.4))'
+                }}
               />
 
-              {/* Top-left X-Ray Explode Slider */}
+              {/* Part-Specific Callout Box 1 */}
               <div
                 style={{
                   position: 'absolute',
-                  left: '10px',
+                  right: '10px',
                   top: '10px',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  background: 'rgba(4, 14, 24, 0.88)',
-                  border: `1px solid ${theme.borderSoft}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '11px',
-                  fontFamily: 'var(--mono)'
-                }}
-              >
-                <span>Explode CAD:</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="25"
-                  value={explodePct}
-                  onChange={(e) => setExplodePct(Number(e.target.value))}
-                  style={{ width: '75px', accentColor: theme.primary }}
-                />
-                <span>{explodePct}%</span>
-              </div>
-
-              {/* Callout Box 1: Impeller Erosion */}
-              <div
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '16px',
-                  padding: '7px 10px',
+                  padding: '6px 10px',
                   borderRadius: '6px',
                   background: 'rgba(10, 22, 34, 0.92)',
                   border: '1.5px solid #fbbf24'
                 }}
               >
-                <div style={{ fontSize: '12px', fontWeight: 700 }}>Impeller Erosion</div>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: '17px', fontWeight: 900, color: '#fbbf24' }}>
-                  {metrics.impellerErosionMm} mm
+                <div style={{ fontSize: '11px', fontWeight: 700 }}>{partSpec.cutawayCallout1Label}</div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: '15px', fontWeight: 900, color: '#fbbf24' }}>
+                  {partData.callout1Value}
                 </div>
               </div>
 
-              {/* Callout Box 2: Suction Strainer Pressure Drop */}
+              {/* Part-Specific Callout Box 2 */}
               <div
                 style={{
                   position: 'absolute',
-                  right: '12px',
-                  bottom: '14px',
-                  padding: '7px 10px',
+                  right: '10px',
+                  bottom: '10px',
+                  padding: '6px 10px',
                   borderRadius: '6px',
                   background: 'rgba(10, 22, 34, 0.92)',
                   border: `1.5px solid ${theme.primary}`
                 }}
               >
-                <div style={{ fontSize: '11px', fontWeight: 700 }}>Suction Strainer Pressure Drop</div>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: '16px', fontWeight: 900, color: theme.primary }}>
-                  {metrics.strainerDropM} m
+                <div style={{ fontSize: '11px', fontWeight: 700 }}>{partSpec.cutawayCallout2Label}</div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: '15px', fontWeight: 900, color: theme.primary }}>
+                  {partData.callout2Value}
                 </div>
               </div>
 
@@ -1053,33 +1039,28 @@ function HolographicArAssetMenuInner({
                   borderRadius: '6px',
                   background: 'rgba(4, 14, 24, 0.9)',
                   border: `1px solid ${theme.borderSoft}`,
-                  fontSize: '11px'
+                  fontSize: '10px'
                 }}
               >
-                <div style={{ fontWeight: 800, marginBottom: '4px' }}>Wear Level</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ width: '10px', height: '10px', background: '#ef4444', display: 'inline-block' }} />
+                <div style={{ fontWeight: 800, marginBottom: '3px' }}>Wear Level</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ width: '9px', height: '9px', background: '#ef4444', display: 'inline-block' }} />
                   <span>High</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                  <span style={{ width: '10px', height: '10px', background: '#fbbf24', display: 'inline-block' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+                  <span style={{ width: '9px', height: '9px', background: '#fbbf24', display: 'inline-block' }} />
                   <span>Med</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                  <span style={{ width: '10px', height: '10px', background: '#10b981', display: 'inline-block' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+                  <span style={{ width: '9px', height: '9px', background: '#10b981', display: 'inline-block' }} />
                   <span>Low</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Mechanical & Hydraulic Readouts (matching Image 2 top-right) */}
+            {/* Right Column: Part-Specific Excel Telemetry Readouts */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'space-between' }}>
-              {[
-                { label: 'Hydraulic Pressure Drop', val: '-13.9 min', color: '#fbbf24' },
-                { label: 'Suction Pressure Delta', val: `-${(metrics.press * 0.78).toFixed(2)} bar`, color: '#f87171' },
-                { label: 'Peak Vibration Velocity', val: `${metrics.vib.toFixed(2)} mm/s`, color: theme.primary },
-                { label: 'Bearing Housing Temp', val: `${metrics.temp.toFixed(1)} °C`, color: '#34d399' }
-              ].map((card) => (
+              {partData.mechanicalCards.map((card) => (
                 <div
                   key={card.label}
                   style={{
@@ -1090,7 +1071,7 @@ function HolographicArAssetMenuInner({
                   }}
                 >
                   <div style={{ fontSize: '11px', color: theme.muted }}>{card.label}</div>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: '18px', fontWeight: 900, color: card.color }}>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: '17px', fontWeight: 900, color: card.color }}>
                     {card.val}
                   </div>
                 </div>
@@ -1103,7 +1084,6 @@ function HolographicArAssetMenuInner({
         {activeView === 'executive' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.9fr 1.15fr', gap: '10px' }}>
-              {/* Performance Trend (90d vs Now) */}
               <div
                 style={{
                   padding: '10px',
@@ -1112,21 +1092,20 @@ function HolographicArAssetMenuInner({
                   border: `1.5px solid ${theme.primary}`
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: '13px', marginBottom: '6px' }}>
-                  Performance Trend (90d vs Now)
+                <div style={{ fontWeight: 800, fontSize: '12px', marginBottom: '6px' }}>
+                  {partData.sensors[0]?.label || 'Performance Trend'} (Excel Stream)
                 </div>
                 <img
-                  src={vibWaveUrl}
+                  src={partData.sensors[0]?.waveUrl}
                   alt="Performance Trend"
                   style={{ width: '100%', height: '92px', display: 'block', borderRadius: '4px' }}
                 />
                 <div style={{ display: 'flex', gap: '14px', fontSize: '11px', marginTop: '6px', fontFamily: 'var(--mono)' }}>
-                  <span style={{ color: theme.primary }}>● Current</span>
+                  <span style={{ color: theme.primary }}>● Current ({partData.sensors[0]?.value})</span>
                   <span style={{ color: theme.muted }}>⋯ Baseline</span>
                 </div>
               </div>
 
-              {/* Downtime Risk + Next Maintenance Window */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div
                   style={{
@@ -1137,17 +1116,19 @@ function HolographicArAssetMenuInner({
                     border: `1.5px solid ${theme.primary}`
                   }}
                 >
-                  <div style={{ fontSize: '12px', fontWeight: 700 }}>Downtime Risk</div>
+                  <div style={{ fontSize: '11px', fontWeight: 700 }}>
+                    Downtime Risk ({excelRec?.criticality || 'Standard'})
+                  </div>
                   <div
                     style={{
                       fontFamily: 'var(--mono)',
-                      fontSize: '24px',
+                      fontSize: '22px',
                       fontWeight: 900,
                       color: '#fbbf24',
                       marginTop: '4px'
                     }}
                   >
-                    € {metrics.downtimeCost} /hr <span style={{ color: '#ef4444' }}>↗</span>
+                    € {partData.downtimeCost} /hr <span style={{ color: '#ef4444' }}>↗</span>
                   </div>
                 </div>
 
@@ -1160,22 +1141,23 @@ function HolographicArAssetMenuInner({
                     border: `1.5px solid ${theme.primary}`
                   }}
                 >
-                  <div style={{ fontSize: '12px', fontWeight: 700 }}>Next Maintenance Window</div>
+                  <div style={{ fontSize: '11px', fontWeight: 700 }}>
+                    Service Interval ({excelRec?.service_interval_days || 365}d cycle)
+                  </div>
                   <div
                     style={{
                       fontFamily: 'var(--mono)',
-                      fontSize: '22px',
+                      fontSize: '18px',
                       fontWeight: 900,
                       color: '#fbbf24',
                       marginTop: '4px'
                     }}
                   >
-                    📅 {metrics.nextMaintDays} days
+                    📅 Next in {partData.nextMaintDays} days
                   </div>
                 </div>
               </div>
 
-              {/* Fleet Status (Utility Island) */}
               <div
                 style={{
                   padding: '10px',
@@ -1184,8 +1166,8 @@ function HolographicArAssetMenuInner({
                   border: `1.5px solid ${theme.primary}`
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: '13px', marginBottom: '6px' }}>
-                  Fleet Status (Utility Island)
+                <div style={{ fontWeight: 800, fontSize: '12px', marginBottom: '6px' }}>
+                  Fleet Status ({excelRec?.area_name || asset.area_name})
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {fleetRows.map((r) => (
@@ -1221,7 +1203,6 @@ function HolographicArAssetMenuInner({
               </div>
             </div>
 
-            {/* Bottom Action Banner */}
             <div
               style={{
                 display: 'flex',
@@ -1234,38 +1215,123 @@ function HolographicArAssetMenuInner({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '22px' }}>⚠️</span>
+                <span style={{ fontSize: '20px' }}>⚠️</span>
                 <div>
-                  <div style={{ fontFamily: 'var(--mono)', fontWeight: 800, fontSize: '14px', color: '#fbbf24' }}>
-                    {asset.tag} – {metrics.isFault ? 'Action Required' : 'Routine Monitoring'}
+                  <div style={{ fontFamily: 'var(--mono)', fontWeight: 800, fontSize: '13px', color: '#fbbf24' }}>
+                    {itemTitle} — {partData.issueCode}
                   </div>
                   <div style={{ fontSize: '12px', color: '#e2e8f0' }}>
-                    Inspect hydraulic path due to fouling
+                    {partData.issueSummary} · Next check: {partData.recommendedAction}
                   </div>
                 </div>
               </div>
               <button
-                onClick={() => setActiveView('cutaway')}
+                onClick={() => setActiveView('excel')}
                 style={{
-                  padding: '6px 14px',
+                  padding: '6px 12px',
                   borderRadius: '6px',
                   border: `1.5px solid ${theme.primary}`,
                   background: theme.headerBg,
                   color: theme.text,
                   fontFamily: 'var(--mono)',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: 700,
                   cursor: 'pointer'
                 }}
               >
-                View Details →
+                Excel Data →
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW 6: COMPLETE EXCEL WORKBOOK RECORD FOR THIS PART */}
+        {activeView === 'excel' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '11px' }}>
+            <div
+              style={{
+                padding: '10px',
+                borderRadius: '8px',
+                background: theme.panelBg,
+                border: `1.5px solid ${theme.primary}`
+              }}
+            >
+              <div style={{ fontFamily: 'var(--mono)', fontWeight: 800, color: theme.primary, marginBottom: '6px' }}>
+                📋 SHEET 3 & 4: ASSET_MASTER + SCENE_ANCHORS
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '135px 1fr', rowGap: '4px', fontFamily: 'var(--mono)' }}>
+                <span style={{ color: theme.muted }}>asset_id / tag:</span>
+                <span>{excelRec?.asset_id || asset.asset_id} / {asset.tag}</span>
+                <span style={{ color: theme.muted }}>asset_class:</span>
+                <span>{excelRec?.asset_class || partSpec.excelClass}</span>
+                <span style={{ color: theme.muted }}>area_id / name:</span>
+                <span>{excelRec?.area_id || asset.area_id} · {excelRec?.area_name || asset.area_name}</span>
+                <span style={{ color: theme.muted }}>process_context:</span>
+                <span>{excelRec?.process_context || 'utilities'}</span>
+                <span style={{ color: theme.muted }}>criticality:</span>
+                <span style={{ color: '#fbbf24' }}>{excelRec?.criticality || asset.criticality}</span>
+                <span style={{ color: theme.muted }}>install / service:</span>
+                <span>{excelRec?.installation_date || '2020-05-01'} / {excelRec?.last_service_date || '2026-01-15'}</span>
+                <span style={{ color: theme.muted }}>connectivity:</span>
+                <span>{excelRec?.connectivity_profile || 'OPC_UA'}</span>
+                <span style={{ color: theme.muted }}>qr_id / nfc_id:</span>
+                <span>{excelRec?.qr_id || asset.qr_id} / {excelRec?.nfc_id || 'NFC-SYN'}</span>
+                <span style={{ color: theme.muted }}>scene_path:</span>
+                <span>{excelRec?.scene_path || `/SyntheticPlant/${asset.tag}`}</span>
+              </div>
+            </div>
+
+            <div
+              style={{
+                padding: '10px',
+                borderRadius: '8px',
+                background: theme.panelBg,
+                border: `1.5px solid ${theme.primary}`
+              }}
+            >
+              <div style={{ fontFamily: 'var(--mono)', fontWeight: 800, color: theme.primary, marginBottom: '6px' }}>
+                🔍 SHEET 5, 7, 8 & 12: STATE, EVENTS, WO & DATA QUALITY
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '135px 1fr', rowGap: '4px', fontFamily: 'var(--mono)' }}>
+                <span style={{ color: theme.muted }}>condition_state:</span>
+                <span style={{ color: '#fbbf24' }}>
+                  {excelRec?.condition_state || asset.health_status} ({partData.health}/100)
+                </span>
+                <span style={{ color: theme.muted }}>issue_code:</span>
+                <span>{partData.issueCode}</span>
+                <span style={{ color: theme.muted }}>issue_summary:</span>
+                <span>{partData.issueSummary}</span>
+                <span style={{ color: theme.muted }}>next_check:</span>
+                <span>{partData.recommendedAction} (conf: {partData.confidencePct}%)</span>
+                <span style={{ color: theme.muted }}>latest_event:</span>
+                <span>
+                  {excelRec?.excel_event
+                    ? `${excelRec.excel_event.event_id} · ${excelRec.excel_event.event_code} (${excelRec.excel_event.status})`
+                    : 'EVT-NOMINAL'}
+                </span>
+                <span style={{ color: theme.muted }}>work_order:</span>
+                <span>
+                  {excelRec?.excel_work_order
+                    ? `${excelRec.excel_work_order.work_order_id} · ${excelRec.excel_work_order.action} (${excelRec.excel_work_order.duration_h}h)`
+                    : 'WO-STANDBY'}
+                </span>
+                <span style={{ color: theme.muted }}>knowledge_doc:</span>
+                <span>
+                  {excelRec?.knowledge_doc_id || partSpec.sopDocId} ({excelRec?.rag_doc_file || 'RAG'})
+                </span>
+                <span style={{ color: theme.muted }}>data_quality:</span>
+                <span>
+                  {excelRec?.excel_dq
+                    ? `${excelRec.excel_dq.issue_id}: ${excelRec.excel_dq.issue_type} → ${excelRec.excel_dq.recommended_handling}`
+                    : 'Verified'}
+                </span>
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Lightweight Interactive Footer: 1-Click 3D Part Move + Fault/Repair/Dispatch */}
+      {/* Footer Bar: 1-Click 3D Part Move + Dispatch / Restore / Inject Fault */}
       <div
         style={{
           display: 'flex',
@@ -1278,11 +1344,10 @@ function HolographicArAssetMenuInner({
           flexWrap: 'wrap'
         }}
       >
-        {/* 1-Click Separate & Move 3D Part Controls */}
         {cvObjId && onMoveObject ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
             <span style={{ fontFamily: 'var(--mono)', fontSize: '10px', color: theme.primary, fontWeight: 700 }}>
-              ✥ MOVE 3D PART:
+              ✥ MOVE 3D PART ({cvObjId}):
             </span>
             {[
               { label: '◀ Left', dx: -0.5, dz: 0 },
@@ -1311,12 +1376,12 @@ function HolographicArAssetMenuInner({
           </div>
         ) : (
           <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: theme.muted }}>
-            Profile: Mikhail_Standard_View
+            Excel Source: Valmet_SinceAI_2026_Builder_Pack.xlsx
           </span>
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-          {onExecuteMaintenanceAction && (
+          {onExecuteMaintenanceAction && asset.asset_id && !String(asset.asset_id).startsWith('UNBOUND-') && (
             <>
               <button
                 onClick={() => onExecuteMaintenanceAction(asset.asset_id, 'dispatch')}
