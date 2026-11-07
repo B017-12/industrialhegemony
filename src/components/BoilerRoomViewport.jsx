@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import {
   SparkRenderer,
   SplatMesh,
@@ -250,248 +248,6 @@ function createCleanIndustrialRoomArchitecture() {
   return room;
 }
 
-/**
- * "William" FBX character (skinned, 190 bones). Loaded once, then cloned per worker rig.
- * The original TGA textures are not shipped, so materials are rebuilt by name; the t-shirt and
- * cap take the worker's colour so each unit stays identifiable.
- */
-const WILLIAM_FBX_URL = '/assets/models/william.fbx';
-const BLANK_PIXEL =
-  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-let williamTemplatePromise = null;
-
-function loadWilliamTemplate() {
-  if (williamTemplatePromise) return williamTemplatePromise;
-  williamTemplatePromise = new Promise((resolve) => {
-    const manager = new THREE.LoadingManager();
-    // Textures referenced by the FBX are not available; never request them.
-    manager.setURLModifier((url) =>
-      /\.(tga|png|jpe?g|bmp|dds)(\?.*)?$/i.test(url) ? BLANK_PIXEL : url
-    );
-    new FBXLoader(manager).load(
-      WILLIAM_FBX_URL,
-      (scene) => {
-        try {
-          const probe = (n) => scene.getObjectByName(n);
-          scene.updateMatrixWorld(true);
-          const pelvis = probe('pelvis');
-          const head = probe('head');
-          const footL = probe('foot_l');
-          const ballL = probe('ball_l');
-          if (!pelvis || !head || !footL || !ballL) throw new Error('William rig bones missing');
-
-          // Hide the stray floor plane / helper geometry shipped inside the FBX.
-          scene.traverse((o) => {
-            const mats = o.material ? [].concat(o.material) : [];
-            if (o.isMesh && (o.name === 'Box001' || mats.some((m) => /floor/i.test(m.name || '')))) {
-              o.visible = false;
-            }
-          });
-
-          // Detect the model's up and forward axes from the skeleton, then normalise to Y-up, +Z-forward.
-          const wp = (o) => o.getWorldPosition(new THREE.Vector3());
-          const up = wp(head).sub(wp(pelvis)).normalize();
-          const fwd = wp(ballL).sub(wp(footL));
-          fwd.sub(up.clone().multiplyScalar(fwd.dot(up))).normalize();
-          const xAxis = new THREE.Vector3().crossVectors(up, fwd).normalize();
-          const qFix = new THREE.Quaternion()
-            .setFromRotationMatrix(new THREE.Matrix4().makeBasis(xAxis, up, fwd))
-            .invert();
-
-          const holder = new THREE.Group();
-          holder.quaternion.copy(qFix);
-          holder.add(scene);
-          holder.updateMatrixWorld(true);
-          const box = new THREE.Box3();
-          scene.traverse((o) => {
-            if (o.isMesh && o.visible) box.union(new THREE.Box3().setFromObject(o));
-          });
-          const size = box.getSize(new THREE.Vector3());
-          const center = box.getCenter(new THREE.Vector3());
-          holder.remove(scene);
-          resolve({
-            scene,
-            qFix,
-            unitHeight: size.y || 1,
-            minY: box.min.y,
-            cx: center.x,
-            cz: center.z
-          });
-        } catch (err) {
-          console.warn('[william.fbx] could not be prepared, using procedural rig', err);
-          resolve(null);
-        }
-      },
-      undefined,
-      (err) => {
-        console.warn('[william.fbx] failed to load, using procedural rig', err);
-        resolve(null);
-      }
-    );
-  });
-  return williamTemplatePromise;
-}
-
-const WILLIAM_BONES = {
-  thigh_l: 'thigh_l',
-  thigh_r: 'thigh_r',
-  upperarm_l: 'upperarm_l',
-  upperarm_r: 'upperarm_r',
-  calf_l: 'calf_l',
-  calf_r: 'calf_r',
-  lowerarm_l: 'lowerarm_l',
-  lowerarm_r: 'lowerarm_r'
-};
-
-function makeWilliamMaterial(src, colorHex) {
-  const name = (src.name || '').toLowerCase();
-  let color = 0xc99a7a;
-  let roughness = 0.75;
-  if (name.includes('tshirt')) color = colorHex;
-  else if (name.includes('gubbkeps')) color = colorHex;
-  else if (name.includes('jean')) color = 0x1e3a5f;
-  else if (name.includes('shoes')) color = 0x1f2937;
-  else if (name.includes('skin')) color = 0xd9a984;
-  else if (name.includes('eyelab') || name.includes('brow')) color = 0x2a1a10;
-  else if (name.includes('eye')) color = 0x4a2f1b;
-  else if (name.includes('mouth')) color = 0x9a4a4a;
-  return new THREE.MeshStandardMaterial({
-    color,
-    roughness,
-    metalness: 0.02,
-    side: THREE.DoubleSide
-  });
-}
-
-function attachWilliamToRig(root, colorHex, isHuman, tpl) {
-  const body = root.userData.bodyGroup;
-  if (!body || !tpl) return;
-
-  const model = cloneSkinned(tpl.scene);
-  model.traverse((o) => {
-    if (o.isMesh) {
-      o.frustumCulled = false;
-      o.material = Array.isArray(o.material)
-        ? o.material.map((m) => makeWilliamMaterial(m, colorHex))
-        : makeWilliamMaterial(o.material, colorHex);
-      o.userData.workerId = root.userData.workerId;
-    }
-  });
-
-  const fit = new THREE.Group();
-  fit.quaternion.copy(tpl.qFix);
-  fit.add(model);
-  const outer = new THREE.Group();
-  const targetHeight = isHuman ? 1.7 : 1.62;
-  const s = targetHeight / tpl.unitHeight;
-  outer.scale.setScalar(s);
-  outer.position.set(-tpl.cx * s, -tpl.minY * s, -tpl.cz * s);
-  outer.add(fit);
-  body.add(outer);
-
-  // Hide the old primitive body parts (arm/leg pivots stay as invisible animation drivers).
-  body.children.forEach((c) => {
-    if (c !== outer) c.traverse((o) => { if (o.isMesh && !o.userData.keepVisible) o.visible = false; });
-  });
-  if (root.userData.wrenchGroup) {
-    root.userData.wrenchGroup.traverse((o) => { if (o.isMesh) o.visible = true; });
-    root.userData.wrenchGroup.position.set(0, -0.28, 0.02);
-  }
-  // Shoulder pivots move up to the FBX character's shoulder height so the wrench sits in the hand.
-  [root.userData.leftArmPivot, root.userData.rightArmPivot].forEach((p) => {
-    if (p) p.position.y = isHuman ? 1.4 : 1.33;
-  });
-
-  root.updateMatrixWorld(true);
-  const bodyInv = body.getWorldQuaternion(new THREE.Quaternion()).invert();
-  const bones = {};
-  Object.entries(WILLIAM_BONES).forEach(([key, boneName]) => {
-    const bone = model.getObjectByName(boneName);
-    if (!bone) return;
-    const parentRel = bone.parent
-      ? bodyInv.clone().multiply(bone.parent.getWorldQuaternion(new THREE.Quaternion()))
-      : new THREE.Quaternion();
-    bones[key] = {
-      bone,
-      bind: bone.quaternion.clone(),
-      parentRel,
-      parentRelInv: parentRel.clone().invert(),
-      x: bone.getWorldPosition(new THREE.Vector3()).applyMatrix4(
-        new THREE.Matrix4().copy(body.matrixWorld).invert()
-      ).x
-    };
-  });
-
-  // Map the primitive rig's pivots (left = -X, right = +X) onto the FBX limbs by their actual side.
-  const pickSide = (a, b, wantPositive) => {
-    if (!bones[a] || !bones[b]) return [a, b];
-    const aPos = bones[a].x > bones[b].x;
-    return wantPositive === aPos ? [a, b] : [b, a];
-  };
-  const [armPosKey, armNegKey] = pickSide('upperarm_l', 'upperarm_r', true);
-  const [legPosKey, legNegKey] = pickSide('thigh_l', 'thigh_r', true);
-  root.userData.fbx = {
-    bones,
-    map: {
-      rightArm: armPosKey,
-      leftArm: armNegKey,
-      rightLeg: legPosKey,
-      leftLeg: legNegKey
-    },
-    model
-  };
-  const forearmOf = { upperarm_l: 'lowerarm_l', upperarm_r: 'lowerarm_r' };
-  const shinOf = { thigh_l: 'calf_l', thigh_r: 'calf_r' };
-  root.userData.fbx.forearmOf = forearmOf;
-  root.userData.fbx.shinOf = shinOf;
-  syncFbxPose(root);
-}
-
-const _poseQ = new THREE.Quaternion();
-const _poseAxisQ = new THREE.Quaternion();
-const _axisX = new THREE.Vector3(1, 0, 0);
-
-function setBoneSwing(entry, angle) {
-  if (!entry) return;
-  _poseAxisQ.setFromAxisAngle(_axisX, angle);
-  _poseQ
-    .copy(entry.parentRelInv)
-    .multiply(_poseAxisQ)
-    .multiply(entry.parentRel)
-    .multiply(entry.bind);
-  entry.bone.quaternion.copy(_poseQ);
-}
-
-/** Drive the FBX skeleton from the same pivot angles the procedural walk / repair code already writes. */
-function syncFbxPose(rig) {
-  const fbx = rig?.userData?.fbx;
-  if (!fbx) return;
-  const u = rig.userData;
-  const { bones, map, forearmOf, shinOf } = fbx;
-  const armAngle = (pivot) => (pivot ? pivot.rotation.x : 0);
-  const legAngle = (pivot) => (pivot ? pivot.rotation.x : 0);
-
-  const legs = [
-    [map.leftLeg, legAngle(u.leftLegPivot)],
-    [map.rightLeg, legAngle(u.rightLegPivot)]
-  ];
-  legs.forEach(([key, a]) => {
-    setBoneSwing(bones[key], a);
-    // Knee flexes when the leg swings backward, like a real stride.
-    setBoneSwing(bones[shinOf[key]], Math.max(0, -a) * 1.1);
-  });
-
-  const arms = [
-    [map.leftArm, armAngle(u.leftArmPivot)],
-    [map.rightArm, armAngle(u.rightArmPivot)]
-  ];
-  arms.forEach(([key, a]) => {
-    setBoneSwing(bones[key], a);
-    // Elbow bends when the arm reaches forward/up (repair posture).
-    setBoneSwing(bones[forearmOf[key]], a < -0.5 ? 0.55 : 0.12);
-  });
-}
-
 function createHumanoidRig(colorHex = 0x10b981, isHuman = false, hitboxSize = [0.56, 1.45, 0.56]) {
   const root = new THREE.Group();
   const bodyGroup = new THREE.Group();
@@ -599,10 +355,6 @@ function createHumanoidRig(colorHex = 0x10b981, isHuman = false, hitboxSize = [0
     hitboxWire,
     currentAngle: 0
   };
-
-  loadWilliamTemplate().then((tpl) => {
-    if (tpl) attachWilliamToRig(root, colorHex, isHuman, tpl);
-  });
 
   return root;
 }
@@ -1765,7 +1517,6 @@ export default function BoilerRoomViewport({
         rig.userData.leftArmPivot.rotation.x = -walkCycle * 0.75;
         rig.userData.rightArmPivot.rotation.x = walkCycle * 0.75;
       }
-      syncFbxPose(rig);
       if (rig.userData.radarRing) {
         const pulse = 1 + Math.sin(now * 0.005) * 0.04;
         rig.userData.radarRing.scale.set(proxRadius * pulse, 1, proxRadius * pulse);
@@ -2031,8 +1782,6 @@ export default function BoilerRoomViewport({
             }
           }
 
-          syncFbxPose(rig);
-
           if (rig.userData.hitboxWire) {
             const isSel = st.selectedWorkerId === w.id || w.id === controlledId;
             rig.userData.hitboxWire.material.opacity = isSel ? 1.0 : 0.42;
@@ -2201,7 +1950,6 @@ export default function BoilerRoomViewport({
             rig.userData.leftArmPivot.rotation.x = -walkCycle * 0.75;
             rig.userData.rightArmPivot.rotation.x = walkCycle * 0.75;
           }
-          syncFbxPose(rig);
           if (rig.userData.radarRing) {
             rig.userData.radarRing.scale.set(st.proximityRadius, 1, st.proximityRadius);
           }
