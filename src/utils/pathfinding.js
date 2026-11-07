@@ -63,13 +63,14 @@ export function setCvNavigationData(cvSceneObjects, navTargets = null, navData =
         [0, 0, 1]
       ]
     };
-    // Raw PLY floor_y = 1.17269 (y-down). Obstacle band from navigation.py is [0.12m, 1.8m] above floor.
-    // Convert to display Y (-rawY): floor is at -1.173; obstacle band is [-1.07, +0.35].
+    // Raw PLY floor_y = 1.17269 (y-down). Convert to display Y (-rawY): floor is at -1.173.
+    // Only include floor/waist-level obstacles (bottomY <= -0.18, i.e. within 1.0m of floor)
+    // so overhead ceiling pipes and roof valves (like CV-001 at y = +0.71m) never block floor walking underneath them.
     const dispY = -obb.center[1];
     const halfY = (obb.extent[1] || 0.3) * 0.5;
     const bottomY = dispY - halfY;
     const topY = dispY + halfY;
-    if (bottomY > 0.35 || topY < -1.08) continue;
+    if (bottomY > -0.18 || topY < -1.08) continue;
 
     const r = obb.rotation || [
       [1, 0, 0],
@@ -138,9 +139,9 @@ export function buildCollisionBoxes(assets = VALMET_ASSETS) {
     const [x, y, z] = a.position;
     const [sx, sy, sz] = a.bbox_size;
     const bottomY = y - sy * 0.5;
-    // Assets mounted on the overhead rack/upper deck (bottomY > 0.42, i.e. >1.45m above the y=-1.02 floor)
+    // Assets mounted on the ceiling/overhead pipes (bottomY > -0.18, i.e. >1.0m above the y=-1.173 floor)
     // are above floor-walking clearance; all floor/skid/waist-level assets are solid floor colliders.
-    if (bottomY > 0.42) continue;
+    if (bottomY > -0.18) continue;
 
     const hx = sx * 0.5;
     const hz = sz * 0.5;
@@ -157,19 +158,22 @@ export function buildCollisionBoxes(assets = VALMET_ASSETS) {
     });
   }
 
-  for (const st of STATIC_ROOM_OBSTACLES) {
-    const [x, , z] = st.position;
-    const [sx, , sz] = st.bbox_size;
-    boxes.push({
-      id: st.id,
-      tag: st.label,
-      cx: x,
-      cz: z,
-      minX: x - sx * 0.5,
-      maxX: x + sx * 0.5,
-      minZ: z - sz * 0.5,
-      maxZ: z + sz * 0.5
-    });
+  // Only include synthetic CAD static obstacles if CV 3D OBB footprints haven't loaded yet
+  if (CV_OBB_FOOTPRINTS.length === 0) {
+    for (const st of STATIC_ROOM_OBSTACLES) {
+      const [x, , z] = st.position;
+      const [sx, , sz] = st.bbox_size;
+      boxes.push({
+        id: st.id,
+        tag: st.label,
+        cx: x,
+        cz: z,
+        minX: x - sx * 0.5,
+        maxX: x + sx * 0.5,
+        minZ: z - sz * 0.5,
+        maxZ: z + sz * 0.5
+      });
+    }
   }
 
   return boxes;
@@ -710,8 +714,11 @@ export function generateZigZagComparisonPoints(rawPoints, obstacles = null) {
 /**
  * Looks up the exact precomputed ESDF collision-free path from ahmad_branch's nav_targets.json
  * starting from `front_entry` ([2.905, -1.02, -2.095]) and ending at the target asset's standoff pose.
+ * For overhead/roof assets (like CV-001 on the ceiling) or perimeter assets without a pre-baked ESDF target,
+ * it follows the closest ESDF corridor trunk and smoothly extends the path around floor obstacles directly
+ * to the floor point beneath/beside the target asset.
  */
-export function lookupEsdfTargetPath(targetPoint3D, startPoint3D = null) {
+export function lookupEsdfTargetPath(targetPoint3D, startPoint3D = null, obstacles = null) {
   if (!CV_NAV_TARGETS?.targets?.length || !targetPoint3D) return null;
 
   const reachableEntries = CV_NAV_TARGETS.targets.filter(
@@ -719,25 +726,70 @@ export function lookupEsdfTargetPath(targetPoint3D, startPoint3D = null) {
   );
   if (!reachableEntries.length) return null;
 
-  // Find the reachable ESDF target closest in 2D X-Z to targetPoint3D
+  const tx = targetPoint3D[0];
+  const tz = targetPoint3D[2];
+
+  // 1. Check if targetPoint3D directly matches one of the 23 pre-baked ESDF approach points
   let bestEntry = reachableEntries[0];
   let bestDist = Infinity;
 
   for (const entry of reachableEntries) {
     const appDisp = [entry.approach.position[0], -1.02, -entry.approach.position[2]];
-    const dApp = Math.hypot(appDisp[0] - targetPoint3D[0], appDisp[2] - targetPoint3D[2]);
+    const dApp = Math.hypot(appDisp[0] - tx, appDisp[2] - tz);
     if (dApp < bestDist) {
       bestDist = dApp;
       bestEntry = entry;
     }
   }
 
-  // Convert raw PLY path [rx, ry, rz] -> display [rx, -1.02, -rz]
-  let dispPath = bestEntry.mission.path.map((p) => [
-    Number(p[0].toFixed(4)),
-    -1.02,
-    Number((-p[2]).toFixed(4))
-  ]);
+  let dispPath;
+
+  if (bestDist <= 0.32) {
+    // Exact match to precomputed ESDF path
+    dispPath = bestEntry.mission.path.map((p) => [
+      Number(p[0].toFixed(4)),
+      -1.02,
+      Number((-p[2]).toFixed(4))
+    ]);
+  } else {
+    // Target is an overhead/roof asset (e.g. CV-001 at [-3.32, +0.71, -2.33]) or extended perimeter asset:
+    // Find the vertex across all 23 ESDF corridor paths that gets closest to [tx, -1.02, tz]
+    let bestTrunkEntry = bestEntry;
+    let bestVertexIdx = bestEntry.mission.path.length - 1;
+    let minVertexDist = Infinity;
+
+    for (const entry of reachableEntries) {
+      const rawPath = entry.mission.path;
+      for (let i = Math.floor(rawPath.length * 0.25); i < rawPath.length; i++) {
+        const px = rawPath[i][0];
+        const pz = -rawPath[i][2];
+        const d = Math.hypot(px - tx, pz - tz);
+        if (d < minVertexDist) {
+          minVertexDist = d;
+          bestTrunkEntry = entry;
+          bestVertexIdx = i;
+        }
+      }
+    }
+
+    const trunkPoints = bestTrunkEntry.mission.path
+      .slice(0, bestVertexIdx + 1)
+      .map((p) => [Number(p[0].toFixed(4)), -1.02, Number((-p[2]).toFixed(4))]);
+
+    const list = obstacles || buildCollisionBoxes();
+    const [goalX, goalZ] = resolveObstacleCollisions(tx, tz, 0.26, list);
+    const trunkEnd = trunkPoints[trunkPoints.length - 1];
+
+    // Sub-step and deflect the floor extension from trunkEnd to [goalX, -1.02, goalZ] around all floor OBBs
+    const extensionRaw = [
+      trunkEnd,
+      [(trunkEnd[0] + goalX) * 0.5, -1.02, (trunkEnd[2] + goalZ) * 0.5],
+      [Number(goalX.toFixed(4)), -1.02, Number(goalZ.toFixed(4))]
+    ];
+    const extensionSmooth = smoothCenterlinePoints(extensionRaw, 2, list);
+    dispPath = [...trunkPoints, ...extensionSmooth.slice(1)];
+    bestEntry = bestTrunkEntry;
+  }
 
   // If worker starts from a specific staging slot near front_entry, smoothly join the ESDF path
   if (Array.isArray(startPoint3D)) {

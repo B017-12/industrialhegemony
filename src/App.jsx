@@ -104,10 +104,30 @@ export default function App() {
   useEffect(() => {
     if (!cvSceneObjects?.objects?.length) return;
     setCvNavigationData(cvSceneObjects, navTargets, navData);
-    setPipeline((prev) => ({
-      ...prev,
-      assets: syncAssetsWithCvObjects(prev.assets, cvSceneObjects, evidenceFrames, navTargets)
-    }));
+    setPipeline((prev) => {
+      const syncedAssets = syncAssetsWithCvObjects(
+        prev.assets,
+        cvSceneObjects,
+        evidenceFrames,
+        navTargets
+      );
+      setExerciseWorkers((prevWorkers) => {
+        let nextW = prevWorkers;
+        for (const w of prevWorkers) {
+          if (w.state === 'WALKING_TO_FAULT' && w.targetAssetId) {
+            const targetAsset = syncedAssets.find((a) => a.asset_id === w.targetAssetId);
+            if (targetAsset) {
+              nextW = assignWorkerToAsset(nextW, w.id, targetAsset, hazardNodes, railMode);
+            }
+          }
+        }
+        return nextW;
+      });
+      return {
+        ...prev,
+        assets: syncedAssets
+      };
+    });
   }, [cvSceneObjects, evidenceFrames, navTargets, navData]);
 
   const handlePatchCvOverride = (patchMap) => {

@@ -1453,9 +1453,17 @@ export default function BoilerRoomViewport({
             rig.userData.leftLegPivot.rotation.x = walkCycle;
             rig.userData.rightLegPivot.rotation.x = -walkCycle;
             if (isRepairing) {
+              const targetAsset = st.assets?.find((a) => a.asset_id === w.targetAssetId);
+              const isOverheadTarget = Boolean(targetAsset && targetAsset.position?.[1] > -0.35);
               const wrenchSwing = st.exercisePaused ? 0 : Math.sin(now * 0.022) * 0.38;
-              rig.userData.rightArmPivot.rotation.x = -1.05 + wrenchSwing;
-              rig.userData.leftArmPivot.rotation.x = -0.65;
+              if (isOverheadTarget) {
+                // Overhead roof/ceiling repair posture (e.g. CV-001 on the ceiling): reach upward!
+                rig.userData.rightArmPivot.rotation.x = -2.55 + wrenchSwing;
+                rig.userData.leftArmPivot.rotation.x = -2.25;
+              } else {
+                rig.userData.rightArmPivot.rotation.x = -1.05 + wrenchSwing;
+                rig.userData.leftArmPivot.rotation.x = -0.65;
+              }
             } else {
               rig.userData.leftArmPivot.rotation.x = -walkCycle * 0.75;
               rig.userData.rightArmPivot.rotation.x = walkCycle * 0.75;
@@ -2522,10 +2530,37 @@ export default function BoilerRoomViewport({
           transparent: true,
           opacity: w.state === 'RETURNING' ? 0.45 : 0.88
         });
-        exercisePathGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+        const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+        tubeMesh.raycast = () => {};
+        exercisePathGroup.add(tubeMesh);
+
+        // If target asset is elevated/on the roof (e.g. CV-001 at y = +0.71m), draw a vertical 3D riser tube
+        // from the floor destination straight up to the overhead 3D OBB so the path visually connects to the roof asset
+        if (w.state !== 'RETURNING' && w.targetAssetId) {
+          const targetAsset = (assets || []).find((a) => a.asset_id === w.targetAssetId);
+          if (targetAsset?.position && targetAsset.position[1] > -0.55) {
+            const endFloor = w.pathPoints[w.pathPoints.length - 1];
+            const riserCurve = new THREE.LineCurve3(
+              new THREE.Vector3(endFloor[0], -0.98, endFloor[2]),
+              new THREE.Vector3(targetAsset.position[0], targetAsset.position[1], targetAsset.position[2])
+            );
+            const riserGeo = new THREE.TubeGeometry(riserCurve, 12, 0.024, 8, false);
+            const riserMat = new THREE.MeshStandardMaterial({
+              color: hex,
+              emissive: hex,
+              emissiveIntensity: 0.75,
+              roughness: 0.2,
+              transparent: true,
+              opacity: w.state === 'REPAIRING' ? 0.92 : 0.68
+            });
+            const riserMesh = new THREE.Mesh(riserGeo, riserMat);
+            riserMesh.raycast = () => {};
+            exercisePathGroup.add(riserMesh);
+          }
+        }
       });
     }
-  }, [exerciseWorkers, exerciseMode, railMode]);
+  }, [exerciseWorkers, exerciseMode, railMode, assets]);
 
   // Smoothly fly camera toward newly selected asset (CameraRig.jsx behavior from ahmad_branch)
   const prevSelectedAssetIdRef = useRef(selectedAsset?.asset_id);
