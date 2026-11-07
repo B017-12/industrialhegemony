@@ -225,6 +225,71 @@
     "OBJ-0182"
    ],
    "note": "single box on the floor"
+  },
+  {
+   "movable_id": "MOV-10",
+   "label": "Washing machine",
+   "kind": "appliance",
+   "volume_world": {
+    "min": [
+     -1.13,
+     -1.183,
+     0.17
+    ],
+    "max": [
+     -0.57,
+     0.12,
+     0.98
+    ]
+   },
+   "seed_object_ids": [
+    "OBJ-0234",
+    "OBJ-0216",
+    "OBJ-0265",
+    "OBJ-0584",
+    "OBJ-0418",
+    "OBJ-0433",
+    "OBJ-0491"
+   ],
+   "note": "white front-loader on its metal stand, with the tray of bottles on top and the door bulge (VS-003 box); the wire rack behind it (x < -1.04) and the red basin to its right are excluded. Confirmed by Jishnu from an app screenshot, 7 Nov 2026",
+   "parts_world": [
+    {
+     "min": [
+      -1.13,
+      -1.183,
+      0.17
+     ],
+     "max": [
+      -0.57,
+      -0.12,
+      0.82
+     ]
+    },
+    {
+     "min": [
+      -1.03,
+      -0.12,
+      0.17
+     ],
+     "max": [
+      -0.57,
+      0.12,
+      0.82
+     ]
+    },
+    {
+     "min": [
+      -0.98,
+      -0.75,
+      0.82
+     ],
+     "max": [
+      -0.6,
+      -0.25,
+      0.98
+     ]
+    }
+   ]
   }
  ]
 }

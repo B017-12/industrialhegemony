@@ -99,6 +99,8 @@ export function mergeEditOverrides(overridesMap, editOverrides) {
   const out = { ...overridesMap };
   Object.entries(editOverrides).forEach(([id, pose]) => {
     out[id] = { ...(out[id] || {}), ...pose, scene_edit: true };
+    // removed from the scene: 'rejected' is the status applyCvOverrides already filters out of the CV boxes
+    if (pose.removed) out[id].review_status = 'rejected';
   });
   return out;
 }

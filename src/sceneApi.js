@@ -47,3 +47,4 @@ export const sceneUndo = (editId) => req(`/api/scene/edits/${editId}`, { method:
 export const sceneReset = () => req('/api/scene/edits', { method: 'DELETE' });
 export const sceneReplan = () => req('/api/scene/replan');
 export const sceneMovables = () => req('/api/scene/movables');
+export const sceneCommand = (body) => post('/api/scene/command', body);

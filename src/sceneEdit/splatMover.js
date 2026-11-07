@@ -154,8 +154,8 @@ export function createSplatMover(ctx, { onChange, onDragEnd }) {
     entry.copy.matrix.copy(entry.copy.userData.boxBase ? mRaw.clone().multiply(entry.copy.userData.boxBase) : mRaw);
     entry.copy.matrixWorldNeedsUpdate = true;
     const moved = !mWorld.equals(new THREE.Matrix4());
-    entry.hide.visible = moved || active?.entry === entry;
-    entry.copy.visible = entry.hide.visible;
+    entry.hide.visible = moved || active?.entry === entry || !!entry.removed;
+    entry.copy.visible = entry.hide.visible && !entry.removed; // removed: originals hidden, no copy
   }
 
   // ---- ghost box with gap labels
@@ -294,13 +294,81 @@ export function createSplatMover(ctx, { onChange, onDragEnd }) {
           c.z += e.translate_world[2];
         });
         entry.committedWorld.copy(m);
+        entry.removed = list.some((e) => e.remove);
         setEntryMatrix(entry, m);
       });
       entries.forEach((entry, id) => {
         if (!perObj.has(id)) {
+          entry.removed = false;
           entry.committedWorld.identity();
           setEntryMatrix(entry, entry.committedWorld);
         }
+      });
+    },
+    /** Camera pose in the world/display frame, so the backend can read 'left'/'forward' as the user sees it. */
+    cameraPose() {
+      const f = new THREE.Vector3();
+      camera.getWorldDirection(f);
+      const p = camera.getWorldPosition(new THREE.Vector3());
+      return { position: [p.x, p.y, p.z], forward: [f.x, f.y, f.z] };
+    },
+    /**
+     * Show an AI proposal: the ghost box (verdict colour + gap labels) at the target pose while the object stays
+     * put. No gizmo: the pose comes from the backend.
+     */
+    showProposal(obj, delta, pv) {
+      this.begin(obj);
+      gizmo.detach();
+      proxy.position.set(active.start.x + delta.translate_world[0], active.start.y, active.start.z + delta.translate_world[2]);
+      proxy.rotation.set(0, THREE.MathUtils.degToRad(delta.yaw_deg || 0), 0);
+      labelGroup.position.copy(proxy.position);
+      this.setPreview(pv);
+    },
+    /** Glide the object's splats from the current pose to current + delta (ease in/out). Resolves when done. */
+    animateTo(obj, delta, ms = 900) {
+      if (!active || active.obj.object_id !== obj.object_id) this.showProposal(obj, delta, null);
+      const { entry, start } = active;
+      return new Promise((resolve) => {
+        const t0 = performance.now();
+        const step = (now) => {
+          if (!active || active.entry !== entry) return resolve(false); // cancelled
+          const k = Math.min(1, (now - t0) / ms);
+          const e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+          const tr = [delta.translate_world[0] * e, 0, delta.translate_world[2] * e];
+          setEntryMatrix(entry, editMatrixWorld(start, tr, (delta.yaw_deg || 0) * e).multiply(entry.committedWorld));
+          if (k < 1) requestAnimationFrame(step);
+          else resolve(true);
+        };
+        requestAnimationFrame(step);
+      });
+    },
+    /** Mark an object for removal: red ghost box at its current pose, no gizmo, no gap labels. */
+    showRemoval(obj) {
+      this.begin(obj);
+      gizmo.detach();
+      ghostBox.material.color.setHex(VERDICT_COLOR.blocked);
+      Object.values(labels).forEach((s) => (s.visible = false));
+    },
+    /** Shrink the object's splats to nothing about its centre (removal). Resolves when done. */
+    animateRemove(obj, ms = 700) {
+      if (!active || active.obj.object_id !== obj.object_id) this.showRemoval(obj);
+      const { entry, start } = active;
+      return new Promise((resolve) => {
+        const t0 = performance.now();
+        const step = (now) => {
+          if (!active || active.entry !== entry) return resolve(false);
+          const k = Math.min(1, (now - t0) / ms);
+          const s = Math.max(1e-3, 1 - k * k);
+          const m = new THREE.Matrix4()
+            .makeTranslation(start.x, start.y, start.z)
+            .multiply(new THREE.Matrix4().makeScale(s, s, s))
+            .multiply(new THREE.Matrix4().makeTranslation(-start.x, -start.y, -start.z))
+            .multiply(entry.committedWorld);
+          setEntryMatrix(entry, m);
+          if (k < 1) requestAnimationFrame(step);
+          else resolve(true);
+        };
+        requestAnimationFrame(step);
       });
     },
     isActive: () => !!active,
