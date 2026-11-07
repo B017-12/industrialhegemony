@@ -83,7 +83,7 @@ class State:
 
 
 def _key(edits: list[dict]) -> str:
-    core = [(e["object_id"], e["translate_world"], e["yaw_deg"]) for e in edits]
+    core = [(e["object_id"], e["translate_world"], e["yaw_deg"], bool(e.get("remove"))) for e in edits]
     return hashlib.sha1(json.dumps(core).encode()).hexdigest()
 
 
@@ -115,6 +115,14 @@ def state(edits: list[dict]) -> State:
     for e in edits:
         mid = e["object_id"]
         mv = movs[mid]
+        if mv.get("removed"):
+            continue
+        if e.get("remove"):  # taken out of the twin: splats, boxes and the obstacle go
+            xyz = xyz[~object_mask(xyz, mv, floor_y)]
+            movs[mid] = {**mv, "removed": True}
+            for sid in mv["seed_object_ids"]:
+                objs[sid] = {**objs[sid], "removed": True}
+            continue
         t = np.array(e["translate_world"], dtype=float)
         yaw = np.deg2rad(e["yaw_deg"])
         pivot = world_box(mv)[0]
@@ -152,13 +160,12 @@ def _band(p: np.ndarray, floor_y: float) -> np.ndarray:
     return (h >= BAND_LO) & (h < BAND_HI)
 
 
-def _gaps(st: State, others: np.ndarray, moved: np.ndarray, floor_y: float) -> tuple[dict, float, np.ndarray]:
-    """Clear distance (m) from the moved object's footprint to the nearest obstacle along +x, -x, +z, -z,
-    using only obstacles at the heights the object occupies. Also the share of footprint outside the floor."""
+def _occupancy(st: State, others: np.ndarray, own: np.ndarray, floor_y: float) -> np.ndarray:
+    """Floor grid of obstacles at the heights the object occupies (yaw/slide keep its heights), ignoring flat
+    floor clutter (cables, cloth); cells outside the scanned floor count as obstacles."""
     g = st.grids
     origin, shape, inside_floor = g["origin"], g["shape"], g["inside"]
-    h_obj = moved[:, 1] - floor_y
-    # obstacles: things at the heights the object occupies, ignoring flat floor clutter (cables, cloth)
+    h_obj = own[:, 1] - floor_y
     lo, hi = max(GAP_CLUTTER, float(h_obj.min())), min(BAND_HI, float(h_obj.max()) + 0.05)
     h_oth = others[:, 1] - floor_y
     sel = (h_oth >= lo) & (h_oth < max(hi, lo + 0.05))
@@ -166,7 +173,14 @@ def _gaps(st: State, others: np.ndarray, moved: np.ndarray, floor_y: float) -> t
     ij = np.floor((others[sel][:, [0, 2]] - origin) / CELL).astype(int)
     ok = (ij >= 0).all(axis=1) & (ij[:, 0] < shape[0]) & (ij[:, 1] < shape[1])
     np.add.at(occ, tuple(ij[ok].T), 1)
-    occ = (occ >= 3) | ~inside_floor
+    return (occ >= 3) | ~inside_floor
+
+
+def _gaps(st: State, occ: np.ndarray, moved: np.ndarray) -> tuple[dict, float, np.ndarray]:
+    """Clear distance (m) from the moved object's footprint to the nearest obstacle along +x, -x, +z, -z,
+    using only obstacles at the heights the object occupies. Also the share of footprint outside the floor."""
+    g = st.grids
+    origin, shape, inside_floor = g["origin"], g["shape"], g["inside"]
     fij = np.floor((moved[:, [0, 2]] - origin) / CELL).astype(int)
     fij = np.unique(np.clip(fij, 0, np.array(shape) - 1), axis=0)
     fp = np.zeros(shape, dtype=bool)
@@ -192,6 +206,67 @@ def _gaps(st: State, others: np.ndarray, moved: np.ndarray, floor_y: float) -> t
     return gaps, outside, fp
 
 
+_LOCAL: OrderedDict[tuple[str, str], dict] = OrderedDict()
+
+
+def _local_ctx(edits: list[dict], mid: str) -> dict:
+    """Per (edit log, movable): its splats, everything else, and the obstacle sets that do not depend on the
+    candidate pose. Cached, so pose searches pay for them once."""
+    k = (_key(edits), mid)
+    with _LOCK:
+        if k in _LOCAL:
+            _LOCAL.move_to_end(k)
+            return _LOCAL[k]
+    _, floor_y, _ = base()
+    st0 = state(edits)
+    obj = st0.movs[mid]
+    m = object_mask(st0.xyz, obj, floor_y)
+    ctx = {"st0": st0, "obj": obj, "m": m, "n": int(m.sum()), "floor_y": floor_y}
+    if ctx["n"] >= 10:
+        own, others = st0.xyz[m], st0.xyz[~m]
+        tk, tc = np.unique(_voxels(others[_band(others, floor_y)]), return_counts=True)
+        ctx.update(own=own, tk=tk[tc >= 3], occ=_occupancy(st0, others, own, floor_y))
+    with _LOCK:
+        _LOCAL[k] = ctx
+        while len(_LOCAL) > 6:  # each holds a reference to a State (~20 MB of splats)
+            _LOCAL.popitem(last=False)
+    return ctx
+
+
+def quick_check(edits: list[dict], cand: dict) -> dict:
+    """Local feasibility only (overlap, footprint outside the floor, gaps), without rebuilding rails: ~ms per
+    candidate once _local_ctx is cached. Used to rank candidate poses before the full preview()."""
+    mid = cand["object_id"]
+    ctx = _local_ctx(edits, mid)
+    if ctx["n"] < 10:
+        return {"n": ctx["n"], "blocked": ["the object has (almost) no splats in the cleaned scan"], "warn": []}
+    floor_y = ctx["floor_y"]
+    moved = transform_points(ctx["own"], ctx["obj"], np.array(cand["translate_world"], dtype=float),
+                             np.deg2rad(cand["yaw_deg"]))
+    # interpenetration: share of the object's occupied voxels already occupied by other splats (body heights)
+    mv = moved[_band(moved, floor_y)]
+    overlap = 0.0
+    if len(mv):
+        ok, oc = np.unique(_voxels(mv), return_counts=True)
+        ok = ok[oc >= 2]
+        overlap = float(np.isin(ok, ctx["tk"], assume_unique=True).mean()) if len(ok) else 0.0
+    gaps, outside, fp = _gaps(ctx["st0"], ctx["occ"], moved)
+    finite = [v for v in gaps.values() if v is not None]
+    gaps["min"] = min(finite) if finite else None
+    # share of the footprint whose floor column already holds something at the object's heights (scan clutter,
+    # shelves, pipes): sparse splats can slip past the voxel overlap test, this cannot
+    footprint_occupied = float(ctx["occ"][fp].mean()) if fp.any() else 1.0
+    block, warn = [], []
+    if overlap > OVERLAP_BLOCK:
+        block.append(f"{overlap:.0%} of the object would sit inside other equipment")
+    elif overlap > OVERLAP_WARN:
+        warn.append(f"touches neighbouring equipment ({overlap:.0%} overlap)")
+    if outside > OUTSIDE_BLOCK:
+        block.append(f"{outside:.0%} of its footprint is outside the scanned floor (wall or unscanned area)")
+    return {"n": ctx["n"], "moved": moved, "overlap": overlap, "outside": outside, "gaps": gaps,
+            "footprint_occupied": footprint_occupied, "blocked": block, "warn": warn}
+
+
 def preview(edits: list[dict], cand: dict, target_asset_id: str | None = None) -> dict:
     xyz0, floor_y, _ = base()
     st0 = state(edits)
@@ -199,36 +274,17 @@ def preview(edits: list[dict], cand: dict, target_asset_id: str | None = None) -
     if mid is None:
         return {"verdict": "blocked", "fixed": True, "reasons": [FIXED_REASON]}
     obj = st0.movs[mid]
+    if obj.get("removed"):
+        return {"verdict": "blocked", "removed": True, "movable_id": mid, "label": obj["label"],
+                "reasons": [f"{obj['label']} was removed from the scene; undo the removal to bring it back"]}
+    if cand.get("remove"):
+        return _preview_removal(edits, st0, mid, target_asset_id)
     t = np.array(cand["translate_world"], dtype=float)
-    yaw = np.deg2rad(cand["yaw_deg"])
-    m = object_mask(st0.xyz, obj, floor_y)
-    reasons, warn, block = [], [], []
-    if m.sum() < 10:
-        return {"verdict": "blocked", "reasons": ["the object has (almost) no splats in the cleaned scan"],
-                "object_points": int(m.sum())}
-    own, others = st0.xyz[m], st0.xyz[~m]
-    moved = transform_points(own, obj, t, yaw)
-
-    # interpenetration: share of the object's occupied voxels already occupied by other splats (body heights)
-    mv = moved[_band(moved, floor_y)]
-    ov = others[_band(others, floor_y)]
-    overlap = 0.0
-    if len(mv):
-        ok, oc = np.unique(_voxels(mv), return_counts=True)
-        ok = ok[oc >= 2]
-        tk, tc = np.unique(_voxels(ov), return_counts=True)
-        tk = tk[tc >= 3]
-        overlap = float(np.isin(ok, tk, assume_unique=True).mean()) if len(ok) else 0.0
-    gaps, outside, _ = _gaps(st0, others, moved, floor_y)
-    finite = [v for v in gaps.values() if v is not None]
-    gaps["min"] = min(finite) if finite else None
-
-    if overlap > OVERLAP_BLOCK:
-        block.append(f"{overlap:.0%} of the object would sit inside other equipment")
-    elif overlap > OVERLAP_WARN:
-        warn.append(f"touches neighbouring equipment ({overlap:.0%} overlap)")
-    if outside > OUTSIDE_BLOCK:
-        block.append(f"{outside:.0%} of its footprint is outside the scanned floor (wall or unscanned area)")
+    q = quick_check(edits, {**cand, "object_id": mid})
+    if q["n"] < 10:
+        return {"verdict": "blocked", "reasons": q["blocked"], "object_points": q["n"]}
+    moved, overlap, outside, gaps = q["moved"], q["overlap"], q["outside"], q["gaps"]
+    block, warn = list(q["blocked"]), list(q["warn"])
 
     # navigation after the move
     st1 = state(edits + [{"object_id": mid, "translate_world": list(t), "yaw_deg": cand["yaw_deg"]}])
@@ -261,10 +317,37 @@ def preview(edits: list[dict], cand: dict, target_asset_id: str | None = None) -
             "gaps_band_m": [round(max(BAND_LO, float((moved[:, 1] - floor_y).min())) * MPU, 2),
                             round(min(BAND_HI, float((moved[:, 1] - floor_y).max())) * MPU, 2)],
             "overlap_frac": round(overlap, 3), "outside_floor_frac": round(outside, 3),
-            "object_points": int(m.sum()), "movable_id": mid, "label": obj["label"],
+            "object_points": q["n"], "movable_id": mid, "label": obj["label"],
             "aisle_spare_clearance_m": round(aisle, 3) if aisle is not None else None,
             "route_delta_m": route_delta, "unreachable_assets": lost,
             "moved_obb": st1.movs[mid]["obb"]}
+
+
+def _preview_removal(edits: list[dict], st0: State, mid: str, target_asset_id: str | None) -> dict:
+    """Taking a whole movable out of the twin: it can only free space, but report what changes."""
+    obj = st0.movs[mid]
+    n = int(object_mask(st0.xyz, obj, base()[1]).sum())
+    st1 = state(edits + [{"object_id": mid, "translate_world": [0.0, 0.0, 0.0], "yaw_deg": 0.0, "remove": True}])
+    area = lambda st: float(st.grids["walkable"].sum()) * (CELL * MPU) ** 2  # noqa: E731
+    gain = round(area(st1) - area(st0), 2)
+    before = {a for a, s in st0.stands.items() if s is not None}
+    after = {a for a, s in st1.stands.items() if s is not None}
+    lost, won = sorted(before - after), sorted(after - before)
+    reasons = [f"removes {obj['label']} ({n:,} splats) from the digital twin; walkable floor {gain:+.2f} m²"]
+    if won:
+        reasons.append(f"{len(won)} asset(s) become reachable: {', '.join(won)}")
+    if lost:
+        reasons.append(f"{len(lost)} asset(s) lose their stand point: {', '.join(lost)}")
+    route_delta = None
+    if target_asset_id and st0.stands.get(target_asset_id) is not None and st1.stands.get(target_asset_id) is not None:
+        l0, l1 = _route_len(st0, target_asset_id), _route_len(st1, target_asset_id)
+        if l0 and l1:
+            route_delta = round((l1 - l0) * MPU, 2)
+            if abs(route_delta) > 0.05:
+                reasons.append(f"route to {target_asset_id} changes by {route_delta:+.2f} m")
+    return {"verdict": "warning" if lost else "allowed", "remove": True, "reasons": reasons, "gaps_m": None,
+            "movable_id": mid, "label": obj["label"], "object_points": n, "walkable_gain_m2": gain,
+            "route_delta_m": route_delta, "unreachable_assets": lost, "newly_reachable_assets": won}
 
 
 def _aisle(st: State, fpx: np.ndarray) -> float | None:
@@ -321,6 +404,7 @@ def replan(edits: list[dict], detail_asset_id: str | None = None) -> dict:
             "targets": targets, "rails": rails,
             "movables": list(st.movs.values()),
             "overrides": {k: {"obb": v["obb"], "center": v["center"], "aabb_min": v["aabb_min"],
-                              "aabb_max": v["aabb_max"]} for k, v in moved.items()},
+                              "aabb_max": v["aabb_max"], "removed": bool(v.get("removed"))}
+                          for k, v in moved.items()},
             "summary": {"reachable": sum(t["reachable"] for t in targets), "assets": len(targets),
                         "walkable_area_m2": round(float(st.grids["walkable"].sum()) * (CELL * MPU) ** 2, 2)}}

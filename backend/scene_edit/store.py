@@ -34,7 +34,10 @@ def save(edits: list[dict]) -> None:
         tmp.replace(EDITS)
 
 
-def new_edit(object_id: str, translate_w: list[float], yaw_deg: float, by: str | None) -> dict:
-    return {"edit_id": f"EDIT-{uuid.uuid4().hex[:8]}", "object_id": object_id,
-            "translate_world": [round(float(v), 4) for v in translate_w], "yaw_deg": round(float(yaw_deg), 2),
-            "by": by, "ts": datetime.now(timezone.utc).isoformat()}
+def new_edit(object_id: str, translate_w: list[float], yaw_deg: float, by: str | None, remove: bool = False) -> dict:
+    e = {"edit_id": f"EDIT-{uuid.uuid4().hex[:8]}", "object_id": object_id,
+         "translate_world": [round(float(v), 4) for v in translate_w], "yaw_deg": round(float(yaw_deg), 2),
+         "by": by, "ts": datetime.now(timezone.utc).isoformat()}
+    if remove:
+        e["remove"] = True
+    return e

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Move, RotateCcw, RotateCw, Undo2, X } from 'lucide-react';
 import './sceneInspector.css';
+import SceneCommandBox from './SceneCommandBox.jsx';
 
 const VERDICT_CLS = { allowed: 'si-ok', warning: 'si-warn', blocked: 'si-bad' };
 const STEP = 0.1; // PLY units (~0.12 m)
@@ -129,6 +130,14 @@ export default function SceneEditPanel({
         </span>
       </div>
       <div className="panel-body">
+        <SceneCommandBox
+          sceneEdit={sceneEdit}
+          splatMover={splatMover}
+          selectedCvObjectId={selectedCvObjectId}
+          selectedAsset={selectedAsset}
+          onBeforeRun={() => editing && cancel()}
+          GapGrid={GapGrid}
+        />
         <div className="section">
           <div className="section-title">
             <span>Selected object</span>
@@ -149,7 +158,7 @@ export default function SceneEditPanel({
           )}
           {!editing ? (
             <div className="si-row si-tools">
-              <button className="btn btn-sm btn-primary" disabled={!whole || !splatMover.ready} onClick={start}>
+              <button className="btn btn-sm btn-primary" disabled={!whole || whole.removed || !splatMover.ready} onClick={start}>
                 <Move size={12} /> Move / rotate
               </button>
               {!splatMover.ready && <span className="help">waiting for the splat scene…</span>}
@@ -228,6 +237,7 @@ export default function SceneEditPanel({
               <div key={m.object_id} className="se-edit">
                 <span>
                   {m.label} <span className="mono">({m.object_id})</span>
+                  {m.removed && <span className="help"> · removed</span>}
                 </span>
                 <button
                   className={`btn btn-sm ${whole?.object_id === m.object_id ? 'on' : ''}`}
@@ -306,7 +316,9 @@ export default function SceneEditPanel({
           {sceneEdit.edits.map((e) => (
             <div key={e.edit_id} className="se-edit">
               <span className="mono">
-                {e.object_id} Δ({e.translate_world[0].toFixed(2)}, {e.translate_world[2].toFixed(2)}) {e.yaw_deg}°
+                {e.remove
+                  ? `${e.object_id} removed`
+                  : `${e.object_id} Δ(${e.translate_world[0].toFixed(2)}, ${e.translate_world[2].toFixed(2)}) ${e.yaw_deg}°`}
               </span>
               <button className="btn btn-sm btn-ghost" onClick={() => sceneEdit.undo(e.edit_id)} title="Undo this edit">
                 <Undo2 size={12} />
