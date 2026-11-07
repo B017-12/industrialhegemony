@@ -36,7 +36,10 @@ def test_only_whole_freestanding_objects_move(client):
     pv = client.post("/api/scene/edits/preview", json={"object_id": "OBJ-0238", "translate_world": [0.05, 0, 0]}).json()
     assert pv["movable_id"] == "MOV-03" and pv["object_points"] > 1000
     mv = client.get("/api/scene/movables").json()["movables"]
-    assert {m["object_id"] for m in mv} == {f"MOV-{i:02d}" for i in range(1, 10)}
+    assert {m["object_id"] for m in mv} == {f"MOV-{i:02d}" for i in range(1, 11)}
+    # the washing machine moves whole: clicking its door (the VS-003 box) selects it, and it can be pulled forward
+    pv = client.post("/api/scene/edits/preview", json={"object_id": "OBJ-0265", "translate_world": [0, 0, 0.4]}).json()
+    assert pv["movable_id"] == "MOV-10" and pv["verdict"] == "allowed" and pv["object_points"] > 5000
     # touching objects never share splats (vacuum is L-shaped around the green chair)
     xyz, fy, _ = engine.base()
     owners = sum(engine.object_mask(xyz, m, fy).astype(int) for m in engine.movables().values())
