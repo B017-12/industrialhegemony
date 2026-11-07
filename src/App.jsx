@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Bell,
+  CheckCircle2,
   ClipboardList,
   ExternalLink,
   List,
@@ -7,11 +9,15 @@ import {
   Navigation,
   Pause,
   Play,
+  Plus,
   QrCode,
   RotateCcw,
   Search,
   Sliders,
-  Upload
+  Trash2,
+  Upload,
+  Wrench,
+  Zap
 } from 'lucide-react';
 import {
   createInitialDataPipeline,
@@ -21,8 +27,16 @@ import {
 import {
   computeAStarPath,
   INITIAL_FLEET_AGENTS,
-  coordinateMultiAgentFleet
+  coordinateMultiAgentFleet,
+  buildCollisionBoxes
 } from './utils/pathfinding.js';
+import {
+  createInitialExerciseWorkers,
+  addExerciseWorker,
+  removeExerciseWorker,
+  assignWorkerToAsset,
+  stepExerciseSimulation
+} from './utils/exerciseEngine.js';
 import { CHALLENGE_BRIEF_MISSIONS } from './data/challengeBriefMissions.js';
 import { statusOf, humanize, sortBySeverity } from './ui/status.js';
 import BoilerRoomViewport from './components/BoilerRoomViewport.jsx';
@@ -34,7 +48,7 @@ export default function App() {
   const [liveStreaming, setLiveStreaming] = useState(true);
 
   const [selectedAssetId, setSelectedAssetId] = useState('ASSET-003');
-  const [activeNav, setActiveNav] = useState('assets'); // 'assets' | 'navigate' | 'workorders' | 'copilot' | 'settings'
+  const [activeNav, setActiveNav] = useState('alerts'); // 'assets' | 'alerts' | 'navigate' | 'workorders' | 'copilot' | 'settings'
 
   const selectedAsset = useMemo(
     () =>
@@ -60,6 +74,15 @@ export default function App() {
   const [simProgress, setSimProgress] = useState(0.18);
   const [proximityRadius, setProximityRadius] = useState(1.75);
   const [nearbyAssets, setNearbyAssets] = useState([]);
+
+  // Simulation Exercise Mode (Workers line up at staging station, walk to injected faults, fix & return)
+  const [exerciseMode, setExerciseMode] = useState(true);
+  const [exercisePaused, setExercisePaused] = useState(false);
+  const [exerciseWorkers, setExerciseWorkers] = useState(() => createInitialExerciseWorkers(4));
+  const [selectedWorkerId, setSelectedWorkerId] = useState(null);
+  const [autoDispatch, setAutoDispatch] = useState(false);
+  const [manualAssignMap, setManualAssignMap] = useState({});
+  const [arTrafficSignal, setArTrafficSignal] = useState(null);
 
   // Field verification / LOTO state
   const [arFirstPersonMode, setArFirstPersonMode] = useState(false);
@@ -87,19 +110,84 @@ export default function App() {
     structuralFrames: pipeline.structuralObjects.length
   });
 
+  const simContextRef = useRef({
+    assets: pipeline.assets,
+    hazardNodes,
+    railMode,
+    autoDispatch,
+    exercisePaused
+  });
+
   useEffect(() => {
-    if (!liveStreaming) return;
+    simContextRef.current = {
+      assets: pipeline.assets,
+      hazardNodes,
+      railMode,
+      autoDispatch,
+      exercisePaused
+    };
+  }, [pipeline.assets, hazardNodes, railMode, autoDispatch, exercisePaused]);
+
+  useEffect(() => {
+    if (!liveStreaming || exercisePaused) return;
     const timer = setInterval(() => {
       setPipeline((prev) => simulateLiveTelemetryTick(prev));
     }, 2200);
     return () => clearInterval(timer);
-  }, [liveStreaming]);
+  }, [liveStreaming, exercisePaused]);
+
+  // Simulation Exercise Engine Tick (60ms) — pauses cleanly when exercisePaused is true so user can batch multiple faults!
+  useEffect(() => {
+    if (!exerciseMode) return;
+    const tick = setInterval(() => {
+      const ctx = simContextRef.current;
+      if (ctx.exercisePaused) return;
+      const obstacles = buildCollisionBoxes(ctx.assets);
+      let newlyFixedIds = [];
+
+      setExerciseWorkers((prevWorkers) => {
+        const res = stepExerciseSimulation(
+          prevWorkers,
+          ctx.assets,
+          0.06,
+          obstacles,
+          ctx.hazardNodes,
+          ctx.railMode,
+          ctx.autoDispatch
+        );
+        newlyFixedIds = res.completedAssetIds;
+        return res.workers;
+      });
+
+      if (newlyFixedIds.length > 0) {
+        setPipeline((prevPipe) => {
+          let nextPipe = prevPipe;
+          newlyFixedIds.forEach((assetId) => {
+            const target = nextPipe.assets.find((a) => a.asset_id === assetId);
+            nextPipe = updateAssetTelemetryInMemory(
+              nextPipe,
+              assetId,
+              {
+                vibration_mms: 1.5,
+                bearing_temp_c: 53.0,
+                stiction_index: 0.1,
+                position_pct: target?.telemetry?.setpoint_pct || 64.0
+              },
+              'NORMAL_OPERATION'
+            );
+          });
+          return nextPipe;
+        });
+      }
+    }, 60);
+    return () => clearInterval(tick);
+  }, [exerciseMode]);
 
   const humanPath = useMemo(
     () =>
       computeAStarPath(
         'N-ENTRY',
-        selectedAsset?.approach_point || [0, -1.02, 1.5],
+        selectedAsset?.position || selectedAsset?.approach_point || [0, -1.02, 1.5],
         'human',
         hazardNodes,
         railMode
@@ -111,7 +199,7 @@ export default function App() {
     () =>
       computeAStarPath(
         'N-ENTRY',
-        selectedAsset?.approach_point || [0, -1.02, 1.5],
+        selectedAsset?.position || selectedAsset?.approach_point || [0, -1.02, 1.5],
         'robot',
         hazardNodes,
         railMode
@@ -155,6 +243,14 @@ export default function App() {
         pipeline.assets.filter(
           (a) => a.health_status === 'attention_required' || a.health_status === 'degraded'
         )
+      ),
+    [pipeline.assets]
+  );
+
+  const allFaultedAndWatchAssets = useMemo(
+    () =>
+      sortBySeverity(
+        pipeline.assets.filter((a) => a.health_status !== 'healthy')
       ),
     [pipeline.assets]
   );
@@ -203,7 +299,80 @@ export default function App() {
   };
 
   const handleMutateTelemetry = (assetId, patch, customReason = null) => {
-    setPipeline((prev) => updateAssetTelemetryInMemory(prev, assetId, patch, customReason));
+    setPipeline((prev) => {
+      const next = updateAssetTelemetryInMemory(prev, assetId, patch, customReason);
+      // If a fault was just injected in Exercise Mode, automatically dispatch an available standby worker from the line!
+      if (exerciseMode && customReason && customReason !== 'NORMAL_OPERATION') {
+        const updatedAsset = next.assets.find((a) => a.asset_id === assetId);
+        if (updatedAsset) {
+          setExerciseWorkers((prevW) => {
+            const alreadyAssigned = prevW.some((w) => w.targetAssetId === assetId && w.state !== 'RETURNING');
+            if (alreadyAssigned) return prevW;
+            const idleWorker = prevW.find((w) => w.state === 'STANDBY');
+            if (!idleWorker) return prevW;
+            return assignWorkerToAsset(prevW, idleWorker.id, updatedAsset, hazardNodes, railMode);
+          });
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleAddWorker = (type = 'human') => {
+    setExerciseWorkers((prev) => addExerciseWorker(prev, type));
+  };
+
+  const handleDeleteWorker = (workerId) => {
+    if (!workerId) return;
+    setExerciseWorkers((prev) => removeExerciseWorker(prev, workerId));
+    setSelectedWorkerId((prevId) => (prevId === workerId ? null : prevId));
+  };
+
+  const handleAssignWorkerToFault = (workerId, asset) => {
+    if (!workerId || !asset) return;
+    setExerciseMode(true);
+    setExerciseWorkers((prev) =>
+      assignWorkerToAsset(prev, workerId, asset, hazardNodes, railMode)
+    );
+  };
+
+  const handleInjectRandomFault = () => {
+    const healthyCandidates = pipeline.assets.filter((a) => a.health_status === 'healthy');
+    const pool = healthyCandidates.length > 0 ? healthyCandidates : pipeline.assets;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (!pick) return;
+    setSelectedAssetId(pick.asset_id);
+    handleMutateTelemetry(
+      pick.asset_id,
+      {
+        vibration_mms: 8.1,
+        bearing_temp_c: 87.5,
+        stiction_index: 0.68
+      },
+      'CRITICAL_FAULT_INJECTED'
+    );
+  };
+
+  const handleRestoreAllNominal = () => {
+    setPipeline((prev) => {
+      let next = prev;
+      prev.assets.forEach((a) => {
+        if (a.health_status !== 'healthy') {
+          next = updateAssetTelemetryInMemory(
+            next,
+            a.asset_id,
+            {
+              vibration_mms: 1.5,
+              bearing_temp_c: 53.0,
+              stiction_index: 0.1,
+              position_pct: a.telemetry?.setpoint_pct || 64.0
+            },
+            'NORMAL_OPERATION'
+          );
+        }
+      });
+      return next;
+    });
   };
 
   const handleToggleHazardNode = (nodeId) => {
@@ -306,11 +475,10 @@ export default function App() {
         </nav>
 
         <div className="topbar-right">
-          <div className="alarm-counter" title="Filter asset register by alarm priority">
+          <div className="alarm-counter" title="Open Alerts & Fault Dispatch">
             <button
               onClick={() => {
-                setActiveNav('assets');
-                setStatusFilter('abnormal');
+                setActiveNav('alerts');
               }}
             >
               <span className="sq" style={{ background: 'var(--critical)' }} />
@@ -319,8 +487,7 @@ export default function App() {
             </button>
             <button
               onClick={() => {
-                setActiveNav('assets');
-                setStatusFilter('abnormal');
+                setActiveNav('alerts');
               }}
             >
               <span className="sq" style={{ background: 'var(--high)' }} />
@@ -329,8 +496,7 @@ export default function App() {
             </button>
             <button
               onClick={() => {
-                setActiveNav('assets');
-                setStatusFilter('watch');
+                setActiveNav('alerts');
               }}
             >
               <span className="sq" style={{ background: 'var(--medium)' }} />
@@ -401,11 +567,10 @@ export default function App() {
         <button
           className="view-all"
           onClick={() => {
-            setActiveNav('assets');
-            setStatusFilter('abnormal');
+            setActiveNav('alerts');
           }}
         >
-          Show in register
+          Manage in Alerts ({allFaultedAndWatchAssets.length})
         </button>
       </div>
 
@@ -413,6 +578,17 @@ export default function App() {
       <div className="workspace">
         {/* 1. LEFT ICON NAVIGATION RAIL */}
         <nav className="navrail" aria-label="Primary tools">
+          <button
+            className={activeNav === 'alerts' ? 'active' : ''}
+            onClick={() => setActiveNav('alerts')}
+            title="Alerts, Fault Injection & Worker Dispatch"
+          >
+            <Bell size={18} />
+            {allFaultedAndWatchAssets.length > 0 && (
+              <span className="badge-dot">{allFaultedAndWatchAssets.length}</span>
+            )}
+          </button>
+
           <button
             className={activeNav === 'assets' ? 'active' : ''}
             onClick={() => setActiveNav('assets')}
@@ -467,6 +643,315 @@ export default function App() {
 
         {/* 2. MODE-BASED LEFT SIDE PANEL */}
         <aside className="sidepanel">
+          {activeNav === 'alerts' && (
+            <>
+              <div className="panel-header">
+                <span className="panel-title">System Alerts &amp; Dispatch</span>
+                <span className="panel-count">{allFaultedAndWatchAssets.length} active</span>
+              </div>
+
+              <div className="panel-toolbar stack" style={{ gap: '8px' }}>
+                <div className="row" style={{ gap: '6px' }}>
+                  <button
+                    className={`btn btn-sm ${exercisePaused ? 'btn-primary' : ''}`}
+                    style={{ flex: 1 }}
+                    onClick={() => setExercisePaused((p) => !p)}
+                    title="Freeze time to inject multiple faults at once before workers walk out"
+                  >
+                    {exercisePaused ? <Play size={12} /> : <Pause size={12} />}
+                    <span>{exercisePaused ? 'Resume Time' : 'Pause Time'}</span>
+                  </button>
+                  <button
+                    className="btn btn-sm"
+                    onClick={handleRestoreAllNominal}
+                    title="Reset all components to healthy nominal state"
+                  >
+                    <CheckCircle2 size={12} />
+                    <span>Clear All</span>
+                  </button>
+                </div>
+
+                <div className="row" style={{ gap: '6px' }}>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    style={{ flex: 1 }}
+                    onClick={() => {
+                      if (!selectedAsset) return;
+                      handleMutateTelemetry(
+                        selectedAsset.asset_id,
+                        {
+                          vibration_mms: 8.2,
+                          bearing_temp_c: 88.0,
+                          stiction_index: 0.66
+                        },
+                        'CRITICAL_FAULT_INJECTED'
+                      );
+                    }}
+                  >
+                    <Zap size={12} />
+                    <span>Fault {selectedAsset?.tag}</span>
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    style={{ flex: 1 }}
+                    onClick={handleInjectRandomFault}
+                  >
+                    <Zap size={12} />
+                    <span>Random Fault</span>
+                  </button>
+                </div>
+
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={exerciseMode}
+                    onChange={(e) => setExerciseMode(e.target.checked)}
+                  />
+                  <span>Simulation Exercise Mode (Line Dispatch)</span>
+                </label>
+
+                {exerciseMode && (
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={autoDispatch}
+                      onChange={(e) => setAutoDispatch(e.target.checked)}
+                    />
+                    <span>Auto-dispatch standby workers to all active faults</span>
+                  </label>
+                )}
+              </div>
+
+              <div className="panel-body">
+                {/* WORKER STAGING LINE ROSTER */}
+                <div className="section stack">
+                  <div className="section-title">
+                    <span>Staging Line Roster ({exerciseWorkers.length} Units)</span>
+                    <span className="mono">
+                      {exerciseWorkers.filter((w) => w.state === 'STANDBY').length} Standby
+                    </span>
+                  </div>
+
+                  <div className="row" style={{ gap: '6px' }}>
+                    <button
+                      className="btn btn-sm"
+                      style={{ flex: 1 }}
+                      onClick={() => handleAddWorker('human')}
+                    >
+                      <Plus size={12} />
+                      <span>Add Technician</span>
+                    </button>
+                    <button
+                      className="btn btn-sm"
+                      style={{ flex: 1 }}
+                      onClick={() => handleAddWorker('robot')}
+                    >
+                      <Plus size={12} />
+                      <span>Add AMR</span>
+                    </button>
+                  </div>
+
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '56px' }}>Unit</th>
+                        <th>State / Traffic</th>
+                        <th className="right" style={{ width: '36px' }}>
+                          Del
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {exerciseWorkers.map((w) => {
+                        const isSel = selectedWorkerId === w.id;
+                        return (
+                          <tr
+                            key={w.id}
+                            className={isSel ? 'selected' : ''}
+                            onClick={() => setSelectedWorkerId(isSel ? null : w.id)}
+                          >
+                            <td className="mono" style={{ fontWeight: 600 }}>
+                              <span
+                                className="legend-swatch"
+                                style={{ backgroundColor: w.color }}
+                              />
+                              {w.id}
+                            </td>
+                            <td className="mono" style={{ fontSize: '11px' }}>
+                              {w.state === 'STANDBY' && (
+                                <span className="muted">STANDBY (Line Slot)</span>
+                              )}
+                              {w.state === 'WALKING_TO_FAULT' && (
+                                <span style={{ color: 'var(--info)' }}>
+                                  EN ROUTE → {w.targetTag}
+                                  {w.trafficStatus === 'YIELDING'
+                                    ? ' [YIELD]'
+                                    : w.trafficStatus === 'PASSING_RIGHT'
+                                    ? ' [LANE R]'
+                                    : ''}
+                                </span>
+                              )}
+                              {w.state === 'REPAIRING' && (
+                                <span style={{ color: 'var(--brand)', fontWeight: 600 }}>
+                                  FIXING {w.targetTag} ({Math.round(w.repairProgress)}%)
+                                </span>
+                              )}
+                              {w.state === 'RETURNING' && (
+                                <span className="text-2">
+                                  RETURNING → Line
+                                  {w.trafficStatus === 'YIELDING' ? ' [YIELD]' : ''}
+                                </span>
+                              )}
+                            </td>
+                            <td className="right">
+                              <button
+                                className="btn btn-sm btn-icon"
+                                title={`Delete ${w.id} (or click in 3D + press Delete)`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteWorker(w.id);
+                                }}
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ACTIVE FAULTS & MANUAL WORKER ASSIGNMENT */}
+                <div className="section" style={{ padding: 0 }}>
+                  <div className="section-title" style={{ padding: '10px 12px 4px' }}>
+                    <span>Active Faults ({allFaultedAndWatchAssets.length})</span>
+                    <span className="mono">Manual / Auto Dispatch</span>
+                  </div>
+
+                  {allFaultedAndWatchAssets.length === 0 ? (
+                    <div style={{ padding: '16px 12px', color: 'var(--text-3)', fontSize: '12px' }}>
+                      All 30 components are operating nominally. Click <strong>Random Fault</strong>{' '}
+                      above or click any equipment in the 3D viewport to inject a fault.
+                    </div>
+                  ) : (
+                    allFaultedAndWatchAssets.map((asset) => {
+                      const st = statusOf(asset);
+                      const isSelected = selectedAsset?.asset_id === asset.asset_id;
+                      const assignedWorker = exerciseWorkers.find(
+                        (w) => w.targetAssetId === asset.asset_id && w.state !== 'RETURNING'
+                      );
+                      const standbyWorkers = exerciseWorkers.filter((w) => w.state === 'STANDBY');
+                      const chosenWorkerId =
+                        manualAssignMap[asset.asset_id] ||
+                        standbyWorkers[0]?.id ||
+                        exerciseWorkers[0]?.id ||
+                        '';
+
+                      return (
+                        <div
+                          key={asset.asset_id}
+                          className={`alert-card ${isSelected ? 'selected' : ''}`}
+                          onClick={() => handleSelectAsset(asset)}
+                        >
+                          <div className="row" style={{ gap: '6px' }}>
+                            <span className={`sdot ${st.cls}`} />
+                            <span className="mono" style={{ fontWeight: 600 }}>
+                              {asset.tag}
+                            </span>
+                            <span className="mono muted">{asset.asset_id}</span>
+                            <span className="spacer" />
+                            <span className={`status ${st.cls}`}>
+                              {st.label} · {asset.health_score}%
+                            </span>
+                          </div>
+
+                          <div className="text-2" style={{ fontSize: '12px' }}>
+                            {asset.service_description} —{' '}
+                            <strong style={{ color: 'var(--text)' }}>
+                              {humanize(asset.status_reason)}
+                            </strong>
+                          </div>
+
+                          {assignedWorker ? (
+                            <div
+                              style={{
+                                background: 'var(--bg-subtle)',
+                                border: '1px solid var(--border)',
+                                borderRadius: 'var(--radius)',
+                                padding: '6px 8px',
+                                marginTop: '2px'
+                              }}
+                            >
+                              <div className="row" style={{ gap: '6px', fontSize: '11px' }}>
+                                <Wrench
+                                  size={12}
+                                  className={assignedWorker.state === 'REPAIRING' ? 'tool-spin' : ''}
+                                />
+                                <span className="mono" style={{ fontWeight: 600 }}>
+                                  {assignedWorker.id}
+                                </span>
+                                <span>
+                                  {assignedWorker.state === 'REPAIRING'
+                                    ? `Repairing component (${Math.round(
+                                        assignedWorker.repairProgress
+                                      )}%)`
+                                    : `Walking to ${asset.tag}...`}
+                                </span>
+                              </div>
+                              {assignedWorker.state === 'REPAIRING' && (
+                                <div className="repair-bar" style={{ marginTop: '5px' }}>
+                                  <div
+                                    style={{
+                                      width: `${Math.round(assignedWorker.repairProgress)}%`
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div
+                              className="alert-assign-row"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <select
+                                className="select"
+                                style={{ height: '24px', fontSize: '11px', padding: '0 6px' }}
+                                value={chosenWorkerId}
+                                onChange={(e) =>
+                                  setManualAssignMap((prev) => ({
+                                    ...prev,
+                                    [asset.asset_id]: e.target.value
+                                  }))
+                                }
+                              >
+                                {exerciseWorkers.map((w) => (
+                                  <option key={w.id} value={w.id}>
+                                    {w.id} ({w.type === 'human' ? 'Tech' : 'AMR'} · {w.state})
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                className="btn btn-sm btn-primary"
+                                disabled={!chosenWorkerId}
+                                onClick={() =>
+                                  handleAssignWorkerToFault(chosenWorkerId, asset)
+                                }
+                              >
+                                <Wrench size={11} />
+                                <span>Assign &amp; Fix</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
           {activeNav === 'assets' && (
             <>
               <div className="panel-header">
@@ -957,6 +1442,19 @@ export default function App() {
           onOpenArHud={() => setIsArHudOpen(true)}
           customPlyBuffer={customPlyBuffer}
           onLoadStats={setSceneStats}
+          exerciseMode={exerciseMode}
+          onToggleExerciseMode={setExerciseMode}
+          exercisePaused={exercisePaused}
+          onToggleExercisePaused={setExercisePaused}
+          exerciseWorkers={exerciseWorkers}
+          selectedWorkerId={selectedWorkerId}
+          onSelectWorker={setSelectedWorkerId}
+          onAddWorker={handleAddWorker}
+          onDeleteWorker={handleDeleteWorker}
+          onInjectRandomFault={handleInjectRandomFault}
+          autoDispatch={autoDispatch}
+          onToggleAutoDispatch={setAutoDispatch}
+          onArTrafficSignalChange={setArTrafficSignal}
         />
 
         {/* 4. RIGHT ASSET INSPECTOR */}
@@ -1000,6 +1498,7 @@ export default function App() {
         checkedLotoSteps={checkedLotoSteps}
         onToggleLotoStep={handleToggleLotoStep}
         humanPath={humanPath}
+        arTrafficSignal={arTrafficSignal}
       />
     </div>
   );

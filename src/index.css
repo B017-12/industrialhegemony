@@ -47,7 +47,7 @@ html, body, #root {
   overflow: hidden;
   background: var(--bg-app);
   color: var(--text);
-  font: 13px/1.4 var(--font);
+  font: 12.5px/1.38 var(--font);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -211,7 +211,7 @@ a:hover { text-decoration: underline; }
 /* Main grid */
 .workspace {
   display: grid;
-  grid-template-columns: 44px 288px minmax(0, 1fr) 376px;
+  grid-template-columns: 40px 264px minmax(0, 1fr) 334px;
   min-height: 0;
   min-width: 0;
 }
@@ -557,3 +557,172 @@ button.ref:hover { border-color: var(--accent); color: var(--accent); }
 .hud-view { position: relative; height: 200px; background: #2b3238; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; }
 .hud-target { align-self: center; text-align: center; padding: 10px 16px; border: 1.5px dashed rgba(255, 255, 255, 0.7); border-radius: 3px; background: rgba(0, 0, 0, 0.25); }
 .hud-row { display: flex; justify-content: space-between; font-size: 11.5px; color: #c7cfd6; }
+
+/* ------------------------------------------------------------------ Simulation Exercise & Floating Repair Overlays */
+.exercise-banner {
+  position: absolute;
+  top: 42px;
+  left: 10px;
+  z-index: 20;
+  max-width: 430px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--brand);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  box-shadow: 0 2px 6px rgba(20, 30, 40, 0.12);
+  font-size: 11.5px;
+}
+.exercise-banner.paused {
+  border-left-color: var(--medium);
+  background: #fffdf5;
+}
+.exercise-banner-title {
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.exercise-banner-sub {
+  color: var(--text-2);
+  margin-top: 2px;
+  line-height: 1.35;
+}
+
+/* ------------------------------------------------------------------ AR Mode Red-Light / Green-Light Traffic HUD */
+.ar-traffic-hud {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(29, 37, 44, 0.92);
+  color: #ffffff;
+  border: 1px solid #434c56;
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  pointer-events: auto;
+  min-width: 300px;
+}
+.ar-traffic-hud.RED {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px #ef4444, 0 4px 16px rgba(198, 40, 40, 0.35);
+}
+.ar-traffic-hud.YELLOW {
+  border-color: #f59e0b;
+}
+.ar-traffic-hud.GREEN {
+  border-color: #49a942;
+}
+.traffic-lights {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+  background: #12171b;
+  border-radius: 3px;
+  border: 1px solid #343b42;
+}
+.traffic-lamp {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  opacity: 0.22;
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+.traffic-lamp.red { background: #ef4444; }
+.traffic-lamp.yellow { background: #f59e0b; }
+.traffic-lamp.green { background: #49a942; }
+.traffic-lamp.on {
+  opacity: 1;
+}
+.traffic-lamp.red.on { box-shadow: 0 0 8px #ef4444; }
+.traffic-lamp.yellow.on { box-shadow: 0 0 8px #f59e0b; }
+.traffic-lamp.green.on { box-shadow: 0 0 8px #49a942; }
+
+.repair-badge {
+  position: absolute;
+  z-index: 26;
+  transform: translate(-50%, -100%);
+  min-width: 175px;
+  background: #ffffff;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 6px 9px;
+  box-shadow: 0 4px 12px rgba(20, 30, 40, 0.18);
+  pointer-events: none;
+  font-size: 11.5px;
+}
+.repair-badge-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--text);
+}
+.tool-spin {
+  color: var(--accent);
+  animation: spin 1.3s linear infinite;
+  flex-shrink: 0;
+}
+.repair-bar {
+  height: 5px;
+  background: #e2e7ec;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.repair-bar > div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}
+
+.worker-tag-overlay {
+  position: absolute;
+  z-index: 24;
+  transform: translate(-50%, -100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--border-strong);
+  font-size: 11px;
+  color: var(--text);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+.worker-tag-overlay.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent), 0 3px 8px rgba(0, 0, 0, 0.16);
+}
+.worker-tag-overlay.yielding {
+  border-color: var(--medium);
+  background: var(--medium-soft);
+}
+
+.alert-card {
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf0f2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.alert-card:hover { background: var(--bg-hover); }
+.alert-card.selected { background: var(--bg-selected); }
+.alert-assign-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+

@@ -1,46 +1,258 @@
 /**
- * Centerline Waypoint 'Rails', Orthogonal / Smooth-Rail Pathfinding & Multi-Agent Fleet Coordinator
+ * Centerline Waypoint 'Rails', Equipment Collision Solver & Multi-Agent Fleet Coordinator
  *
  * Implements:
- * 1. Pre-baked Centerline 'Rails': Equidistant corridor centerlines between closest boiler walls,
- *    vessels, and pipe skids (`clearanceLeft === clearanceRight`) guaranteeing zero wall/pipe collision
- *    for both robots and human technicians.
- * 2. Smooth Centerline vs. Zig-Zag Grid Comparison:
- *    - 'smooth_rail' (Default Recommended): Uses medial-axis centerline rails with Chaikin corner smoothing
- *      and slerp-ready heading tangents so the avatar never zig-zags or clips pipes.
- *    - 'zigzag_grid': Raw orthogonal/diagonal grid A* (shown for visual comparison so judges can see
- *      why pre-baked centerline rails eliminate jagged zig-zag motion!).
+ * 1. 2D/3D Equipment & Structure AABB Collision System (`buildCollisionBoxes`, `resolveObstacleCollisions`):
+ *    - Prevents both automated A* pathfinding and manual WASD walking from clipping through any of the
+ *      30 Valmet assets or room structures (IBC totes, manifold racks, safety guardrails).
+ * 2. Pre-baked Open-Aisle Centerline 'Rails' (`NAV_NODES` & `NAV_EDGES`):
+ *    - Waypoints placed strictly in unobstructed plant corridors with obstacle-deflected curve smoothing.
  * 3. Multi-Robot & Multi-Human Fleet Coordination (R1, R2, H1):
- *    - Evaluates Euclidean + Rail distance from every active agent (`R1`, `R2`, `H1`) to emergency/faulty objects.
- *    - Assigns the closest available agent to Object A (`CV-003` / `M-006`) and second closest to Object B (`P-002` / `P-005`)
- *      with reservation locking to prevent path/handling conflicts.
+ *    - Assigns the closest available unit to each active alarm without path or target conflicts.
  */
 
+import { VALMET_ASSETS } from '../data/valmetDataset.js';
+
+/**
+ * Static room furniture/structures in `BoilerRoomViewport.jsx` that act as physical colliders
+ */
+export const STATIC_ROOM_OBSTACLES = [
+  {
+    id: 'ROOM-GUARDRAIL-YELLOW',
+    label: 'Mid-Bay Safety Guardrail',
+    position: [0.88, -0.82, 1.05],
+    bbox_size: [0.26, 0.38, 0.72]
+  },
+  {
+    id: 'ROOM-IBC-TOTES',
+    label: 'Back-Wall IBC Tote Storage',
+    position: [-2.02, -0.15, 3.72],
+    bbox_size: [3.55, 1.75, 0.72]
+  },
+  {
+    id: 'ROOM-EAST-MANIFOLD-RACK',
+    label: 'East Wall Blue Manifold Frame',
+    position: [2.10, -0.15, 3.72],
+    bbox_size: [3.20, 1.65, 0.22]
+  }
+];
+
+/**
+ * Builds 2D X-Z Axis-Aligned Bounding Boxes (AABBs) for all equipment and static room obstacles.
+ * Only includes equipment whose vertical span intersects the operator/robot body height (y - sy/2 < 0.55)
+ * so high overhead ceiling transmitters/valves (y >= 0.85) don't block floor aisles underneath them,
+ * OR includes all floor/skid assets (we include all assets with bottom < 0.55m, which is 22 floor/skid assets,
+ * plus a slightly tighter footprint for elevated rack assets so you never clip any visible 3D mesh).
+ */
+export function buildCollisionBoxes(assets = VALMET_ASSETS) {
+  const boxes = [];
+
+  for (const a of assets || []) {
+    if (!a?.position || !a?.bbox_size) continue;
+    const [x, y, z] = a.position;
+    const [sx, sy, sz] = a.bbox_size;
+    const bottomY = y - sy * 0.5;
+    // Assets mounted on the overhead rack/upper deck (bottomY > 0.42, i.e. >1.45m above the y=-1.02 floor)
+    // are above floor-walking clearance; all floor/skid/waist-level assets are solid floor colliders.
+    if (bottomY > 0.42) continue;
+
+    const hx = sx * 0.5;
+    const hz = sz * 0.5;
+
+    boxes.push({
+      id: a.asset_id,
+      tag: a.tag,
+      cx: x,
+      cz: z,
+      minX: x - hx,
+      maxX: x + hx,
+      minZ: z - hz,
+      maxZ: z + hz
+    });
+  }
+
+  for (const st of STATIC_ROOM_OBSTACLES) {
+    const [x, , z] = st.position;
+    const [sx, , sz] = st.bbox_size;
+    boxes.push({
+      id: st.id,
+      tag: st.label,
+      cx: x,
+      cz: z,
+      minX: x - sx * 0.5,
+      maxX: x + sx * 0.5,
+      minZ: z - sz * 0.5,
+      maxZ: z + sz * 0.5
+    });
+  }
+
+  return boxes;
+}
+
+/**
+ * Checks whether a 2D circle at (x, z) with `radius` overlaps any obstacle AABB.
+ */
+export function isPointInObstacle(x, z, radius = 0.24, obstacles = null, ignoreId = null) {
+  const list = obstacles || buildCollisionBoxes();
+  for (const b of list) {
+    if (ignoreId && b.id === ignoreId) continue;
+    if (
+      x > b.minX - radius &&
+      x < b.maxX + radius &&
+      z > b.minZ - radius &&
+      z < b.maxZ + radius
+    ) {
+      return b;
+    }
+  }
+  return null;
+}
+
+/**
+ * Resolves circle-vs-AABB collisions for manual WASD walking and path vertices.
+ * Pushes (x, z) outside any overlapping equipment bounding box along the minimum penetration axis
+ * (enabling smooth sliding along equipment housings and room walls).
+ */
+export function resolveObstacleCollisions(
+  x,
+  z,
+  radius = 0.25,
+  obstacles = null,
+  prevX = null,
+  prevZ = null
+) {
+  const list = obstacles || buildCollisionBoxes();
+  let nx = Math.max(-5.1, Math.min(5.1, x));
+  let nz = Math.max(-1.1, Math.min(3.45, z));
+
+  for (let pass = 0; pass < 5; pass++) {
+    let hitAny = false;
+    for (const b of list) {
+      const minX = b.minX - radius;
+      const maxX = b.maxX + radius;
+      const minZ = b.minZ - radius;
+      const maxZ = b.maxZ + radius;
+
+      if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
+        hitAny = true;
+        const dLeft = nx - minX;
+        const dRight = maxX - nx;
+        const dFront = nz - minZ;
+        const dBack = maxZ - nz;
+
+        const minPen = Math.min(dLeft, dRight, dFront, dBack);
+        const eps = 0.008;
+        if (minPen === dLeft) nx = minX - eps;
+        else if (minPen === dRight) nx = maxX + eps;
+        else if (minPen === dFront) nz = minZ - eps;
+        else nz = maxZ + eps;
+      }
+    }
+    if (!hitAny) break;
+  }
+
+  // If still wedged between two touching boxes and previous valid position is provided, revert axis
+  if (prevX !== null && prevZ !== null && isPointInObstacle(nx, nz, radius * 0.85, list)) {
+    const tryX = resolveSingleStep(x, prevZ, radius, list);
+    if (!isPointInObstacle(tryX[0], tryX[1], radius * 0.85, list)) return tryX;
+    const tryZ = resolveSingleStep(prevX, z, radius, list);
+    if (!isPointInObstacle(tryZ[0], tryZ[1], radius * 0.85, list)) return tryZ;
+    return [prevX, prevZ];
+  }
+
+  return [
+    Math.max(-5.1, Math.min(5.1, nx)),
+    Math.max(-1.1, Math.min(3.45, nz))
+  ];
+}
+
+function resolveSingleStep(x, z, radius, list) {
+  let nx = x;
+  let nz = z;
+  for (const b of list) {
+    const minX = b.minX - radius;
+    const maxX = b.maxX + radius;
+    const minZ = b.minZ - radius;
+    const maxZ = b.maxZ + radius;
+    if (nx > minX && nx < maxX && nz > minZ && nz < maxZ) {
+      const dLeft = nx - minX;
+      const dRight = maxX - nx;
+      const dFront = nz - minZ;
+      const dBack = maxZ - nz;
+      const m = Math.min(dLeft, dRight, dFront, dBack);
+      if (m === dLeft) nx = minX - 0.01;
+      else if (m === dRight) nx = maxX + 0.01;
+      else if (m === dFront) nz = minZ - 0.01;
+      else nz = maxZ + 0.01;
+    }
+  }
+  return [nx, nz];
+}
+
+/**
+ * Liang-Barsky 2D segment vs expanded AABB intersection test
+ */
+export function segmentIntersectsBox(ax, az, bx, bz, box, margin = 0.20) {
+  const minX = box.minX - margin;
+  const maxX = box.maxX + margin;
+  const minZ = box.minZ - margin;
+  const maxZ = box.maxZ + margin;
+
+  const dx = bx - ax;
+  const dz = bz - az;
+
+  let t0 = 0;
+  let t1 = 1;
+
+  const p = [-dx, dx, -dz, dz];
+  const q = [ax - minX, maxX - ax, az - minZ, maxZ - az];
+
+  for (let i = 0; i < 4; i++) {
+    if (Math.abs(p[i]) < 1e-8) {
+      if (q[i] < 0) return false;
+    } else {
+      const t = q[i] / p[i];
+      if (p[i] < 0) {
+        if (t > t1) return false;
+        if (t > t0) t0 = t;
+      } else {
+        if (t < t0) return false;
+        if (t < t1) t1 = t;
+      }
+    }
+  }
+  return t0 <= t1;
+}
+
+/**
+ * Open-Aisle Centerline Waypoint Graph (`NAV_NODES`)
+ * Every node is positioned in verified unobstructed corridor space.
+ */
 export const NAV_NODES = [
   // Entry & Tool Crib Hub
-  { id: 'N-ENTRY', label: 'Tool Crib & LOTO Entry', pos: [0.00, -1.02, -0.20], clearance: 1.85 },
+  { id: 'N-ENTRY', label: 'Tool Crib & LOTO Entry', pos: [0.00, -1.02, -0.25], clearance: 1.85 },
 
-  // South Main Centerline Rail (Equidistant between South Wall and Central Pipe Rack)
-  { id: 'N-S-WEST2', label: 'South-West MCC Centerline', pos: [-2.85, -1.02, 0.55], clearance: 1.45 },
-  { id: 'N-S-WEST1', label: 'South-West Feedwater Rail', pos: [-1.45, -1.02, 0.55], clearance: 1.60 },
-  { id: 'N-S-CENTER', label: 'Central Boiler Floor Rail Hub', pos: [0.00, -1.02, 0.65], clearance: 1.80 },
-  { id: 'N-S-EAST1', label: 'South-East Pump Rail', pos: [1.45, -1.02, 0.65], clearance: 1.65 },
-  { id: 'N-S-EAST2', label: 'East Perimeter Rail South', pos: [2.75, -1.02, 0.75], clearance: 1.50 },
+  // South Main Corridor Rail (z = 0.22 — completely clear across entire room width)
+  { id: 'N-S-WEST2', label: 'West Perimeter South', pos: [-4.40, -1.02, 0.22], clearance: 1.50 },
+  { id: 'N-S-WEST1', label: 'South-West Feedwater Aisle', pos: [-1.20, -1.02, 0.22], clearance: 1.65 },
+  { id: 'N-S-CENTER', label: 'Central Boiler Floor Hub', pos: [0.00, -1.02, 0.22], clearance: 1.80 },
+  { id: 'N-S-EAST1', label: 'South-East Pump Aisle', pos: [1.85, -1.02, 0.22], clearance: 1.65 },
+  { id: 'N-S-EAST2', label: 'East Perimeter South', pos: [4.42, -1.02, 0.22], clearance: 1.55 },
 
-  // Central Walkable Corridor Rail
-  { id: 'N-M-WEST2', label: 'West Pipe Rack Centerline', pos: [-2.45, -1.02, 1.45], clearance: 1.35 },
-  { id: 'N-M-WEST1', label: 'CV-003 Inspection Rail Bay', pos: [-1.25, -1.02, 1.25], clearance: 1.40 },
-  { id: 'N-M-STEP', label: 'Elevated Catwalk Step (Stairs)', pos: [-0.45, -0.78, 1.35], clearance: 0.75 },
-  { id: 'N-M-CENTER', label: 'Mid-Bay Equidistant Rail', pos: [0.45, -1.02, 1.45], clearance: 1.45 },
-  { id: 'N-M-EAST1', label: 'Main Pump Skid West Rail', pos: [1.55, -1.02, 1.55], clearance: 1.50 },
-  { id: 'N-M-EAST2', label: 'P-005 East Pump Rail Bay', pos: [2.75, -1.02, 1.85], clearance: 1.45 },
+  // Mid Corridor Rail
+  { id: 'N-M-WEST2', label: 'West Perimeter Mid Aisle', pos: [-4.40, -1.02, 1.35], clearance: 1.40 },
+  { id: 'N-M-WEST1', label: 'CV-003 East Inspection Aisle', pos: [-1.18, -1.02, 1.15], clearance: 1.45 },
+  { id: 'N-M-STEP', label: 'Elevated Catwalk Step (Stairs)', pos: [-0.55, -0.82, 1.15], clearance: 0.78 },
+  { id: 'N-M-CENTER', label: 'Central Spine Mid Aisle', pos: [0.15, -1.02, 1.25], clearance: 1.45 },
+  { id: 'N-M-EAST1', label: 'Main Pump Skid South Bay', pos: [1.85, -1.02, 1.15], clearance: 1.45 },
+  { id: 'N-M-EAST2', label: 'East Perimeter Pump Aisle (P-005)', pos: [4.42, -1.02, 1.85], clearance: 1.45 },
 
-  // North Corridor Centerline Rail
-  { id: 'N-N-WEST2', label: 'Aux Loop North-West Rail (M-006)', pos: [-2.25, -1.02, 2.25], clearance: 1.35 },
-  { id: 'N-N-WEST1', label: 'North-West Valve Rail (CV-009)', pos: [-1.25, -1.02, 2.45], clearance: 1.35 },
-  { id: 'N-N-CENTER', label: 'North Boiler Drum Centerline', pos: [0.25, -1.02, 2.35], clearance: 1.45 },
-  { id: 'N-N-EAST1', label: 'P-002 Main Pump Skid Rail', pos: [1.50, -1.02, 2.35], clearance: 1.55 },
-  { id: 'N-N-EAST2', label: 'North-East Skid Rail Corner', pos: [2.55, -1.02, 2.45], clearance: 1.40 }
+  // North Corridor Rail
+  { id: 'N-N-WEST2', label: 'Aux Loop North-West Bay (M-006)', pos: [-1.95, -1.02, 2.08], clearance: 1.35 },
+  { id: 'N-N-WEST1', label: 'North-West Valve Aisle (CV-009)', pos: [-1.18, -1.02, 2.35], clearance: 1.40 },
+  { id: 'N-N-CENTER', label: 'North Boiler Drum Aisle', pos: [-0.05, -1.02, 2.52], clearance: 1.45 },
+  { id: 'N-N-EAST1', label: 'North-East Skid Aisle (P-002)', pos: [1.92, -1.02, 2.56], clearance: 1.45 },
+  { id: 'N-N-EAST2', label: 'East Perimeter North Corner', pos: [4.42, -1.02, 2.56], clearance: 1.40 }
 ];
 
 export const NAV_EDGES = [
@@ -49,40 +261,36 @@ export const NAV_EDGES = [
   { from: 'N-ENTRY', to: 'N-S-WEST1', has_stairs: false, min_width: 1.6, rail_id: 'RAIL-WEST-ENTRY' },
   { from: 'N-ENTRY', to: 'N-S-EAST1', has_stairs: false, min_width: 1.6, rail_id: 'RAIL-EAST-ENTRY' },
 
-  // South Centerline Rail
+  // South Main Corridor (z = 0.22)
   { from: 'N-S-WEST2', to: 'N-S-WEST1', has_stairs: false, min_width: 1.5, rail_id: 'RAIL-SOUTH-1' },
   { from: 'N-S-WEST1', to: 'N-S-CENTER', has_stairs: false, min_width: 1.8, rail_id: 'RAIL-SOUTH-2' },
   { from: 'N-S-CENTER', to: 'N-S-EAST1', has_stairs: false, min_width: 1.8, rail_id: 'RAIL-SOUTH-3' },
   { from: 'N-S-EAST1', to: 'N-S-EAST2', has_stairs: false, min_width: 1.5, rail_id: 'RAIL-SOUTH-4' },
 
-  // Cross-aisle Centerline Rails (South to Mid)
+  // South to Mid Cross-Aisles
   { from: 'N-S-WEST2', to: 'N-M-WEST2', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-WEST-OUTER' },
   { from: 'N-S-WEST1', to: 'N-M-WEST1', has_stairs: true, min_width: 0.85, rail_id: 'RAIL-WEST-INNER-STEP' },
   { from: 'N-S-CENTER', to: 'N-M-STEP', has_stairs: true, min_width: 0.75, rail_id: 'RAIL-CATWALK-STAIR' },
   { from: 'N-M-STEP', to: 'N-M-WEST1', has_stairs: true, min_width: 0.75, rail_id: 'RAIL-CATWALK-WEST' },
   { from: 'N-M-STEP', to: 'N-N-CENTER', has_stairs: true, min_width: 0.75, rail_id: 'RAIL-CATWALK-NORTH' },
 
-  { from: 'N-S-CENTER', to: 'N-M-CENTER', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-CENTRAL-SPINE' },
+  { from: 'N-S-CENTER', to: 'N-M-CENTER', has_stairs: false, min_width: 1.5, rail_id: 'RAIL-CENTRAL-SPINE' },
   { from: 'N-S-EAST1', to: 'N-M-EAST1', has_stairs: false, min_width: 1.5, rail_id: 'RAIL-EAST-INNER' },
   { from: 'N-S-EAST2', to: 'N-M-EAST2', has_stairs: false, min_width: 1.5, rail_id: 'RAIL-EAST-OUTER' },
 
-  // Mid corridor horizontal rails
-  { from: 'N-M-WEST2', to: 'N-M-WEST1', has_stairs: false, min_width: 1.3, rail_id: 'RAIL-MID-WEST' },
-  { from: 'N-M-WEST1', to: 'N-M-CENTER', has_stairs: false, min_width: 0.72, rail_id: 'RAIL-PIPE-ALLEY' },
-  { from: 'N-M-CENTER', to: 'N-M-EAST1', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-MID-EAST1' },
-  { from: 'N-M-EAST1', to: 'N-M-EAST2', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-MID-EAST2' },
+  // Mid Corridor Connections (only where unobstructed!)
+  { from: 'N-M-WEST1', to: 'N-M-CENTER', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-MID-CENTER' },
 
-  // Mid to North rails
-  { from: 'N-M-WEST2', to: 'N-N-WEST2', has_stairs: false, min_width: 1.3, rail_id: 'RAIL-NW-OUTER' },
-  { from: 'N-M-WEST1', to: 'N-N-WEST1', has_stairs: false, min_width: 1.3, rail_id: 'RAIL-NW-INNER' },
-  { from: 'N-M-CENTER', to: 'N-N-CENTER', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-NORTH-SPINE' },
-  { from: 'N-M-EAST1', to: 'N-N-EAST1', has_stairs: false, min_width: 1.5, rail_id: 'RAIL-NE-INNER' },
-  { from: 'N-M-EAST2', to: 'N-N-EAST2', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-NE-OUTER' },
+  // Mid to North Connections
+  { from: 'N-M-WEST1', to: 'N-N-WEST1', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-NW-INNER' },
+  { from: 'N-M-WEST1', to: 'N-N-WEST2', has_stairs: false, min_width: 1.35, rail_id: 'RAIL-NW-POCKET' },
+  { from: 'N-M-CENTER', to: 'N-N-CENTER', has_stairs: false, min_width: 1.45, rail_id: 'RAIL-NORTH-SPINE' },
+  { from: 'N-M-EAST2', to: 'N-N-EAST2', has_stairs: false, min_width: 1.45, rail_id: 'RAIL-NE-OUTER' },
 
-  // North corridor horizontal rails
-  { from: 'N-N-WEST2', to: 'N-N-WEST1', has_stairs: false, min_width: 1.3, rail_id: 'RAIL-NORTH-1' },
-  { from: 'N-N-WEST1', to: 'N-N-CENTER', has_stairs: false, min_width: 1.3, rail_id: 'RAIL-NORTH-2' },
-  { from: 'N-N-CENTER', to: 'N-N-EAST1', has_stairs: false, min_width: 1.5, rail_id: 'RAIL-NORTH-3' },
+  // North Corridor Connections
+  { from: 'N-N-WEST2', to: 'N-N-WEST1', has_stairs: false, min_width: 1.35, rail_id: 'RAIL-NORTH-1' },
+  { from: 'N-N-WEST1', to: 'N-N-CENTER', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-NORTH-2' },
+  { from: 'N-N-CENTER', to: 'N-N-EAST1', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-NORTH-3' },
   { from: 'N-N-EAST1', to: 'N-N-EAST2', has_stairs: false, min_width: 1.4, rail_id: 'RAIL-NORTH-4' }
 ];
 
@@ -93,14 +301,69 @@ export function euclidean3D(a, b) {
   return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-export function findNearestNode(point3D, blockedNodeIds = []) {
+/**
+ * Computes a guaranteed collision-free floor stand-off point for inspecting a target asset or point.
+ */
+export function computeSafeStandOffPoint(targetPoint3D, obstacles = null) {
+  const list = obstacles || buildCollisionBoxes();
+  const tx = targetPoint3D[0];
+  const tz = targetPoint3D[2];
+
+  // Check if targetPoint3D is near or inside an asset box; generate candidate stand-off positions around it
+  const candidates = [
+    [tx, tz],
+    [tx, tz - 0.55],
+    [tx - 0.55, tz],
+    [tx + 0.55, tz],
+    [tx, tz + 0.55],
+    [tx - 0.45, tz - 0.45],
+    [tx + 0.45, tz - 0.45]
+  ];
+
+  let bestPt = null;
+  let bestScore = Infinity;
+
+  for (const [cx, cz] of candidates) {
+    const [rx, rz] = resolveObstacleCollisions(cx, cz, 0.30, list);
+    // Find nearest navigation node that has unobstructed line-of-sight (or minimal distance)
+    let minNodeDist = Infinity;
+    for (const n of NAV_NODES) {
+      const d = Math.hypot(rx - n.pos[0], rz - n.pos[2]);
+      let hits = 0;
+      for (const b of list) {
+        if (segmentIntersectsBox(n.pos[0], n.pos[2], rx, rz, b, 0.16)) {
+          hits++;
+        }
+      }
+      const score = d + hits * 3.5 + Math.hypot(rx - tx, rz - tz) * 0.5;
+      if (score < minNodeDist) minNodeDist = score;
+    }
+    if (minNodeDist < bestScore) {
+      bestScore = minNodeDist;
+      bestPt = [rx, -1.02, rz];
+    }
+  }
+
+  return bestPt || [tx, -1.02, tz];
+}
+
+export function findNearestNode(point3D, blockedNodeIds = [], obstacles = null) {
+  const list = obstacles || buildCollisionBoxes();
   let best = NAV_NODES[0];
-  let bestDist = Infinity;
+  let bestScore = Infinity;
   for (const node of NAV_NODES) {
     if (blockedNodeIds.includes(node.id)) continue;
     const d = euclidean3D(node.pos, point3D);
-    if (d < bestDist) {
-      bestDist = d;
+    // Penalize nodes whose straight line to point3D crosses an equipment bounding box
+    let hitCount = 0;
+    for (const b of list) {
+      if (segmentIntersectsBox(node.pos[0], node.pos[2], point3D[0], point3D[2], b, 0.16)) {
+        hitCount++;
+      }
+    }
+    const score = d + hitCount * 4.0;
+    if (score < bestScore) {
+      bestScore = score;
       best = node;
     }
   }
@@ -108,68 +371,145 @@ export function findNearestNode(point3D, blockedNodeIds = []) {
 }
 
 /**
- * Chaikin curve subdivision to turn centerline rail waypoints into a smooth, non-zig-zag
- * trajectory that stays centered between adjacent obstacles.
+ * Chaikin curve subdivision + obstacle deflection so smoothed trajectories never cut through equipment corners!
  */
-export function smoothCenterlinePoints(rawPoints, iterations = 2) {
-  if (!rawPoints || rawPoints.length < 3) return rawPoints || [];
-  let pts = rawPoints.map((p) => [...p]);
-  for (let iter = 0; iter < iterations; iter++) {
-    const next = [pts[0]];
-    for (let i = 0; i < pts.length - 1; i++) {
-      const p0 = pts[i];
-      const p1 = pts[i + 1];
-      const q = [
-        0.75 * p0[0] + 0.25 * p1[0],
-        0.75 * p0[1] + 0.25 * p1[1],
-        0.75 * p0[2] + 0.25 * p1[2]
-      ];
-      const r = [
-        0.25 * p0[0] + 0.75 * p1[0],
-        0.25 * p0[1] + 0.75 * p1[1],
-        0.25 * p0[2] + 0.75 * p1[2]
-      ];
-      next.push(q, r);
+export function smoothCenterlinePoints(rawPoints, iterations = 2, obstacles = null) {
+  if (!rawPoints || rawPoints.length < 2) return rawPoints || [];
+  const list = obstacles || buildCollisionBoxes();
+
+  let pts = rawPoints.map((p) => {
+    const [rx, rz] = resolveObstacleCollisions(p[0], p[2], 0.28, list);
+    return [rx, p[1], rz];
+  });
+
+  if (pts.length >= 3) {
+    for (let iter = 0; iter < iterations; iter++) {
+      const next = [pts[0]];
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i];
+        const p1 = pts[i + 1];
+        const q = [
+          0.75 * p0[0] + 0.25 * p1[0],
+          0.75 * p0[1] + 0.25 * p1[1],
+          0.75 * p0[2] + 0.25 * p1[2]
+        ];
+        const r = [
+          0.25 * p0[0] + 0.75 * p1[0],
+          0.25 * p0[1] + 0.75 * p1[1],
+          0.25 * p0[2] + 0.75 * p1[2]
+        ];
+        const [qx, qz] = resolveObstacleCollisions(q[0], q[2], 0.28, list);
+        const [rx, rz] = resolveObstacleCollisions(r[0], r[2], 0.28, list);
+        next.push([qx, q[1], qz], [rx, r[1], rz]);
+      }
+      next.push(pts[pts.length - 1]);
+      pts = next;
     }
-    next.push(pts[pts.length - 1]);
-    pts = next;
   }
-  return pts;
+
+  return deflectPolylineAroundObstacles(pts, list, 0.28);
 }
 
 /**
- * Creates a simulated raw "zig-zag" voxel grid path between waypoints so the user can visually
- * compare naive zig-zag A* pathfinding vs. pre-baked Centerline Rails!
+ * Subdivides any segment that grazes an obstacle and pushes intermediate vertices outside all AABBs
  */
-export function generateZigZagComparisonPoints(rawPoints) {
+export function deflectPolylineAroundObstacles(points, obstacles, radius = 0.28) {
+  if (!points || points.length < 2) return points || [];
+  const refined = [points[0]];
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    const segLen = Math.hypot(b[0] - a[0], b[2] - a[2]);
+    const steps = Math.max(1, Math.ceil(segLen / 0.22));
+    for (let s = 1; s <= steps; s++) {
+      const t = s / steps;
+      const mx = a[0] + (b[0] - a[0]) * t;
+      const my = a[1] + (b[1] - a[1]) * t;
+      const mz = a[2] + (b[2] - a[2]) * t;
+      const [rx, rz] = resolveObstacleCollisions(mx, mz, radius, obstacles);
+      refined.push([rx, my, rz]);
+    }
+  }
+
+  return refined;
+}
+
+/**
+ * Creates a simulated raw "zig-zag" voxel grid path between waypoints while still respecting equipment collisions
+ */
+export function generateZigZagComparisonPoints(rawPoints, obstacles = null) {
   if (!rawPoints || rawPoints.length < 2) return rawPoints || [];
+  const list = obstacles || buildCollisionBoxes();
   const zig = [rawPoints[0]];
   for (let i = 0; i < rawPoints.length - 1; i++) {
     const a = rawPoints[i];
     const b = rawPoints[i + 1];
-    // Stair-step orthogonal zig-zag sub-steps between a and b
-    const mid1 = [a[0] + (b[0] - a[0]) * 0.5, a[1], a[2] + (i % 2 === 0 ? 0.22 : -0.22)];
-    const mid2 = [b[0] + (i % 2 === 0 ? -0.18 : 0.18), b[1], a[2] + (b[2] - a[2]) * 0.65];
-    zig.push(mid1, mid2, b);
+    const mid1 = [a[0] + (b[0] - a[0]) * 0.5, a[1], a[2] + (i % 2 === 0 ? 0.16 : -0.16)];
+    const mid2 = [b[0] + (i % 2 === 0 ? -0.14 : 0.14), b[1], a[2] + (b[2] - a[2]) * 0.65];
+    const [m1x, m1z] = resolveObstacleCollisions(mid1[0], mid1[2], 0.28, list);
+    const [m2x, m2z] = resolveObstacleCollisions(mid2[0], mid2[2], 0.28, list);
+    zig.push([m1x, mid1[1], m1z], [m2x, mid2[1], m2z], b);
   }
-  return zig;
+  return deflectPolylineAroundObstacles(zig, list, 0.28);
 }
 
 /**
  * Computes collision-free A* path along pre-baked Centerline Rails for 'human' or 'robot' profile.
- * Also incorporates turn-angle smoothness cost so the path stays on straight centerline rails
- * instead of zig-zagging across aisles.
  */
 export function computeAStarPath(
-  startNodeId,
+  startNodeOrPoint,
   targetPoint3D,
   profile = 'robot',
   hazardNodeIds = [],
-  railMode = 'smooth_rail' // 'smooth_rail' | 'zigzag_grid'
+  railMode = 'smooth_rail',
+  congestionPenaltyMap = null
 ) {
   const t0 = performance.now();
+  const obstacles = buildCollisionBoxes();
+  const safeTarget = computeSafeStandOffPoint(targetPoint3D, obstacles);
   const nodeMap = new Map(NAV_NODES.map((n) => [n.id, n]));
-  const goalNode = findNearestNode(targetPoint3D, hazardNodeIds);
+  const goalNode = findNearestNode(safeTarget, hazardNodeIds, obstacles);
+
+  const getPenalty = (key) => {
+    if (!congestionPenaltyMap || !key) return 0;
+    if (congestionPenaltyMap instanceof Map) return congestionPenaltyMap.get(key) || 0;
+    return congestionPenaltyMap[key] || 0;
+  };
+
+  const customStartPoint = Array.isArray(startNodeOrPoint) ? startNodeOrPoint : null;
+  let resolvedStartNode;
+  if (customStartPoint) {
+    if (customStartPoint[2] < 0.0) {
+      // Starting from South Staging Line: step straight North into South Corridor (z = 0.22)
+      // and choose the least-congested nearby corridor node (excluding N-ENTRY funnel)
+      const corridorPoint = [customStartPoint[0], -1.02, 0.22];
+      const southCandidates = NAV_NODES.filter(
+        (n) => n.id !== 'N-ENTRY' && n.pos[2] <= 0.35 && !hazardNodeIds.includes(n.id)
+      );
+      const candidates = southCandidates.length
+        ? southCandidates
+        : NAV_NODES.filter((n) => n.id !== 'N-ENTRY' && !hazardNodeIds.includes(n.id));
+      let bestNode = candidates[0] || NAV_NODES[0];
+      let bestScore = Infinity;
+      for (const n of candidates) {
+        const dStart = euclidean3D(corridorPoint, n.pos);
+        const dGoal = euclidean3D(n.pos, goalNode.pos) * 0.35;
+        const pen = getPenalty(n.id) * 1.35;
+        const score = dStart + dGoal + pen;
+        if (score < bestScore) {
+          bestScore = score;
+          bestNode = n;
+        }
+      }
+      resolvedStartNode = bestNode;
+    } else {
+      resolvedStartNode = findNearestNode(customStartPoint, hazardNodeIds, obstacles);
+    }
+  } else {
+    resolvedStartNode = nodeMap.get(startNodeOrPoint) || NAV_NODES[0];
+  }
+  const startNodeId = resolvedStartNode.id;
 
   const adj = new Map();
   NAV_NODES.forEach((n) => adj.set(n.id, []));
@@ -190,10 +530,12 @@ export function computeAStarPath(
 
     const baseCost = euclidean3D(u.pos, v.pos);
     const clearanceBonus = edge.min_width >= 1.5 ? 0.92 : 1.0;
+    const congestionCost =
+      (getPenalty(edge.from) + getPenalty(edge.to) + getPenalty(edge.rail_id) * 1.5) * 0.95;
     const weight =
-      profile === 'robot' && edge.min_width < 1.35
+      (profile === 'robot' && edge.min_width < 1.35
         ? baseCost * 1.15
-        : baseCost * clearanceBonus;
+        : baseCost * clearanceBonus) + congestionCost;
 
     adj.get(edge.from).push({ to: edge.to, cost: weight, edge });
     adj.get(edge.to).push({ to: edge.from, cost: weight, edge });
@@ -209,7 +551,7 @@ export function computeAStarPath(
     fScore.set(n.id, Infinity);
   });
 
-  const startNode = nodeMap.get(startNodeId) || NAV_NODES[0];
+  const startNode = resolvedStartNode;
   gScore.set(startNode.id, 0);
   fScore.set(startNode.id, euclidean3D(startNode.pos, goalNode.pos));
 
@@ -233,15 +575,24 @@ export function computeAStarPath(
         curr = cameFrom.get(curr);
       }
       const rawWaypoints = nodeIds.map((id) => [...nodeMap.get(id).pos]);
-      const finalApproach = [targetPoint3D[0], -1.02, targetPoint3D[2]];
-      if (euclidean3D(rawWaypoints[rawWaypoints.length - 1], finalApproach) > 0.25) {
-        rawWaypoints.push(finalApproach);
+      if (
+        customStartPoint &&
+        euclidean3D(customStartPoint, rawWaypoints[0]) > 0.15
+      ) {
+        // Step straight north to z = 0.22 at customStartPoint[0] first so workers leave the line in parallel lanes!
+        if (customStartPoint[2] < 0.0 && Math.abs(customStartPoint[0] - rawWaypoints[0][0]) > 0.12) {
+          rawWaypoints.unshift([customStartPoint[0], -1.02, 0.22]);
+        }
+        rawWaypoints.unshift([...customStartPoint]);
+      }
+      if (euclidean3D(rawWaypoints[rawWaypoints.length - 1], safeTarget) > 0.20) {
+        rawWaypoints.push(safeTarget);
       }
 
       const points =
         railMode === 'zigzag_grid'
-          ? generateZigZagComparisonPoints(rawWaypoints)
-          : smoothCenterlinePoints(rawWaypoints, 2);
+          ? generateZigZagComparisonPoints(rawWaypoints, obstacles)
+          : smoothCenterlinePoints(rawWaypoints, 2, obstacles);
 
       let totalDist = 0;
       for (let i = 1; i < points.length; i++) {
@@ -258,7 +609,7 @@ export function computeAStarPath(
         points,
         distanceMeters: Number(totalDist.toFixed(2)),
         computeTimeMs: Number(elapsedMs.toFixed(2)),
-        usedStairs: nodeIds.includes('N-M-STEP'),
+        usedStairs: nodeIds.includes('N-M-STEP') || (nodeIds.includes('N-S-WEST1') && nodeIds.includes('N-M-WEST1')),
         avoidedHazards: hazardNodeIds.length
       };
     }
@@ -266,7 +617,6 @@ export function computeAStarPath(
     openSet.delete(currentId);
     const neighbors = adj.get(currentId) || [];
     for (const nb of neighbors) {
-      // Penalize unnecessary direction changes so the solver stays on straight centerline rails
       let turnPenalty = 0;
       const parentId = cameFrom.get(currentId);
       if (parentId) {
@@ -278,7 +628,7 @@ export function computeAStarPath(
         const v2x = nPos[0] - cPos[0];
         const v2z = nPos[2] - cPos[2];
         const dot = (v1x * v2x + v1z * v2z) / ((Math.hypot(v1x, v1z) * Math.hypot(v2x, v2z)) || 1);
-        if (dot < 0.7) turnPenalty = 0.28; // Prefer straight rails over zig-zag turns
+        if (dot < 0.7) turnPenalty = 0.28;
       }
 
       const tentativeG = (gScore.get(currentId) ?? Infinity) + nb.cost + turnPenalty;
@@ -346,9 +696,7 @@ export const INITIAL_FLEET_AGENTS = [
 ];
 
 /**
- * Multi-Robot & Multi-Human Proximity Dispatcher:
- * Assigns each critical/emergency asset to the closest available agent (R1 handles Object A,
- * R2 handles Object B, H1 handles Object C) while preventing handling conflicts or rail collisions.
+ * Multi-Robot & Multi-Human Proximity Dispatcher
  */
 export function coordinateMultiAgentFleet(
   fleetAgents,
@@ -361,7 +709,6 @@ export function coordinateMultiAgentFleet(
     .filter((a) => a.health_status === 'attention_required' || a.health_status === 'degraded')
     .sort((a, b) => a.health_score - b.health_score);
 
-  // Ensure the user's currently clicked asset is included at the top of the dispatch priority
   if (
     primarySelectedAsset &&
     !emergencyQueue.some((e) => e.asset_id === primarySelectedAsset.asset_id)
@@ -371,9 +718,6 @@ export function coordinateMultiAgentFleet(
 
   const claimedAssetIds = new Set();
   const assignments = [];
-
-  // Greedy conflict-free proximity assignment: for each agent, compute A* rail distance to all unclaimed targets
-  // and pair the minimum-distance (agent, asset) first so closest robot always wins!
   const remainingAgents = [...fleetAgents];
 
   while (remainingAgents.length > 0) {
@@ -385,7 +729,7 @@ export function coordinateMultiAgentFleet(
       for (const target of candidateTargets) {
         const path = computeAStarPath(
           agent.homeNodeId,
-          target.approach_point,
+          target.position || target.approach_point,
           agent.type,
           hazardNodes,
           railMode
@@ -408,12 +752,11 @@ export function coordinateMultiAgentFleet(
         conflictFree: true
       });
     } else {
-      // Fallback if fewer faults than agents
       const agent = remainingAgents.shift();
       const fallbackTarget = primarySelectedAsset || assets[0];
       const path = computeAStarPath(
         agent.homeNodeId,
-        fallbackTarget.approach_point,
+        fallbackTarget.position || fallbackTarget.approach_point,
         agent.type,
         hazardNodes,
         railMode
@@ -427,7 +770,6 @@ export function coordinateMultiAgentFleet(
     }
   }
 
-  // Sort back to R1, R2, H1 order
   const order = { R1: 0, R2: 1, H1: 2 };
   assignments.sort((a, b) => (order[a.agent_id] ?? 9) - (order[b.agent_id] ?? 9));
   return assignments;
@@ -471,7 +813,6 @@ export function samplePathAtProgress(points, progress) {
         p0[2] + (p1[2] - p0[2]) * localT
       ];
 
-      // Look ahead slightly along the rail for smooth rotation tangents
       const nextIdx = Math.min(points.length - 1, i + 2);
       const pLook = points[nextIdx];
       const dx = (p1[0] - p0[0]) * (1 - localT * 0.4) + (pLook[0] - p0[0]) * (localT * 0.4);

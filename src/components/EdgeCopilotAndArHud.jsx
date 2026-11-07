@@ -127,13 +127,37 @@ export function MobileArFieldHudModal({
   selectedAsset,
   checkedLotoSteps,
   onToggleLotoStep,
-  humanPath
+  humanPath,
+  arTrafficSignal
 }) {
   const [qrScanned, setQrScanned] = useState(true);
+  const [hudLightMode, setHudLightMode] = useState('AUTO'); // 'AUTO' | 'RED' | 'YELLOW' | 'GREEN'
 
   if (!isOpen || !selectedAsset) return null;
 
   const st = statusOf(selectedAsset);
+  const baseSig = arTrafficSignal || {
+    light: 'GREEN',
+    headline: 'GREEN LIGHT — PROCEED',
+    detail: 'Corridor clear · Right-of-way granted'
+  };
+  const activeLight = hudLightMode === 'AUTO' ? baseSig.light : hudLightMode;
+  const activeHeadline =
+    hudLightMode === 'RED'
+      ? 'RED LIGHT — HOLD POSITION'
+      : hudLightMode === 'YELLOW'
+      ? 'YELLOW LIGHT — KEEP RIGHT LANE'
+      : hudLightMode === 'GREEN'
+      ? 'GREEN LIGHT — PROCEED'
+      : baseSig.headline;
+  const activeDetail =
+    hudLightMode === 'RED'
+      ? 'Cross-traffic AMR/Technician priority in aisle · Wait at virtual stop line'
+      : hudLightMode === 'YELLOW'
+      ? 'Shared corridor active · Maintain +0.22 m right-hand passing offset'
+      : hudLightMode === 'GREEN'
+      ? 'Aisle clear to target equipment · Safe to proceed'
+      : baseSig.detail;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -158,12 +182,64 @@ export function MobileArFieldHudModal({
         </div>
 
         <div className="modal-body">
-          <div className="hud-view">
+          <div className="hud-view" style={{ height: '245px' }}>
             <div className="hud-row mono">
               <span>ANCHOR: {selectedAsset.anchor_id}</span>
               <span>
                 {qrScanned ? `LOCKED · ${selectedAsset.qr_id}` : 'SCANNING MARKER...'}
               </span>
+            </div>
+
+            {/* AR Corridor Red-Light / Green-Light Traffic Control Bar */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '5px 8px',
+                background: 'rgba(18, 23, 27, 0.88)',
+                border: `1px solid ${
+                  activeLight === 'RED'
+                    ? '#ef4444'
+                    : activeLight === 'YELLOW'
+                    ? '#f59e0b'
+                    : '#49a942'
+                }`,
+                borderRadius: '3px'
+              }}
+            >
+              <div className="traffic-lights">
+                <span className={`traffic-lamp red ${activeLight === 'RED' ? 'on' : ''}`} />
+                <span className={`traffic-lamp yellow ${activeLight === 'YELLOW' ? 'on' : ''}`} />
+                <span className={`traffic-lamp green ${activeLight === 'GREEN' ? 'on' : ''}`} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="mono" style={{ fontSize: '11px', fontWeight: 700, color: '#fff' }}>
+                  {activeHeadline}
+                </div>
+                <div className="truncate" style={{ fontSize: '10.5px', color: '#cbd5e1' }}>
+                  {activeDetail}
+                </div>
+              </div>
+              <div className="row" style={{ gap: '2px' }}>
+                {['AUTO', 'RED', 'YELLOW', 'GREEN'].map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setHudLightMode(m)}
+                    style={{
+                      fontSize: '9.5px',
+                      padding: '2px 4px',
+                      borderRadius: '2px',
+                      border: '1px solid #475569',
+                      background: hudLightMode === m ? '#1f6fb2' : '#1e293b',
+                      color: '#fff',
+                      fontFamily: 'var(--mono)'
+                    }}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="hud-target">

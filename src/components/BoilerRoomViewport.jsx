@@ -2,7 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
-import { NAV_NODES, NAV_EDGES, samplePathAtProgress } from '../utils/pathfinding.js';
+import { Wrench, Plus, Trash2, Zap, Pause, Play } from 'lucide-react';
+import {
+  NAV_NODES,
+  NAV_EDGES,
+  samplePathAtProgress,
+  buildCollisionBoxes,
+  resolveObstacleCollisions
+} from '../utils/pathfinding.js';
+import { computeArTrafficSignal } from '../utils/exerciseEngine.js';
 import { STRUCTURAL_BOILER_OBJECTS } from '../data/valmetDataset.js';
 import { statusOf, humanize } from '../ui/status.js';
 
@@ -216,14 +224,14 @@ function createCleanIndustrialRoomArchitecture() {
   rackFrame.position.set(2.1, -0.15, 3.72);
   room.add(rackFrame);
 
-  // Safety Guardrail in Mid-Bay
+  // Safety Guardrail in Mid-Bay (aligned 1:1 with STATIC_ROOM_OBSTACLES collider)
   const yellowMat = new THREE.MeshStandardMaterial({
     color: 0xc99400,
     metalness: 0.3,
     roughness: 0.4
   });
-  const yellowRail = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.38, 1.85), yellowMat);
-  yellowRail.position.set(0.95, -0.82, 1.45);
+  const yellowRail = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.38, 0.72), yellowMat);
+  yellowRail.position.set(0.88, -0.82, 1.05);
   room.add(yellowRail);
 
   return room;
@@ -238,7 +246,7 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
   const hitboxMat = new THREE.LineBasicMaterial({
     color: colorHex,
     transparent: true,
-    opacity: 0.52
+    opacity: 0.48
   });
   const hitboxWire = new THREE.LineSegments(hitboxEdges, hitboxMat);
   hitboxWire.position.y = hy * 0.5;
@@ -249,13 +257,13 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
 
   const primaryMat = new THREE.MeshStandardMaterial({
     color: colorHex,
-    metalness: isHuman ? 0.2 : 0.65,
-    roughness: 0.35
+    metalness: isHuman ? 0.18 : 0.65,
+    roughness: isHuman ? 0.45 : 0.32
   });
   const darkJointMat = new THREE.MeshStandardMaterial({
     color: 0x1e293b,
-    metalness: 0.7,
-    roughness: 0.3
+    metalness: 0.5,
+    roughness: 0.4
   });
   const visorMat = new THREE.MeshStandardMaterial({
     color: 0x38bdf8,
@@ -263,49 +271,111 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
     emissiveIntensity: 0.9
   });
 
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.42, 0.18), primaryMat);
+  const torso = new THREE.Mesh(
+    new THREE.BoxGeometry(isHuman ? 0.30 : 0.32, isHuman ? 0.46 : 0.42, 0.19),
+    primaryMat
+  );
   torso.position.y = 0.76;
   bodyGroup.add(torso);
 
-  const head = new THREE.Mesh(
-    isHuman
-      ? new THREE.SphereGeometry(0.12, 12, 12)
-      : new THREE.BoxGeometry(0.20, 0.18, 0.20),
-    primaryMat
-  );
-  head.position.y = 1.10;
-  bodyGroup.add(head);
+  if (isHuman) {
+    // High-visibility reflective safety vest band across human technician torso
+    const vestBandMat = new THREE.MeshStandardMaterial({
+      color: 0xeab308,
+      emissive: 0xca8a04,
+      emissiveIntensity: 0.25,
+      roughness: 0.3
+    });
+    const vestBand = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.07, 0.20), vestBandMat);
+    vestBand.position.y = 0.78;
+    bodyGroup.add(vestBand);
 
-  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.05), visorMat);
-  visor.position.set(0, 1.10, 0.10);
-  bodyGroup.add(visor);
+    // Human face/head + industrial safety hard-hat
+    const skinMat = new THREE.MeshStandardMaterial({
+      color: 0xf1c27d,
+      roughness: 0.55,
+      metalness: 0.05
+    });
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 16), skinMat);
+    head.position.y = 1.13;
+    bodyGroup.add(head);
+
+    // Safety glasses / visor
+    const glasses = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.045, 0.04), darkJointMat);
+    glasses.position.set(0, 1.14, 0.10);
+    bodyGroup.add(glasses);
+
+    // Industrial Hard-Hat Dome + Brim
+    const helmetMat = new THREE.MeshStandardMaterial({
+      color: colorHex,
+      roughness: 0.25,
+      metalness: 0.2
+    });
+    const helmetDome = new THREE.Mesh(
+      new THREE.SphereGeometry(0.13, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55),
+      helmetMat
+    );
+    helmetDome.position.y = 1.15;
+    bodyGroup.add(helmetDome);
+
+    const helmetBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.145, 0.145, 0.02, 16), helmetMat);
+    helmetBrim.position.set(0, 1.16, 0.015);
+    bodyGroup.add(helmetBrim);
+  } else {
+    // Autonomous AMR Robot Head + Glowing LiDAR Visor
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.19, 0.22), primaryMat);
+    head.position.y = 1.10;
+    bodyGroup.add(head);
+
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.06, 0.05), visorMat);
+    visor.position.set(0, 1.10, 0.10);
+    bodyGroup.add(visor);
+  }
 
   const leftLegPivot = new THREE.Group();
-  leftLegPivot.position.set(-0.08, 0.52, 0);
-  const leftLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.48, 0.10), darkJointMat);
+  leftLegPivot.position.set(-0.085, 0.52, 0);
+  const leftLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.48, 0.105), darkJointMat);
   leftLegMesh.position.y = -0.24;
   leftLegPivot.add(leftLegMesh);
   bodyGroup.add(leftLegPivot);
 
   const rightLegPivot = new THREE.Group();
-  rightLegPivot.position.set(0.08, 0.52, 0);
-  const rightLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.48, 0.10), darkJointMat);
+  rightLegPivot.position.set(0.085, 0.52, 0);
+  const rightLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.48, 0.105), darkJointMat);
   rightLegMesh.position.y = -0.24;
   rightLegPivot.add(rightLegMesh);
   bodyGroup.add(rightLegPivot);
 
   const leftArmPivot = new THREE.Group();
-  leftArmPivot.position.set(-0.19, 0.94, 0);
-  const leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.38, 0.08), primaryMat);
+  leftArmPivot.position.set(-0.20, 0.94, 0);
+  const leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.38, 0.085), primaryMat);
   leftArmMesh.position.y = -0.18;
   leftArmPivot.add(leftArmMesh);
   bodyGroup.add(leftArmPivot);
 
   const rightArmPivot = new THREE.Group();
-  rightArmPivot.position.set(0.19, 0.94, 0);
-  const rightArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.38, 0.08), primaryMat);
+  rightArmPivot.position.set(0.20, 0.94, 0);
+  const rightArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.38, 0.085), primaryMat);
   rightArmMesh.position.y = -0.18;
   rightArmPivot.add(rightArmMesh);
+
+  // 3D Steel Wrench Tool in Right Hand (visible during REPAIRING state)
+  const toolMat = new THREE.MeshStandardMaterial({
+    color: 0xe2e8f0,
+    metalness: 0.85,
+    roughness: 0.2
+  });
+  const wrenchGroup = new THREE.Group();
+  const wrenchShaft = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.04, 0.26), toolMat);
+  wrenchShaft.position.set(0, -0.35, 0.11);
+  wrenchGroup.add(wrenchShaft);
+  const wrenchJaw = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.03, 12), toolMat);
+  wrenchJaw.rotation.z = Math.PI / 2;
+  wrenchJaw.position.set(0, -0.35, 0.24);
+  wrenchGroup.add(wrenchJaw);
+  wrenchGroup.visible = false;
+  rightArmPivot.add(wrenchGroup);
+
   bodyGroup.add(rightArmPivot);
 
   const radarGeo = new THREE.RingGeometry(0.96, 1.0, 36);
@@ -326,6 +396,7 @@ function createHumanoidRig(colorHex = 0xf97316, isHuman = false, hitboxSize = [0
     rightLegPivot,
     leftArmPivot,
     rightArmPivot,
+    wrenchGroup,
     radarRing,
     hitboxWire,
     currentAngle: 0
@@ -426,7 +497,20 @@ export default function BoilerRoomViewport({
   onQuickMutateTelemetry,
   onOpenArHud,
   customPlyBuffer,
-  onLoadStats
+  onLoadStats,
+  exerciseMode = false,
+  onToggleExerciseMode,
+  exercisePaused = false,
+  onToggleExercisePaused,
+  exerciseWorkers = [],
+  selectedWorkerId = null,
+  onSelectWorker,
+  onAddWorker,
+  onDeleteWorker,
+  onInjectRandomFault,
+  autoDispatch = true,
+  onToggleAutoDispatch,
+  onArTrafficSignalChange
 }) {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
@@ -440,6 +524,10 @@ export default function BoilerRoomViewport({
   const pathGroupRef = useRef(null);
   const navGraphGroupRef = useRef(null);
   const fleetGroupRef = useRef(null);
+  const exerciseGroupRef = useRef(null);
+  const exercisePathGroupRef = useRef(null);
+  const exerciseWorkerRigsRef = useRef(new Map());
+  const arTrafficGateRef = useRef(null);
   const laserWaveMeshRef = useRef(null);
   const primaryRigRef = useRef(null);
   const secondaryRigsRef = useRef({});
@@ -449,6 +537,17 @@ export default function BoilerRoomViewport({
   // Nothing pops up or shows object details until the user explicitly clicks/interacts with a 3D object!
   const [clickedPopoverAssetId, setClickedPopoverAssetId] = useState(null);
   const [clickedScreenAnchor, setClickedScreenAnchor] = useState(null);
+  const [workerOverlays, setWorkerOverlays] = useState([]);
+  const [arTrafficOverride, setArTrafficOverride] = useState('AUTO'); // 'AUTO' | 'RED' | 'YELLOW' | 'GREEN'
+  const [liveArSignal, setLiveArSignal] = useState({
+    light: 'GREEN',
+    headline: 'GREEN LIGHT — PROCEED',
+    detail: 'Corridor clear · Right-of-way granted',
+    conflictingUnitId: null,
+    distanceMeters: null,
+    speedMultiplier: 1.0,
+    laneOffset: 0
+  });
 
   const keysPressedRef = useRef({});
   const manualPosRef = useRef(null);
@@ -475,7 +574,12 @@ export default function BoilerRoomViewport({
     simPlaying,
     simProgress,
     proximityRadius,
-    arFirstPersonMode
+    arFirstPersonMode,
+    exerciseMode,
+    exercisePaused,
+    exerciseWorkers,
+    selectedWorkerId,
+    arTrafficOverride
   });
 
   useEffect(() => {
@@ -497,7 +601,12 @@ export default function BoilerRoomViewport({
       simPlaying,
       simProgress,
       proximityRadius,
-      arFirstPersonMode
+      arFirstPersonMode,
+      exerciseMode,
+      exercisePaused,
+      exerciseWorkers,
+      selectedWorkerId,
+      arTrafficOverride
     };
   }, [
     assets,
@@ -517,7 +626,12 @@ export default function BoilerRoomViewport({
     simPlaying,
     simProgress,
     proximityRadius,
-    arFirstPersonMode
+    arFirstPersonMode,
+    exerciseMode,
+    exercisePaused,
+    exerciseWorkers,
+    selectedWorkerId,
+    arTrafficOverride
   ]);
 
   useEffect(() => {
@@ -537,12 +651,13 @@ export default function BoilerRoomViewport({
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
-      52,
+      50,
       container.clientWidth / container.clientHeight,
       0.1,
       100
     );
-    camera.position.set(0.2, 2.3, -3.4);
+    // Zoomed-out default perspective so the entire equipment room and worker staging line fit comfortably
+    camera.position.set(0.2, 3.35, -4.85);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -552,10 +667,10 @@ export default function BoilerRoomViewport({
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0.1, -0.25, 1.85);
+    controls.target.set(0.1, -0.35, 1.55);
     controls.enableDamping = true;
     controls.dampingFactor = 0.07;
-    controls.maxDistance = 16;
+    controls.maxDistance = 18;
     controls.minDistance = 0.4;
     controls.update();
     controlsRef.current = controls;
@@ -607,18 +722,74 @@ export default function BoilerRoomViewport({
     const pathGroup = new THREE.Group();
     const navGraphGroup = new THREE.Group();
     const fleetGroup = new THREE.Group();
+    const exerciseGroup = new THREE.Group();
+    const exercisePathGroup = new THREE.Group();
+
+    // Clear rig map on new scene mount (prevents React 18 StrictMode stale parent references)
+    exerciseWorkerRigsRef.current.clear();
+
+    // Staging Station Line Pad on Floor (z = -0.32) where workers stand in a line
+    const stagingPadGeo = new THREE.PlaneGeometry(5.2, 0.56);
+    stagingPadGeo.rotateX(-Math.PI / 2);
+    const stagingPadMat = new THREE.MeshBasicMaterial({
+      color: 0x1f6fb2,
+      transparent: true,
+      opacity: 0.14,
+      side: THREE.DoubleSide
+    });
+    const stagingPad = new THREE.Mesh(stagingPadGeo, stagingPadMat);
+    stagingPad.position.set(0, -1.036, -0.32);
+    exerciseGroup.add(stagingPad);
+
+    const stagingBorder = new THREE.LineSegments(
+      new THREE.EdgesGeometry(stagingPadGeo),
+      new THREE.LineBasicMaterial({ color: 0x1f6fb2, transparent: true, opacity: 0.65 })
+    );
+    stagingBorder.position.copy(stagingPad.position);
+    exerciseGroup.add(stagingBorder);
+
+    // 3D AR Traffic Red-Light / Green-Light Virtual Floor Gate & Beacon (visible in 1st-Person AR Mode)
+    const arGateGroup = new THREE.Group();
+    const gateBarGeo = new THREE.BoxGeometry(0.95, 0.03, 0.12);
+    const gateBarMat = new THREE.MeshBasicMaterial({
+      color: 0x49a942,
+      transparent: true,
+      opacity: 0.85
+    });
+    const gateBar = new THREE.Mesh(gateBarGeo, gateBarMat);
+    gateBar.position.set(0, 0.03, 0);
+    arGateGroup.add(gateBar);
+
+    const gateArchGeo = new THREE.RingGeometry(0.38, 0.44, 28, 1, 0, Math.PI);
+    const gateArchMat = new THREE.MeshBasicMaterial({
+      color: 0x49a942,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.65
+    });
+    const gateArch = new THREE.Mesh(gateArchGeo, gateArchMat);
+    gateArch.position.set(0, 0.05, 0);
+    arGateGroup.add(gateArch);
+    arGateGroup.visible = false;
+    arGateGroup.userData = { gateBarMat, gateArchMat };
+    scene.add(arGateGroup);
+    arTrafficGateRef.current = arGateGroup;
 
     scene.add(assetGroup);
     scene.add(structuralGroup);
     scene.add(pathGroup);
     scene.add(navGraphGroup);
     scene.add(fleetGroup);
+    scene.add(exerciseGroup);
+    scene.add(exercisePathGroup);
 
     assetGroupRef.current = assetGroup;
     structuralGroupRef.current = structuralGroup;
     pathGroupRef.current = pathGroup;
     navGraphGroupRef.current = navGraphGroup;
     fleetGroupRef.current = fleetGroup;
+    exerciseGroupRef.current = exerciseGroup;
+    exercisePathGroupRef.current = exercisePathGroup;
 
     const primaryRig = createHumanoidRig(0xd96b27, false, [0.58, 1.38, 0.58]);
     fleetGroup.add(primaryRig);
@@ -691,9 +862,16 @@ export default function BoilerRoomViewport({
         setLoadingState(null);
       });
 
-    // Keyboard WASD / Arrow Keys Listener
+    // Keyboard WASD / Arrow Keys / Delete Worker Listener
     const handleKeyDown = (e) => {
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+      if ((e.key === 'Delete' || e.key === 'Backspace') && stateRef.current.selectedWorkerId) {
+        e.preventDefault();
+        if (onDeleteWorker) onDeleteWorker(stateRef.current.selectedWorkerId);
+        return;
+      }
+
       const k = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
         keysPressedRef.current[k] = true;
@@ -738,7 +916,22 @@ export default function BoilerRoomViewport({
 
       raycaster.setFromCamera(mouse, camera);
 
-      // 1. Check 30 Contoured 3D Assets FIRST
+      // 0. Check Exercise Mode Workers FIRST so clicking a worker selects them (for Delete or manual dispatch)
+      if (stateRef.current.exerciseMode && exerciseGroupRef.current) {
+        const workerHits = raycaster.intersectObjects(exerciseGroupRef.current.children, true);
+        if (workerHits.length > 0) {
+          let wObj = workerHits[0].object;
+          while (wObj && !wObj.userData?.workerId) {
+            wObj = wObj.parent;
+          }
+          if (wObj?.userData?.workerId) {
+            if (onSelectWorker) onSelectWorker(wObj.userData.workerId);
+            return;
+          }
+        }
+      }
+
+      // 1. Check 30 Contoured 3D Assets
       if (assetGroupRef.current) {
         const hits = raycaster.intersectObjects(assetGroupRef.current.children, true);
         if (hits.length > 0) {
@@ -769,9 +962,10 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // 3. Clicked on empty space -> hide the Popover Card so screen stays 100% clean!
+      // 3. Clicked on empty space -> hide the Popover Card and deselect worker
       setClickedPopoverAssetId(null);
       setClickedScreenAnchor(null);
+      if (onSelectWorker) onSelectWorker(null);
     };
 
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
@@ -789,10 +983,18 @@ export default function BoilerRoomViewport({
     let lastTime = performance.now();
     let labelTick = 0;
 
-    const updateRigOnPath = (rig, points, progress, isMoving, now, proxRadius) => {
+    const updateRigOnPath = (rig, points, progress, isMoving, now, proxRadius, obstacles) => {
       if (!rig || !points || points.length === 0) return { position: [0, -1.02, 0], tangent: [0, 0, 1] };
       const sample = samplePathAtProgress(points, progress);
-      rig.position.set(sample.position[0], sample.position[1], sample.position[2]);
+      const [safeX, safeZ] = resolveObstacleCollisions(
+        sample.position[0],
+        sample.position[2],
+        0.24,
+        obstacles
+      );
+      sample.position[0] = safeX;
+      sample.position[2] = safeZ;
+      rig.position.set(safeX, sample.position[1], safeZ);
 
       const targetAngle = Math.atan2(sample.tangent[0], sample.tangent[2]);
       const prevAngle = rig.userData.currentAngle ?? targetAngle;
@@ -827,6 +1029,7 @@ export default function BoilerRoomViewport({
       lastTime = now;
 
       const st = stateRef.current;
+      const obstacles = buildCollisionBoxes(st.assets);
 
       // Animate AI Semantic Laser Wave if triggered (sweeps from Raw Point Cloud -> Clean 3D CAD World!)
       if (laserSweepStateRef.current.active && laserWaveMeshRef.current) {
@@ -845,28 +1048,275 @@ export default function BoilerRoomViewport({
         }
       }
 
-      // WASD / Arrow Keys Manual Walking vs. Centerline Rail Patrol
+      // Toggle visibility between Simulation Exercise Mode and Standard Fleet Patrol Mode
+      if (fleetGroupRef.current) fleetGroupRef.current.visible = !st.exerciseMode;
+      if (pathGroupRef.current) pathGroupRef.current.visible = !st.exerciseMode;
+      if (exerciseGroupRef.current) exerciseGroupRef.current.visible = Boolean(st.exerciseMode);
+      if (exercisePathGroupRef.current) exercisePathGroupRef.current.visible = Boolean(st.exerciseMode);
+
+      // WASD / Arrow Keys Manual Walking vs. Exercise Mode vs. Centerline Rail Patrol
       const keys = keysPressedRef.current;
       const anyWasdDown =
         keys.w || keys.s || keys.a || keys.d || keys.arrowup || keys.arrowdown || keys.arrowleft || keys.arrowright;
 
-      let primarySample;
+      let primarySample = {
+        position: [0, -1.02, -0.32],
+        tangent: [0, 0, 1]
+      };
 
-      if (manualPosRef.current) {
-        const speed = 2.2 * dt;
+      let focusWorkerId = null;
+
+      if (st.exerciseMode) {
+        // Animate all Simulation Exercise Workers (standing in a line, walking with traffic rules, repairing, returning)
+        const rigMap = exerciseWorkerRigsRef.current;
+        const exGroup = exerciseGroupRef.current;
+        const activeIds = new Set(st.exerciseWorkers.map((w) => w.id));
+
+        if (exGroup) {
+          for (const [id, r] of rigMap.entries()) {
+            if (!activeIds.has(id)) {
+              exGroup.remove(r);
+              rigMap.delete(id);
+            }
+          }
+        }
+
+        st.exerciseWorkers.forEach((w, idx) => {
+          const wpos = w.position || w.pos || [0, -1.02, -0.32];
+          let rig = rigMap.get(w.id);
+          if (!rig && exGroup) {
+            const isHuman = w.type === 'human';
+            const hex =
+              typeof w.colorHex === 'number'
+                ? w.colorHex
+                : parseInt(String(w.color || '#1f6fb2').replace('#', ''), 16);
+            rig = createHumanoidRig(
+              hex,
+              isHuman,
+              isHuman ? [0.52, 1.68, 0.48] : [0.58, 1.38, 0.58]
+            );
+            rig.position.set(wpos[0], -1.02, wpos[2]);
+            rig.rotation.y = w.angle || 0;
+            rig.userData.workerId = w.id;
+            rig.traverse((child) => {
+              child.userData.workerId = w.id;
+            });
+            exGroup.add(rig);
+            rigMap.set(w.id, rig);
+          } else if (rig && exGroup && rig.parent !== exGroup) {
+            exGroup.add(rig);
+          }
+          if (!rig) return;
+
+          rig.position.lerp(new THREE.Vector3(wpos[0], -1.02, wpos[2]), 0.35);
+
+          const prevAngle = rig.userData.currentAngle ?? w.angle ?? 0;
+          let diff = (w.angle ?? 0) - prevAngle;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          const smoothAngle = prevAngle + diff * 0.22;
+          rig.userData.currentAngle = smoothAngle;
+          rig.rotation.y = smoothAngle;
+
+          const isWalking =
+            !st.exercisePaused &&
+            (w.state === 'WALKING_TO_FAULT' || w.state === 'RETURNING') &&
+            w.trafficStatus !== 'YIELDING';
+          const isRepairing = w.state === 'REPAIRING';
+
+          const walkCycle = isWalking ? Math.sin(now * 0.012 + idx * 1.3) * 0.58 : 0;
+          const bob = isWalking ? Math.abs(Math.cos(now * 0.012 + idx * 1.3)) * 0.032 : 0;
+
+          if (rig.userData.bodyGroup) {
+            rig.userData.bodyGroup.position.y = bob;
+          }
+          if (rig.userData.wrenchGroup) {
+            rig.userData.wrenchGroup.visible = isRepairing;
+          }
+          if (rig.userData.leftLegPivot && rig.userData.rightLegPivot) {
+            rig.userData.leftLegPivot.rotation.x = walkCycle;
+            rig.userData.rightLegPivot.rotation.x = -walkCycle;
+            if (isRepairing) {
+              // Active tool repair arm motion
+              const wrenchSwing = st.exercisePaused ? 0 : Math.sin(now * 0.022) * 0.38;
+              rig.userData.rightArmPivot.rotation.x = -1.05 + wrenchSwing;
+              rig.userData.leftArmPivot.rotation.x = -0.65;
+            } else {
+              rig.userData.leftArmPivot.rotation.x = -walkCycle * 0.75;
+              rig.userData.rightArmPivot.rotation.x = walkCycle * 0.75;
+            }
+          }
+
+          if (rig.userData.hitboxWire) {
+            const isSel = st.selectedWorkerId === w.id;
+            rig.userData.hitboxWire.material.opacity = isSel ? 1.0 : 0.42;
+          }
+          if (rig.userData.radarRing) {
+            const isSel = st.selectedWorkerId === w.id;
+            rig.userData.radarRing.scale.set(isSel ? 0.85 : 0.52, 1, isSel ? 0.85 : 0.52);
+            if (rig.userData.radarRing.material) {
+              const baseHex =
+                typeof w.colorHex === 'number'
+                  ? w.colorHex
+                  : parseInt(String(w.color || '#1f6fb2').replace('#', ''), 16);
+              const sigHex =
+                w.trafficStatus === 'YIELDING'
+                  ? 0xef4444
+                  : w.trafficStatus === 'PASSING_RIGHT'
+                  ? 0xf59e0b
+                  : baseHex;
+              rig.userData.radarRing.material.color.setHex(sigHex);
+            }
+          }
+        });
+
+        // Update 3D Floor Intersection Block Signals (Red = Locked by Worker, Green = Clear)
+        if (navGraphGroupRef.current) {
+          const lockedNodeSet = new Set();
+          st.exerciseWorkers.forEach((w) => {
+            if (w.lockedNodeId) lockedNodeSet.add(w.lockedNodeId);
+            if (w.state === 'WALKING_TO_FAULT' || w.state === 'RETURNING') {
+              const wpos = w.position || w.pos || [0, -1.02, -0.32];
+              NAV_NODES.forEach((n) => {
+                if (Math.hypot(n.pos[0] - wpos[0], n.pos[2] - wpos[2]) < 0.62) {
+                  lockedNodeSet.add(n.id);
+                }
+              });
+            }
+          });
+          const anyMoving = st.exerciseWorkers.some(
+            (w) => w.state === 'WALKING_TO_FAULT' || w.state === 'RETURNING'
+          );
+          navGraphGroupRef.current.children.forEach((obj) => {
+            if (obj.userData?.isNavNodeSphere && !obj.userData?.isHazard) {
+              const isLocked = lockedNodeSet.has(obj.userData.nodeId);
+              obj.material.color.setHex(
+                isLocked ? 0xef4444 : anyMoving ? 0x49a942 : obj.userData.isStair ? 0x38bdf8 : 0x64748b
+              );
+              obj.material.opacity = isLocked ? 0.95 : anyMoving ? 0.82 : 0.6;
+            }
+            if (obj.userData?.isNavSignalRing && !obj.userData?.isHazard) {
+              const isLocked = lockedNodeSet.has(obj.userData.nodeId);
+              obj.visible = Boolean(anyMoving || isLocked);
+              obj.material.color.setHex(isLocked ? 0xef4444 : 0x49a942);
+              obj.material.opacity = isLocked ? 0.78 : 0.35;
+            }
+          });
+        }
+
+        const focusWorker =
+          st.exerciseWorkers.find((w) => w.id === st.selectedWorkerId) ||
+          st.exerciseWorkers.find((w) => w.state !== 'STANDBY') ||
+          st.exerciseWorkers[0];
+        if (focusWorker) {
+          const fwPos = focusWorker.position || focusWorker.pos || [0, -1.02, -0.32];
+          focusWorkerId = focusWorker.id;
+          primarySample = {
+            position: [fwPos[0], -1.02, fwPos[2]],
+            tangent: [Math.sin(focusWorker.angle || 0), 0, Math.cos(focusWorker.angle || 0)]
+          };
+        }
+      }
+
+      // Compute AR Red-Light / Yellow-Light / Green-Light Traffic Signal for current avatar
+      const trafficPeers = st.exerciseMode
+        ? st.exerciseWorkers
+        : [
+            secondaryRigsRef.current?.R2?.visible && {
+              id: 'R2',
+              type: 'robot',
+              state: 'WALKING_TO_FAULT',
+              position: [
+                secondaryRigsRef.current.R2.position.x,
+                -1.02,
+                secondaryRigsRef.current.R2.position.z
+              ],
+              angle: secondaryRigsRef.current.R2.rotation.y
+            },
+            secondaryRigsRef.current?.H1?.visible && {
+              id: 'H1',
+              type: 'human',
+              state: 'WALKING_TO_FAULT',
+              position: [
+                secondaryRigsRef.current.H1.position.x,
+                -1.02,
+                secondaryRigsRef.current.H1.position.z
+              ],
+              angle: secondaryRigsRef.current.H1.rotation.y
+            }
+          ].filter(Boolean);
+
+      let activeSignal = computeArTrafficSignal(
+        primarySample.position,
+        primarySample.tangent,
+        trafficPeers,
+        focusWorkerId
+      );
+
+      if (st.arTrafficOverride === 'RED') {
+        activeSignal = {
+          light: 'RED',
+          headline: 'RED LIGHT — HOLD POSITION',
+          detail: 'Intersection stop signal active · Forward motion gated',
+          conflictingUnitId: activeSignal.conflictingUnitId || 'Cross-Traffic',
+          distanceMeters: activeSignal.distanceMeters || 0.85,
+          speedMultiplier: 0,
+          laneOffset: 0
+        };
+      } else if (st.arTrafficOverride === 'YELLOW') {
+        activeSignal = {
+          light: 'YELLOW',
+          headline: 'YELLOW LIGHT — KEEP RIGHT LANE',
+          detail: 'Shared corridor active · Right-hand passing offset +0.22 m',
+          conflictingUnitId: activeSignal.conflictingUnitId || 'Oncoming Unit',
+          distanceMeters: activeSignal.distanceMeters || 1.45,
+          speedMultiplier: 0.75,
+          laneOffset: 0.22
+        };
+      } else if (st.arTrafficOverride === 'GREEN') {
+        activeSignal = {
+          light: 'GREEN',
+          headline: 'GREEN LIGHT — PROCEED',
+          detail: 'Corridor clear · Full right-of-way granted',
+          conflictingUnitId: null,
+          distanceMeters: activeSignal.distanceMeters,
+          speedMultiplier: 1.0,
+          laneOffset: 0
+        };
+      }
+
+      if (!st.exerciseMode && manualPosRef.current) {
+        const speed = 2.2 * dt * (st.arFirstPersonMode ? activeSignal.speedMultiplier : 1.0);
         const turnSpeed = 2.3 * dt;
         if (keys.a || keys.arrowleft) manualPosRef.current.angle += turnSpeed;
         if (keys.d || keys.arrowright) manualPosRef.current.angle -= turnSpeed;
 
         let moveDir = 0;
-        if (keys.w || keys.arrowup) moveDir = 1;
+        if (keys.w || keys.arrowup) {
+          // Red Light in AR Mode gates forward motion while still allowing backing up or turning
+          moveDir = st.arFirstPersonMode && activeSignal.light === 'RED' ? 0 : 1;
+        }
         if (keys.s || keys.arrowdown) moveDir = -1;
 
         if (moveDir !== 0) {
-          const nx = manualPosRef.current.x + Math.sin(manualPosRef.current.angle) * speed * moveDir;
-          const nz = manualPosRef.current.z + Math.cos(manualPosRef.current.angle) * speed * moveDir;
-          manualPosRef.current.x = Math.max(-4.2, Math.min(4.2, nx));
-          manualPosRef.current.z = Math.max(-1.2, Math.min(3.8, nz));
+          const prevX = manualPosRef.current.x;
+          const prevZ = manualPosRef.current.z;
+          const nx = prevX + Math.sin(manualPosRef.current.angle) * speed * moveDir;
+          const nz = prevZ + Math.cos(manualPosRef.current.angle) * speed * moveDir;
+          // Sub-step collision resolution with smooth wall/equipment sliding
+          const [rx, rz] = resolveObstacleCollisions(nx, nz, 0.26, obstacles, prevX, prevZ);
+          manualPosRef.current.x = rx;
+          manualPosRef.current.z = rz;
+        } else {
+          // Ensure resting position is also outside any equipment
+          const [rx, rz] = resolveObstacleCollisions(
+            manualPosRef.current.x,
+            manualPosRef.current.z,
+            0.26,
+            obstacles
+          );
+          manualPosRef.current.x = rx;
+          manualPosRef.current.z = rz;
         }
 
         const rig = primaryRigRef.current;
@@ -875,7 +1325,7 @@ export default function BoilerRoomViewport({
           rig.rotation.y = manualPosRef.current.angle;
           rig.userData.currentAngle = manualPosRef.current.angle;
 
-          const walkCycle = anyWasdDown ? Math.sin(now * 0.014) * 0.6 : 0;
+          const walkCycle = anyWasdDown && moveDir !== 0 ? Math.sin(now * 0.014) * 0.6 : 0;
           if (rig.userData.leftLegPivot && rig.userData.rightLegPivot) {
             rig.userData.leftLegPivot.rotation.x = walkCycle;
             rig.userData.rightLegPivot.rotation.x = -walkCycle;
@@ -891,11 +1341,12 @@ export default function BoilerRoomViewport({
           position: [manualPosRef.current.x, -1.02, manualPosRef.current.z],
           tangent: [Math.sin(manualPosRef.current.angle), 0, Math.cos(manualPosRef.current.angle)]
         };
-      } else {
+      } else if (!st.exerciseMode) {
         const activePath = st.activeProfile === 'human' ? st.humanPath : st.robotPath;
         let currentProgress = st.simProgress;
-        if (st.simPlaying && activePath?.points?.length > 1) {
-          currentProgress = st.simProgress + dt * 0.15;
+        const speedMult = st.arFirstPersonMode ? activeSignal.speedMultiplier : 1.0;
+        if (st.simPlaying && !st.exercisePaused && activePath?.points?.length > 1 && speedMult > 0) {
+          currentProgress = st.simProgress + dt * 0.15 * speedMult;
           if (currentProgress >= 1) {
             currentProgress = 0;
           }
@@ -904,17 +1355,18 @@ export default function BoilerRoomViewport({
 
         primarySample = updateRigOnPath(
           primaryRigRef.current,
-          activePath?.points || [[0, -1.02, -0.2]],
+          activePath?.points || [[0, -1.02, -0.25]],
           currentProgress,
-          st.simPlaying,
+          st.simPlaying && !st.exercisePaused && speedMult > 0,
           now,
-          st.proximityRadius
+          st.proximityRadius,
+          obstacles
         );
       }
 
-      // Secondary Multi-Agent Fleet Rigs (R2, H1)
+      // Secondary Multi-Agent Fleet Rigs (R2, H1) + Mutual Traffic Avoidance in Standard Mode
       const secRigs = secondaryRigsRef.current;
-      if (secRigs.R2 && secRigs.H1) {
+      if (!st.exerciseMode && secRigs.R2 && secRigs.H1) {
         secRigs.R2.visible = Boolean(st.multiAgentEnabled);
         secRigs.H1.visible = Boolean(st.multiAgentEnabled);
 
@@ -926,9 +1378,10 @@ export default function BoilerRoomViewport({
               secRigs.R2,
               r2Assign.path.points,
               (st.simProgress + 0.33) % 1.0,
-              st.simPlaying,
+              st.simPlaying && !st.exercisePaused,
               now + 400,
-              st.proximityRadius * 0.75
+              st.proximityRadius * 0.75,
+              obstacles
             );
           }
           if (h1Assign?.path?.points) {
@@ -936,16 +1389,63 @@ export default function BoilerRoomViewport({
               secRigs.H1,
               h1Assign.path.points,
               (st.simProgress + 0.66) % 1.0,
-              st.simPlaying,
+              st.simPlaying && !st.exercisePaused,
               now + 800,
-              st.proximityRadius * 0.75
+              st.proximityRadius * 0.75,
+              obstacles
             );
+          }
+
+          // Enforce mutual personal-space traffic separation across R1, R2, H1
+          const activeRigs = [primaryRigRef.current, secRigs.R2, secRigs.H1].filter(Boolean);
+          const minSep = 0.66;
+          for (let i = 0; i < activeRigs.length; i++) {
+            for (let j = i + 1; j < activeRigs.length; j++) {
+              const a = activeRigs[i];
+              const b = activeRigs[j];
+              const dx = b.position.x - a.position.x;
+              const dz = b.position.z - a.position.z;
+              const d = Math.hypot(dx, dz);
+              if (d < minSep && d > 1e-4) {
+                const push = (minSep - d) * 0.55;
+                const nx = dx / d;
+                const nz = dz / d;
+                const [ax, az] = resolveObstacleCollisions(a.position.x - nx * push, a.position.z - nz * push, 0.24, obstacles);
+                const [bx, bz] = resolveObstacleCollisions(b.position.x + nx * push, b.position.z + nz * push, 0.24, obstacles);
+                a.position.x = ax;
+                a.position.z = az;
+                b.position.x = bx;
+                b.position.z = bz;
+              }
+            }
           }
         }
       }
 
+      // Update 3D AR Traffic Virtual Floor Gate & Beacon in 1st-Person AR Mode
+      if (arTrafficGateRef.current) {
+        arTrafficGateRef.current.visible = Boolean(st.arFirstPersonMode);
+        if (st.arFirstPersonMode) {
+          const gateX = primarySample.position[0] + primarySample.tangent[0] * 1.15;
+          const gateZ = primarySample.position[2] + primarySample.tangent[2] * 1.15;
+          arTrafficGateRef.current.position.set(gateX, -1.02, gateZ);
+          arTrafficGateRef.current.rotation.y = Math.atan2(
+            primarySample.tangent[0],
+            primarySample.tangent[2]
+          );
+          const sigColor =
+            activeSignal.light === 'RED'
+              ? 0xef4444
+              : activeSignal.light === 'YELLOW'
+              ? 0xf59e0b
+              : 0x49a942;
+          arTrafficGateRef.current.userData.gateBarMat?.color.setHex(sigColor);
+          arTrafficGateRef.current.userData.gateArchMat?.color.setHex(sigColor);
+        }
+      }
+
       // First-Person AR Camera Mode: Position camera slightly behind & above the avatar so the robot body never blocks your view!
-      if (st.arFirstPersonMode && primaryRigRef.current) {
+      if (st.arFirstPersonMode) {
         const eyeX = primarySample.position[0] + primarySample.tangent[0] * 0.35;
         const eyeY = primarySample.position[1] + 1.32;
         const eyeZ = primarySample.position[2] + primarySample.tangent[2] * 0.35;
@@ -1033,17 +1533,52 @@ export default function BoilerRoomViewport({
         }
       });
 
-      // Project ONLY the currently clicked/interacted object's 3D anchor position!
+      // Project 3D anchor positions for clicked asset popover AND active exercise worker repair badges
       labelTick++;
-      if (labelTick % 4 === 0 && container) {
+      if (labelTick % 3 === 0 && container) {
         nearby.sort((a, b) => a.distanceToAvatar - b.distanceToAvatar);
         onNearbyAssetsChange(nearby);
+        setLiveArSignal(activeSignal);
+        if (onArTrafficSignalChange) onArTrafficSignalChange(activeSignal);
+
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        if (st.exerciseMode && st.exerciseWorkers?.length) {
+          const overlays = [];
+          st.exerciseWorkers.forEach((w) => {
+            const wpos = w.position || w.pos || [0, -1.02, -0.32];
+            const isSelected = st.selectedWorkerId === w.id;
+            const headPos = new THREE.Vector3(wpos[0], -1.02 + 1.55, wpos[2]);
+            headPos.project(camera);
+            if (headPos.z > -1 && headPos.z < 1) {
+              const sx = (headPos.x * 0.5 + 0.5) * width;
+              const sy = (-(headPos.y * 0.5) + 0.5) * height;
+              if (sx >= 10 && sx <= width - 10 && sy >= 10 && sy <= height - 10) {
+                overlays.push({
+                  id: w.id,
+                  label: w.label,
+                  color: w.color,
+                  state: w.state,
+                  targetTag: w.targetTag,
+                  repairProgress: w.repairProgress,
+                  trafficStatus: w.trafficStatus,
+                  blockingUnitId: w.blockingUnitId,
+                  isSelected,
+                  x: sx,
+                  y: sy
+                });
+              }
+            }
+          });
+          setWorkerOverlays(overlays);
+        } else {
+          setWorkerOverlays([]);
+        }
 
         if (st.clickedPopoverAssetId) {
           const clickedAsset = st.assets.find((a) => a.asset_id === st.clickedPopoverAssetId);
           if (clickedAsset) {
-            const width = container.clientWidth;
-            const height = container.clientHeight;
             const worldPos = new THREE.Vector3(
               clickedAsset.position[0],
               clickedAsset.position[1] + clickedAsset.bbox_size[1] * 0.68,
@@ -1379,8 +1914,34 @@ export default function BoilerRoomViewport({
       });
       const sphere = new THREE.Mesh(sphereGeo, sphereMat);
       sphere.position.set(node.pos[0], node.pos[1] + 0.04, node.pos[2]);
-      sphere.userData = { nodeId: node.id, label: node.label };
+      sphere.userData = {
+        nodeId: node.id,
+        label: node.label,
+        isNavNodeSphere: true,
+        isHazard,
+        isStair
+      };
       navGraphGroup.add(sphere);
+
+      if (!isHazard && node.id !== 'N-ENTRY') {
+        const ringGeo = new THREE.RingGeometry(0.18, 0.24, 24);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: 0x49a942,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.35
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.set(node.pos[0], node.pos[1] + 0.014, node.pos[2]);
+        ring.visible = false;
+        ring.userData = {
+          nodeId: node.id,
+          isNavSignalRing: true,
+          isHazard
+        };
+        navGraphGroup.add(ring);
+      }
 
       if (isHazard) {
         const hazGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.9, 18);
@@ -1398,6 +1959,93 @@ export default function BoilerRoomViewport({
     });
   }, [humanPath, robotPath, activeProfile, railMode, multiAgentEnabled, fleetAssignments, showDualComparison, hazardNodes, selectedAsset]);
 
+  // Sync Dynamic Exercise Workers & Active Repair Route Tubes in 3D Scene
+  useEffect(() => {
+    const exerciseGroup = exerciseGroupRef.current;
+    const exercisePathGroup = exercisePathGroupRef.current;
+    if (!exerciseGroup || !exercisePathGroup) return;
+
+    const rigMap = exerciseWorkerRigsRef.current;
+    const activeIds = new Set(exerciseWorkers.map((w) => w.id));
+
+    // Remove deleted workers from 3D group
+    for (const [id, rig] of rigMap.entries()) {
+      if (!activeIds.has(id)) {
+        exerciseGroup.remove(rig);
+        rigMap.delete(id);
+      }
+    }
+
+    // Add or update existing workers
+    exerciseWorkers.forEach((w) => {
+      const wpos = w.position || w.pos || [0, -1.02, -0.32];
+      let rig = rigMap.get(w.id);
+      if (!rig) {
+        const isHuman = w.type === 'human';
+        const hex =
+          typeof w.colorHex === 'number'
+            ? w.colorHex
+            : parseInt(String(w.color || '#1f6fb2').replace('#', ''), 16);
+        rig = createHumanoidRig(
+          hex,
+          isHuman,
+          isHuman ? [0.52, 1.68, 0.48] : [0.58, 1.38, 0.58]
+        );
+        rig.position.set(wpos[0], -1.02, wpos[2]);
+        rig.rotation.y = w.angle || 0;
+        rig.userData.workerId = w.id;
+        rig.traverse((child) => {
+          child.userData.workerId = w.id;
+        });
+        exerciseGroup.add(rig);
+        rigMap.set(w.id, rig);
+      } else if (rig.parent !== exerciseGroup) {
+        exerciseGroup.add(rig);
+      }
+    });
+
+    // Rebuild active worker route tubes in exercisePathGroup
+    while (exercisePathGroup.children.length > 0) {
+      exercisePathGroup.remove(exercisePathGroup.children[0]);
+    }
+
+    if (exerciseMode) {
+      const isZig = railMode === 'zigzag_grid';
+      exerciseWorkers.forEach((w, idx) => {
+        if (w.state === 'STANDBY' || !w.pathPoints || w.pathPoints.length < 2) return;
+        const hex =
+          typeof w.colorHex === 'number'
+            ? w.colorHex
+            : parseInt(String(w.color || '#1f6fb2').replace('#', ''), 16);
+        const vecs = w.pathPoints.map(
+          (p) => new THREE.Vector3(p[0], p[1] + 0.03 + (idx % 4) * 0.012, p[2])
+        );
+        const curve = new THREE.CatmullRomCurve3(
+          vecs,
+          false,
+          isZig ? 'centripetal' : 'catmullrom',
+          isZig ? 0.01 : 0.35
+        );
+        const tubeGeo = new THREE.TubeGeometry(
+          curve,
+          Math.max(20, w.pathPoints.length * 5),
+          0.032,
+          8,
+          false
+        );
+        const tubeMat = new THREE.MeshStandardMaterial({
+          color: hex,
+          emissive: hex,
+          emissiveIntensity: 0.45,
+          roughness: 0.25,
+          transparent: true,
+          opacity: w.state === 'RETURNING' ? 0.45 : 0.88
+        });
+        exercisePathGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+      });
+    }
+  }, [exerciseWorkers, exerciseMode, railMode]);
+
   const handleResetCamera = () => {
     if (arFirstPersonMode) onToggleArFirstPerson(false);
     manualPosRef.current = null;
@@ -1405,8 +2053,8 @@ export default function BoilerRoomViewport({
     setClickedPopoverAssetId(null);
     setClickedScreenAnchor(null);
     if (!cameraRef.current || !controlsRef.current) return;
-    cameraRef.current.position.set(0.2, 2.3, -3.4);
-    controlsRef.current.target.set(0.1, -0.25, 1.85);
+    cameraRef.current.position.set(0.2, 3.35, -4.85);
+    controlsRef.current.target.set(0.1, -0.35, 1.55);
     controlsRef.current.update();
   };
 
@@ -1415,7 +2063,7 @@ export default function BoilerRoomViewport({
     if (!cameraRef.current || !controlsRef.current || !selectedAsset) return;
     const [x, y, z] = selectedAsset.position;
     controlsRef.current.target.set(x, y, z);
-    cameraRef.current.position.set(x * 0.5, y + 1.1, z - 2.1);
+    cameraRef.current.position.set(x * 0.5, y + 1.35, z - 2.45);
     controlsRef.current.update();
   };
 
@@ -1428,14 +2076,168 @@ export default function BoilerRoomViewport({
     <main className="viewport">
       <div ref={mountRef} className="viewport-canvas" />
 
-      {/* First-Person Field POV Frame */}
-      {arFirstPersonMode && (
-        <div className="fp-frame">
-          <div className="vp-chip top-left mono">
-            <span>First-Person POV · Use W/A/S/D to walk</span>
+      {/* Simulation Exercise Mode Instruction Banner */}
+      {exerciseMode && !arFirstPersonMode && (
+        <div className={`exercise-banner ${exercisePaused ? 'paused' : ''}`}>
+          <div className="row" style={{ gap: '6px', flexWrap: 'wrap' }}>
+            <span className={`status ${exercisePaused ? 'medium' : 'info'}`}>
+              {exercisePaused ? 'TIME PAUSED — BATCH FAULT SETUP' : 'SIMULATION EXERCISE'}
+            </span>
+            <span className="mono muted" style={{ marginLeft: 'auto' }}>
+              {exerciseWorkers.filter((w) => w.state === 'STANDBY').length}/{exerciseWorkers.length} at line
+            </span>
           </div>
-          <div className="fp-reticle" />
+          <div className="exercise-banner-sub">
+            {exercisePaused
+              ? 'Time is frozen. Click multiple equipment items and inject faults (or assign workers in Alerts), then click Resume Time to dispatch all units together.'
+              : 'Inject faults on components (or use Pause Time to batch multiple faults). Standby technicians walk out using right-hand traffic rules, repair with a live tool indicator, and return to the line.'}
+          </div>
+          <div className="row" style={{ gap: '5px', marginTop: '5px', flexWrap: 'wrap' }}>
+            {onToggleExercisePaused && (
+              <button
+                className={`btn btn-sm ${exercisePaused ? 'btn-primary' : ''}`}
+                onClick={() => onToggleExercisePaused(!exercisePaused)}
+                title="Freeze simulation time to inject multiple faults at once"
+              >
+                {exercisePaused ? <Play size={12} /> : <Pause size={12} />}
+                <span>{exercisePaused ? 'Resume Time' : 'Pause Time'}</span>
+              </button>
+            )}
+            {onInjectRandomFault && (
+              <button className="btn btn-sm btn-danger" onClick={onInjectRandomFault}>
+                <Zap size={12} />
+                <span>Inject Random Fault</span>
+              </button>
+            )}
+            {onAddWorker && (
+              <>
+                <button className="btn btn-sm" onClick={() => onAddWorker('human')}>
+                  <Plus size={12} />
+                  <span>+ Technician</span>
+                </button>
+                <button className="btn btn-sm" onClick={() => onAddWorker('robot')}>
+                  <Plus size={12} />
+                  <span>+ AMR</span>
+                </button>
+              </>
+            )}
+            {selectedWorkerId && onDeleteWorker && (
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={() => onDeleteWorker(selectedWorkerId)}
+                title="Remove selected worker (Delete key)"
+              >
+                <Trash2 size={12} />
+                <span>Remove {selectedWorkerId} [Del]</span>
+              </button>
+            )}
+          </div>
         </div>
+      )}
+
+      {/* 2D Floating Repair Progress & Worker Traffic / Selection Badges */}
+      {exerciseMode &&
+        workerOverlays.map((ov) => (
+          <React.Fragment key={ov.id}>
+            {ov.state === 'REPAIRING' ? (
+              <div className="repair-badge" style={{ left: ov.x, top: ov.y }}>
+                <div className="repair-badge-head">
+                  <Wrench size={13} className="tool-spin" />
+                  <span>
+                    {ov.id} fixing {ov.targetTag}
+                  </span>
+                  <span className="mono" style={{ marginLeft: 'auto' }}>
+                    {Math.round(ov.repairProgress)}%
+                  </span>
+                </div>
+                <div className="repair-bar">
+                  <div style={{ width: `${Math.round(ov.repairProgress)}%` }} />
+                </div>
+              </div>
+            ) : (
+              <div
+                className={`worker-tag-overlay ${ov.isSelected ? 'selected' : ''} ${
+                  ov.trafficStatus === 'YIELDING' ? 'yielding' : ''
+                }`}
+                style={{ left: ov.x, top: ov.y }}
+                onClick={() => onSelectWorker && onSelectWorker(ov.id)}
+              >
+                <span className="legend-swatch" style={{ background: ov.color }} />
+                <span className="mono" style={{ fontWeight: 600 }}>
+                  {ov.id}
+                </span>
+                {ov.trafficStatus === 'YIELDING' && (
+                  <span style={{ color: '#ef4444', fontWeight: 700 }}>
+                    · RED YIELD{ov.blockingUnitId ? ` (${ov.blockingUnitId})` : ''}
+                  </span>
+                )}
+                {ov.trafficStatus === 'PASSING_RIGHT' && (
+                  <span style={{ color: '#f59e0b', fontWeight: 600 }}>· SUB-LANE</span>
+                )}
+                {ov.state === 'WALKING_TO_FAULT' && ov.trafficStatus === 'CLEAR' && (
+                  <span className="muted">→ {ov.targetTag}</span>
+                )}
+                {ov.state === 'RETURNING' && ov.trafficStatus === 'CLEAR' && (
+                  <span className="muted">→ Line</span>
+                )}
+                {ov.isSelected && <span className="mono muted">[Del]</span>}
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+
+      {/* First-Person Field POV Frame + AR Red-Light / Green-Light Traffic Signal System */}
+      {arFirstPersonMode && (
+        <>
+          <div className="fp-frame">
+            <div className="vp-chip top-left mono">
+              <span>First-Person AR POV · W/A/S/D Walk (Red Light Gates Forward Motion)</span>
+            </div>
+            <div className="fp-reticle" />
+          </div>
+
+          <div className={`ar-traffic-hud ${liveArSignal.light}`}>
+            <div className="traffic-lights" aria-label="AR Corridor Traffic Signal">
+              <span className={`traffic-lamp red ${liveArSignal.light === 'RED' ? 'on' : ''}`} />
+              <span
+                className={`traffic-lamp yellow ${liveArSignal.light === 'YELLOW' ? 'on' : ''}`}
+              />
+              <span
+                className={`traffic-lamp green ${liveArSignal.light === 'GREEN' ? 'on' : ''}`}
+              />
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="mono" style={{ fontWeight: 700, fontSize: '11.5px' }}>
+                {liveArSignal.headline}
+              </div>
+              <div style={{ fontSize: '11px', color: '#cbd5e1' }} className="truncate">
+                {liveArSignal.detail}
+              </div>
+            </div>
+
+            <div className="row" style={{ gap: '3px', marginLeft: '6px' }}>
+              {['AUTO', 'RED', 'YELLOW', 'GREEN'].map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setArTrafficOverride(mode)}
+                  style={{
+                    fontSize: '10px',
+                    padding: '2px 5px',
+                    borderRadius: '2px',
+                    border: '1px solid #475569',
+                    background: arTrafficOverride === mode ? '#1f6fb2' : '#1e293b',
+                    color: '#fff',
+                    fontFamily: 'var(--mono)'
+                  }}
+                  title={`Set AR traffic signal mode to ${mode}`}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {/* On-Click Asset Callout Popover */}
@@ -1562,6 +2364,24 @@ export default function BoilerRoomViewport({
 
       {/* Top-right Viewport Camera Toolbar */}
       <div className="vp-toolbar">
+        {onToggleExercisePaused && (
+          <button
+            className={exercisePaused ? 'on' : ''}
+            onClick={() => onToggleExercisePaused(!exercisePaused)}
+            title="Pause or resume simulation time to batch multiple faults"
+          >
+            {exercisePaused ? '▶ Resume Time' : '⏸ Pause Time'}
+          </button>
+        )}
+        {onToggleExerciseMode && (
+          <button
+            className={exerciseMode ? 'on' : ''}
+            onClick={() => onToggleExerciseMode(!exerciseMode)}
+            title="Toggle Simulation Exercise Mode (Workers line up & repair injected faults)"
+          >
+            {exerciseMode ? 'Exercise Mode: ON' : 'Exercise Mode'}
+          </button>
+        )}
         {isWasdWalking && (
           <button
             className="on"
@@ -1578,7 +2398,7 @@ export default function BoilerRoomViewport({
           className={arFirstPersonMode ? 'on' : ''}
           onClick={() => onToggleArFirstPerson(!arFirstPersonMode)}
         >
-          {arFirstPersonMode ? 'Exit 1st-Person' : '1st-Person POV'}
+          {arFirstPersonMode ? 'Exit 1st-Person AR' : '1st-Person AR POV'}
         </button>
         <button onClick={handleFocusSelected}>
           Focus {selectedAsset?.tag || 'Asset'}
@@ -1596,21 +2416,30 @@ export default function BoilerRoomViewport({
         </span>
         <span>·</span>
         <span>Click equipment to inspect</span>
-        <span>·</span>
-        <span>
-          <span className="legend-swatch" style={{ background: '#d96b27' }} />
-          AMR R1
-        </span>
-        {multiAgentEnabled && (
+        {exerciseMode ? (
           <>
+            <span>·</span>
+            <span>Click worker + <kbd>Del</kbd> to remove</span>
+          </>
+        ) : (
+          <>
+            <span>·</span>
             <span>
-              <span className="legend-swatch" style={{ background: '#49a942' }} />
-              AMR R2
+              <span className="legend-swatch" style={{ background: '#d96b27' }} />
+              AMR R1
             </span>
-            <span>
-              <span className="legend-swatch" style={{ background: '#1f6fb2' }} />
-              Operator H1
-            </span>
+            {multiAgentEnabled && (
+              <>
+                <span>
+                  <span className="legend-swatch" style={{ background: '#49a942' }} />
+                  AMR R2
+                </span>
+                <span>
+                  <span className="legend-swatch" style={{ background: '#1f6fb2' }} />
+                  Operator H1
+                </span>
+              </>
+            )}
           </>
         )}
       </div>
