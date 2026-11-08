@@ -52,7 +52,7 @@ export const CHALLENGE_BRIEF_MISSIONS = [
     referenceText:
       'Challenge Brief Sec 4.4 (15%): Operational realism, dynamic obstacle rerouting, and multi-agent coordination (assigning the closest robot/human to each emergency object).',
     actionButtonLabel: 'Dispatch R1 + R2 + H1 & Drop Floor Hazard',
-    targetAssetId: 'ASSET-024'
+    targetAssetId: 'ASSET-014'
   },
   {
     stageId: 5,

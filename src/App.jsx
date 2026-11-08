@@ -14,15 +14,12 @@ import {
   Navigation,
   Pause,
   Play,
-  Plus,
   QrCode,
   RotateCcw,
   Search,
   Sliders,
-  Trash2,
   Upload,
-  Wrench,
-  Zap
+  Wrench
 } from 'lucide-react';
 import {
   createInitialDataPipeline,
@@ -63,13 +60,15 @@ import { EdgeCopilotDrawer, MobileArFieldHudModal } from './components/EdgeCopil
 
 export default function App() {
   const [pipeline, setPipeline] = useState(() => createInitialDataPipeline());
+  // Only workbook rows bound to a reviewed scan object exist in 3D; the rest keep placeholder coordinates
+  const sceneAssets = useMemo(() => pipeline.assets.filter((a) => a.located), [pipeline.assets]);
   const [liveStreaming, setLiveStreaming] = useState(true);
 
   const [selectedAssetId, setSelectedAssetId] = useState('ASSET-014'); // Default to P-002 (Video-evidence bound pump)
   const [activeNav, setActiveNav] = useState('alerts'); // 'alerts' | 'assets' | 'cv_review' | 'vision' | 'scene_edit' | 'navigate' | 'workorders' | 'copilot' | 'settings'
 
   // Application Mode: 'consumer' (Matterport-style clean twin) | 'technician' (Siemens-style engineering twin)
-  const [appMode, setAppMode] = useState('consumer');
+  const [appMode, setAppMode] = useState('technician');
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
 
@@ -235,7 +234,6 @@ export default function App() {
   const [semanticBlend, setSemanticBlend] = useState(100);
   const [laserSweepTrigger, setLaserSweepTrigger] = useState(0);
   const [showStructuralBoxes, setShowStructuralBoxes] = useState(false);
-  const [showContourModels, setShowContourModels] = useState(true);
   const [pointSize, setPointSize] = useState(0.05);
 
   // Navigation & Fleet state
@@ -253,14 +251,14 @@ export default function App() {
   const exerciseMode = true;
   const setExerciseMode = () => {};
   const [exercisePaused, setExercisePaused] = useState(false);
-  const [exerciseWorkers, setExerciseWorkers] = useState(() => createInitialExerciseWorkers(4));
+  const [exerciseWorkers, setExerciseWorkers] = useState(() => createInitialExerciseWorkers(1));
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   const [autoDispatch, setAutoDispatch] = useState(false);
   const [manualAssignMap, setManualAssignMap] = useState({});
   const [arTrafficSignal, setArTrafficSignal] = useState(null);
 
   // Field verification / LOTO state
-  const [arFirstPersonMode, setArFirstPersonMode] = useState(false);
+  const [arFirstPersonMode, setArFirstPersonMode] = useState(true);
   const [isArHudOpen, setIsArHudOpen] = useState(false);
   const [checkedLotoSteps, setCheckedLotoSteps] = useState({});
   const [draftedWoBanner, setDraftedWoBanner] = useState(null);
@@ -285,8 +283,9 @@ export default function App() {
     structuralFrames: 441
   });
 
+  const pendingFixedIdsRef = useRef([]);
   const simContextRef = useRef({
-    assets: pipeline.assets,
+    assets: sceneAssets,
     hazardNodes,
     railMode,
     autoDispatch,
@@ -295,13 +294,13 @@ export default function App() {
 
   useEffect(() => {
     simContextRef.current = {
-      assets: pipeline.assets,
+      assets: sceneAssets,
       hazardNodes,
       railMode,
       autoDispatch,
       exercisePaused
     };
-  }, [pipeline.assets, hazardNodes, railMode, autoDispatch, exercisePaused]);
+  }, [sceneAssets, hazardNodes, railMode, autoDispatch, exercisePaused]);
 
   useEffect(() => {
     if (!liveStreaming || exercisePaused) return;
@@ -318,7 +317,6 @@ export default function App() {
       const ctx = simContextRef.current;
       if (ctx.exercisePaused) return;
       const obstacles = buildCollisionBoxes(ctx.assets);
-      let newlyFixedIds = [];
 
       setExerciseWorkers((prevWorkers) => {
         const res = stepExerciseSimulation(
@@ -330,68 +328,86 @@ export default function App() {
           ctx.railMode,
           ctx.autoDispatch
         );
-        newlyFixedIds = res.completedAssetIds;
+        // React runs this updater during render, so completed repairs are applied by the effect below
+        if (res.completedAssetIds.length > 0) {
+          pendingFixedIdsRef.current.push(...res.completedAssetIds);
+        }
         return res.workers;
       });
-
-      if (newlyFixedIds.length > 0) {
-        setPipeline((prevPipe) => {
-          let nextPipe = prevPipe;
-          newlyFixedIds.forEach((assetId) => {
-            const target = nextPipe.assets.find((a) => a.asset_id === assetId);
-            nextPipe = updateAssetTelemetryInMemory(
-              nextPipe,
-              assetId,
-              {
-                vibration_mms: 1.5,
-                bearing_temp_c: 53.0,
-                stiction_index: 0.1,
-                position_pct: target?.telemetry?.setpoint_pct || 64.0
-              },
-              'NORMAL_OPERATION'
-            );
-          });
-          return nextPipe;
-        });
-      }
     }, 60);
     return () => clearInterval(tick);
   }, [exerciseMode]);
 
+  useEffect(() => {
+    if (pendingFixedIdsRef.current.length === 0) return;
+    const fixedIds = [...new Set(pendingFixedIdsRef.current)];
+    pendingFixedIdsRef.current = [];
+    setPipeline((prevPipe) => {
+      let nextPipe = prevPipe;
+      fixedIds.forEach((assetId) => {
+        const target = nextPipe.assets.find((a) => a.asset_id === assetId);
+        nextPipe = updateAssetTelemetryInMemory(
+          nextPipe,
+          assetId,
+          {
+            vibration_mms: 1.5,
+            bearing_temp_c: 53.0,
+            stiction_index: 0.1,
+            position_pct: target?.telemetry?.setpoint_pct || 64.0
+          },
+          'NORMAL_OPERATION'
+        );
+      });
+      return nextPipe;
+    });
+  }, [exerciseWorkers]);
+
+  const routeToSelected = (profile) => {
+    if (selectedAsset?.located === false) {
+      return {
+        reachable: false,
+        profile,
+        railMode,
+        nodeIds: [],
+        rawWaypoints: [],
+        points: [],
+        distanceMeters: 0,
+        computeTimeMs: 0,
+        usedStairs: false,
+        avoidedHazards: 0
+      };
+    }
+    return computeAStarPath(
+      'N-ENTRY',
+      selectedAsset?.position || selectedAsset?.approach_point || [0, -1.02, 1.5],
+      profile,
+      hazardNodes,
+      railMode
+    );
+  };
+
   const humanPath = useMemo(
-    () =>
-      computeAStarPath(
-        'N-ENTRY',
-        selectedAsset?.position || selectedAsset?.approach_point || [0, -1.02, 1.5],
-        'human',
-        hazardNodes,
-        railMode
-      ),
+    () => routeToSelected('human'),
     [selectedAsset, hazardNodes, railMode, navVersion]
   );
 
   const robotPath = useMemo(
-    () =>
-      computeAStarPath(
-        'N-ENTRY',
-        selectedAsset?.position || selectedAsset?.approach_point || [0, -1.02, 1.5],
-        'robot',
-        hazardNodes,
-        railMode
-      ),
+    () => routeToSelected('robot'),
     [selectedAsset, hazardNodes, railMode, navVersion]
   );
 
   const fleetAssignments = useMemo(
     () =>
-      coordinateMultiAgentFleet(
-        INITIAL_FLEET_AGENTS,
-        pipeline.assets,
-        hazardNodes,
-        railMode,
-        selectedAsset
-      ),
-    [pipeline.assets, hazardNodes, railMode, selectedAsset, navVersion]
+      sceneAssets.length
+        ? coordinateMultiAgentFleet(
+            INITIAL_FLEET_AGENTS,
+            sceneAssets,
+            hazardNodes,
+            railMode,
+            selectedAsset?.located ? selectedAsset : null
+          )
+        : [],
+    [sceneAssets, hazardNodes, railMode, selectedAsset, navVersion]
   );
 
   const counts = useMemo(() => {
@@ -500,7 +516,9 @@ export default function App() {
           setExerciseWorkers((prevW) => {
             const alreadyAssigned = prevW.some((w) => w.targetAssetId === assetId && w.state !== 'RETURNING');
             if (alreadyAssigned) return prevW;
-            const idleWorker = prevW.find((w) => w.state === 'STANDBY');
+            const idleWorker =
+              prevW.find((w) => w.manualControl && w.state === 'STANDBY') ||
+              prevW.find((w) => w.state === 'STANDBY');
             if (!idleWorker) return prevW;
             return assignWorkerToAsset(prevW, idleWorker.id, updatedAsset, hazardNodes, railMode);
           });
@@ -526,6 +544,7 @@ export default function App() {
     setExerciseWorkers((prev) =>
       assignWorkerToAsset(prev, workerId, asset, hazardNodes, railMode)
     );
+    setIsLeftPanelOpen(false);
   };
 
   const handleManualUpdateWorkerPose = (workerId, nextX, nextZ, nextAngle, manualControl = true) => {
@@ -551,8 +570,9 @@ export default function App() {
   };
 
   const handleInjectRandomFault = () => {
-    const healthyCandidates = pipeline.assets.filter((a) => a.health_status === 'healthy');
-    const pool = healthyCandidates.length > 0 ? healthyCandidates : pipeline.assets;
+    const candidates = sceneAssets.length ? sceneAssets : pipeline.assets;
+    const healthyCandidates = candidates.filter((a) => a.health_status === 'healthy');
+    const pool = healthyCandidates.length > 0 ? healthyCandidates : candidates;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     if (!pick) return;
     setSelectedAssetId(pick.asset_id);
@@ -622,7 +642,6 @@ export default function App() {
 
     if (stage.stageId === 1) {
       setArFirstPersonMode(false);
-      setShowContourModels(true);
       setLaserSweepTrigger((t) => t + 1);
     } else if (stage.stageId === 2) {
       setArFirstPersonMode(false);
@@ -820,15 +839,15 @@ export default function App() {
       >
         {/* Floating Horizontal Navigation Tabs Bar (Technical Mode) */}
         {appMode === 'technician' && (
-          <div className="tech-horizontal-nav" role="tablist" aria-label="Technical console modules">
+          <div className={`tech-rail${isLeftPanelOpen ? ' rail-locked' : ''}`} role="tablist" aria-orientation="vertical" aria-label="Technical console modules">
             <button
               type="button"
               className={`tech-nav-pill ${isLeftPanelOpen && activeNav === 'alerts' ? 'active' : ''}`}
               onClick={() => handleToggleLeftTab('alerts')}
               title="Alerts, Fault Injection & Line Dispatch"
             >
-              <Bell size={13} />
-              <span>Alerts &amp; Faults</span>
+              <Bell size={16} />
+              <span className="tech-rail-label">Alerts &amp; Faults</span>
               {allFaultedAndWatchAssets.length > 0 && (
                 <span className="tech-badge alert">{allFaultedAndWatchAssets.length}</span>
               )}
@@ -839,8 +858,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('assets')}
               title="Asset Register"
             >
-              <List size={13} />
-              <span>Assets</span>
+              <List size={16} />
+              <span className="tech-rail-label">Assets</span>
               <span className="tech-badge">{pipeline.assets.length}</span>
             </button>
             <button
@@ -849,8 +868,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('cv_review')}
               title="Computer Vision 3D OBB Review"
             >
-              <Camera size={13} />
-              <span>CV Review</span>
+              <Camera size={16} />
+              <span className="tech-rail-label">CV Review</span>
               <span className="tech-badge">{cvSceneObjects?.objects?.length || 441}</span>
             </button>
             <button
@@ -859,8 +878,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('vision')}
               title="Visual Inspection: AI reads real photos (valve state, gauges, identity) with cited evidence"
             >
-              <Eye size={13} />
-              <span>Visual AI</span>
+              <Eye size={16} />
+              <span className="tech-rail-label">Visual AI</span>
             </button>
             <button
               type="button"
@@ -868,8 +887,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('scene_edit')}
               title="Scene Editing & AI Object Movement"
             >
-              <Move size={13} />
-              <span>Move Objects</span>
+              <Move size={16} />
+              <span className="tech-rail-label">Move Objects</span>
             </button>
             <button
               type="button"
@@ -877,8 +896,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('navigate')}
               title="Mobility & Fleet Routing"
             >
-              <Navigation size={13} />
-              <span>Routing</span>
+              <Navigation size={16} />
+              <span className="tech-rail-label">Routing</span>
             </button>
             <button
               type="button"
@@ -886,8 +905,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('workorders')}
               title="SAP PM Work Orders & Scenarios"
             >
-              <ClipboardList size={13} />
-              <span>Orders</span>
+              <ClipboardList size={16} />
+              <span className="tech-rail-label">Orders</span>
               {workOrderAssets.length > 0 && (
                 <span className="tech-badge order">{workOrderAssets.length}</span>
               )}
@@ -898,8 +917,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('copilot')}
               title="Edge AI Diagnostic & Scene Command Copilot"
             >
-              <MessageSquare size={13} />
-              <span>Copilot</span>
+              <MessageSquare size={16} />
+              <span className="tech-rail-label">Copilot</span>
             </button>
             <button
               type="button"
@@ -907,8 +926,8 @@ export default function App() {
               onClick={() => handleToggleLeftTab('settings')}
               title="Scene & Display Settings"
             >
-              <Sliders size={13} />
-              <span>Settings</span>
+              <Sliders size={16} />
+              <span className="tech-rail-label">Settings</span>
             </button>
 
             <div className="tech-nav-divider" />
@@ -919,8 +938,8 @@ export default function App() {
               onClick={() => setIsRightPanelOpen((open) => !open)}
               title="Toggle Asset Telemetry Inspector"
             >
-              <Activity size={13} />
-              <span>Inspector {selectedAsset ? `(${selectedAsset.tag})` : ''}</span>
+              <Activity size={16} />
+              <span className="tech-rail-label">Inspector {selectedAsset ? `(${selectedAsset.tag})` : ''}</span>
             </button>
           </div>
         )}
@@ -965,178 +984,39 @@ export default function App() {
             </div>
           {activeNav === 'alerts' && (
             <>
-              <div className="panel-toolbar stack" style={{ gap: '8px' }}>
-                <div className="row" style={{ gap: '6px' }}>
+              <div className="panel-toolbar">
+                <div className="row" style={{ gap: '8px' }}>
                   <button
                     className={`btn btn-sm ${exercisePaused ? 'btn-primary' : ''}`}
                     style={{ flex: 1 }}
                     onClick={() => setExercisePaused((p) => !p)}
-                    title="Freeze time to inject multiple faults at once before workers walk out"
+                    title="Pause the exercise clock"
                   >
                     {exercisePaused ? <Play size={12} /> : <Pause size={12} />}
-                    <span>{exercisePaused ? 'Resume Time' : 'Pause Time'}</span>
+                    <span>{exercisePaused ? 'Resume' : 'Pause'}</span>
                   </button>
                   <button
                     className="btn btn-sm"
+                    style={{ flex: 1 }}
                     onClick={handleRestoreAllNominal}
-                    title="Reset all components to healthy nominal state"
+                    title="Return every device to nominal"
                   >
                     <CheckCircle2 size={12} />
-                    <span>Clear All</span>
+                    <span>Clear</span>
                   </button>
                 </div>
-
-                <div className="row" style={{ gap: '6px' }}>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    style={{ flex: 1 }}
-                    onClick={() => {
-                      if (!selectedAsset) return;
-                      handleMutateTelemetry(
-                        selectedAsset.asset_id,
-                        {
-                          vibration_mms: 8.2,
-                          bearing_temp_c: 88.0,
-                          stiction_index: 0.66
-                        },
-                        'CRITICAL_FAULT_INJECTED'
-                      );
-                    }}
-                  >
-                    <Zap size={12} />
-                    <span>Fault {selectedAsset?.tag}</span>
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    style={{ flex: 1 }}
-                    onClick={handleInjectRandomFault}
-                  >
-                    <Zap size={12} />
-                    <span>Random Fault</span>
-                  </button>
-                </div>
-
-                <label className="check">
-                  <input
-                    type="checkbox"
-                    checked={autoDispatch}
-                    onChange={(e) => setAutoDispatch(e.target.checked)}
-                  />
-                  <span>Auto-dispatch standby workers to all active faults</span>
-                </label>
               </div>
 
               <div className="panel-body">
-                {/* WORKER STAGING LINE ROSTER */}
-                <div className="section stack">
-                  <div className="section-title">
-                    <span>Staging Line Roster ({exerciseWorkers.length} Units)</span>
-                    <span className="mono">
-                      {exerciseWorkers.filter((w) => w.state === 'STANDBY').length} Standby
-                    </span>
-                  </div>
-
-                  <div className="row" style={{ gap: '6px' }}>
-                    <button
-                      className="btn btn-sm"
-                      style={{ flex: 1 }}
-                      onClick={() => handleAddWorker('human')}
-                    >
-                      <Plus size={12} />
-                      <span>Add Technician</span>
-                    </button>
-                    <button
-                      className="btn btn-sm"
-                      style={{ flex: 1 }}
-                      onClick={() => handleAddWorker('robot')}
-                    >
-                      <Plus size={12} />
-                      <span>Add AMR</span>
-                    </button>
-                  </div>
-
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: '56px' }}>Unit</th>
-                        <th>State / Traffic</th>
-                        <th className="right" style={{ width: '36px' }}>
-                          Del
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {exerciseWorkers.map((w) => {
-                        const isSel = selectedWorkerId === w.id;
-                        return (
-                          <tr
-                            key={w.id}
-                            className={isSel ? 'selected' : ''}
-                            onClick={() => setSelectedWorkerId(isSel ? null : w.id)}
-                          >
-                            <td className="mono" style={{ fontWeight: 600 }}>
-                              <span
-                                className="legend-swatch"
-                                style={{ backgroundColor: w.color }}
-                              />
-                              {w.id}
-                            </td>
-                            <td className="mono" style={{ fontSize: '11px' }}>
-                              {w.state === 'STANDBY' && (
-                                <span className="muted">STANDBY (Line Slot)</span>
-                              )}
-                              {w.state === 'WALKING_TO_FAULT' && (
-                                <span style={{ color: 'var(--info)' }}>
-                                  EN ROUTE → {w.targetTag}
-                                  {w.trafficStatus === 'YIELDING'
-                                    ? ' [YIELD]'
-                                    : w.trafficStatus === 'PASSING_RIGHT'
-                                    ? ' [LANE R]'
-                                    : ''}
-                                </span>
-                              )}
-                              {w.state === 'REPAIRING' && (
-                                <span style={{ color: 'var(--brand)', fontWeight: 600 }}>
-                                  FIXING {w.targetTag} ({Math.round(w.repairProgress)}%)
-                                </span>
-                              )}
-                              {w.state === 'RETURNING' && (
-                                <span className="text-2">
-                                  RETURNING → Line
-                                  {w.trafficStatus === 'YIELDING' ? ' [YIELD]' : ''}
-                                </span>
-                              )}
-                            </td>
-                            <td className="right">
-                              <button
-                                className="btn btn-sm btn-icon"
-                                title={`Delete ${w.id} (or click in 3D + press Delete)`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteWorker(w.id);
-                                }}
-                              >
-                                <Trash2 size={12} />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* ACTIVE FAULTS & MANUAL WORKER ASSIGNMENT */}
                 <div className="section" style={{ padding: 0 }}>
-                  <div className="section-title" style={{ padding: '10px 12px 4px' }}>
-                    <span>Active Faults ({allFaultedAndWatchAssets.length})</span>
-                    <span className="mono">Manual / Auto Dispatch</span>
+                  <div className="section-title" style={{ padding: '12px 16px 4px' }}>
+                    <span>Active faults</span>
+                    <span className="mono">{allFaultedAndWatchAssets.length}</span>
                   </div>
 
                   {allFaultedAndWatchAssets.length === 0 ? (
-                    <div style={{ padding: '16px 12px', color: 'var(--text-3)', fontSize: '12px' }}>
-                      All 30 components are operating nominally. Click <strong>Random Fault</strong>{' '}
-                      above or click any equipment in the 3D viewport to inject a fault.
+                    <div style={{ padding: '20px 16px', color: '#94a3b8', fontSize: '13px', lineHeight: 1.45 }}>
+                      Every listed device is nominal.
                     </div>
                   ) : (
                     allFaultedAndWatchAssets.map((asset) => {
@@ -1158,58 +1038,47 @@ export default function App() {
                           className={`alert-card ${isSelected ? 'selected' : ''}`}
                           onClick={() => handleSelectAsset(asset)}
                         >
-                          <div className="row" style={{ gap: '6px' }}>
+                          <div className="row" style={{ gap: '8px', alignItems: 'center' }}>
                             <span className={`sdot ${st.cls}`} />
-                            <span className="mono" style={{ fontWeight: 600 }}>
+                            <span style={{ fontWeight: 700, fontSize: '14px', letterSpacing: '-0.01em' }}>
                               {asset.tag}
                             </span>
-                            <span className="mono muted">{asset.asset_id}</span>
-                            {asset.cvObject?.object_id && (
-                              <span className="mono muted" style={{ fontSize: '10.5px' }}>
-                                · {asset.cvObject.object_id}
-                              </span>
-                            )}
                             <span className="spacer" />
                             <span className={`status ${st.cls}`}>
                               {st.label} · {asset.health_score}%
                             </span>
                           </div>
 
-                          <div className="text-2" style={{ fontSize: '12px' }}>
-                            {asset.service_description} —{' '}
-                            <strong style={{ color: 'var(--text)' }}>
-                              {humanize(asset.status_reason)}
-                            </strong>
+                          <div style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>
+                            {asset.service_description}
+                          </div>
+                          <div style={{ fontSize: '12.5px', color: '#94a3b8' }}>
+                            {humanize(asset.status_reason)}
                           </div>
 
                           {assignedWorker ? (
                             <div
                               style={{
-                                background: 'var(--bg-subtle)',
-                                border: '1px solid var(--border)',
-                                borderRadius: 'var(--radius)',
-                                padding: '6px 8px',
-                                marginTop: '2px'
+                                background: 'rgba(2, 6, 23, 0.45)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '8px',
+                                padding: '8px 10px'
                               }}
                             >
-                              <div className="row" style={{ gap: '6px', fontSize: '11px' }}>
+                              <div className="row" style={{ gap: '8px', fontSize: '12.5px' }}>
                                 <Wrench
-                                  size={12}
+                                  size={13}
                                   className={assignedWorker.state === 'REPAIRING' ? 'tool-spin' : ''}
                                 />
-                                <span className="mono" style={{ fontWeight: 600 }}>
-                                  {assignedWorker.id}
-                                </span>
-                                <span>
+                                <span style={{ fontWeight: 700 }}>{assignedWorker.id}</span>
+                                <span style={{ color: '#cbd5e1' }}>
                                   {assignedWorker.state === 'REPAIRING'
-                                    ? `Repairing component (${Math.round(
-                                        assignedWorker.repairProgress
-                                      )}%)`
-                                    : `Walking to ${asset.tag}...`}
+                                    ? `Repairing · ${Math.round(assignedWorker.repairProgress)}%`
+                                    : `En route to ${asset.tag}`}
                                 </span>
                               </div>
                               {assignedWorker.state === 'REPAIRING' && (
-                                <div className="repair-bar" style={{ marginTop: '5px' }}>
+                                <div className="repair-bar" style={{ marginTop: '6px' }}>
                                   <div
                                     style={{
                                       width: `${Math.round(assignedWorker.repairProgress)}%`
@@ -1225,7 +1094,7 @@ export default function App() {
                             >
                               <select
                                 className="select"
-                                style={{ height: '24px', fontSize: '11px', padding: '0 6px' }}
+                                style={{ height: '30px', fontSize: '12px', padding: '0 8px', flex: 1 }}
                                 value={chosenWorkerId}
                                 onChange={(e) =>
                                   setManualAssignMap((prev) => ({
@@ -1236,19 +1105,20 @@ export default function App() {
                               >
                                 {exerciseWorkers.map((w) => (
                                   <option key={w.id} value={w.id}>
-                                    {w.id} ({w.type === 'human' ? 'Tech' : 'AMR'} · {w.state})
+                                    {w.id} · {w.type === 'human' ? 'Tech' : 'AMR'}
                                   </option>
                                 ))}
                               </select>
                               <button
                                 className="btn btn-sm btn-primary"
-                                disabled={!chosenWorkerId}
+                                disabled={!chosenWorkerId || asset.located === false}
+                                title={asset.located === false ? 'No walkable path' : 'Send this worker to the device'}
                                 onClick={() =>
                                   handleAssignWorkerToFault(chosenWorkerId, asset)
                                 }
                               >
-                                <Wrench size={11} />
-                                <span>Assign &amp; Fix</span>
+                                <Wrench size={12} />
+                                <span>Assign</span>
                               </button>
                             </div>
                           )}
@@ -1321,7 +1191,14 @@ export default function App() {
                             <span className={`sdot ${st.cls}`} title={st.label} />
                           </td>
                           <td className="tag">{asset.tag}</td>
-                          <td title={asset.service_description}>{asset.service_description}</td>
+                          <td title={asset.service_description}>
+                            {asset.service_description}
+                            {asset.located === false && (
+                              <span className="mono muted" style={{ fontSize: '10.5px' }}>
+                                {' '}· Not located in scan
+                              </span>
+                            )}
+                          </td>
                           <td className={`right health ${st.cls}`}>{asset.health_score}%</td>
                         </tr>
                       );
@@ -1721,16 +1598,7 @@ export default function App() {
                       checked={showAllCvDetections}
                       onChange={(e) => setShowAllCvDetections(e.target.checked)}
                     />
-                    <span>Show all 441 CV-detected OBBs (off = 30 bound only)</span>
-                  </label>
-
-                  <label className="check">
-                    <input
-                      type="checkbox"
-                      checked={showContourModels}
-                      onChange={(e) => setShowContourModels(e.target.checked)}
-                    />
-                    <span>Show attachment seam vertices &amp; datum plane</span>
+                    <span>Show all 441 CV-detected OBBs (off = {sceneAssets.length} located assets only)</span>
                   </label>
 
                   <label className="check">
@@ -1767,14 +1635,13 @@ export default function App() {
             setIsRightPanelOpen(true);
           }}
           activeRoomScene={activeRoomScene}
-          assets={pipeline.assets}
+          assets={sceneAssets}
           selectedAsset={selectedAsset}
           onSelectAsset={handleSelectAsset}
           semanticBlend={semanticBlend}
           onSemanticBlendChange={setSemanticBlend}
           laserSweepTrigger={laserSweepTrigger}
           showStructuralBoxes={showStructuralBoxes}
-          showContourModels={showContourModels}
           activeProfile={activeProfile}
           railMode={railMode}
           multiAgentEnabled={multiAgentEnabled}
@@ -1865,15 +1732,17 @@ export default function App() {
               Scene: {sceneStats.sourceFile} ({sceneStats.activeSplats.toLocaleString()} splats)
             </span>
             <span className="mono">
-              CV OBBs: {cvSceneObjects?.objects?.length || 441} ({pipeline.assets.length} bound)
+              CV OBBs: {cvSceneObjects?.objects?.length || 441} ({sceneAssets.length} of {pipeline.assets.length} located)
             </span>
             <span className="mono">
               Rev. {pipeline.version} ({pipeline.lastUpdated})
             </span>
             <span className="right mono">
               Selected: {selectedAsset?.tag}{' '}
-              {selectedAsset?.cvObject?.object_id ? `(${selectedAsset.cvObject.object_id})` : ''} [
-              {selectedAsset?.position.map((v) => v.toFixed(2)).join(', ')} m]
+              {selectedAsset?.cvObject?.object_id ? `(${selectedAsset.cvObject.object_id})` : ''}{' '}
+              {selectedAsset?.located === false
+                ? '[not located in scan]'
+                : `[${selectedAsset?.position.map((v) => v.toFixed(2)).join(', ')} m]`}
             </span>
           </>
         ) : (

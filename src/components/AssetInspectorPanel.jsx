@@ -437,10 +437,24 @@ export default function AssetInspectorPanel({
               <div className="section-title">
                 <span>Extracted 3D Geometry</span>
                 <span className="mono">
-                  {humanize(selectedAsset.contourModel?.attachmentType)}
+                  {selectedAsset.located === false
+                    ? 'Not located'
+                    : humanize(selectedAsset.contourModel?.attachmentType)}
                 </span>
               </div>
-              <AssetContourMiniViewer asset={selectedAsset} />
+              {selectedAsset.located === false ? (
+                <div className="text-2" style={{ fontSize: '12px' }}>
+                  Not located in this scan. The workbook Scene_Anchors coordinates are placeholders,
+                  and no reviewed object in the Equipment Room scan carries this tag.
+                </div>
+              ) : (
+                <AssetContourMiniViewer asset={selectedAsset} />
+              )}
+              {selectedAsset.location_kind === 'parent_assembly' && (
+                <div className="text-2" style={{ fontSize: '12px' }}>
+                  Shown on its parent assembly ({selectedAsset.cvObject?.object_id}), not the sensor body.
+                </div>
+              )}
             </div>
 
             {/* 4. Process Topology */}
@@ -493,16 +507,22 @@ export default function AssetInspectorPanel({
                 <dd title={selectedAsset.area_name}>{selectedAsset.area_name}</dd>
                 <dt>3D Coordinates</dt>
                 <dd className="mono">
-                  [{selectedAsset.position.map((v) => v.toFixed(2)).join(', ')} m]
+                  {selectedAsset.located === false
+                    ? 'Not located in scan'
+                    : `[${selectedAsset.position.map((v) => v.toFixed(2)).join(', ')} m]`}
                 </dd>
-                <dt>Bounding box</dt>
-                <dd className="mono">
-                  {selectedAsset.bbox_size.map((v) => v.toFixed(2)).join(' × ')} m
-                </dd>
-                <dt>Rear datum plane</dt>
-                <dd className="mono">
-                  [{selectedAsset.contourModel?.backPlane?.center?.join(', ')} m]
-                </dd>
+                {selectedAsset.located !== false && (
+                  <>
+                    <dt>Bounding box</dt>
+                    <dd className="mono">
+                      {selectedAsset.bbox_size.map((v) => v.toFixed(2)).join(' × ')} m
+                    </dd>
+                    <dt>Rear datum plane</dt>
+                    <dd className="mono">
+                      [{selectedAsset.contourModel?.backPlane?.center?.join(', ')} m]
+                    </dd>
+                  </>
+                )}
                 <dt>Field marker</dt>
                 <dd className="mono">
                   {selectedAsset.qr_id} ({selectedAsset.connectivity_profile})

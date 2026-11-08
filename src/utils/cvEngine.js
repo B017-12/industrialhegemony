@@ -32,10 +32,19 @@ export const EVIDENCE_PHOTO_MAP = {
   'OBJ-0265': '/assets/evidence/OBJ-0265.jpg',
   'OBJ-0268': '/assets/evidence/OBJ-0268.jpg',
   'OBJ-0303': '/assets/evidence/OBJ-0303.jpg',
-  'OBJ-0470': '/assets/evidence/OBJ-0470.jpg'
+  'OBJ-0470': '/assets/evidence/OBJ-0470.jpg',
+  'OBJ-0179': '/assets/evidence/OBJ-0179.jpg',
+  'OBJ-0548': '/assets/evidence/OBJ-0548.jpg',
+  'OBJ-0591': '/assets/evidence/OBJ-0591.jpg',
+  'ANN-CAB-L': '/assets/evidence/ANN-CAB-L.jpg',
+  'ANN-PUMP-W1': '/assets/evidence/ANN-PUMP-W1.jpg'
 };
 
-const LOCAL_STORAGE_OVERRIDES_KEY = 'valmet.cv.overrides.v1';
+// v1 held bindings made against the old procedural tag assignment
+const LOCAL_STORAGE_OVERRIDES_KEY = 'valmet.cv.overrides.v2';
+
+const BINDING_FIELDS = ['asset_id', 'hosted_assets', 'mapping_method', 'mapping_confidence', 'mapping_notes'];
+const BINDING_LABEL_SUFFIX = { video_evidence: 'video evidence', human_assigned: 'reviewer-assigned' };
 
 /**
  * Converts raw PLY coordinates (y-down) into Three.js display coordinates (y-up)
@@ -86,19 +95,72 @@ export function obbMatrix(object) {
 
 /**
  * Merges base scene_objects.json with labels_override.json and any user-saved localStorage overrides.
+ * scene_objects.json carries procedural tag bindings (every workbook row forced onto some segment);
+ * those are dropped so only bindings listed in the overrides place a tag in the scan.
  */
 export function mergeCvOverrides(baseObjects = [], overridesMap = {}) {
-  return baseObjects.map((object) => {
-    const entry = overridesMap[object.object_id];
-    return entry ? { ...object, ...entry } : object;
+  const classLabel = {};
+  baseObjects.forEach((o) => {
+    if (!o.asset_id && o.display_label && !classLabel[o.class]) classLabel[o.class] = o.display_label;
   });
+
+  return baseObjects.map((object) => {
+    let base = object;
+    if (object.asset_id) {
+      base = { ...object, display_label: classLabel[object.class] || object.class };
+      BINDING_FIELDS.forEach((f) => delete base[f]);
+    }
+    const entry = overridesMap[object.object_id];
+    if (!entry) return base;
+    const merged = { ...base, ...entry };
+    if (entry.asset_id && !entry.display_label) {
+      const asset = VALMET_ASSETS.find((a) => a.asset_id === entry.asset_id);
+      const suffix = BINDING_LABEL_SUFFIX[entry.mapping_method] || 'reviewer-assigned';
+      merged.display_label = `${asset?.tag || entry.asset_id} (${(asset?.asset_class || 'asset').toUpperCase()}) - ${suffix}`;
+    }
+    return merged;
+  });
+}
+
+/** Workbook-less scan labels always read as class "other". A saved override cannot restore an old caption. */
+function normalizeWorkbooklessLabel(object) {
+  if (!object?.annotation || object.asset_id) return object;
+  const confidence = object.class_confidence ?? object.mapping_confidence ?? 0.35;
+  return {
+    ...object,
+    class: 'other',
+    display_label: 'other',
+    class_confidence: confidence,
+    annotation: { label: 'other' }
+  };
+}
+
+function syntheticOverrideObject(id, entry) {
+  return {
+    object_id: id,
+    class: entry.class || 'other',
+    display_label: entry.display_label || entry.annotation?.label || id,
+    class_confidence: entry.mapping_confidence ?? 0.35,
+    label_source: 'human',
+    center: entry.obb.center,
+    source: 'annotation',
+    splat_count: 0,
+    voxel_count: 0,
+    ...entry
+  };
 }
 
 export function applyCvOverrides(baseSceneObjects, overridesMap = {}) {
   if (!baseSceneObjects?.objects) {
     return { objects: [], hiddenObjects: [], metres_per_unit: 1.2374 };
   }
-  const merged = mergeCvOverrides(baseSceneObjects.objects, overridesMap);
+  const knownIds = new Set(baseSceneObjects.objects.map((o) => o.object_id));
+  const extras = Object.entries(overridesMap)
+    .filter(([id, entry]) => !knownIds.has(id) && entry?.obb?.center && entry?.obb?.extent)
+    .map(([id, entry]) => syntheticOverrideObject(id, entry));
+  const merged = [...mergeCvOverrides(baseSceneObjects.objects, overridesMap), ...extras].map(
+    normalizeWorkbooklessLabel
+  );
   return {
     ...baseSceneObjects,
     objects: merged.filter((o) => !isHiddenObject(o)),
@@ -218,15 +280,18 @@ export function footprintDistanceUnits(x, z, fp) {
 /**
  * Synchronizes the 30 Valmet assets with their bound 3D CV OBBs from scene_objects.json
  * and their ESDF collision-free approach poses from nav_targets.json.
+ * An asset is `located` only when an object binds it (asset_id) or hosts it (hosted_assets);
+ * hosted assets share the host's box and carry `host_asset_id` when the host has its own asset.
  */
 export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames = {}, navTargets = null) {
   if (!cvSceneObjects?.objects?.length) return assets;
 
   const boundByAssetId = new Map();
+  const hostByAssetId = new Map();
   cvSceneObjects.objects.forEach((obj) => {
-    if (obj.asset_id && !isHiddenObject(obj)) {
-      boundByAssetId.set(obj.asset_id, obj);
-    }
+    if (isHiddenObject(obj)) return;
+    if (obj.asset_id) boundByAssetId.set(obj.asset_id, obj);
+    (obj.hosted_assets || []).forEach((id) => hostByAssetId.set(id, obj));
   });
 
   const navTargetByAssetId = new Map();
@@ -237,8 +302,12 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
   }
 
   return assets.map((asset) => {
-    const cvObj = boundByAssetId.get(asset.asset_id);
-    if (!cvObj) return asset;
+    const primaryObj = boundByAssetId.get(asset.asset_id);
+    const cvObj = primaryObj || hostByAssetId.get(asset.asset_id);
+    if (!cvObj) {
+      return { ...asset, located: false, cvObject: null, host_asset_id: null, location_kind: 'unknown' };
+    }
+    const hostAssetId = primaryObj ? null : cvObj.asset_id || null;
 
     const dispCenter = rawToDisplay(cvObj.obb?.center ?? cvObj.center);
     const extent = cvObj.obb?.extent ?? cvObj.aabb_max.map((v, i) => Math.abs(v - cvObj.aabb_min[i]));
@@ -248,8 +317,10 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
       Math.max(0.22, Number(extent[2].toFixed(3)))
     ];
 
-    // A user-moved object invalidates its pre-baked ESDF approach pose; recompute from its new floor position
-    const navTarget = cvObj._moved ? null : navTargetByAssetId.get(asset.asset_id);
+    // A user-moved object invalidates its pre-baked ESDF approach pose; recompute from its new floor position.
+    // nav_targets.json was baked against the old procedural bindings, so only trust a pose for the same object.
+    const navCandidate = navTargetByAssetId.get(hostAssetId || asset.asset_id);
+    const navTarget = cvObj._moved || navCandidate?.object_id !== cvObj.object_id ? null : navCandidate;
     let approachDisp;
     if (navTarget?.approach?.position) {
       approachDisp = rawToDisplay(navTarget.approach.position);
@@ -274,6 +345,9 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
 
     const updatedAsset = {
       ...asset,
+      located: true,
+      host_asset_id: hostAssetId,
+      location_kind: primaryObj ? 'bound_object' : 'parent_assembly',
       position: dispCenter,
       bbox_size: bboxSize,
       approach_point: approachDisp,
@@ -289,6 +363,7 @@ export function syncAssetsWithCvObjects(assets, cvSceneObjects, evidenceFrames =
         mapping_method: cvObj.mapping_method || 'procedural_class_match',
         mapping_confidence: cvObj.mapping_confidence ?? 0.5,
         mapping_notes: cvObj.mapping_notes || null,
+        pin_label: Boolean(cvObj.pin_label),
         review_status: cvObj.review_status || null,
         reviewer: cvObj.reviewer || null,
         yaw_deg: cvObj.obb?.yaw_deg ?? 0,

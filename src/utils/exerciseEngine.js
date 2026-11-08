@@ -215,17 +215,57 @@ export function computeLockedIntersectionNodes(workers = []) {
   return lockedBy;
 }
 
+const REPAIR_REACH_M = 1.08;
+
+/**
+ * True when the worker stands close enough (X-Z) to the asset or its approach point to repair it without walking.
+ */
+export function isWithinRepairReach(worker, asset) {
+  const pos = worker?.pos || worker?.position;
+  if (!pos || !asset?.position) return false;
+  const app = asset.approach_point || asset.position;
+  const dApp = Math.hypot(app[0] - pos[0], app[2] - pos[2]);
+  const dObj = Math.hypot(asset.position[0] - pos[0], asset.position[2] - pos[2]);
+  return Math.min(dApp, dObj) <= REPAIR_REACH_M;
+}
+
 /**
  * Assigns a specific worker to walk to and repair a faulted asset using slot-aware entry routing
- * and congestion-aware A* load balancing.
+ * and congestion-aware A* load balancing. A worker already within reach starts repairing on the spot.
  */
 export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], railMode = 'smooth_rail') {
-  if (!asset) return workers;
+  // Unlocated assets only have placeholder coordinates, so there is nowhere to walk to
+  if (!asset || asset.located === false) return workers;
 
   const congestionMap = buildCongestionPenaltyMap(workers, workerId);
 
   return workers.map((w) => {
     if (w.id !== workerId) return w;
+
+    const stayOnSite = Boolean(w.manualControl || w.stayOnSite);
+
+    if (isWithinRepairReach(w, asset)) {
+      return {
+        ...w,
+        manualControl: false,
+        stayOnSite,
+        state: 'REPAIRING',
+        trafficStatus: 'CLEAR',
+        blockingUnitId: null,
+        lockedNodeId: null,
+        lateralOffset: 0,
+        targetAssetId: asset.asset_id,
+        targetTag: asset.tag,
+        angle: Math.atan2(asset.position[0] - w.pos[0], asset.position[2] - w.pos[2]),
+        nodeIds: [],
+        pathPoints: [],
+        outboundPathPoints: [],
+        pathProgress: 0,
+        pathLength: 0,
+        repairProgress: w.targetAssetId === asset.asset_id ? w.repairProgress || 0 : 0,
+        lastRepairedAssetId: null
+      };
+    }
 
     const targetPt = asset.approach_point || asset.position;
     const path = computeAStarPath(
@@ -246,6 +286,8 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
     return {
       ...w,
       manualControl: false,
+      stayOnSite,
+      lastRepairedAssetId: null,
       state: 'WALKING_TO_FAULT',
       trafficStatus: 'CLEAR',
       blockingUnitId: null,
@@ -325,13 +367,22 @@ export function stepExerciseSimulation(
       w.blockingUnitId = null;
       w.lockedNodeId = null;
 
-      // Check if manually driven technician is standing next to a faulted asset (<1.05m in X-Z)
+      // A just-finished asset stays "faulted" until the App applies the restore; don't restart its repair at 0%
+      if (w.lastRepairedAssetId) {
+        const lastAsset = (assets || []).find((a) => a.asset_id === w.lastRepairedAssetId);
+        const lastStillFaulted =
+          lastAsset &&
+          (lastAsset.health_status === 'attention_required' || lastAsset.health_status === 'degraded');
+        if (!lastAsset || !isWithinRepairReach(w, lastAsset) || !lastStillFaulted) {
+          w.lastRepairedAssetId = null;
+        }
+      }
+
+      // Check if manually driven technician is standing next to a faulted asset
       const nearFault = (assets || []).find((a) => {
         if (a.health_status !== 'attention_required' && a.health_status !== 'degraded') return false;
-        const app = a.approach_point || a.position;
-        const dApp = Math.hypot(app[0] - w.pos[0], app[2] - w.pos[2]);
-        const dObj = Math.hypot(a.position[0] - w.pos[0], a.position[2] - w.pos[2]);
-        return Math.min(dApp, dObj) <= 1.08;
+        if (a.asset_id === w.lastRepairedAssetId) return false;
+        return isWithinRepairReach(w, a);
       });
 
       if (nearFault) {
@@ -341,6 +392,7 @@ export function stepExerciseSimulation(
         w.repairProgress = Math.min(100, (w.repairProgress || 0) + dt * 28);
         if (w.repairProgress >= 100) {
           completedAssetIds.push(nearFault.asset_id);
+          w.lastRepairedAssetId = nearFault.asset_id;
           w.repairProgress = 0;
           w.state = 'STANDBY';
           w.targetAssetId = null;
@@ -385,6 +437,21 @@ export function stepExerciseSimulation(
       if (w.repairProgress >= 100) {
         if (w.targetAssetId) {
           completedAssetIds.push(w.targetAssetId);
+        }
+        if (w.stayOnSite) {
+          // Manually driven technician: stay at the asset and hand control back to the user
+          w.lastRepairedAssetId = w.targetAssetId;
+          w.state = 'STANDBY';
+          w.manualControl = true;
+          w.stayOnSite = false;
+          w.targetAssetId = null;
+          w.targetTag = null;
+          w.nodeIds = [];
+          w.pathPoints = [];
+          w.outboundPathPoints = [];
+          w.pathProgress = 0;
+          w.repairProgress = 0;
+          continue;
         }
         // Return along the exact reversed ESDF path back to the worker's Front Entrance slot (`w.slotPos`)
         const revPts =

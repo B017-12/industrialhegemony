@@ -1,0 +1,5 @@
+wrote 441 objects (30 bound assets) to _analysis/er_pipeline/scene_objects.json
+classes: {'pipe': 220, 'other': 118, 'pump': 44, 'cabinet': 25, 'crate': 12, 'valve': 11, 'trolley': 7, 'floor': 1, 'ceiling': 1, 'tank': 1, 'motor': 1}
+stable ids: {'previous_objects': 97, 'matched': 3, 'new_ids': 436}; target: {'object_id': 'OBJ-0180', 'class': 'pump', 'reach_units': 0.05, 'score': 1.4}
+wrote path with 91 points, 5.53 m, min clearance 0.35 m, 18.0 s to _analysis/er_pipeline/nav.json; approach poses for 23/30 assets in nav_targets.json
+runtime 444.6 s; metrics in _analysis/er_pipeline/diagnostics/segmentation_metrics.json

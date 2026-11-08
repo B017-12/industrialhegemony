@@ -1,24 +1,249 @@
 {
-  "schema_version": "1.0",
-  "note": "Reset by Tab 2 on 2026-11-06: the previous 40 entries were script-generated copies of the old DBSCAN labels marked 'human' without review, and referenced object ids from the old segmentation. They are archived in labels_override.legacy.json. Person-confirmed entries come from Tab 8 review mode and carry a reviewer. Entries with mapping_method 'video_evidence' (2026-11-07, Equipment Room.ply) were chosen by projecting the object box into the COLMAP-posed video frames with _analysis/project_objects.py; they are not person-confirmed.",
+  "schema_version": "1.1",
+  "note": "Authoritative scan bindings for the frontend. The workbook Scene_Anchors are placeholders (placeholder_until_valmet_scene_received), so a tag is placed only on an object whose class was confirmed by projecting its box into the COLMAP-posed video frames (data/derived/diagnostics/bindings_sheet.jpg). Which physical unit carries which tag is not printed on the hardware. hosted_assets are sensors simulated on that object; they take the host's position and draw no box of their own. Every other workbook row is not located in this scan. Baked procedural bindings in scene_objects.json are ignored. An entry with annotation and no asset_id is a scan label for something the workbook does not list; pin_label keeps its tag on screen. An entry whose object_id is not in scene_objects.json is drawn from its own obb.",
   "overrides": {
     "OBJ-0185": {
       "asset_id": "ASSET-014",
+      "hosted_assets": [
+        "ASSET-028",
+        "ASSET-029",
+        "ASSET-030"
+      ],
       "mapping_method": "video_evidence",
       "mapping_confidence": 0.45,
-      "mapping_notes": "Video evidence: the box sits on the body of an inline circulator pump below its motor head, beside the blue expansion tank (frames frame_00279.jpg, frame_00169.jpg). Workbook Scene_Anchors coordinates are placeholders, so the P-002 identity is not verified on site."
+      "mapping_notes": "Pump: pipe body beside the dark inline circulator next to the blue expansion tank (frame_00278.jpg, frame_00243.jpg). Reachable from the walkable floor. VS-001, VS-002 and VS-003 (AREA-04, same as P-002) are simulated on this assembly."
     },
-    "OBJ-0247": {
-      "asset_id": "ASSET-029",
+    "OBJ-0303": {
+      "asset_id": "ASSET-013",
       "mapping_method": "video_evidence",
       "mapping_confidence": 0.45,
-      "mapping_notes": "Video evidence: the box sits on the motor head directly above the P-002 pump body (red head in frame_00277.jpg, black insulated head in frame_00170.jpg); a vibration sensor mounts on such a motor or bearing housing. The sensor itself is not visible in the video. VS-002 shares AREA-04 with P-002 in Asset_Master."
+      "mapping_notes": "Pump: inline circulator body inside its own box (frame_00001.jpg, frame_00014.jpg). About 1.57 m from the walkable floor."
     },
-    "OBJ-0189": {
-      "asset_id": "ASSET-022",
+    "OBJ-0222": {
+      "asset_id": "ASSET-019",
       "mapping_method": "video_evidence",
       "mapping_confidence": 0.45,
-      "mapping_notes": "Video evidence: the box covers the motor head of the neighbouring inline pump in the same group as P-002 (frames frame_00277.jpg, frame_00170.jpg). The M-004 identity is not verified on site."
+      "mapping_notes": "Motor: red motor head on the pipework (frame_00298.jpg, frame_00024.jpg)."
+    },
+    "OBJ-0211": {
+      "asset_id": "ASSET-001",
+      "hosted_assets": [
+        "ASSET-026"
+      ],
+      "mapping_method": "video_evidence",
+      "mapping_confidence": 0.45,
+      "mapping_notes": "Valve: blue valve body on the pipe run (frame_00243.jpg, frame_00275.jpg). PT-002 is simulated on this assembly."
+    },
+    "OBJ-0295": {
+      "asset_id": "ASSET-002",
+      "mapping_method": "video_evidence",
+      "mapping_confidence": 0.45,
+      "mapping_notes": "Valve: valve with handwheel on the wall pipework (frame_00022.jpg, frame_00035.jpg)."
+    },
+    "OBJ-0566": {
+      "asset_id": "ASSET-003",
+      "hosted_assets": [
+        "ASSET-027"
+      ],
+      "mapping_method": "video_evidence",
+      "mapping_confidence": 0.45,
+      "mapping_notes": "Valve: valve handle beside the blue tank (frame_00108.jpg, frame_00084.jpg). PT-003 is simulated on this assembly."
+    },
+    "OBJ-0172": {
+      "asset_id": "ASSET-025",
+      "mapping_method": "video_evidence",
+      "mapping_confidence": 0.3,
+      "mapping_notes": "Approximate marker: vertical pipe (frame_00198.jpg). No pressure gauge stayed inside one box across frames, so the box is not the transmitter body."
+    },
+    "OBJ-0548": {
+      "asset_id": "ASSET-015",
+      "mapping_method": "human_assigned",
+      "mapping_confidence": 0.4,
+      "pin_label": true,
+      "mapping_notes": "Red circulator on the pipe column immediately left of the white wall cabinet (frame_00001.jpg px 598-646, frame_00014.jpg). Workbook class PROCESS_PUMP; P-003 is the first pump not already pinned in this scan.",
+      "obb": {
+        "center": [
+          3.4982,
+          -0.2132,
+          -3.1385
+        ],
+        "extent": [
+          0.2187,
+          0.2361,
+          0.15
+        ],
+        "rotation": [
+          [
+            -0.9698,
+            -0.0061,
+            -0.244
+          ],
+          [
+            0.0138,
+            0.9967,
+            -0.08
+          ],
+          [
+            -0.2437,
+            0.081,
+            0.9665
+          ]
+        ],
+        "yaw_deg": -165.9
+      }
+    },
+    "OBJ-0591": {
+      "asset_id": "ASSET-004",
+      "mapping_method": "human_assigned",
+      "mapping_confidence": 0.35,
+      "pin_label": true,
+      "mapping_notes": "Valve directly under the red circulator OBJ-0548 on the same pipe column (frame_00001.jpg px 596-622). Workbook class CONTROL_VALVE; CV-004 is the first valve not already pinned in this scan.",
+      "obb": {
+        "center": [
+          3.4502,
+          0.2977,
+          -3.1459
+        ],
+        "extent": [
+          0.1516,
+          0.2092,
+          0.11
+        ],
+        "rotation": [
+          [
+            -0.9698,
+            -0.0061,
+            -0.244
+          ],
+          [
+            0.0138,
+            0.9967,
+            -0.08
+          ],
+          [
+            -0.2437,
+            0.081,
+            0.9665
+          ]
+        ],
+        "yaw_deg": -165.9
+      }
+    },
+    "OBJ-0179": {
+      "class": "other",
+      "display_label": "other",
+      "annotation": {
+        "label": "other"
+      },
+      "pin_label": true,
+      "mapping_notes": "White wall cabinet with the black handle, right-hand of the pair on the pipe wall (frame_00001.jpg px 776-881, frame_00310.jpg). Asset_Master has no cabinet or panel class.",
+      "obb": {
+        "center": [
+          2.8113,
+          -0.2595,
+          -3.2786
+        ],
+        "extent": [
+          0.6387,
+          0.7273,
+          0.13
+        ],
+        "rotation": [
+          [
+            0.9987,
+            0.0,
+            -0.0517
+          ],
+          [
+            -0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0517,
+            0.0,
+            0.9987
+          ]
+        ],
+        "yaw_deg": 2.96
+      }
+    },
+    "ANN-CAB-L": {
+      "class": "other",
+      "display_label": "other",
+      "annotation": {
+        "label": "other"
+      },
+      "pin_label": true,
+      "mapping_notes": "Left wall cabinet (Atmosstech panel) at the near end of the same wall, frame_00001.jpg. No segmented box covered the panel, so this outline is placed by hand along the wall from OBJ-0179.",
+      "obb": {
+        "center": [
+          3.5514,
+          -0.2072,
+          -1.7477
+        ],
+        "extent": [
+          0.278,
+          1.2194,
+          0.16
+        ],
+        "rotation": [
+          [
+            -0.9698,
+            -0.0061,
+            -0.244
+          ],
+          [
+            0.0138,
+            0.9967,
+            -0.08
+          ],
+          [
+            -0.2437,
+            0.081,
+            0.9665
+          ]
+        ],
+        "yaw_deg": -165.9
+      }
+    },
+    "ANN-PUMP-W1": {
+      "asset_id": "ASSET-016",
+      "class": "pump",
+      "mapping_method": "human_assigned",
+      "mapping_confidence": 0.4,
+      "pin_label": true,
+      "mapping_notes": "Black/red Grundfos circulator on the pipe column immediately right of the Atmosstech cabinet (frame_00001.jpg). Workbook class PROCESS_PUMP; P-004 is the next circulation pump not already pinned. P-001 is OBJ-0303 and P-003 is the smaller red circulator OBJ-0548.",
+      "obb": {
+        "center": [
+          3.5401,
+          -0.1732,
+          -2.5662
+        ],
+        "extent": [
+          0.364,
+          0.2604,
+          0.18
+        ],
+        "rotation": [
+          [
+            -0.9698,
+            -0.0061,
+            -0.244
+          ],
+          [
+            0.0138,
+            0.9967,
+            -0.08
+          ],
+          [
+            -0.2437,
+            0.081,
+            0.9665
+          ]
+        ],
+        "yaw_deg": -165.9
+      }
     }
   }
 }

@@ -89,7 +89,8 @@ export function setCvNavigationData(cvSceneObjects, navTargets = null, navData =
       centre: [obb.center[0], -obb.center[2]],
       ax: [ax[0] / nx, ax[1] / nx],
       az: [az[0] / nz, az[1] / nz],
-      half: [Math.max(0.06, obb.extent[0] * 0.5), Math.max(0.06, obb.extent[2] * 0.5)]
+      half: [Math.max(0.06, obb.extent[0] * 0.5), Math.max(0.06, obb.extent[2] * 0.5)],
+      top: topY
     });
   }
 
@@ -154,15 +155,16 @@ export function buildCollisionBoxes(assets = VALMET_ASSETS) {
       minX: x - hx,
       maxX: x + hx,
       minZ: z - hz,
-      maxZ: z + hz
+      maxZ: z + hz,
+      top: y + sy * 0.5
     });
   }
 
   // Only include synthetic CAD static obstacles if CV 3D OBB footprints haven't loaded yet
   if (CV_OBB_FOOTPRINTS.length === 0) {
     for (const st of STATIC_ROOM_OBSTACLES) {
-      const [x, , z] = st.position;
-      const [sx, , sz] = st.bbox_size;
+      const [x, y, z] = st.position;
+      const [sx, sy, sz] = st.bbox_size;
       boxes.push({
         id: st.id,
         tag: st.label,
@@ -171,7 +173,8 @@ export function buildCollisionBoxes(assets = VALMET_ASSETS) {
         minX: x - sx * 0.5,
         maxX: x + sx * 0.5,
         minZ: z - sz * 0.5,
-        maxZ: z + sz * 0.5
+        maxZ: z + sz * 0.5,
+        top: y + sy * 0.5
       });
     }
   }
@@ -209,6 +212,30 @@ export function isPointInObstacle(x, z, radius = 0.22, obstacles = null, ignoreI
     }
   }
   return null;
+}
+
+/**
+ * Ids of every CV OBB footprint and obstacle AABB that a circle at (x, z) overlaps.
+ * Obstacles whose top is below `minTop` (display Y) are skipped.
+ */
+export function obstacleIdsAt(x, z, radius = 0.22, obstacles = null, minTop = -Infinity) {
+  const ids = [];
+  for (const fp of CV_OBB_FOOTPRINTS) {
+    if ((fp.top ?? Infinity) < minTop) continue;
+    const dx = x - fp.centre[0];
+    const dz = z - fp.centre[1];
+    const u = Math.abs(dx * fp.ax[0] + dz * fp.ax[1]);
+    const w = Math.abs(dx * fp.az[0] + dz * fp.az[1]);
+    if (u < fp.half[0] + radius && w < fp.half[1] + radius) ids.push(fp.id);
+  }
+  const list = obstacles || buildCollisionBoxes();
+  for (const b of list) {
+    if ((b.top ?? Infinity) < minTop) continue;
+    if (x > b.minX - radius && x < b.maxX + radius && z > b.minZ - radius && z < b.maxZ + radius) {
+      ids.push(b.id);
+    }
+  }
+  return ids;
 }
 
 /**
@@ -449,6 +476,19 @@ export function resolveManualTechnicianStep(
 /**
  * Liang-Barsky 2D segment vs expanded AABB intersection test
  */
+/**
+ * Samples the X-Z segment every ~8 cm against CV OBB footprints and asset AABBs (endpoints excluded).
+ */
+export function isSegmentClear(ax, az, bx, bz, radius = 0.18, obstacles = null) {
+  const len = Math.hypot(bx - ax, bz - az);
+  const steps = Math.ceil(len / 0.08);
+  for (let s = 1; s < steps; s++) {
+    const t = s / steps;
+    if (isPointInObstacle(ax + (bx - ax) * t, az + (bz - az) * t, radius, obstacles)) return false;
+  }
+  return true;
+}
+
 export function segmentIntersectsBox(ax, az, bx, bz, box, margin = 0.20) {
   const minX = box.minX - margin;
   const maxX = box.maxX + margin;
@@ -791,21 +831,38 @@ export function lookupEsdfTargetPath(targetPoint3D, startPoint3D = null, obstacl
     bestEntry = bestTrunkEntry;
   }
 
-  // If worker starts from a specific staging slot near front_entry, smoothly join the ESDF path
+  // Every pre-baked path begins at front_entry. Join it wherever the worker actually stands so a technician
+  // deep in the room heads straight for the asset instead of first walking back to the entrance.
   if (Array.isArray(startPoint3D)) {
-    const dToStart = Math.hypot(startPoint3D[0] - dispPath[0][0], startPoint3D[2] - dispPath[0][2]);
-    if (dToStart > 0.05 && dToStart < 1.65) {
-      const searchLimit = Math.max(2, Math.floor(dispPath.length * 0.35));
-      let joinIdx = 0;
-      let joinDist = Infinity;
-      for (let i = 0; i < searchLimit; i++) {
-        const d = Math.hypot(startPoint3D[0] - dispPath[i][0], startPoint3D[2] - dispPath[i][2]);
-        if (d < joinDist) {
-          joinDist = d;
-          joinIdx = i;
-        }
+    const sx = startPoint3D[0];
+    const sz = startPoint3D[2];
+    const dToStart = Math.hypot(sx - dispPath[0][0], sz - dispPath[0][2]);
+    if (dToStart > 0.05) {
+      const list = obstacles || buildCollisionBoxes();
+      const remaining = new Array(dispPath.length).fill(0);
+      for (let i = dispPath.length - 2; i >= 0; i--) {
+        remaining[i] =
+          remaining[i + 1] +
+          Math.hypot(dispPath[i + 1][0] - dispPath[i][0], dispPath[i + 1][2] - dispPath[i][2]);
       }
-      dispPath = [[startPoint3D[0], -1.02, startPoint3D[2]], ...dispPath.slice(joinIdx)];
+      const candidates = dispPath
+        .map((p, i) => ({ i, cost: Math.hypot(sx - p[0], sz - p[2]) + remaining[i] }))
+        .sort((a, b) => a.cost - b.cost);
+      const join = candidates.find(({ i }) =>
+        isSegmentClear(sx, sz, dispPath[i][0], dispPath[i][2], 0.18, list)
+      );
+      const start = [sx, -1.02, sz];
+      if (join) {
+        dispPath = [start, ...dispPath.slice(join.i)];
+      } else {
+        const goal = dispPath[dispPath.length - 1];
+        dispPath = smoothCenterlinePoints(
+          [start, [(sx + goal[0]) * 0.5, -1.02, (sz + goal[2]) * 0.5], goal],
+          2,
+          list
+        );
+        dispPath[0] = start;
+      }
     }
   }
 
@@ -1083,7 +1140,7 @@ export const INITIAL_FLEET_AGENTS = [
     color: '#1f6fb2',
     homeNodeId: 'N-ENTRY',
     hitboxSize: [0.52, 1.72, 0.46],
-    assignedAssetId: 'ASSET-024', // M-006
+    assignedAssetId: 'ASSET-013', // P-001
     status: 'DISPATCHED'
   }
 ];

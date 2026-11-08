@@ -1,0 +1,716 @@
+{
+  "schema_version": "1.0",
+  "scene_revision": "105192389b3bcdfa",
+  "source_ply": "Equipment Room.ply",
+  "pipeline_version": "tab2-segmentation-1",
+  "frame": "ply_raw",
+  "note": "Software linkage only. A status is not a calibrated probability and not a nameplate identification. A highlight is an oriented region box. Splats inside the box are not isolated.",
+  "rows": [
+    {
+      "asset_id": "ASSET-001",
+      "tag": "CV-001",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 2
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "class_only_candidate",
+      "location_kind": "unknown",
+      "evidence_refs": [
+        "frame_00275.jpg",
+        "frame_00243.jpg",
+        "frame_00035.jpg",
+        "frame_00022.jpg",
+        "frame_00108.jpg",
+        "frame_00064.jpg"
+      ],
+      "review_notes": "Reviewed class only. The previous tag was a class rank, not a nameplate or a coordinate match. Frame names below are class evidence. No region is saved.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-002",
+      "tag": "CV-002",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 3
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "class_only_candidate",
+      "location_kind": "unknown",
+      "evidence_refs": [
+        "frame_00275.jpg",
+        "frame_00243.jpg",
+        "frame_00035.jpg",
+        "frame_00022.jpg",
+        "frame_00108.jpg",
+        "frame_00064.jpg"
+      ],
+      "review_notes": "Reviewed class only. The previous tag was a class rank, not a nameplate or a coordinate match. Frame names below are class evidence. No region is saved.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-003",
+      "tag": "CV-003",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 4
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "class_only_candidate",
+      "location_kind": "unknown",
+      "evidence_refs": [
+        "frame_00275.jpg",
+        "frame_00243.jpg",
+        "frame_00035.jpg",
+        "frame_00022.jpg",
+        "frame_00108.jpg",
+        "frame_00064.jpg"
+      ],
+      "review_notes": "Reviewed class only. The previous tag was a class rank, not a nameplate or a coordinate match. Frame names below are class evidence. No region is saved.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-004",
+      "tag": "CV-004",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 5
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-005",
+      "tag": "CV-005",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 6
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-006",
+      "tag": "CV-006",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 7
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-007",
+      "tag": "CV-007",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 8
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-008",
+      "tag": "CV-008",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 9
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-009",
+      "tag": "CV-009",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 10
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-010",
+      "tag": "CV-010",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 11
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-011",
+      "tag": "CV-011",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 12
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-012",
+      "tag": "CV-012",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 13
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-013",
+      "tag": "P-001",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 14
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "class_only_candidate",
+      "location_kind": "unknown",
+      "evidence_refs": [
+        "frame_00278.jpg",
+        "frame_00243.jpg",
+        "frame_00001.jpg",
+        "frame_00014.jpg"
+      ],
+      "review_notes": "Reviewed class only. The previous tag was a class rank, not a nameplate or a coordinate match. Frame names below are class evidence. No region is saved.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-014",
+      "tag": "P-002",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 15
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [
+        "OBJ-0185"
+      ],
+      "mapping_status": "procedural_assignment",
+      "location_kind": "approximate_location_marker",
+      "evidence_refs": [
+        "frame_00278.jpg",
+        "frame_00243.jpg"
+      ],
+      "review_notes": "Frames frame_00278.jpg and frame_00243.jpg: the box is the pipe fragment beside the dark inline circulator, next to the blue tank. The clearer circulator bodies OBJ-0303 and OBJ-0548 are more than 1 m from the walkable floor, so P-002 stays on this reachable fragment. P-002 is an Excel assignment; the tag is not printed on the machine.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-015",
+      "tag": "P-003",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 16
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-016",
+      "tag": "P-004",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 17
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-017",
+      "tag": "P-005",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 18
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-018",
+      "tag": "P-006",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 19
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-019",
+      "tag": "M-001",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 20
+      },
+      "visual_class": "motor",
+      "candidate_object_ids": [
+        "OBJ-0222"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "class_only_candidate",
+      "location_kind": "unknown",
+      "evidence_refs": [
+        "frame_00298.jpg",
+        "frame_00024.jpg"
+      ],
+      "review_notes": "Reviewed class only. The previous tag was a class rank, not a nameplate or a coordinate match. Frame names below are class evidence. No region is saved.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-020",
+      "tag": "M-002",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 21
+      },
+      "visual_class": "motor",
+      "candidate_object_ids": [
+        "OBJ-0222"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-021",
+      "tag": "M-003",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 22
+      },
+      "visual_class": "motor",
+      "candidate_object_ids": [
+        "OBJ-0222"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-022",
+      "tag": "M-004",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 23
+      },
+      "visual_class": "motor",
+      "candidate_object_ids": [
+        "OBJ-0222"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-023",
+      "tag": "M-005",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 24
+      },
+      "visual_class": "motor",
+      "candidate_object_ids": [
+        "OBJ-0222"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-024",
+      "tag": "M-006",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 25
+      },
+      "visual_class": "motor",
+      "candidate_object_ids": [
+        "OBJ-0222"
+      ],
+      "region_object_ids": [],
+      "mapping_status": "unmapped",
+      "location_kind": "unknown",
+      "evidence_refs": [],
+      "review_notes": "No saved mapping. Class, size, colour and adjacency are not a tag. Class-matching objects are listed as candidates and are not assigned.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-025",
+      "tag": "PT-001",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 26
+      },
+      "visual_class": "pipe",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [
+        "OBJ-0172"
+      ],
+      "mapping_status": "procedural_assignment",
+      "location_kind": "approximate_location_marker",
+      "evidence_refs": [
+        "frame_00198.jpg",
+        "frame_00211.jpg"
+      ],
+      "review_notes": "PT-001 is a simulated parent link on OBJ-0172 (pipe). The box is not this sensor. PT-001 mounted on verified pipe. Frames frame_00198.jpg and frame_00211.jpg: the box follows a vertical pipe. No handwheel is inside the box.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-026",
+      "tag": "PT-002",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 27
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [
+        "OBJ-0211"
+      ],
+      "mapping_status": "procedural_assignment",
+      "location_kind": "parent_assembly",
+      "evidence_refs": [
+        "frame_00275.jpg",
+        "frame_00243.jpg"
+      ],
+      "review_notes": "PT-002 is a simulated parent link on OBJ-0211 (valve). The box is not this sensor. PT-002 mounted on verified valve. Frames frame_00275.jpg and frame_00243.jpg: the box contains a valve with a blue handwheel.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-027",
+      "tag": "PT-003",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 28
+      },
+      "visual_class": "valve",
+      "candidate_object_ids": [
+        "OBJ-0211",
+        "OBJ-0295",
+        "OBJ-0566"
+      ],
+      "region_object_ids": [
+        "OBJ-0566"
+      ],
+      "mapping_status": "procedural_assignment",
+      "location_kind": "parent_assembly",
+      "evidence_refs": [
+        "frame_00108.jpg",
+        "frame_00064.jpg"
+      ],
+      "review_notes": "PT-003 is a simulated parent link on OBJ-0566 (valve). The box is not this sensor. PT-003 mounted on verified valve. Frames frame_00108.jpg and frame_00064.jpg: the box contains a valve handle.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-028",
+      "tag": "VS-001",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 29
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0222",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [
+        "OBJ-0185"
+      ],
+      "mapping_status": "procedural_assignment",
+      "location_kind": "parent_assembly",
+      "evidence_refs": [
+        "frame_00278.jpg",
+        "frame_00243.jpg"
+      ],
+      "review_notes": "VS-001 is a simulated parent link on OBJ-0185 (pump). The box is not this sensor. VS-001 mounted on verified pump. Frames frame_00278.jpg and frame_00243.jpg: the box is the pipe fragment beside the dark inline circulator, next to the blue tank. The clearer circulator bodies OBJ-0303 and OBJ-0548 are more than 1 m from the walkable floor, so P-002 stays on this reachable fragment. P-002 is an Excel assignment; the tag is not printed on the machine.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-029",
+      "tag": "VS-002",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 30
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0222",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [
+        "OBJ-0185"
+      ],
+      "mapping_status": "procedural_assignment",
+      "location_kind": "parent_assembly",
+      "evidence_refs": [
+        "frame_00278.jpg",
+        "frame_00243.jpg"
+      ],
+      "review_notes": "VS-002 is a simulated parent link on OBJ-0185 (pump). The box is not this sensor. VS-002 mounted on verified pump. Frames frame_00278.jpg and frame_00243.jpg: the box is the pipe fragment beside the dark inline circulator, next to the blue tank. The clearer circulator bodies OBJ-0303 and OBJ-0548 are more than 1 m from the walkable floor, so P-002 stays on this reachable fragment. P-002 is an Excel assignment; the tag is not printed on the machine.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    },
+    {
+      "asset_id": "ASSET-030",
+      "tag": "VS-003",
+      "source": {
+        "sheet": "Asset_Master",
+        "row": 31
+      },
+      "visual_class": "pump",
+      "candidate_object_ids": [
+        "OBJ-0185",
+        "OBJ-0222",
+        "OBJ-0303"
+      ],
+      "region_object_ids": [
+        "OBJ-0185"
+      ],
+      "mapping_status": "procedural_assignment",
+      "location_kind": "parent_assembly",
+      "evidence_refs": [
+        "frame_00278.jpg",
+        "frame_00243.jpg"
+      ],
+      "review_notes": "VS-003 is a simulated parent link on OBJ-0185 (pump). The box is not this sensor. VS-003 mounted on verified pump. Frames frame_00278.jpg and frame_00243.jpg: the box is the pipe fragment beside the dark inline circulator, next to the blue tank. The clearer circulator bodies OBJ-0303 and OBJ-0548 are more than 1 m from the walkable floor, so P-002 stays on this reachable fragment. P-002 is an Excel assignment; the tag is not printed on the machine.",
+      "scene_revision": "105192389b3bcdfa",
+      "reviewer": null,
+      "reviewed_at": null
+    }
+  ]
+}

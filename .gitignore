@@ -36,3 +36,37 @@ data/derived/*
 !data/derived/nav_grid.npz
 !data/derived/objects.json
 public/assets/equipment_room.splat
+
+# Local Python envs and caches
+.venv-vision/
+.cache/
+.pytest_cache/
+
+# Analysis scratch: toolchains, SfM working sets, and generated clouds
+_analysis/.venv/
+_analysis/.colmap_env/
+_analysis/.conda_pkgs/
+_analysis/.rust/
+_analysis/bin/
+_analysis/brush/
+_analysis/brush_out/
+_analysis/rustup-init.sh
+_analysis/boiler_room_valid.ply
+_analysis/sfm_frames/
+_analysis/sfm_test/
+_analysis/sfm_full/
+_analysis/*.log
+_analysis/__pycache__/
+
+# Local database
+data/valmet.db
+
+# Alternate web tree: deps, build output, and scans over GitHub's 100 MB limit
+web/node_modules/
+web/dist/
+web/public/assets/equipment_room.ply
+web/public/assets/boiler_room_valid.ply
+
+# Root copies of the raw scan and source video (over GitHub's 100 MB limit)
+/Equipment Room.ply
+/Industrial Boiler Room (1).mp4

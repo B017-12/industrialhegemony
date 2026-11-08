@@ -5,6 +5,8 @@
  * + Spatial coordinates aligned to real 3D clusters extracted from "Industrial Boiler Room (1).ply"
  */
 
+import { EXCEL_ASSET_RECORDS } from './excelPartCatalog.js';
+
 export const VALMET_RAG_DOCS = [
   {
     doc_id: 'DOC-CONTROL_VALVE-CORE',
@@ -1006,6 +1008,107 @@ ADDITIONAL_VALMET_SPECS.forEach((s) => {
 
 // Sort by asset_id
 VALMET_ASSETS.sort((a, b) => a.asset_id.localeCompare(b.asset_id));
+
+// The workbook (Asset_Master + Current_State) is authoritative for identity and condition.
+// Scene positions above are placeholders until syncAssetsWithCvObjects binds a reviewed scan object.
+const sameIssue = (reason, issueCode) =>
+  (reason === 'NORMAL_OPERATION' ? 'NORMAL' : reason) === issueCode;
+
+function narrativeFromExcel(asset, rec) {
+  const healthy = rec.issue_code === 'NORMAL';
+  const ev = rec.excel_event;
+  const wo = rec.excel_work_order;
+  const issue = rec.issue_code.replace(/_/g, ' ').toLowerCase();
+  return {
+    active_alarm_count: healthy ? 0 : 1,
+    open_work_orders: healthy || !wo ? 0 : 1,
+    anomaly_score: Number(Math.min(0.99, Math.max(0.08, (100 - rec.health_score) / 62)).toFixed(2)),
+    events: ev
+      ? [
+          {
+            event_id: ev.event_id,
+            timestamp: ev.timestamp,
+            severity: ev.severity,
+            event_type: ev.event_type,
+            message: `${rec.tag} ${ev.event_code.replace(/_/g, ' ').toLowerCase()} (${ev.source}, ${ev.status}): ${rec.issue_summary}.`
+          }
+        ]
+      : [],
+    work_order:
+      healthy || !wo
+        ? null
+        : {
+            wo_id: wo.work_order_id,
+            priority: wo.priority,
+            status: 'OPEN',
+            failure_code: rec.issue_code,
+            cause_code: rec.issue_code,
+            action_code: wo.action.replace(/\s+/g, '_').toUpperCase(),
+            summary: `${rec.tag}: ${wo.action} (${wo.maintenance_type}, ${wo.role.replace(/_/g, ' ')}). Next check: ${rec.recommended_next_check}.`
+          },
+    decision_tree: [
+      {
+        step: 1,
+        node: 'OBSERVATION',
+        title: healthy ? 'No Significant Deviation' : rec.issue_summary,
+        detail: `Health ${rec.health_score}/100 (${rec.condition_state}), urgency ${rec.urgency}, model confidence ${rec.model_confidence}.`
+      },
+      {
+        step: 2,
+        node: 'SPATIAL_CONTEXT',
+        title: `${rec.area_name} (${rec.area_id})`,
+        detail: `Workbook scene path ${rec.scene_path}.`
+      },
+      {
+        step: 3,
+        node: 'ROOT_CAUSE',
+        title: healthy ? 'No Fault Detected' : `Suspected ${issue}`,
+        detail: `Grounded in ${rec.knowledge_doc_id}; verify on site before acting.`
+      },
+      {
+        step: 4,
+        node: 'SAFE_ACTION',
+        title: healthy ? 'Continue Monitoring' : `Recommended: ${rec.recommended_next_check}`,
+        detail: healthy
+          ? 'Include in the routine patrol route.'
+          : 'Follow approved safety and maintenance procedures (DOC-FIELD-SAFETY).'
+      }
+    ],
+    loto_checklist: healthy
+      ? [`Scan ${rec.qr_id} during routine operator round.`, 'Verify no external leaks or abnormal acoustic noise.']
+      : [`Scan ${rec.qr_id} to confirm asset identity.`, `${rec.recommended_next_check} per ${rec.knowledge_doc_id}.`, 'Apply site LOTO before any hands-on work.']
+  };
+}
+
+VALMET_ASSETS.forEach((asset, i) => {
+  const rec = EXCEL_ASSET_RECORDS[asset.asset_id];
+  if (!rec) return;
+  const narrativeMatches = sameIssue(asset.status_reason, rec.issue_code);
+  const overlaid = {
+    ...asset,
+    tag: rec.tag,
+    asset_class: rec.asset_class.toLowerCase(),
+    area_id: rec.area_id,
+    area_name: rec.area_name,
+    criticality: rec.criticality,
+    connectivity_profile: rec.connectivity_profile,
+    qr_id: rec.qr_id,
+    anchor_id: rec.scene_anchor_id,
+    health_score: rec.health_score,
+    health_status: rec.condition_state,
+    status_reason: rec.issue_code
+  };
+  if (narrativeMatches) {
+    overlaid.decision_tree = (asset.decision_tree || []).map((step) =>
+      step.node === 'SPATIAL_CONTEXT'
+        ? { ...step, title: `${rec.area_name} (${rec.area_id})`, detail: `Workbook scene path ${rec.scene_path}.` }
+        : step
+    );
+  } else {
+    Object.assign(overlaid, narrativeFromExcel(asset, rec));
+  }
+  VALMET_ASSETS[i] = overlaid;
+});
 
 /**
  * Additional Structural & Environmental 3D Bounding Boxes extracted from "Industrial Boiler Room (1).ply"

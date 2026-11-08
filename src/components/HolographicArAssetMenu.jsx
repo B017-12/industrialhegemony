@@ -340,7 +340,11 @@ function HolographicArAssetMenuInner({
         tag: a.tag,
         role: spec.itemTypeName.replace('Pneumatic Globe ', '').replace('3-Phase Squirrel-Cage ', ''),
         metric: isCur
-          ? `Health: ${partData.health}% (${partData.issueCode})`
+          ? asset?.annotation
+            ? asset.annotation.note
+              ? `${asset.annotation.label || 'other'} · ${asset.annotation.note}`
+              : `other · ${Math.round((asset.cvObject?.class_confidence ?? asset.class_confidence ?? 0.35) * 100)}%`
+            : `Health: ${partData.health}% (${partData.issueCode})`
           : `Health: ${a.health_score}% · ${rec?.connectivity_profile || 'OPC_UA'}`,
         wave: partData.sensors[idx % partData.sensors.length]?.waveUrl || partData.sensors[0]?.waveUrl,
         active: isCur
@@ -365,6 +369,15 @@ function HolographicArAssetMenuInner({
   }, [assets, asset, excelRec, partData.health]);
 
   if (!asset) return null;
+
+  const scanConfidence = Math.round(
+    (asset.cvObject?.class_confidence ?? asset.class_confidence ?? 0.35) * 100
+  );
+  const scanCaption = asset.annotation
+    ? asset.annotation.note
+      ? `${asset.annotation.label || 'other'} · ${asset.annotation.note}`
+      : `other · ${scanConfidence}%`
+    : null;
 
   const cvObjId = asset.cvObject?.object_id || asset.object_id;
   const currentMove = (cvObjId && objectMoves[cvObjId]) || { dx: 0, dz: 0 };
@@ -679,11 +692,15 @@ function HolographicArAssetMenuInner({
                     fontWeight: 800
                   }}
                 >
-                  {partData.isFault ? 'ATTENTION REQUIRED' : 'HEALTHY · NOMINAL'} (Conf: {partData.confidencePct}%)
+                  {asset?.annotation
+                    ? scanCaption
+                    : `${partData.isFault ? 'ATTENTION REQUIRED' : 'HEALTHY · NOMINAL'} (Conf: ${partData.confidencePct}%)`}
                 </div>
 
                 <div style={{ marginTop: '6px', fontSize: '14px', fontWeight: 700 }}>
-                  Health Score: {partData.health}/100 · Area: {excelRec?.area_name || asset.area_name}
+                  {asset?.annotation
+                    ? asset.annotation.label
+                    : `Health Score: ${partData.health}/100 · Area: ${excelRec?.area_name || asset.area_name}`}
                 </div>
 
                 <div style={{ marginTop: '6px', fontSize: '13px', fontWeight: 700 }}>
@@ -795,7 +812,9 @@ function HolographicArAssetMenuInner({
                   TAG: {asset.tag} ({partSpec.itemTypeName})
                 </div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: '14px', fontWeight: 800, color: '#fbbf24' }}>
-                  Health: {partData.health}/100 · {partData.issueCode}
+                  {asset?.annotation
+                    ? scanCaption
+                    : `Health: ${partData.health}/100 · ${partData.issueCode}`}
                 </div>
                 <div
                   style={{
@@ -946,10 +965,10 @@ function HolographicArAssetMenuInner({
                 {partSpec.itemTypeName}
               </div>
               <div style={{ fontSize: '11px', color: theme.muted, fontFamily: 'var(--mono)', marginTop: '6px' }}>
-                EXCEL HEALTH SCORE ({partData.issueCode})
+                {asset?.annotation ? 'SCAN CLASS' : `EXCEL HEALTH SCORE (${partData.issueCode})`}
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '32px', fontWeight: 900, color: '#fbbf24', lineHeight: 1.05 }}>
-                {partData.health}%
+              <div style={{ fontFamily: 'var(--mono)', fontSize: asset?.annotation ? '18px' : '32px', fontWeight: 900, color: '#fbbf24', lineHeight: 1.05 }}>
+                {asset?.annotation ? scanCaption : `${partData.health}%`}
               </div>
               <div style={{ fontSize: '11px', color: theme.muted, fontFamily: 'var(--mono)', marginTop: '6px' }}>
                 SERVICE INTERVAL / RUL
@@ -1296,7 +1315,9 @@ function HolographicArAssetMenuInner({
               <div style={{ display: 'grid', gridTemplateColumns: '135px 1fr', rowGap: '4px', fontFamily: 'var(--mono)' }}>
                 <span style={{ color: theme.muted }}>condition_state:</span>
                 <span style={{ color: '#fbbf24' }}>
-                  {excelRec?.condition_state || asset.health_status} ({partData.health}/100)
+                  {asset?.annotation
+                    ? scanCaption
+                    : `${excelRec?.condition_state || asset.health_status} (${partData.health}/100)`}
                 </span>
                 <span style={{ color: theme.muted }}>issue_code:</span>
                 <span>{partData.issueCode}</span>

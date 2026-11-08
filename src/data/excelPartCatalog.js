@@ -199,7 +199,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Utility Island',
     process_context: 'utilities',
     criticality: 'A - production critical',
-    installation_date: '2020-12-15',
+    installation_date: '2020-12-16',
     last_service_date: '2026-01-15',
     service_interval_days: 180,
     connectivity_profile: 'OPC_UA',
@@ -214,6 +214,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.89,
+    last_updated: '2026-10-08 07:42',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-001.md',
     excel_telemetry: {
@@ -228,6 +229,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00966',
+      timestamp: '2026-09-25 06:33:00',
       event_type: 'WORK_ORDER_CREATED',
       severity: 'low',
       event_code: 'MINOR_DEVIATION',
@@ -262,7 +264,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Stock Preparation',
     process_context: 'wet_process',
     criticality: 'B - important',
-    installation_date: '2023-10-27',
+    installation_date: '2023-10-28',
     last_service_date: '2026-04-14',
     service_interval_days: 180,
     connectivity_profile: 'HART',
@@ -277,6 +279,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.81,
+    last_updated: '2026-10-08 07:41',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-002.md',
     excel_telemetry: {
@@ -291,6 +294,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00926',
+      timestamp: '2026-10-06 04:46:00',
       event_type: 'SERVICE_RECOMMENDATION',
       severity: 'high',
       event_code: 'NORMAL_CHECK',
@@ -325,7 +329,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'A - production critical',
-    installation_date: '2018-05-05',
+    installation_date: '2018-05-06',
     last_service_date: '2026-03-02',
     service_interval_days: 540,
     connectivity_profile: 'FOUNDATION_FIELDBUS',
@@ -340,6 +344,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'high',
     recommended_next_check: 'verify control and mechanics',
     model_confidence: 0.81,
+    last_updated: '2026-10-08 07:44',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-003.md',
     excel_telemetry: {
@@ -354,6 +359,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00909',
+      timestamp: '2026-10-04 13:09:00',
       event_type: 'CONDITION_CHANGE',
       severity: 'high',
       event_code: 'POSITION_DEVIATION',
@@ -388,7 +394,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Machine Hall',
     process_context: 'continuous_process',
     criticality: 'A - production critical',
-    installation_date: '2017-01-22',
+    installation_date: '2017-01-23',
     last_service_date: '2026-06-06',
     service_interval_days: 365,
     connectivity_profile: 'OPC_UA',
@@ -403,6 +409,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.71,
+    last_updated: '2026-10-08 07:23',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-004.md',
     excel_telemetry: {
@@ -417,6 +424,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00968',
+      timestamp: '2026-09-24 16:46:00',
       event_type: 'CONDITION_CHANGE',
       severity: 'high',
       event_code: 'MINOR_DEVIATION',
@@ -451,7 +459,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Machine Hall',
     process_context: 'continuous_process',
     criticality: 'C - standard',
-    installation_date: '2017-10-15',
+    installation_date: '2017-10-16',
     last_service_date: '2026-02-15',
     service_interval_days: 180,
     connectivity_profile: 'OPC_UA',
@@ -466,6 +474,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.77,
+    last_updated: '2026-10-08 07:39',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-005.md',
     excel_telemetry: {
@@ -480,6 +489,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00963',
+      timestamp: '2026-10-07 12:53:00',
       event_type: 'INSPECTION_NOTE',
       severity: 'medium',
       event_code: 'TREND_UPDATE',
@@ -514,7 +524,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Utility Island',
     process_context: 'utilities',
     criticality: 'B - important',
-    installation_date: '2019-01-14',
+    installation_date: '2019-01-15',
     last_service_date: '2025-07-03',
     service_interval_days: 540,
     connectivity_profile: 'OPC_UA',
@@ -529,6 +539,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.88,
+    last_updated: '2026-10-08 07:41',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-006.md',
     excel_telemetry: {
@@ -543,6 +554,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00985',
+      timestamp: '2026-09-29 19:37:00',
       event_type: 'DATA_QUALITY',
       severity: 'medium',
       event_code: 'NORMAL_CHECK',
@@ -577,7 +589,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Stock Preparation',
     process_context: 'wet_process',
     criticality: 'C - standard',
-    installation_date: '2018-04-19',
+    installation_date: '2018-04-20',
     last_service_date: '2026-08-13',
     service_interval_days: 540,
     connectivity_profile: 'HART',
@@ -592,6 +604,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'medium',
     recommended_next_check: 'verify calibration',
     model_confidence: 0.69,
+    last_updated: '2026-10-08 07:36',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-007.md',
     excel_telemetry: {
@@ -606,6 +619,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00994',
+      timestamp: '2026-10-05 15:28:00',
       event_type: 'INSPECTION_NOTE',
       severity: 'medium',
       event_code: 'CALIBRATION_DRIFT',
@@ -640,7 +654,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Machine Hall',
     process_context: 'continuous_process',
     criticality: 'A - production critical',
-    installation_date: '2020-05-01',
+    installation_date: '2020-05-02',
     last_service_date: '2026-05-08',
     service_interval_days: 540,
     connectivity_profile: 'OPC_UA',
@@ -655,6 +669,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.84,
+    last_updated: '2026-10-08 07:42',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-008.md',
     excel_telemetry: {
@@ -669,6 +684,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00977',
+      timestamp: '2026-09-30 01:42:00',
       event_type: 'DIAGNOSTIC_ALERT',
       severity: 'medium',
       event_code: 'NORMAL_CHECK',
@@ -703,7 +719,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Utility Island',
     process_context: 'utilities',
     criticality: 'B - important',
-    installation_date: '2019-12-25',
+    installation_date: '2019-12-26',
     last_service_date: '2026-01-27',
     service_interval_days: 180,
     connectivity_profile: 'FOUNDATION_FIELDBUS',
@@ -718,6 +734,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'medium',
     recommended_next_check: 'verify control and mechanics',
     model_confidence: 0.69,
+    last_updated: '2026-10-08 07:38',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-009.md',
     excel_telemetry: {
@@ -732,6 +749,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00998',
+      timestamp: '2026-10-03 06:15:00',
       event_type: 'WORK_ORDER_CREATED',
       severity: 'medium',
       event_code: 'NORMAL_CHECK',
@@ -766,7 +784,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Machine Hall',
     process_context: 'continuous_process',
     criticality: 'B - important',
-    installation_date: '2020-09-25',
+    installation_date: '2020-09-26',
     last_service_date: '2025-12-25',
     service_interval_days: 180,
     connectivity_profile: 'FOUNDATION_FIELDBUS',
@@ -781,6 +799,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.87,
+    last_updated: '2026-10-08 07:21',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-010.md',
     excel_telemetry: {
@@ -795,6 +814,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00911',
+      timestamp: '2026-10-01 11:30:00',
       event_type: 'INSPECTION_NOTE',
       severity: 'high',
       event_code: 'NORMAL_CHECK',
@@ -829,7 +849,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'A - production critical',
-    installation_date: '2020-03-04',
+    installation_date: '2020-03-05',
     last_service_date: '2026-01-03',
     service_interval_days: 180,
     connectivity_profile: 'OPC_UA',
@@ -844,6 +864,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.91,
+    last_updated: '2026-10-08 07:28',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-011.md',
     excel_telemetry: {
@@ -858,6 +879,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00982',
+      timestamp: '2026-10-07 01:01:00',
       event_type: 'DATA_QUALITY',
       severity: 'high',
       event_code: 'MINOR_DEVIATION',
@@ -892,7 +914,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Stock Preparation',
     process_context: 'wet_process',
     criticality: 'A - production critical',
-    installation_date: '2021-12-28',
+    installation_date: '2021-12-29',
     last_service_date: '2026-02-22',
     service_interval_days: 180,
     connectivity_profile: 'SIMULATED_API',
@@ -907,6 +929,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.79,
+    last_updated: '2026-10-08 07:24',
     knowledge_doc_id: 'DOC-CONTROL_VALVE-CORE',
     rag_doc_file: 'DOC-ASSET-012.md',
     excel_telemetry: {
@@ -921,6 +944,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00978',
+      timestamp: '2026-09-24 20:48:00',
       event_type: 'DATA_QUALITY',
       severity: 'medium',
       event_code: 'NORMAL_CHECK',
@@ -955,7 +979,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Water Treatment',
     process_context: 'utilities',
     criticality: 'B - important',
-    installation_date: '2018-08-19',
+    installation_date: '2018-08-20',
     last_service_date: '2026-02-20',
     service_interval_days: 540,
     connectivity_profile: 'OPC_UA',
@@ -970,6 +994,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'medium',
     recommended_next_check: 'inspect alignment',
     model_confidence: 0.85,
+    last_updated: '2026-10-08 07:28',
     knowledge_doc_id: 'DOC-PROCESS_PUMP-CORE',
     rag_doc_file: 'DOC-ASSET-013.md',
     excel_telemetry: {
@@ -983,6 +1008,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00941',
+      timestamp: '2026-09-30 11:27:00',
       event_type: 'INSPECTION_NOTE',
       severity: 'medium',
       event_code: 'MISALIGNMENT',
@@ -1017,7 +1043,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'C - standard',
-    installation_date: '2018-10-01',
+    installation_date: '2018-10-02',
     last_service_date: '2025-11-13',
     service_interval_days: 365,
     connectivity_profile: 'SIMULATED_API',
@@ -1032,6 +1058,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'high',
     recommended_next_check: 'inspect process conditions',
     model_confidence: 0.68,
+    last_updated: '2026-10-08 07:28',
     knowledge_doc_id: 'DOC-PROCESS_PUMP-CORE',
     rag_doc_file: 'DOC-ASSET-014.md',
     excel_telemetry: {
@@ -1045,6 +1072,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00996',
+      timestamp: '2026-09-28 03:57:00',
       event_type: 'SERVICE_RECOMMENDATION',
       severity: 'low',
       event_code: 'CAVITATION_RISK',
@@ -1079,7 +1107,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Stock Preparation',
     process_context: 'wet_process',
     criticality: 'C - standard',
-    installation_date: '2018-07-25',
+    installation_date: '2018-07-26',
     last_service_date: '2026-05-06',
     service_interval_days: 365,
     connectivity_profile: 'SIMULATED_API',
@@ -1094,6 +1122,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.93,
+    last_updated: '2026-10-08 07:26',
     knowledge_doc_id: 'DOC-PROCESS_PUMP-CORE',
     rag_doc_file: 'DOC-ASSET-015.md',
     excel_telemetry: {
@@ -1107,6 +1136,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00990',
+      timestamp: '2026-10-06 23:43:00',
       event_type: 'DATA_QUALITY',
       severity: 'low',
       event_code: 'NORMAL_CHECK',
@@ -1141,7 +1171,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'A - production critical',
-    installation_date: '2024-05-15',
+    installation_date: '2024-05-16',
     last_service_date: '2026-08-07',
     service_interval_days: 365,
     connectivity_profile: 'MQTT_EDGE',
@@ -1156,6 +1186,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'medium',
     recommended_next_check: 'inspect for leakage',
     model_confidence: 0.91,
+    last_updated: '2026-10-08 07:27',
     knowledge_doc_id: 'DOC-PROCESS_PUMP-CORE',
     rag_doc_file: 'DOC-ASSET-016.md',
     excel_telemetry: {
@@ -1169,6 +1200,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00997',
+      timestamp: '2026-10-01 04:28:00',
       event_type: 'CONDITION_CHANGE',
       severity: 'medium',
       event_code: 'TREND_UPDATE',
@@ -1203,7 +1235,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Utility Island',
     process_context: 'utilities',
     criticality: 'A - production critical',
-    installation_date: '2017-10-03',
+    installation_date: '2017-10-04',
     last_service_date: '2026-09-19',
     service_interval_days: 730,
     connectivity_profile: 'OPC_UA',
@@ -1218,6 +1250,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'high',
     recommended_next_check: 'inspect hydraulic path',
     model_confidence: 0.91,
+    last_updated: '2026-10-08 07:29',
     knowledge_doc_id: 'DOC-PROCESS_PUMP-CORE',
     rag_doc_file: 'DOC-ASSET-017.md',
     excel_telemetry: {
@@ -1231,6 +1264,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00962',
+      timestamp: '2026-10-07 06:30:00',
       event_type: 'DIAGNOSTIC_ALERT',
       severity: 'low',
       event_code: 'FOULING',
@@ -1265,7 +1299,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Machine Hall',
     process_context: 'continuous_process',
     criticality: 'B - important',
-    installation_date: '2019-01-15',
+    installation_date: '2019-01-16',
     last_service_date: '2025-06-04',
     service_interval_days: 540,
     connectivity_profile: 'MQTT_EDGE',
@@ -1280,6 +1314,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.88,
+    last_updated: '2026-10-08 07:42',
     knowledge_doc_id: 'DOC-PROCESS_PUMP-CORE',
     rag_doc_file: 'DOC-ASSET-018.md',
     excel_telemetry: {
@@ -1293,6 +1328,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00980',
+      timestamp: '2026-09-24 12:05:00',
       event_type: 'DIAGNOSTIC_ALERT',
       severity: 'medium',
       event_code: 'NORMAL_CHECK',
@@ -1327,7 +1363,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Machine Hall',
     process_context: 'continuous_process',
     criticality: 'A - production critical',
-    installation_date: '2019-09-22',
+    installation_date: '2019-09-23',
     last_service_date: '2025-01-09',
     service_interval_days: 730,
     connectivity_profile: 'MQTT_EDGE',
@@ -1342,6 +1378,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'inspect alignment',
     model_confidence: 0.93,
+    last_updated: '2026-10-08 07:21',
     knowledge_doc_id: 'DOC-ELECTRIC_MOTOR-CORE',
     rag_doc_file: 'DOC-ASSET-019.md',
     excel_telemetry: {
@@ -1353,6 +1390,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00888',
+      timestamp: '2026-10-04 14:50:00',
       event_type: 'SERVICE_RECOMMENDATION',
       severity: 'high',
       event_code: 'MISALIGNMENT',
@@ -1387,7 +1425,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Utility Island',
     process_context: 'utilities',
     criticality: 'B - important',
-    installation_date: '2017-04-05',
+    installation_date: '2017-04-06',
     last_service_date: '2024-08-26',
     service_interval_days: 730,
     connectivity_profile: 'MQTT_EDGE',
@@ -1402,6 +1440,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.68,
+    last_updated: '2026-10-08 07:34',
     knowledge_doc_id: 'DOC-ELECTRIC_MOTOR-CORE',
     rag_doc_file: 'DOC-ASSET-020.md',
     excel_telemetry: {
@@ -1413,6 +1452,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00984',
+      timestamp: '2026-09-28 01:23:00',
       event_type: 'INSPECTION_NOTE',
       severity: 'low',
       event_code: 'MINOR_DEVIATION',
@@ -1447,7 +1487,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'B - important',
-    installation_date: '2023-08-04',
+    installation_date: '2023-08-05',
     last_service_date: '2025-01-09',
     service_interval_days: 730,
     connectivity_profile: 'OPC_UA',
@@ -1462,6 +1502,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'inspect alignment',
     model_confidence: 0.77,
+    last_updated: '2026-10-08 07:31',
     knowledge_doc_id: 'DOC-ELECTRIC_MOTOR-CORE',
     rag_doc_file: 'DOC-ASSET-021.md',
     excel_telemetry: {
@@ -1473,6 +1514,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00987',
+      timestamp: '2026-10-03 01:23:00',
       event_type: 'DIAGNOSTIC_ALERT',
       severity: 'medium',
       event_code: 'MISALIGNMENT',
@@ -1507,7 +1549,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Stock Preparation',
     process_context: 'wet_process',
     criticality: 'B - important',
-    installation_date: '2020-10-04',
+    installation_date: '2020-10-05',
     last_service_date: '2024-11-19',
     service_interval_days: 540,
     connectivity_profile: 'SIMULATED_API',
@@ -1522,6 +1564,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'medium',
     recommended_next_check: 'inspect electrical condition',
     model_confidence: 0.85,
+    last_updated: '2026-10-08 07:25',
     knowledge_doc_id: 'DOC-ELECTRIC_MOTOR-CORE',
     rag_doc_file: 'DOC-ASSET-022.md',
     excel_telemetry: {
@@ -1533,6 +1576,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00993',
+      timestamp: '2026-09-28 20:22:00',
       event_type: 'INSPECTION_NOTE',
       severity: 'medium',
       event_code: 'NORMAL_CHECK',
@@ -1582,6 +1626,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'medium',
     recommended_next_check: 'inspect electrical condition',
     model_confidence: 0.75,
+    last_updated: '2026-10-08 07:43',
     knowledge_doc_id: 'DOC-ELECTRIC_MOTOR-CORE',
     rag_doc_file: 'DOC-ASSET-023.md',
     excel_telemetry: {
@@ -1593,6 +1638,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00974',
+      timestamp: '2026-10-03 16:25:00',
       event_type: 'DIAGNOSTIC_ALERT',
       severity: 'high',
       event_code: 'NORMAL_CHECK',
@@ -1627,7 +1673,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Stock Preparation',
     process_context: 'wet_process',
     criticality: 'C - standard',
-    installation_date: '2017-12-10',
+    installation_date: '2017-12-11',
     last_service_date: '2025-06-12',
     service_interval_days: 540,
     connectivity_profile: 'OPC_UA',
@@ -1642,6 +1688,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'high',
     recommended_next_check: 'inspect cooling and load',
     model_confidence: 0.72,
+    last_updated: '2026-10-08 07:25',
     knowledge_doc_id: 'DOC-ELECTRIC_MOTOR-CORE',
     rag_doc_file: 'DOC-ASSET-024.md',
     excel_telemetry: {
@@ -1653,6 +1700,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00992',
+      timestamp: '2026-10-05 19:14:00',
       event_type: 'DIAGNOSTIC_ALERT',
       severity: 'medium',
       event_code: 'OVERHEATING',
@@ -1687,7 +1735,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Water Treatment',
     process_context: 'utilities',
     criticality: 'A - production critical',
-    installation_date: '2018-03-31',
+    installation_date: '2018-04-01',
     last_service_date: '2025-06-30',
     service_interval_days: 365,
     connectivity_profile: 'MQTT_EDGE',
@@ -1702,6 +1750,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.74,
+    last_updated: '2026-10-08 07:41',
     knowledge_doc_id: 'DOC-PRESSURE_TRANSMITTER-CORE',
     rag_doc_file: 'DOC-ASSET-025.md',
     excel_telemetry: {
@@ -1711,6 +1760,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00961',
+      timestamp: '2026-10-02 22:46:00',
       event_type: 'CONDITION_CHANGE',
       severity: 'low',
       event_code: 'MINOR_DEVIATION',
@@ -1745,7 +1795,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Utility Island',
     process_context: 'utilities',
     criticality: 'A - production critical',
-    installation_date: '2018-12-15',
+    installation_date: '2018-12-16',
     last_service_date: '2025-08-28',
     service_interval_days: 540,
     connectivity_profile: 'OPC_UA',
@@ -1760,6 +1810,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.92,
+    last_updated: '2026-10-08 07:41',
     knowledge_doc_id: 'DOC-PRESSURE_TRANSMITTER-CORE',
     rag_doc_file: 'DOC-ASSET-026.md',
     excel_telemetry: {
@@ -1769,6 +1820,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00967',
+      timestamp: '2026-09-24 15:25:00',
       event_type: 'INSPECTION_NOTE',
       severity: 'medium',
       event_code: 'MINOR_DEVIATION',
@@ -1803,7 +1855,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'B - important',
-    installation_date: '2022-01-14',
+    installation_date: '2022-01-15',
     last_service_date: '2024-06-22',
     service_interval_days: 730,
     connectivity_profile: 'SIMULATED_API',
@@ -1818,6 +1870,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.74,
+    last_updated: '2026-10-08 07:40',
     knowledge_doc_id: 'DOC-PRESSURE_TRANSMITTER-CORE',
     rag_doc_file: 'DOC-ASSET-027.md',
     excel_telemetry: {
@@ -1827,6 +1880,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00999',
+      timestamp: '2026-10-07 08:39:00',
       event_type: 'SERVICE_RECOMMENDATION',
       severity: 'high',
       event_code: 'NORMAL_CHECK',
@@ -1861,7 +1915,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'B - important',
-    installation_date: '2020-04-30',
+    installation_date: '2020-05-01',
     last_service_date: '2024-06-30',
     service_interval_days: 730,
     connectivity_profile: 'SIMULATED_API',
@@ -1876,6 +1930,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.82,
+    last_updated: '2026-10-08 07:41',
     knowledge_doc_id: 'DOC-VIBRATION_SENSOR-CORE',
     rag_doc_file: 'DOC-ASSET-028.md',
     excel_telemetry: {
@@ -1885,6 +1940,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00920',
+      timestamp: '2026-09-25 15:57:00',
       event_type: 'DATA_QUALITY',
       severity: 'low',
       event_code: 'TREND_UPDATE',
@@ -1919,7 +1975,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'B - important',
-    installation_date: '2022-12-27',
+    installation_date: '2022-12-28',
     last_service_date: '2024-10-08',
     service_interval_days: 540,
     connectivity_profile: 'SIMULATED_API',
@@ -1934,6 +1990,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'medium',
     recommended_next_check: 'inspect sensor mounting',
     model_confidence: 0.74,
+    last_updated: '2026-10-08 07:21',
     knowledge_doc_id: 'DOC-VIBRATION_SENSOR-CORE',
     rag_doc_file: 'DOC-ASSET-029.md',
     excel_telemetry: {
@@ -1943,6 +2000,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00995',
+      timestamp: '2026-10-02 11:46:00',
       event_type: 'DIAGNOSTIC_ALERT',
       severity: 'medium',
       event_code: 'NORMAL_CHECK',
@@ -1977,7 +2035,7 @@ export const EXCEL_ASSET_RECORDS = {
     area_name: 'Chemical Preparation',
     process_context: 'wet_process',
     criticality: 'B - important',
-    installation_date: '2022-08-09',
+    installation_date: '2022-08-10',
     last_service_date: '2024-04-09',
     service_interval_days: 730,
     connectivity_profile: 'MQTT_EDGE',
@@ -1992,6 +2050,7 @@ export const EXCEL_ASSET_RECORDS = {
     urgency: 'routine',
     recommended_next_check: 'monitor',
     model_confidence: 0.93,
+    last_updated: '2026-10-08 07:21',
     knowledge_doc_id: 'DOC-VIBRATION_SENSOR-CORE',
     rag_doc_file: 'DOC-ASSET-030.md',
     excel_telemetry: {
@@ -2001,6 +2060,7 @@ export const EXCEL_ASSET_RECORDS = {
     },
     excel_event: {
       event_id: 'EVT-00991',
+      timestamp: '2026-10-02 00:31:00',
       event_type: 'CONDITION_CHANGE',
       severity: 'high',
       event_code: 'NORMAL_CHECK',
