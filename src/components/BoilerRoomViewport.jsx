@@ -1568,7 +1568,7 @@ export default function BoilerRoomViewport({
       lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
       isDraggingLookRef.current = true;
       const stDown = stateRef.current;
-      if (stDown.showWorkers && stDown.arFirstPersonMode) {
+      if (stDown.arFirstPersonMode) {
         controls.enabled = false;
       }
     };
@@ -1582,7 +1582,7 @@ export default function BoilerRoomViewport({
         lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
         const sensitivity = 0.0032;
 
-        if (stNow.showWorkers && stNow.arFirstPersonMode) {
+        if (stNow.arFirstPersonMode) {
           if (controls.enabled) controls.enabled = false;
           arLookYawRef.current -= dx * sensitivity;
           arLookPitchRef.current = Math.max(
@@ -1948,7 +1948,7 @@ export default function BoilerRoomViewport({
       // Views from inside the room (camera.position.y <= 0.811) are untouched!
       const isAboveCeiling =
         Boolean(st.ceilingCutaway) &&
-        !(st.arFirstPersonMode && st.showWorkers) &&
+        !st.arFirstPersonMode &&
         camera.position.y > 0.811;
       if (pointCloudMatRef.current?.uniforms?.uCutEnabled) {
         pointCloudMatRef.current.uniforms.uCutEnabled.value = isAboveCeiling ? 1.0 : 0.0;
@@ -1978,7 +1978,10 @@ export default function BoilerRoomViewport({
       if (fleetGroupRef.current) fleetGroupRef.current.visible = false;
       if (pathGroupRef.current) pathGroupRef.current.visible = false;
       if (navGraphGroupRef.current) navGraphGroupRef.current.visible = isTechWorkersVisible;
-      if (exerciseGroupRef.current) exerciseGroupRef.current.visible = isTechWorkersVisible;
+      // Consumer mode shows the group only in AR, and then only the visitor's own avatar (see rig.visible below)
+      if (exerciseGroupRef.current) {
+        exerciseGroupRef.current.visible = isTechWorkersVisible || Boolean(st.arFirstPersonMode);
+      }
       if (exercisePathGroupRef.current) exercisePathGroupRef.current.visible = isTechWorkersVisible;
 
       const keys = keysPressedRef.current;
@@ -2103,7 +2106,7 @@ export default function BoilerRoomViewport({
           st.exerciseWorkers[0];
         focusWorkerObj = focusWorker || null;
         const isRepairCamFrame = Boolean(
-          st.showWorkers && st.arFirstPersonMode && focusWorker?.state === 'REPAIRING'
+          st.arFirstPersonMode && focusWorker?.state === 'REPAIRING'
         );
 
         const rigMap = exerciseWorkerRigsRef.current;
@@ -2154,8 +2157,9 @@ export default function BoilerRoomViewport({
           if (!rig) return;
 
           // In the 1st-Person hands view the own body is hidden; the chase and over-the-head repair cameras show it
-          rig.visible = !(
-            st.showWorkers &&
+          // Consumer mode keeps the floor clean: only the visitor's own AR avatar is ever drawn
+          const hiddenInConsumer = !st.showWorkers && w.id !== focusWorker?.id;
+          rig.visible = !hiddenInConsumer && !(
             st.arFirstPersonMode &&
             st.arCameraPerspective !== '3rd' &&
             !isRepairCamFrame &&
@@ -2470,7 +2474,7 @@ export default function BoilerRoomViewport({
         }
       }
 
-      const isArCamActive = Boolean(st.arFirstPersonMode && st.showWorkers);
+      const isArCamActive = Boolean(st.arFirstPersonMode);
       const snapArCam = isArCamActive && !arCamWasActiveRef.current;
       arCamWasActiveRef.current = isArCamActive;
 
@@ -2749,7 +2753,7 @@ export default function BoilerRoomViewport({
 
       const arGuidance = arGuidanceRef.current;
       if (arGuidance) {
-        const showGuidance = Boolean(st.showWorkers && st.arFirstPersonMode);
+        const showGuidance = Boolean(st.arFirstPersonMode);
         arGuidance.visible = showGuidance;
         if (showGuidance) {
           let guideRoute = null;
@@ -3742,7 +3746,7 @@ export default function BoilerRoomViewport({
     if (
       curId &&
       curId !== prevSelectedAssetIdRef.current &&
-      !(arFirstPersonMode && showWorkers) &&
+      !arFirstPersonMode &&
       selectedAsset.located !== false
     ) {
       triggerCameraFlyTo(
@@ -3770,7 +3774,7 @@ export default function BoilerRoomViewport({
   }, [cutawayRequest?.ts]);
 
   const handleFacilityOverview = () => {
-    if (arFirstPersonMode && showWorkers) onToggleArFirstPerson(false);
+    if (arFirstPersonMode) onToggleArFirstPerson(false);
     manualPosRef.current = null;
     setIsWasdWalking(false);
     setClickedPopoverAssetId(null);
@@ -3785,7 +3789,7 @@ export default function BoilerRoomViewport({
   };
 
   const handleResetCameraForMode = () => {
-    if (arFirstPersonMode && showWorkers) onToggleArFirstPerson(false);
+    if (arFirstPersonMode) onToggleArFirstPerson(false);
     manualPosRef.current = null;
     setIsWasdWalking(false);
     setClickedPopoverAssetId(null);
@@ -3814,7 +3818,7 @@ export default function BoilerRoomViewport({
   const handleInteriorCamera = handleResetCameraForMode;
 
   const handleFocusSelected = () => {
-    if (arFirstPersonMode && showWorkers) onToggleArFirstPerson(false);
+    if (arFirstPersonMode) onToggleArFirstPerson(false);
     if (!selectedAsset || selectedAsset.located === false) return;
     triggerCameraFlyTo(
       selectedAsset.position,
@@ -3945,7 +3949,7 @@ export default function BoilerRoomViewport({
               onSelectAsset(targetAsset);
               setClickedPopoverAssetId(targetAsset.asset_id);
               setClickedUnboundCvObj(null);
-              if (!(arFirstPersonMode && showWorkers)) {
+              if (!arFirstPersonMode) {
                 triggerCameraFlyTo(
                   targetAsset.position,
                   targetAsset.approach_point,
@@ -4081,7 +4085,7 @@ export default function BoilerRoomViewport({
       )}
 
       {/* First-Person Field AR Visor Frame + Collision Radar + AR Traffic Signal System */}
-      {showWorkers && arFirstPersonMode && (
+      {arFirstPersonMode && (
         <>
           <div className="fp-frame" />
 
@@ -4213,7 +4217,7 @@ export default function BoilerRoomViewport({
       )}
 
       {/* Consumer Mode: Floating Bottom Camera Dock (while keeping our Holographic Part HUD on click) */}
-      {!showWorkers && (
+      {!showWorkers && !arFirstPersonMode && (
         <>
           <div className="consumer-dock">
             <div className="dock-mode-switch">
@@ -4283,10 +4287,17 @@ export default function BoilerRoomViewport({
 
       {/* Bottom-right Technician Manual Drive & AR Controller Pad.
           Exit AR collapses this into an Enter AR mode button in the same corner. */}
-      {showWorkers && !arFirstPersonMode && (
+      {!arFirstPersonMode && (
         <button
           type="button"
-          onClick={() => onToggleArFirstPerson(true)}
+          onClick={() => {
+            // Consumer mode has no worker picker: hand the visitor an idle technician avatar to walk with
+            if (!showWorkers && !selectedWorkerId && onSelectWorker) {
+              const avatar = exerciseWorkers.find((w) => w.state === 'STANDBY') || exerciseWorkers[0];
+              if (avatar) onSelectWorker(avatar.id);
+            }
+            onToggleArFirstPerson(true);
+          }}
           style={{
             position: 'absolute',
             right: 16,
@@ -4308,7 +4319,7 @@ export default function BoilerRoomViewport({
           Enter AR mode
         </button>
       )}
-      {showWorkers && arFirstPersonMode && (
+      {arFirstPersonMode && (
         <div
           style={{
             position: 'absolute',
@@ -4331,7 +4342,7 @@ export default function BoilerRoomViewport({
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
             <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)', letterSpacing: '0.05em', color: '#38bdf8' }}>
-              DRIVE TECHNICIAN
+              {showWorkers ? 'DRIVE TECHNICIAN' : 'AR WALKTHROUGH'}
             </span>
             <button
               onClick={() => onToggleArFirstPerson(false)}
@@ -4401,7 +4412,7 @@ export default function BoilerRoomViewport({
           </div>
 
           {/* Unit Selector Pills */}
-          {exerciseMode && exerciseWorkers.length > 0 && (
+          {showWorkers && exerciseMode && exerciseWorkers.length > 0 && (
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
               {exerciseWorkers.map((w) => {
                 const activeId = selectedWorkerId || exerciseWorkers[0]?.id;
@@ -4498,26 +4509,26 @@ export default function BoilerRoomViewport({
             };
             return (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
-                <button style={btnStyle} title="Strafe Left (Q)" {...bindHoldKey('KeyQ')}>
+                <button style={btnStyle} title="Strafe Left (Q)" {...bindHoldKey('q')}>
                   Q
                 </button>
                 <button
                   style={{ ...btnStyle, background: '#2563eb', color: '#fff', border: '1px solid #1d4ed8' }}
                   title="Walk Forward (W / Up)"
-                  {...bindHoldKey('KeyW')}
+                  {...bindHoldKey('w')}
                 >
                   W
                 </button>
-                <button style={btnStyle} title="Strafe Right (E)" {...bindHoldKey('KeyE')}>
+                <button style={btnStyle} title="Strafe Right (E)" {...bindHoldKey('e')}>
                   E
                 </button>
-                <button style={btnStyle} title="Turn Left (A / Left)" {...bindHoldKey('KeyA')}>
+                <button style={btnStyle} title="Turn Left (A / Left)" {...bindHoldKey('a')}>
                   A
                 </button>
-                <button style={btnStyle} title="Step Back (S / Down)" {...bindHoldKey('KeyS')}>
+                <button style={btnStyle} title="Step Back (S / Down)" {...bindHoldKey('s')}>
                   S
                 </button>
-                <button style={btnStyle} title="Turn Right (D / Right)" {...bindHoldKey('KeyD')}>
+                <button style={btnStyle} title="Turn Right (D / Right)" {...bindHoldKey('d')}>
                   D
                 </button>
               </div>
@@ -4525,7 +4536,7 @@ export default function BoilerRoomViewport({
           })()}
 
           {/* Release Manual Control Option when a worker is in Manual Override */}
-          {exerciseMode && (() => {
+          {showWorkers && exerciseMode && (() => {
             const activeId = selectedWorkerId || exerciseWorkers[0]?.id;
             const activeWorker = exerciseWorkers.find((w) => w.id === activeId);
             if (!activeWorker?.manualControl) return null;

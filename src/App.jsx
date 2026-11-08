@@ -835,7 +835,11 @@ export default function App() {
         <div className="mode-switcher" role="radiogroup" aria-label="Application Mode">
           <button
             className={`mode-btn ${appMode === 'consumer' ? 'active consumer' : ''}`}
-            onClick={() => setAppMode('consumer')}
+            onClick={() => {
+              // Consumer mode opens on its clean walk/orbit tour; AR is one tap away via "Enter AR mode"
+              setArFirstPersonMode(false);
+              setAppMode('consumer');
+            }}
             title="Consumer Mode — Clean, surface-level spatial overview"
           >
             <Eye size={13} />
