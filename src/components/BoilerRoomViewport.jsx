@@ -25,6 +25,7 @@ import { obbMatrix, rawToDisplay, EVIDENCE_PHOTO_MAP } from '../utils/cvEngine.j
 import { STRUCTURAL_BOILER_OBJECTS } from '../data/valmetDataset.js';
 import { statusOf, humanize } from '../ui/status.js';
 import FloorMinimap from './FloorMinimap.jsx';
+import { assetCard } from '../utils/diagnosticEngine.js';
 import HolographicArAssetMenu from './HolographicArAssetMenu.jsx';
 
 // ISA-101 High-Performance HMI palette: colour reserved for abnormal states; normal is neutral steel/emerald
@@ -508,7 +509,9 @@ export default function BoilerRoomViewport({
   onSceneReady,
   objectMoves = {},
   onMoveCvObject,
-  onResetCvMoves
+  onResetCvMoves,
+  // Guided inspection run from the Diagnostic Assistant: { assetId, workerId, phase, follow }
+  guidedRun = null
 }) {
   const mountRef = useRef(null);
   // ---- Move-Objects mode (click an object, drag it to a new spot; splats are cut out + re-instanced) ----
@@ -526,6 +529,8 @@ export default function BoilerRoomViewport({
   objectMovesRef.current = objectMoves;
   moveCbRef.current = onMoveCvObject;
   cvSceneObjectsRef.current = cvSceneObjects;
+  const guidedRunRef = useRef(null);
+  guidedRunRef.current = guidedRun;
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
   const controlsRef = useRef(null);
@@ -1776,6 +1781,10 @@ export default function BoilerRoomViewport({
                 rig.userData.rightArmPivot.rotation.x = -1.05 + wrenchSwing;
                 rig.userData.leftArmPivot.rotation.x = -0.65;
               }
+            } else if (w.state === 'INSPECTING') {
+              // Guided inspection: holding a tablet up in front of the asset
+              rig.userData.rightArmPivot.rotation.x = -0.95;
+              rig.userData.leftArmPivot.rotation.x = -0.85;
             } else {
               rig.userData.leftArmPivot.rotation.x = -walkCycle * 0.75;
               rig.userData.rightArmPivot.rotation.x = walkCycle * 0.75;
@@ -2188,6 +2197,24 @@ export default function BoilerRoomViewport({
         // Orbit Mode (or Technical Mode): Enable OrbitControls for 3rd person mouse dragging
         if (!controls.enabled) controls.enabled = true;
 
+        // Guided inspection: chase the guided technician while Follow is on (toggle in the drawer to orbit freely)
+        const followRun = guidedRunRef.current;
+        if (followRun?.follow && followRun.workerId) {
+          const gw = st.exerciseWorkers?.find((w) => w.id === followRun.workerId);
+          const gp = gw?.position || gw?.pos;
+          if (gp) {
+            cameraFlyRef.current.active = false; // follow overrides fly-to-asset while the run is tracked
+            // Over-the-shoulder chase (same geometry as the 3rd-person AR chase, a bit further back):
+            // on arrival the technician faces the asset, so the camera looks past them at it.
+            const kf = 1 - Math.exp(-3.2 * dt);
+            const ang = gw.angle || 0;
+            const tx = Math.sin(ang);
+            const tz = Math.cos(ang);
+            camera.position.lerp(new THREE.Vector3(gp[0] - tx * 2.3, -1.02 + 1.6, gp[2] - tz * 2.3), kf);
+            controls.target.lerp(new THREE.Vector3(gp[0] + tx * 1.3, -0.72, gp[2] + tz * 1.3), kf);
+          }
+        }
+
         if (cameraFlyRef.current.active) {
           const k = 1 - Math.exp(-5.8 * dt);
           camera.position.lerp(cameraFlyRef.current.pos, k);
@@ -2238,6 +2265,9 @@ export default function BoilerRoomViewport({
           const isHovered = hoveredId === asset.asset_id;
           const isWorkerTarget = activeTargetAssetIds.has(asset.asset_id);
           const isAbnormal = asset.health_status !== 'healthy';
+          const guidedNow = guidedRunRef.current;
+          const isGuidedTarget = Boolean(guidedNow && guidedNow.assetId === asset.asset_id);
+          const isScanned = Boolean(guidedNow && isWithinRadius);
           const semanticAlpha = revealedByLaser ? st.semanticBlend / 100 : 0.04;
 
           // Overlays.jsx color & opacity modulation from ahmad_branch
@@ -2248,6 +2278,11 @@ export default function BoilerRoomViewport({
           }
           if (isHovered) {
             colorObj.lerp(new THREE.Color(0xffffff), 0.45);
+          }
+          if (isGuidedTarget) {
+            colorObj.set(0xff3b3b);
+          } else if (isScanned) {
+            colorObj.lerp(new THREE.Color(0xffffff), 0.25);
           }
           meshBundle.fillMat.color.copy(colorObj);
           meshBundle.edgeMat.color.copy(colorObj);
@@ -2279,6 +2314,14 @@ export default function BoilerRoomViewport({
 
           meshBundle.fillMat.opacity = baseFill * ghostFactor * Math.max(0.4, semanticAlpha);
           meshBundle.edgeMat.opacity = Math.min(1, baseEdge * ghostFactor * Math.max(0.4, semanticAlpha));
+          if (isGuidedTarget || isScanned) {
+            // Guided-run scan frame: always fully visible, even in photoreal splat mode
+            meshBundle.edgeMat.opacity = 1;
+            meshBundle.fillMat.opacity = Math.max(
+              meshBundle.fillMat.opacity,
+              (isGuidedTarget ? 0.1 : 0.08) + pulse * 0.06
+            );
+          }
 
           if (meshBundle.equipMats) {
             // In pure Photoreal 3DGS mode, hide solid procedural CAD meshes so the real Gaussian Splatting pump/valve/motor hardware is 100% visible inside its CV OBB!
@@ -2307,7 +2350,7 @@ export default function BoilerRoomViewport({
             );
           }
 
-          if (isClickedOpen || isSelected || isWorkerTarget) {
+          if (isClickedOpen || isSelected || isWorkerTarget || isGuidedTarget || isScanned) {
             const s = 1.03 + pulse * 0.035;
             meshBundle.group.scale.set(s, s, s);
           } else if (isHovered) {
@@ -2368,12 +2411,16 @@ export default function BoilerRoomViewport({
           const isHovered = hoveredId === asset.asset_id;
           const isTarget = activeTargetAssetIds.has(asset.asset_id);
           const isAbnormal = asset.health_status !== 'healthy';
+          const guidedPill = guidedRunRef.current;
+          const scanInfo = guidedPill ? nearby.find((n) => n.asset_id === asset.asset_id) : null;
+          const isGuidedTarget = Boolean(guidedPill && guidedPill.assetId === asset.asset_id);
+          const showCard = Boolean(scanInfo || isGuidedTarget);
           const camDist = Math.hypot(
             asset.position[0] - camera.position.x,
             asset.position[1] - camera.position.y,
             asset.position[2] - camera.position.z
           );
-          if (!isAbnormal && !isSelected && !isClicked && !isHovered && !isTarget && camDist > 2.85) {
+          if (!showCard && !isAbnormal && !isSelected && !isClicked && !isHovered && !isTarget && camDist > 2.85) {
             return;
           }
           const anchor = new THREE.Vector3(
@@ -2394,6 +2441,9 @@ export default function BoilerRoomViewport({
                 isSelected: isSelected || isClicked,
                 isHovered,
                 isTarget,
+                card: showCard ? assetCard(asset) : null,
+                distance: scanInfo?.distanceToAvatar ?? null,
+                isGuidedTarget,
                 x: sx,
                 y: sy
               });
@@ -3144,6 +3194,43 @@ export default function BoilerRoomViewport({
             : pill.health_status === 'watch'
             ? '#eab308'
             : '#38bdf8';
+        if (pill.card) {
+          const c = pill.card;
+          return (
+            <button
+              key={pill.asset_id}
+              type="button"
+              className={`scan-card ${pill.isGuidedTarget ? 'is-target' : ''} cond-${c.condition_state}`}
+              style={{ left: pill.x, top: pill.y, zIndex: pill.isGuidedTarget ? 19 : 14 }}
+              onClick={(ev) => {
+                ev.stopPropagation();
+                const targetAsset = assets.find((a) => a.asset_id === pill.asset_id);
+                if (targetAsset) onSelectAsset(targetAsset);
+              }}
+              title={`${c.name} — Excel pack record`}
+            >
+              <div className="scan-card-head">
+                <span className="scan-card-dot" style={{ background: dotColor }} />
+                <b>{c.tag}</b>
+                <span className="scan-card-class">{humanize(c.asset_class)}</span>
+                {pill.isGuidedTarget ? (
+                  <span className="scan-card-badge">TARGET</span>
+                ) : pill.distance != null ? (
+                  <span className="scan-card-dist">{pill.distance.toFixed(1)} m</span>
+                ) : null}
+              </div>
+              <div className="scan-card-grid">
+                <span>Health</span><b>{c.health_score}</b>
+                <span>State</span><b>{humanize(c.condition_state)}</b>
+                <span>Issue</span><b>{c.issue_code === 'NORMAL' ? '—' : humanize(c.issue_code)}</b>
+                <span>Urgency</span><b>{c.urgency}</b>
+                <span>Crit.</span><b>{String(c.criticality).split(' - ')[0]}</b>
+                <span>Serviced</span><b>{c.last_service_date}</b>
+              </div>
+              <div className="scan-card-area">{c.area_name}</div>
+            </button>
+          );
+        }
         return (
           <button
             key={pill.asset_id}
