@@ -4281,7 +4281,33 @@ export default function BoilerRoomViewport({
         />
       )}
 
-      {/* Bottom-right Technician Manual Drive & AR Controller Pad (Only appears when 1st-Person AR is active, with 1st/3rd Person toggle) */}
+      {/* Bottom-right Technician Manual Drive & AR Controller Pad.
+          Exit AR collapses this into an Enter AR mode button in the same corner. */}
+      {showWorkers && !arFirstPersonMode && (
+        <button
+          type="button"
+          onClick={() => onToggleArFirstPerson(true)}
+          style={{
+            position: 'absolute',
+            right: 16,
+            bottom: 16,
+            zIndex: 45,
+            background: 'rgba(9, 13, 22, 0.90)',
+            color: '#f8fafc',
+            border: '1px solid rgba(56, 189, 248, 0.48)',
+            borderRadius: 12,
+            padding: '10px 14px',
+            boxShadow: '0 10px 28px rgba(15, 23, 42, 0.35)',
+            cursor: 'pointer',
+            fontFamily: 'var(--mono)',
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: '0.04em',
+          }}
+        >
+          Enter AR mode
+        </button>
+      )}
       {showWorkers && arFirstPersonMode && (
         <div
           style={{
