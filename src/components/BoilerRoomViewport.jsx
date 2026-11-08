@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
   SparkRenderer,
   SplatMesh,
@@ -43,6 +44,7 @@ import { STRUCTURAL_BOILER_OBJECTS } from '../data/valmetDataset.js';
 import { getPartVisualSpec } from '../data/excelPartCatalog.js';
 import { statusOf, humanize } from '../ui/status.js';
 import FloorMinimap from './FloorMinimap.jsx';
+import { assetCard } from '../utils/diagnosticEngine.js';
 import HolographicArAssetMenu from './HolographicArAssetMenu.jsx';
 
 // ISA-101 High-Performance HMI palette: colour reserved for abnormal states; normal is neutral steel/emerald
@@ -69,6 +71,22 @@ const GEO_CACHE = {
   sensorHead: new THREE.CylinderGeometry(0.14, 0.14, 0.20, 18),
   unitBox: new THREE.BoxGeometry(1, 1, 1)
 };
+
+let cachedPumpGltfPromise = null;
+function loadCachedPumpGltf() {
+  if (!cachedPumpGltfPromise) {
+    const loader = new GLTFLoader();
+    cachedPumpGltfPromise = new Promise((resolve) => {
+      loader.load(
+        '/assets/models/pump.glb',
+        (gltf) => resolve(gltf.scene),
+        undefined,
+        () => resolve(null)
+      );
+    });
+  }
+  return cachedPumpGltfPromise;
+}
 
 function createProceduralEquipmentMesh(asset, colorHex) {
   const group = new THREE.Group();
@@ -122,18 +140,37 @@ function createProceduralEquipmentMesh(asset, colorHex) {
     actuatorDome.position.y = sy * 0.24;
     group.add(actuatorDome);
   } else if (asset.asset_class === 'process_pump') {
+    const fallbackGroup = new THREE.Group();
     const skid = new THREE.Mesh(GEO_CACHE.pumpSkid, darkSteelMat);
     skid.position.y = -sy * 0.38;
-    group.add(skid);
+    fallbackGroup.add(skid);
 
     const volute = new THREE.Mesh(GEO_CACHE.pumpVolute, solidMat);
     volute.rotation.z = Math.PI / 2;
     volute.position.y = -sy * 0.05;
-    group.add(volute);
+    fallbackGroup.add(volute);
 
     const nozzle = new THREE.Mesh(GEO_CACHE.pumpNozzle, steelMat);
     nozzle.position.set(-sx * 0.10, sy * 0.20, 0);
-    group.add(nozzle);
+    fallbackGroup.add(nozzle);
+    group.add(fallbackGroup);
+
+    // Mount the real 31-part Engine-X Centrifugal Pump GLB in the 3D scene
+    loadCachedPumpGltf().then((templateScene) => {
+      if (!templateScene) return;
+      const glbClone = templateScene.clone(true);
+      glbClone.position.set(0.05, -sy * 0.42, 0);
+      glbClone.scale.setScalar(0.0021);
+      glbClone.traverse((child) => {
+        if (child.isMesh) {
+          child.material = child.name.includes('Volute') || child.name.includes('Motor')
+            ? solidMat
+            : steelMat;
+        }
+      });
+      group.remove(fallbackGroup);
+      group.add(glbClone);
+    });
   } else if (asset.asset_class === 'electric_motor') {
     const base = new THREE.Mesh(GEO_CACHE.pumpSkid, darkSteelMat);
     base.position.y = -sy * 0.36;
@@ -776,7 +813,10 @@ export default function BoilerRoomViewport({
   onSceneReady,
   objectMoves = {},
   onMoveCvObject,
-  onResetCvMoves
+  onResetCvMoves,
+  // Guided inspection run from the Diagnostic Assistant: { assetId, workerId, phase, follow }
+  guidedRun = null,
+  cutawayRequest = null
 }) {
   const mountRef = useRef(null);
   // ---- Move-Objects mode (click an object, drag it to a new spot; splats are cut out + re-instanced) ----
@@ -794,6 +834,8 @@ export default function BoilerRoomViewport({
   objectMovesRef.current = objectMoves;
   moveCbRef.current = onMoveCvObject;
   cvSceneObjectsRef.current = cvSceneObjects;
+  const guidedRunRef = useRef(null);
+  guidedRunRef.current = guidedRun;
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
   const controlsRef = useRef(null);
@@ -2167,6 +2209,10 @@ export default function BoilerRoomViewport({
                 rig.userData.rightArmPivot.rotation.x = -1.05 + wrenchSwing;
                 rig.userData.leftArmPivot.rotation.x = -0.65;
               }
+            } else if (w.state === 'INSPECTING') {
+              // Guided inspection: holding a tablet up in front of the asset
+              rig.userData.rightArmPivot.rotation.x = -0.95;
+              rig.userData.leftArmPivot.rotation.x = -0.85;
             } else {
               rig.userData.leftArmPivot.rotation.x = -walkCycle * 0.75;
               rig.userData.rightArmPivot.rotation.x = walkCycle * 0.75;
@@ -2667,6 +2713,24 @@ export default function BoilerRoomViewport({
         // Orbit Mode (or Technical Mode): Enable OrbitControls for 3rd person mouse dragging
         if (!controls.enabled) controls.enabled = true;
 
+        // Guided inspection: chase the guided technician while Follow is on (toggle in the drawer to orbit freely)
+        const followRun = guidedRunRef.current;
+        if (followRun?.follow && followRun.workerId) {
+          const gw = st.exerciseWorkers?.find((w) => w.id === followRun.workerId);
+          const gp = gw?.position || gw?.pos;
+          if (gp) {
+            cameraFlyRef.current.active = false; // follow overrides fly-to-asset while the run is tracked
+            // Over-the-shoulder chase (same geometry as the 3rd-person AR chase, a bit further back):
+            // on arrival the technician faces the asset, so the camera looks past them at it.
+            const kf = 1 - Math.exp(-3.2 * dt);
+            const ang = gw.angle || 0;
+            const tx = Math.sin(ang);
+            const tz = Math.cos(ang);
+            camera.position.lerp(new THREE.Vector3(gp[0] - tx * 2.3, -1.02 + 1.6, gp[2] - tz * 2.3), kf);
+            controls.target.lerp(new THREE.Vector3(gp[0] + tx * 1.3, -0.72, gp[2] + tz * 1.3), kf);
+          }
+        }
+
         if (cameraFlyRef.current.active) {
           const k = 1 - Math.exp(-5.8 * dt);
           camera.position.lerp(cameraFlyRef.current.pos, k);
@@ -2780,6 +2844,9 @@ export default function BoilerRoomViewport({
             st.selectedAsset?.host_asset_id === asset.asset_id;
           const isHovered = hoveredId === asset.asset_id;
           const isWorkerTarget = activeTargetAssetIds.has(asset.asset_id);
+          const guidedNow = guidedRunRef.current;
+          const isGuidedTarget = Boolean(guidedNow && guidedNow.assetId === asset.asset_id);
+          const isScanned = Boolean(guidedNow && isWithinRadius);
           const semanticAlpha = revealedByLaser ? st.semanticBlend / 100 : 0.04;
 
           // Overlays.jsx color & opacity modulation from ahmad_branch
@@ -2791,8 +2858,14 @@ export default function BoilerRoomViewport({
           if (isHovered) {
             colorObj.lerp(new THREE.Color(0xffffff), 0.45);
           }
+          if (isScanned && !isGuidedTarget) {
+            colorObj.lerp(new THREE.Color(0xffffff), 0.25);
+          }
           const focused = isSelected || isClickedOpen || isHovered || isWorkerTarget;
-          if (meshBundle.onTop) {
+          if (isGuidedTarget) {
+            meshBundle.fillMat.color.setHex(0xff3b3b);
+            meshBundle.edgeMat.color.setHex(0xff3b3b);
+          } else if (meshBundle.onTop) {
             meshBundle.fillMat.color.setHex(0x22d3ee);
             meshBundle.edgeMat.color.setHex(0x22d3ee);
           } else {
@@ -2802,6 +2875,13 @@ export default function BoilerRoomViewport({
           // Every located label stays readable over the splat. Distance no longer fades the edge.
           meshBundle.fillMat.opacity = focused ? 0.16 : 0.1;
           meshBundle.edgeMat.opacity = 0.95;
+          if (isGuidedTarget || isScanned) {
+            meshBundle.edgeMat.opacity = 1;
+            meshBundle.fillMat.opacity = Math.max(
+              meshBundle.fillMat.opacity,
+              (isGuidedTarget ? 0.1 : 0.08) + pulse * 0.06
+            );
+          }
 
           if (meshBundle.equipMats) {
             // In pure Photoreal 3DGS mode, hide solid procedural CAD meshes so the real Gaussian Splatting pump/valve/motor hardware is 100% visible inside its CV OBB!
@@ -2820,7 +2900,7 @@ export default function BoilerRoomViewport({
             meshBundle.equipGroup.position.set(0, 0, 0);
           }
 
-          if (isClickedOpen || isSelected || isWorkerTarget) {
+          if (isClickedOpen || isSelected || isWorkerTarget || isGuidedTarget || isScanned) {
             const s = 1.03 + pulse * 0.035;
             meshBundle.group.scale.set(s, s, s);
           } else if (isHovered) {
@@ -2890,12 +2970,16 @@ export default function BoilerRoomViewport({
           const isTarget = activeTargetAssetIds.has(asset.asset_id);
           const isAbnormal = asset.health_status !== 'healthy';
           const pinned = Boolean(asset.cvObject?.pin_label);
+          const guidedPill = guidedRunRef.current;
+          const scanInfo = guidedPill ? nearby.find((n) => n.asset_id === asset.asset_id) : null;
+          const isGuidedTarget = Boolean(guidedPill && guidedPill.assetId === asset.asset_id);
+          const showCard = Boolean(scanInfo || isGuidedTarget);
           const camDist = Math.hypot(
             asset.position[0] - camera.position.x,
             asset.position[1] - camera.position.y,
             asset.position[2] - camera.position.z
           );
-          if (!pinned && !isAbnormal && !isSelected && !isClicked && !isHovered && !isTarget && camDist > 2.85) {
+          if (!pinned && !showCard && !isAbnormal && !isSelected && !isClicked && !isHovered && !isTarget && camDist > 2.85) {
             return;
           }
           const anchor = new THREE.Vector3(
@@ -2916,6 +3000,9 @@ export default function BoilerRoomViewport({
                 isSelected: isSelected || isClicked,
                 isHovered,
                 isTarget,
+                card: showCard ? assetCard(asset) : null,
+                distance: scanInfo?.distanceToAvatar ?? null,
+                isGuidedTarget,
                 x: sx,
                 y: sy
               });
@@ -3667,6 +3754,21 @@ export default function BoilerRoomViewport({
     prevSelectedAssetIdRef.current = curId;
   }, [selectedAsset?.asset_id, arFirstPersonMode, showWorkers]);
 
+  // Auto-open Holographic 3D GLB Cutaway Explorer when AI Copilot resolves a 3D model & internal part
+  useEffect(() => {
+    if (!cutawayRequest?.asset_id) return;
+    setClickedUnboundCvObj(null);
+    setClickedPopoverAssetId(cutawayRequest.asset_id);
+    const targetAsset = (assets || []).find((a) => a.asset_id === cutawayRequest.asset_id);
+    if (targetAsset && !arFirstPersonMode) {
+      triggerCameraFlyTo(
+        targetAsset.position,
+        targetAsset.approach_point,
+        targetAsset.bbox_size
+      );
+    }
+  }, [cutawayRequest?.ts]);
+
   const handleFacilityOverview = () => {
     if (arFirstPersonMode && showWorkers) onToggleArFirstPerson(false);
     manualPosRef.current = null;
@@ -3795,6 +3897,43 @@ export default function BoilerRoomViewport({
             : pill.health_status === 'watch'
             ? '#eab308'
             : '#38bdf8';
+        if (pill.card) {
+          const c = pill.card;
+          return (
+            <button
+              key={pill.asset_id}
+              type="button"
+              className={`scan-card ${pill.isGuidedTarget ? 'is-target' : ''} cond-${c.condition_state}`}
+              style={{ left: pill.x, top: pill.y, zIndex: pill.isGuidedTarget ? 19 : 14 }}
+              onClick={(ev) => {
+                ev.stopPropagation();
+                const targetAsset = assets.find((a) => a.asset_id === pill.asset_id);
+                if (targetAsset) onSelectAsset(targetAsset);
+              }}
+              title={`${c.name} — Excel pack record`}
+            >
+              <div className="scan-card-head">
+                <span className="scan-card-dot" style={{ background: dotColor }} />
+                <b>{c.tag}</b>
+                <span className="scan-card-class">{humanize(c.asset_class)}</span>
+                {pill.isGuidedTarget ? (
+                  <span className="scan-card-badge">TARGET</span>
+                ) : pill.distance != null ? (
+                  <span className="scan-card-dist">{pill.distance.toFixed(1)} m</span>
+                ) : null}
+              </div>
+              <div className="scan-card-grid">
+                <span>Health</span><b>{c.health_score}</b>
+                <span>State</span><b>{humanize(c.condition_state)}</b>
+                <span>Issue</span><b>{c.issue_code === 'NORMAL' ? '—' : humanize(c.issue_code)}</b>
+                <span>Urgency</span><b>{c.urgency}</b>
+                <span>Crit.</span><b>{String(c.criticality).split(' - ')[0]}</b>
+                <span>Serviced</span><b>{c.last_service_date}</b>
+              </div>
+              <div className="scan-card-area">{c.area_name}</div>
+            </button>
+          );
+        }
         return (
           <button
             key={pill.asset_id}
@@ -4060,6 +4199,7 @@ export default function BoilerRoomViewport({
           onMoveObject={onMoveCvObject}
           objectMoves={objectMoves}
           onSwitchToTechnicianMode={!showWorkers ? onSwitchToTechnicianMode : null}
+          cutawayRequest={cutawayRequest}
         />
       )}
 

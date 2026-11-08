@@ -2,6 +2,7 @@
  * Simulation Exercise Engine:
  * - Staging Lineup at South Station
  * - Worker Lifecycle State Machine (STANDBY -> WALKING_TO_FAULT -> REPAIRING -> RETURNING -> STANDBY)
+ *   Guided inspections (`holdAtTarget`) stop in INSPECTING at the asset until `beginRepair` is called.
  * - Intelligent Multi-Worker Traffic Management (Right-hand lane offset, priority yielding, mutual separation)
  * - Dynamic Worker Addition & Deletion
  */
@@ -232,8 +233,16 @@ export function isWithinRepairReach(worker, asset) {
 /**
  * Assigns a specific worker to walk to and repair a faulted asset using slot-aware entry routing
  * and congestion-aware A* load balancing. A worker already within reach starts repairing on the spot.
+ * Guided inspections pass `{ holdAtTarget: true }` and stop in INSPECTING instead of repairing.
  */
-export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], railMode = 'smooth_rail') {
+export function assignWorkerToAsset(
+  workers,
+  workerId,
+  asset,
+  hazardNodes = [],
+  railMode = 'smooth_rail',
+  { holdAtTarget = false } = {}
+) {
   // Unlocated assets only have placeholder coordinates, so there is nowhere to walk to
   if (!asset || asset.located === false) return workers;
 
@@ -249,7 +258,8 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
         ...w,
         manualControl: false,
         stayOnSite,
-        state: 'REPAIRING',
+        holdAtTarget,
+        state: holdAtTarget ? 'INSPECTING' : 'REPAIRING',
         trafficStatus: 'CLEAR',
         blockingUnitId: null,
         lockedNodeId: null,
@@ -287,6 +297,7 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
       ...w,
       manualControl: false,
       stayOnSite,
+      holdAtTarget,
       lastRepairedAssetId: null,
       state: 'WALKING_TO_FAULT',
       trafficStatus: 'CLEAR',
@@ -298,6 +309,41 @@ export function assignWorkerToAsset(workers, workerId, asset, hazardNodes = [], 
       nodeIds: path.nodeIds || [],
       pathPoints: pts,
       outboundPathPoints: pts,
+      pathProgress: 0,
+      pathLength: Math.max(0.5, len),
+      repairProgress: 0
+    };
+  });
+}
+
+/** Guided inspection finished: let the inspecting worker start the normal repair → return flow. */
+export function beginRepair(workers, workerId) {
+  return workers.map((w) =>
+    w.id === workerId && w.state === 'INSPECTING'
+      ? { ...w, state: 'REPAIRING', holdAtTarget: false, repairProgress: 0 }
+      : w
+  );
+}
+
+/** Cancel a guided inspection: walk the worker back to its staging slot along the outbound path. */
+export function recallWorker(workers, workerId) {
+  return workers.map((w) => {
+    if (w.id !== workerId || w.state === 'STANDBY' || w.state === 'RETURNING') return w;
+    const revPts =
+      w.outboundPathPoints && w.outboundPathPoints.length >= 2
+        ? [...w.outboundPathPoints].slice(0, Math.max(2, Math.ceil(w.outboundPathPoints.length * (w.state === 'WALKING_TO_FAULT' ? w.pathProgress : 1)))).reverse()
+        : [[...w.pos], [...w.slotPos]];
+    revPts[0] = [...w.pos];
+    revPts[revPts.length - 1] = [...w.slotPos];
+    let len = 0;
+    for (let k = 1; k < revPts.length; k++) len += euclidean3D(revPts[k - 1], revPts[k]);
+    return {
+      ...w,
+      state: 'RETURNING',
+      holdAtTarget: false,
+      targetAssetId: null,
+      targetTag: null,
+      pathPoints: revPts,
       pathProgress: 0,
       pathLength: Math.max(0.5, len),
       repairProgress: 0
@@ -333,7 +379,7 @@ export function stepExerciseSimulation(
       const alreadyAssigned = nextWorkers.some(
         (w) =>
           w.targetAssetId === faultAsset.asset_id &&
-          (w.state === 'WALKING_TO_FAULT' || w.state === 'REPAIRING')
+          (w.state === 'WALKING_TO_FAULT' || w.state === 'REPAIRING' || w.state === 'INSPECTING')
       );
       if (!alreadyAssigned) {
         const idleWorker = nextWorkers.find((w) => w.state === 'STANDBY' && !w.manualControl);
@@ -415,6 +461,16 @@ export function stepExerciseSimulation(
       w.blockingUnitId = null;
       w.lockedNodeId = null;
       w.lateralOffset = 0;
+      continue;
+    }
+
+    if (w.state === 'INSPECTING') {
+      // Guided inspection: hold at the asset facing it, no repair progress, until beginRepair().
+      w.position = [...w.pos];
+      const inspected = (assets || []).find((a) => a.asset_id === w.targetAssetId);
+      if (inspected) {
+        w.angle = Math.atan2(inspected.position[0] - w.pos[0], inspected.position[2] - w.pos[2]);
+      }
       continue;
     }
 
@@ -651,7 +707,7 @@ export function stepExerciseSimulation(
 
       if (w.pathProgress >= 1) {
         if (w.state === 'WALKING_TO_FAULT') {
-          w.state = 'REPAIRING';
+          w.state = w.holdAtTarget ? 'INSPECTING' : 'REPAIRING';
           w.repairProgress = 0;
           w.trafficStatus = 'CLEAR';
           w.blockingUnitId = null;

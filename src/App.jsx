@@ -38,8 +38,11 @@ import {
   addExerciseWorker,
   removeExerciseWorker,
   assignWorkerToAsset,
+  beginRepair,
+  recallWorker,
   stepExerciseSimulation
 } from './utils/exerciseEngine.js';
+import { answer as runDiagnosticQuery, diagnose } from './utils/diagnosticEngine.js';
 import {
   fetchCvSceneBundle,
   applyCvOverrides,
@@ -186,7 +189,9 @@ export default function App() {
           if (w.state === 'WALKING_TO_FAULT' && w.targetAssetId) {
             const targetAsset = syncedAssets.find((a) => a.asset_id === w.targetAssetId);
             if (targetAsset) {
-              nextW = assignWorkerToAsset(nextW, w.id, targetAsset, hazardNodes, railMode);
+              nextW = assignWorkerToAsset(nextW, w.id, targetAsset, hazardNodes, railMode, {
+                holdAtTarget: Boolean(w.holdAtTarget)
+              });
             }
           }
         }
@@ -256,6 +261,15 @@ export default function App() {
   const [autoDispatch, setAutoDispatch] = useState(false);
   const [manualAssignMap, setManualAssignMap] = useState({});
   const [arTrafficSignal, setArTrafficSignal] = useState(null);
+
+  // Diagnostic Assistant (Local RAG over the Excel pack) + guided inspection run
+  const [copilotTab, setCopilotTab] = useState('diagnostics'); // 'diagnostics' | 'scene'
+  const [diagResponse, setDiagResponse] = useState(() =>
+    runDiagnosticQuery('Which assets need attention first?')
+  );
+  // { assetId, tag, workerId, phase: 'walking' | 'arrived' | 'repairing', follow, passed: [] }
+  const [guidedRun, setGuidedRun] = useState(null);
+  const [cutawayRequest, setCutawayRequest] = useState(null);
 
   // Field verification / LOTO state
   const [arFirstPersonMode, setArFirstPersonMode] = useState(true);
@@ -547,6 +561,116 @@ export default function App() {
     setIsLeftPanelOpen(false);
   };
 
+  // ---- Guided inspection run (Diagnostic Assistant) ----
+  const startGuidedInspection = (assetId) => {
+    const asset = pipeline.assets.find((a) => a.asset_id === assetId);
+    if (!asset) return `Asset ${assetId} is not mapped in the 3D scene.`;
+    const current =
+      guidedRun &&
+      exerciseWorkers.find(
+        (w) => w.id === guidedRun.workerId && (w.state === 'WALKING_TO_FAULT' || w.state === 'INSPECTING')
+      );
+    const worker =
+      current ||
+      exerciseWorkers.find((w) => w.state === 'STANDBY' && !w.manualControl) ||
+      exerciseWorkers.find((w) => w.state === 'RETURNING' && !w.manualControl);
+    if (!worker) return 'No technician is free — wait for a repair to finish or add a worker.';
+    setExerciseWorkers((prev) =>
+      assignWorkerToAsset(prev, worker.id, asset, hazardNodes, railMode, { holdAtTarget: true })
+    );
+    setSelectedWorkerId(worker.id);
+    setSelectedAssetId(asset.asset_id);
+    setGuidedRun({
+      assetId: asset.asset_id,
+      tag: asset.tag,
+      workerId: worker.id,
+      workerLabel: worker.label,
+      phase: 'walking',
+      follow: true,
+      passed: []
+    });
+    return null;
+  };
+
+  const handleDiagnosticQuery = (query) => {
+    let res = runDiagnosticQuery(query, {
+      selectedAsset,
+      nearbyAssets,
+      sceneAssets: pipeline.assets,
+      passed: guidedRun?.passed,
+      guidedAssetId: guidedRun?.assetId,
+      arrived: guidedRun?.phase === 'arrived'
+    });
+    if (res.kind === 'guide') {
+      const err = startGuidedInspection(res.assetId);
+      if (err) res = { ...res, headline: err, failed: true };
+    }
+    if (res.modelCatalogMatch) {
+      handleSelectAsset(res.modelCatalogMatch.asset_id);
+      setCutawayRequest({ ...res.modelCatalogMatch, ts: Date.now() });
+    }
+    setDiagResponse({ ...res, query });
+  };
+
+  const handleProceedRepair = () => {
+    if (!guidedRun) return;
+    setExerciseWorkers((prev) => beginRepair(prev, guidedRun.workerId));
+    setGuidedRun((prev) => (prev ? { ...prev, phase: 'repairing', follow: false } : prev));
+  };
+
+  const handleCancelGuidedRun = () => {
+    if (!guidedRun) return;
+    setExerciseWorkers((prev) => recallWorker(prev, guidedRun.workerId));
+    setGuidedRun(null);
+  };
+
+  // Record every asset the guided technician passes (proximity radius) on the way to the target
+  useEffect(() => {
+    if (!guidedRun || guidedRun.phase !== 'walking' || !nearbyAssets.length) return;
+    const known = new Set(guidedRun.passed.map((p) => p.asset_id));
+    const fresh = nearbyAssets.filter((n) => n.asset_id !== guidedRun.assetId && !known.has(n.asset_id));
+    if (!fresh.length) return;
+    setGuidedRun((prev) =>
+      prev
+        ? {
+            ...prev,
+            passed: [
+              ...prev.passed,
+              ...fresh.map((n) => ({ asset_id: n.asset_id, tag: n.tag, distance: n.distanceToAvatar }))
+            ]
+          }
+        : prev
+    );
+  }, [nearbyAssets, guidedRun]);
+
+  // Arrival → auto-diagnose; repair finished → end the run
+  useEffect(() => {
+    if (!guidedRun) return;
+    const w = exerciseWorkers.find((x) => x.id === guidedRun.workerId);
+    if (!w) {
+      setGuidedRun(null);
+      return;
+    }
+    if (guidedRun.phase === 'walking' && w.state === 'INSPECTING') {
+      const report = diagnose(guidedRun.assetId, {
+        sceneAssets: pipeline.assets,
+        nearbyAssets,
+        passed: guidedRun.passed,
+        routeLength: w.pathLength,
+        arrived: true
+      });
+      setGuidedRun((prev) => (prev ? { ...prev, phase: 'arrived' } : prev));
+      setDiagResponse({ ...report, query: `Arrived at ${guidedRun.tag} — automatic diagnosis` });
+      setCopilotTab('diagnostics');
+      setActiveNav('copilot');
+      setIsLeftPanelOpen(true);
+    } else if (guidedRun.phase === 'walking' && w.state !== 'WALKING_TO_FAULT') {
+      setGuidedRun(null); // worker was re-tasked or driven manually
+    } else if (guidedRun.phase === 'repairing' && (w.state === 'RETURNING' || w.state === 'STANDBY')) {
+      setGuidedRun(null);
+    }
+  }, [exerciseWorkers, guidedRun]);
+
   const handleManualUpdateWorkerPose = (workerId, nextX, nextZ, nextAngle, manualControl = true) => {
     if (!workerId) return;
     setExerciseWorkers((prev) =>
@@ -729,6 +853,17 @@ export default function App() {
 
         <div className="topbar-right">
           {/* Permanent Upload .PLY file button available in both modes at all times */}
+          <button
+            className="topbar-upload-ply"
+            onClick={() =>
+              handleDiagnosticQuery('Find the pump on the boiler feedwater line and show me the seal.')
+            }
+            title="Demo: Find P-002 Generic Centrifugal Pump on Boiler Feedwater Line, slide casing open & inspect Mechanical Seal"
+            style={{ borderColor: '#00f2ff', color: '#ecfeff' }}
+          >
+            <span>🔬 Pump Seal Cutaway (P-002)</span>
+          </button>
+
           <button
             className="topbar-upload-ply"
             onClick={() => fileInputRef.current?.click()}
@@ -1493,12 +1628,28 @@ export default function App() {
               assets={pipeline.assets}
               selectedAsset={selectedAsset}
               onSelectAsset={handleSelectAsset}
-              humanPath={humanPath}
-              robotPath={robotPath}
               nearbyAssets={nearbyAssets}
+              tab={copilotTab}
+              onTabChange={setCopilotTab}
+              response={diagResponse}
+              onAsk={handleDiagnosticQuery}
+              guidedRun={guidedRun}
+              onStartGuidedRun={(assetId) => {
+                const err = startGuidedInspection(assetId);
+                if (err) setDiagResponse({ kind: 'guide', failed: true, headline: err, citations: [] });
+              }}
+              onProceedRepair={handleProceedRepair}
+              onCancelGuidedRun={handleCancelGuidedRun}
+              onToggleFollow={() =>
+                setGuidedRun((prev) => (prev ? { ...prev, follow: !prev.follow } : prev))
+              }
               sceneEdit={sceneEdit}
               splatMover={splatMover}
               selectedCvObjectId={selectedCvObjectId}
+              onOpen3dCutaway={(m) => {
+                handleSelectAsset(m.asset_id);
+                setCutawayRequest({ ...m, ts: Date.now() });
+              }}
             />
           )}
 
@@ -1694,6 +1845,8 @@ export default function App() {
             if (obj?.object_id) setSelectedCvObjectId(obj.object_id);
           }}
           onSceneReady={setSceneCtx}
+          guidedRun={guidedRun}
+          cutawayRequest={cutawayRequest}
         />
 
         {/* 3. RIGHT ASSET INSPECTOR (COLLAPSIBLE SLIDE-OUT DRAWER) */}

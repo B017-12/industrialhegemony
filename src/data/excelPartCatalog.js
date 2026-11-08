@@ -1037,7 +1037,7 @@ export const EXCEL_ASSET_RECORDS = {
   'ASSET-014': {
     asset_id: 'ASSET-014',
     tag: 'P-002',
-    excel_item_name: 'P-002 · Process Pump (Chemical Preparation)',
+    excel_item_name: 'P-002 · Generic Centrifugal Pump (Boiler Feedwater Line)',
     asset_class: 'PROCESS_PUMP',
     area_id: 'AREA-04',
     area_name: 'Chemical Preparation',
