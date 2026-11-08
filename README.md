@@ -55,9 +55,14 @@ The top header bar switches seamlessly between two operational modes:
 
 ---
 
-## Holographic AR Part HUD (`HolographicArAssetMenu.jsx`)
+## Holographic AR Part HUD (`HolographicArAssetMenu.jsx`) & 31-Part 3D Pump Cutaway (`PumpGlbInspector.jsx`)
 
 Clicking any 3D equipment bounding box (or floating tag pill) opens the **Holographic AR Field Service Asset HUD**:
+- **Interactive 31-Part Centrifugal Pump 3D GLB Cutaway (`P-002 / ASSET-014` & `P-001`..`P-006`)**:
+  - **AI Model & Part Resolution (`modelCatalog.js`)**: Ask the Diagnostic Assistant *"Find the pump on the boiler feedwater line and show me the seal."* (or click **`🔬 Pump Seal Cutaway (P-002)`** in the top bar). SpatialSense resolves `P-002` (`ASSET-014`, labeled **Generic centrifugal pump — Boiler Feedwater Line**) to catalog entry `MODEL-CENTRIFUGAL-PUMP-ENGX` (`/assets/models/pump.glb`, 2.1 MB, 31 named parts) and `part_id: "mechanical_seal"`.
+  - **Slide Casing Forward & Explode Slider (`0%–100%`)**: Slide the volute casing, suction/discharge flanges, wear ring, and joint bolts forward along `+X` while keeping the rotating pump shaft, 6-bladed impeller, inboard/outboard bearings, and mechanical seal in their installed positions. Use the **Explode** slider to spread all 31 parts outward, or click any of the 31 parts in 3D to move it individually along `X / Y / Z`.
+  - **Illustrative Fault Scenario — `Mechanical seal leak`**: Pulses the `Mechanical seal (rotating ring)`, `Mechanical seal seat`, and `Seal gland` in alarm red (`#ef4444`) and animates leaking water droplets where the shaft exits the housing.
+  - **3D Model Attribution**: *Centrifugal Pump (31 parts)* by **Engine-X by Parth Parmar ([engx3d.com](https://engx3d.com/3d-models/centrifugal-pump))**, licensed under **CC BY-NC 4.0**.
 - **Photorealistic Cutout & 3D Wireframe Scanner**: Displays high-contrast equipment cutouts (`/assets/parts/*.png` for Control Valves, Process Pumps, Electric Motors, Pressure Transmitters, Vibration Sensors, Forklifts, IBC Totes, and Control Cabinets) with animated fault-hotspot callouts and interactive 360° rotation/zoom.
 - **Exact Excel Workbook Binding**: Displays the asset's exact rows from `Asset_Master`, `Scene_Anchors`, `Current_State`, `Telemetry`, `Alarms_Events`, `Maintenance_History`, `Knowledge_Docs`, and `Data_Quality`.
 - **Interactive Telemetry Simulator & Splat Mover**: Mutate live telemetry sliders (or inject/restore faults) to test real-time health recalculation, or shift the object's 3D Gaussian Splats in 0.6 m steps directly from the HUD.
