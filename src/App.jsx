@@ -271,6 +271,7 @@ export default function App() {
   );
   // { assetId, tag, workerId, phase: 'walking' | 'arrived' | 'repairing', follow, passed: [] }
   const [guidedRun, setGuidedRun] = useState(null);
+  const [cutawayRequest, setCutawayRequest] = useState(null);
 
   // Field verification / LOTO state
   const [arFirstPersonMode, setArFirstPersonMode] = useState(false);
@@ -585,6 +586,10 @@ export default function App() {
       const err = startGuidedInspection(res.assetId);
       if (err) res = { ...res, headline: err, failed: true };
     }
+    if (res.modelCatalogMatch) {
+      handleSelectAsset(res.modelCatalogMatch.asset_id);
+      setCutawayRequest({ ...res.modelCatalogMatch, ts: Date.now() });
+    }
     setDiagResponse({ ...res, query });
   };
 
@@ -829,6 +834,17 @@ export default function App() {
 
         <div className="topbar-right">
           {/* Permanent Upload .PLY file button available in both modes at all times */}
+          <button
+            className="topbar-upload-ply"
+            onClick={() =>
+              handleDiagnosticQuery('Find the pump on the boiler feedwater line and show me the seal.')
+            }
+            title="Demo: Find P-002 Generic Centrifugal Pump on Boiler Feedwater Line, slide casing open & inspect Mechanical Seal"
+            style={{ borderColor: '#00f2ff', color: '#ecfeff' }}
+          >
+            <span>🔬 Pump Seal Cutaway (P-002)</span>
+          </button>
+
           <button
             className="topbar-upload-ply"
             onClick={() => fileInputRef.current?.click()}
@@ -1753,6 +1769,10 @@ export default function App() {
               sceneEdit={sceneEdit}
               splatMover={splatMover}
               selectedCvObjectId={selectedCvObjectId}
+              onOpen3dCutaway={(m) => {
+                handleSelectAsset(m.asset_id);
+                setCutawayRequest({ ...m, ts: Date.now() });
+              }}
             />
           )}
 
@@ -1959,6 +1979,7 @@ export default function App() {
           }}
           onSceneReady={setSceneCtx}
           guidedRun={guidedRun}
+          cutawayRequest={cutawayRequest}
         />
 
         {/* 3. RIGHT ASSET INSPECTOR (COLLAPSIBLE SLIDE-OUT DRAWER) */}

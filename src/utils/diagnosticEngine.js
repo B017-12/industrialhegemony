@@ -22,8 +22,14 @@ import {
 } from '../data/processTopology.js';
 import { ISSUE_PLAYBOOKS, PLAYBOOK_DISCLAIMER, getPlaybook } from '../data/issuePlaybooks.js';
 import { getPartVisualSpec } from '../data/excelPartCatalog.js';
+import {
+  CENTRIFUGAL_PUMP_MODEL_ID,
+  MODEL_CATALOG,
+  resolveCatalogModelAndPart
+} from '../data/modelCatalog.js';
 
 export const PRESET_QUERIES = [
+  'Find the pump on the boiler feedwater line and show me the seal.',
   'Diagnose P-002',
   'Guide me to P-005',
   "What's around me?",
@@ -203,6 +209,13 @@ export function retrieve(query, k = 5) {
 
 /** Title + text for a citation id (used by the Sources list). */
 export function lookupSource(id) {
+  if (id === CENTRIFUGAL_PUMP_MODEL_ID) {
+    const m = MODEL_CATALOG[CENTRIFUGAL_PUMP_MODEL_ID];
+    return {
+      title: `Model_Catalog · ${m.model_id} · ${m.name}`,
+      text: `Approved 3D GLB (${m.glb_path}, ${m.file_size_mb} MB, ${m.part_count} named internal parts). Bound to ${m.primary_tag} (${m.primary_asset_id}, ${m.service_circuit}). Credit: ${m.attribution} — License: ${m.license}.`
+    };
+  }
   if (id.startsWith('TEL:')) {
     const [, tag, sig] = id.split(':');
     const a = BY_TAG[tag];
@@ -518,6 +531,22 @@ export function answer(query, ctx = {}) {
   const mentioned = extractAssets(q);
   const fallbackId = ctx.guidedAssetId || findAsset(ctx.selectedAsset)?.asset_id;
   const targetId = mentioned[0] || fallbackId;
+
+  // 1. Check 3D Equipment & Internal Component Model Catalog (e.g., "Find the pump on the boiler feedwater line and show me the seal.")
+  const modelMatch = resolveCatalogModelAndPart(q, findAsset(ctx.selectedAsset));
+  if (modelMatch) {
+    const rep = diagnose(modelMatch.asset_id, {
+      ...ctx,
+      arrived: ctx.arrived && modelMatch.asset_id === ctx.guidedAssetId
+    });
+    return {
+      ...rep,
+      headline: `${modelMatch.tag} · ${modelMatch.model_name} (${modelMatch.service_circuit}) — 3D Cutaway Opened → ${modelMatch.part_label}`,
+      summary: `AI matched scene tag ${modelMatch.tag} (${modelMatch.asset_id}) to catalog model ${modelMatch.model_id} (${modelMatch.glb_path}, 31 parts) and highlighted part_id "${modelMatch.part_id}" (${modelMatch.matched_nodes.join(', ')}). ${rep.summary}`,
+      modelCatalogMatch: modelMatch,
+      citations: [modelMatch.model_id, ...rep.citations]
+    };
+  }
 
   if (/^(inspect|guide|go|walk|take|navigate|send|dispatch|route)\b|guide me|take me|walk me|go to|bring me/.test(lq)) {
     if (!targetId) return { kind: 'search', headline: 'Which asset? e.g. "guide me to P-005"', results: [], citations: [] };

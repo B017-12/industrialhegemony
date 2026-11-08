@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { humanize } from '../ui/status.js';
 import { EXCEL_ASSET_RECORDS, getPartVisualSpec } from '../data/excelPartCatalog.js';
+import { hasCentrifugalPumpGlb } from '../data/modelCatalog.js';
+import PumpGlbInspector from './PumpGlbInspector.jsx';
 
 /**
  * Part-Specific, Excel-Backed 2D Static-Image Holographic AR Field Service HUD
@@ -125,10 +127,28 @@ function HolographicArAssetMenuInner({
   onCenterAsset,
   onMoveObject,
   objectMoves = {},
-  onSwitchToTechnicianMode = null
+  onSwitchToTechnicianMode = null,
+  cutawayRequest = null
 }) {
-  const [activeView, setActiveView] = useState('topology'); // 'topology' | 'multipanel' | 'badge' | 'cutaway' | 'executive' | 'excel'
+  const hasPumpGlb = useMemo(() => hasCentrifugalPumpGlb(asset), [asset]);
+  const [activeView, setActiveView] = useState(() =>
+    hasCentrifugalPumpGlb(asset) ? 'glb3d' : 'topology'
+  ); // 'glb3d' | 'topology' | 'multipanel' | 'badge' | 'cutaway' | 'executive' | 'excel'
   const [themeId, setThemeId] = useState('cyan');
+
+  useEffect(() => {
+    if (hasCentrifugalPumpGlb(asset)) {
+      setActiveView('glb3d');
+    } else if (activeView === 'glb3d') {
+      setActiveView('topology');
+    }
+  }, [asset?.asset_id]);
+
+  useEffect(() => {
+    if (cutawayRequest && hasCentrifugalPumpGlb(asset)) {
+      setActiveView('glb3d');
+    }
+  }, [cutawayRequest, asset?.asset_id]);
   const [useOnlinePhoto, setUseOnlinePhoto] = useState(false);
   const [lotoChecked, setLotoChecked] = useState({
     0: false,
@@ -391,7 +411,12 @@ function HolographicArAssetMenuInner({
         left: '50%',
         top: '50%',
         transform: 'translate(-50%, -50%)',
-        width: activeView === 'badge' ? '520px' : 'min(920px, calc(100vw - 20px))',
+        width:
+          activeView === 'badge'
+            ? '520px'
+            : activeView === 'glb3d'
+            ? 'min(980px, calc(100vw - 20px))'
+            : 'min(920px, calc(100vw - 20px))',
         maxHeight: 'calc(100vh - 36px)',
         display: 'flex',
         flexDirection: 'column',
@@ -539,6 +564,9 @@ function HolographicArAssetMenuInner({
         }}
       >
         {[
+          ...(hasPumpGlb
+            ? [{ id: 'glb3d', label: '🔬 0. 3D Internal Cutaway (31 Parts)' }]
+            : []),
           { id: 'topology', label: '1. Topology & Causality' },
           { id: 'multipanel', label: '2. Multi-Panel HUD' },
           { id: 'badge', label: '3. Quick-Inspection Badge' },
@@ -600,6 +628,20 @@ function HolographicArAssetMenuInner({
           backgroundPosition: 'center'
         }}
       >
+        {/* VIEW 0: INTERACTIVE 31-PART 3D CENTRIFUGAL PUMP GLB CUTAWAY & FAULT SIMULATOR */}
+        {activeView === 'glb3d' && hasPumpGlb && (
+          <PumpGlbInspector
+            asset={asset}
+            theme={theme}
+            initialRequest={cutawayRequest}
+            onTriggerTelemetryFault={(assetId) => {
+              if (onExecuteMaintenanceAction) {
+                onExecuteMaintenanceAction(assetId, 'inject_fault');
+              }
+            }}
+          />
+        )}
+
         {/* VIEW 1: SPATIAL PROCESS TOPOLOGY & CAUSALITY FLOW */}
         {activeView === 'topology' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

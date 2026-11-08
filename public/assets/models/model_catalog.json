@@ -1,0 +1,140 @@
+{
+  "catalog_version": "1.0.0",
+  "title": "Valmet SpatialSense Approved 3D Equipment & Internal Component Catalog",
+  "models": [
+    {
+      "model_id": "MODEL-CENTRIFUGAL-PUMP-ENGX",
+      "name": "Generic centrifugal pump",
+      "service_circuit": "Boiler Feedwater Line (Main Pump Skid)",
+      "glb_path": "/assets/models/pump.glb",
+      "file_size_mb": 2.1,
+      "part_count": 31,
+      "license": "CC BY-NC 4.0",
+      "attribution": "Engine-X by Parth Parmar (engx3d.com)",
+      "source_url": "https://engx3d.com/3d-models/centrifugal-pump",
+      "primary_asset_id": "ASSET-014",
+      "primary_tag": "P-002",
+      "bound_equipment_tags": ["P-002", "P-001", "P-003", "P-004", "P-005", "P-006"],
+      "bound_asset_ids": ["ASSET-014", "ASSET-013", "ASSET-015", "ASSET-016", "ASSET-017", "ASSET-018"],
+      "aliases": [
+        "boiler feedwater line",
+        "boiler feedwater pump",
+        "feedwater pump",
+        "feedwater line",
+        "generic centrifugal pump",
+        "centrifugal pump",
+        "main pump skid",
+        "p-002",
+        "asset-014"
+      ],
+      "part_groups": {
+        "mechanical_seal": {
+          "part_id": "mechanical_seal",
+          "label": "Mechanical Seal Assembly (Shaft Housing Exit)",
+          "aliases": ["seal", "mechanical seal", "shaft seal", "seal gland", "seal seat", "rotating ring", "leak"],
+          "nodes": [
+            "Mechanical seal (rotating ring)",
+            "Mechanical seal seat",
+            "Seal gland"
+          ],
+          "description": "Primary shaft sealing interface where the rotating pump shaft exits the stationary bearing housing and back cover into the wet volute chamber."
+        },
+        "impeller": {
+          "part_id": "impeller",
+          "label": "Closed Centrifugal Impeller (Hub, Shroud & 6 Vanes)",
+          "aliases": ["impeller", "vanes", "blades", "shroud", "impeller hub", "cavitation"],
+          "nodes": [
+            "Impeller hub",
+            "Impeller front shroud",
+            "Impeller blade 1",
+            "Impeller blade 2",
+            "Impeller blade 3",
+            "Impeller blade 4",
+            "Impeller blade 5",
+            "Impeller blade 6"
+          ],
+          "description": "6-vane radial centrifugal impeller keyed to the shaft nose; transfers kinetic energy to the boiler feedwater."
+        },
+        "shaft_coupling": {
+          "part_id": "shaft_coupling",
+          "label": "Pump Shaft & Flexible Drive Coupling",
+          "aliases": ["shaft", "pump shaft", "coupling", "flexible coupling", "rotor"],
+          "nodes": [
+            "Pump shaft",
+            "Flexible coupling"
+          ],
+          "description": "Precision stainless steel rotor shaft transmitting torque from the electric drive motor through the flexible coupling."
+        },
+        "bearings": {
+          "part_id": "bearings",
+          "label": "Inboard/Outboard Bearings & Bearing Housing",
+          "aliases": ["bearing", "bearings", "inboard bearing", "outboard bearing", "bearing housing"],
+          "nodes": [
+            "Bearing (inboard)",
+            "Bearing (outboard)",
+            "Bearing housing"
+          ],
+          "description": "Dual rolling-element bearings supporting radial hydraulic loads and axial rotor thrust inside the cast iron bearing frame."
+        },
+        "volute_casing": {
+          "part_id": "volute_casing",
+          "label": "Volute Casing, Nozzles, Wear Ring & Joint Bolts",
+          "aliases": ["casing", "volute", "housing", "flange", "suction", "discharge", "wear ring", "casing bolts"],
+          "nodes": [
+            "Volute casing",
+            "Suction flange",
+            "Discharge flange",
+            "Wear ring",
+            "Casing joint bolt 1",
+            "Casing joint bolt 2",
+            "Casing joint bolt 3",
+            "Casing joint bolt 4",
+            "Casing support foot"
+          ],
+          "description": "Pressure-retaining spiral volute casing that converts impeller velocity head into static discharge pressure on the feedwater header."
+        },
+        "motor_frame": {
+          "part_id": "motor_frame",
+          "label": "TEFC Drive Motor, Baseplate & Mounting Bolts",
+          "aliases": ["motor", "baseplate", "skid", "mounting bolts"],
+          "nodes": [
+            "Motor",
+            "Baseplate (Centrifugal pump — Engine-X)",
+            "Motor mounting bolt 1",
+            "Motor mounting bolt 2",
+            "Motor mounting bolt 3",
+            "Motor mounting bolt 4"
+          ],
+          "description": "Induction drive motor and heavy structural steel skid baseplate."
+        }
+      },
+      "fault_scenarios": {
+        "mechanical_seal_leak": {
+          "fault_id": "mechanical_seal_leak",
+          "label": "Mechanical seal leak",
+          "badge": "Illustrative fault scenario",
+          "target_part_id": "mechanical_seal",
+          "pulse_color": "#ef4444",
+          "droplet_origin_mm": [15, 170, 0],
+          "summary": "Thermal distortion and abrasive wear across the SiC rotating ring and stationary seal seat allow pressurized boiler feedwater to weep past the seal gland where the shaft exits the housing."
+        },
+        "impeller_cavitation": {
+          "fault_id": "impeller_cavitation",
+          "label": "Impeller eye cavitation",
+          "badge": "Illustrative fault scenario",
+          "target_part_id": "impeller",
+          "pulse_color": "#f97316",
+          "summary": "Low suction head (NPSHa < NPSHr) causes vapor bubble collapse along the leading edges of Impeller blades 1–6 and the front wear ring."
+        },
+        "bearing_overheat": {
+          "fault_id": "bearing_overheat",
+          "label": "Outboard bearing wear & overheat",
+          "badge": "Illustrative fault scenario",
+          "target_part_id": "bearings",
+          "pulse_color": "#eab308",
+          "summary": "Elevated axial thrust and lubrication breakdown increase friction in Bearing (outboard) and Bearing (inboard)."
+        }
+      }
+    }
+  ]
+}

@@ -110,16 +110,64 @@ function NeighbourList({ title, items, assets, onSelectAsset }) {
   );
 }
 
-export default function DiagnosticReport({ report, assets, onSelectAsset, guidedRun, onProceedRepair }) {
+export default function DiagnosticReport({
+  report,
+  assets,
+  onSelectAsset,
+  guidedRun,
+  onProceedRepair,
+  onOpen3dCutaway
+}) {
   const [checked, setChecked] = useState({});
   const focus = report.focus;
   const open = (key, fallback = true) => (focus ? focus === key : fallback);
   const canRepair =
     guidedRun?.phase === 'arrived' && guidedRun.assetId === report.asset.asset_id && report.asset.issue_code !== 'NORMAL';
   const a = report.asset;
+  const m = report.modelCatalogMatch;
 
   return (
     <div className="diag-report">
+      {m && (
+        <div
+          style={{
+            padding: '10px 12px',
+            marginBottom: '8px',
+            borderRadius: '8px',
+            background: 'rgba(2, 18, 34, 0.94)',
+            border: '1.5px solid #00f2ff'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+            <span className="mono" style={{ fontSize: '10px', color: '#00f2ff', fontWeight: 800 }}>
+              3D CATALOG RESOLVED · {m.model_id}
+            </span>
+            <span className="mono" style={{ fontSize: '10px', color: '#fca5a5', fontWeight: 700 }}>
+              part_id: {m.part_id}
+            </span>
+          </div>
+          <div style={{ fontWeight: 800, fontSize: '12px', marginTop: '3px', color: '#fff' }}>
+            {m.tag} · {m.model_name} ({m.service_circuit})
+          </div>
+          <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '3px' }}>
+            Matched GLB: <code className="mono">{m.glb_path}</code> ({m.part_count} parts) · Highlighted nodes:{' '}
+            <b>{m.matched_nodes.join(', ')}</b>
+          </div>
+          <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>
+            Credit: {m.attribution} · {m.license}
+          </div>
+          {onOpen3dCutaway && (
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              style={{ marginTop: '7px', width: '100%' }}
+              onClick={() => onOpen3dCutaway(m)}
+            >
+              🔬 Open 31-Part 3D Cutaway &amp; Mechanical Seal Leak Demo
+            </button>
+          )}
+        </div>
+      )}
       <div className={`diag-head cond-${COND_CLS[a.condition_state] || 'normal'}`}>
         <div className="row" style={{ gap: 6, alignItems: 'center' }}>
           <span className="diag-dot" />

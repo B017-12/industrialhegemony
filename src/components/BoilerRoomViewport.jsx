@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
   SparkRenderer,
   SplatMesh,
@@ -53,6 +54,22 @@ const GEO_CACHE = {
   contourDot: new THREE.SphereGeometry(0.022, 8, 8),
   unitBox: new THREE.BoxGeometry(1, 1, 1)
 };
+
+let cachedPumpGltfPromise = null;
+function loadCachedPumpGltf() {
+  if (!cachedPumpGltfPromise) {
+    const loader = new GLTFLoader();
+    cachedPumpGltfPromise = new Promise((resolve) => {
+      loader.load(
+        '/assets/models/pump.glb',
+        (gltf) => resolve(gltf.scene),
+        undefined,
+        () => resolve(null)
+      );
+    });
+  }
+  return cachedPumpGltfPromise;
+}
 
 function createProceduralEquipmentMesh(asset, colorHex) {
   const group = new THREE.Group();
@@ -106,18 +123,37 @@ function createProceduralEquipmentMesh(asset, colorHex) {
     actuatorDome.position.y = sy * 0.24;
     group.add(actuatorDome);
   } else if (asset.asset_class === 'process_pump') {
+    const fallbackGroup = new THREE.Group();
     const skid = new THREE.Mesh(GEO_CACHE.pumpSkid, darkSteelMat);
     skid.position.y = -sy * 0.38;
-    group.add(skid);
+    fallbackGroup.add(skid);
 
     const volute = new THREE.Mesh(GEO_CACHE.pumpVolute, solidMat);
     volute.rotation.z = Math.PI / 2;
     volute.position.y = -sy * 0.05;
-    group.add(volute);
+    fallbackGroup.add(volute);
 
     const nozzle = new THREE.Mesh(GEO_CACHE.pumpNozzle, steelMat);
     nozzle.position.set(-sx * 0.10, sy * 0.20, 0);
-    group.add(nozzle);
+    fallbackGroup.add(nozzle);
+    group.add(fallbackGroup);
+
+    // Mount the real 31-part Engine-X Centrifugal Pump GLB in the 3D scene
+    loadCachedPumpGltf().then((templateScene) => {
+      if (!templateScene) return;
+      const glbClone = templateScene.clone(true);
+      glbClone.position.set(0.05, -sy * 0.42, 0);
+      glbClone.scale.setScalar(0.0021);
+      glbClone.traverse((child) => {
+        if (child.isMesh) {
+          child.material = child.name.includes('Volute') || child.name.includes('Motor')
+            ? solidMat
+            : steelMat;
+        }
+      });
+      group.remove(fallbackGroup);
+      group.add(glbClone);
+    });
   } else if (asset.asset_class === 'electric_motor') {
     const base = new THREE.Mesh(GEO_CACHE.pumpSkid, darkSteelMat);
     base.position.y = -sy * 0.36;
@@ -511,7 +547,8 @@ export default function BoilerRoomViewport({
   onMoveCvObject,
   onResetCvMoves,
   // Guided inspection run from the Diagnostic Assistant: { assetId, workerId, phase, follow }
-  guidedRun = null
+  guidedRun = null,
+  cutawayRequest = null
 }) {
   const mountRef = useRef(null);
   // ---- Move-Objects mode (click an object, drag it to a new spot; splats are cut out + re-instanced) ----
@@ -3066,6 +3103,21 @@ export default function BoilerRoomViewport({
     prevSelectedAssetIdRef.current = curId;
   }, [selectedAsset?.asset_id, arFirstPersonMode]);
 
+  // Auto-open Holographic 3D GLB Cutaway Explorer when AI Copilot resolves a 3D model & internal part
+  useEffect(() => {
+    if (!cutawayRequest?.asset_id) return;
+    setClickedUnboundCvObj(null);
+    setClickedPopoverAssetId(cutawayRequest.asset_id);
+    const targetAsset = (assets || []).find((a) => a.asset_id === cutawayRequest.asset_id);
+    if (targetAsset && !arFirstPersonMode) {
+      triggerCameraFlyTo(
+        targetAsset.position,
+        targetAsset.approach_point,
+        targetAsset.bbox_size
+      );
+    }
+  }, [cutawayRequest?.ts]);
+
   const handleFacilityOverview = () => {
     if (arFirstPersonMode) onToggleArFirstPerson(false);
     manualPosRef.current = null;
@@ -3481,6 +3533,7 @@ export default function BoilerRoomViewport({
           onMoveObject={onMoveCvObject}
           objectMoves={objectMoves}
           onSwitchToTechnicianMode={!showWorkers ? onSwitchToTechnicianMode : null}
+          cutawayRequest={cutawayRequest}
         />
       )}
 

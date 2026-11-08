@@ -79,7 +79,16 @@ function GuidedRunStrip({ run, nearbyAssets, assets, onSelectAsset, onToggleFoll
   );
 }
 
-function ResponseView({ response, assets, onSelectAsset, onAsk, onStartGuidedRun, guidedRun, onProceedRepair }) {
+function ResponseView({
+  response,
+  assets,
+  onSelectAsset,
+  onAsk,
+  onStartGuidedRun,
+  guidedRun,
+  onProceedRepair,
+  onOpen3dCutaway
+}) {
   if (!response) return null;
   if (response.kind === 'diagnosis') {
     return (
@@ -90,6 +99,7 @@ function ResponseView({ response, assets, onSelectAsset, onAsk, onStartGuidedRun
         onSelectAsset={onSelectAsset}
         guidedRun={guidedRun}
         onProceedRepair={onProceedRepair}
+        onOpen3dCutaway={onOpen3dCutaway}
       />
     );
   }
@@ -137,7 +147,8 @@ export function EdgeCopilotDrawer({
   onToggleFollow,
   sceneEdit,
   splatMover,
-  selectedCvObjectId
+  selectedCvObjectId,
+  onOpen3dCutaway
 }) {
   const [queryInput, setQueryInput] = useState('');
 
@@ -235,6 +246,7 @@ export function EdgeCopilotDrawer({
                   onStartGuidedRun={onStartGuidedRun}
                   guidedRun={guidedRun}
                   onProceedRepair={onProceedRepair}
+                  onOpen3dCutaway={onOpen3dCutaway}
                 />
               </div>
             )}
