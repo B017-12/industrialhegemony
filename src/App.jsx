@@ -69,7 +69,7 @@ export default function App() {
   const [activeNav, setActiveNav] = useState('alerts'); // 'alerts' | 'assets' | 'cv_review' | 'vision' | 'scene_edit' | 'navigate' | 'workorders' | 'copilot' | 'settings'
 
   // Application Mode: 'consumer' (Matterport-style clean twin) | 'technician' (Siemens-style engineering twin)
-  const [appMode, setAppMode] = useState('consumer');
+  const [appMode, setAppMode] = useState('technician');
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
 
