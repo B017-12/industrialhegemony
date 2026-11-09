@@ -12,6 +12,7 @@ SpatialSense takes a Gaussian-splat scan of a real equipment room and the hackat
 
 ## Contents
 
+- [Screenshots](#screenshots)
 - [Key features](#key-features)
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
@@ -22,6 +23,22 @@ SpatialSense takes a Gaussian-splat scan of a real equipment room and the hackat
 - [Tests and build](#tests-and-build)
 - [Known limitations](#known-limitations)
 - [Credits](#credits)
+
+---
+
+## Screenshots
+
+### Consumer Mode: orbit tour
+
+![Consumer Mode showing the Equipment Room Gaussian-splat scan with cyan bounding boxes and confidence labels such as P-004 72%](docs/images/consumer-mode-orbit.png)
+
+*Consumer Mode in Orbit view. The scan is rendered as Gaussian splats, with detected objects shown as oriented bounding boxes and labelled with a class or asset tag and a confidence score. The bottom bar switches between Walk and Orbit, resets the camera, opens the facility overview and enters AR mode.*
+
+### Technical Console: AR HUD
+
+![Technical Console in AR mode showing the first-person technician view, asset bounding boxes with confidence labels, the alert and asset sidebar, and the Drive Technician panel](docs/images/technical-console-ar.png)
+
+*Technical Console with the AR HUD active. The left sidebar opens the alerts, assets, CV review, navigation, work-order and copilot drawers. The top bar shows alarm, degraded and watch counts. Bounding boxes are colour-coded by asset state, and the Drive Technician panel steers a simulated worker in first-person or third-person view.*
 
 ---
 
