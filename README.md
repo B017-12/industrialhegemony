@@ -1,5 +1,7 @@
 # Valmet DNA SpatialSense
 
+Valmet DNA Spatialsense won third place in the Valmet Company Challenge at SinceAI Hackathon 2026!
+
 A prototype 3D digital twin of an industrial equipment room, built for the **Valmet × Since AI 2026** hackathon.
 
 SpatialSense takes a Gaussian-splat scan of a real equipment room and the hackathon's Excel *Synthetic Industrial Metaverse Builder Data Pack* (30 assets, telemetry, alarms, maintenance history, SOP documents) and joins them in the browser. A maintenance technician can walk the photoreal scan, click a machine to see its health, telemetry and history, ask a copilot why it is alarming (with every claim citing a row in the pack), and plan a collision-checked route to it. Field service usually means carrying the plant model, the CMMS and the manuals separately. This prototype shows them as one spatial view.
