@@ -1,6 +1,6 @@
 # Valmet DNA SpatialSense
 
-Valmet DNA Spatialsense won third place in the Valmet Company Challenge at SinceAI Hackathon 2026!
+Valmet DNA SpatialSense won third place in the Valmet Company Challenge at SinceAI Hackathon 2026!
 
 A prototype 3D digital twin of an industrial equipment room, built for the **Valmet × Since AI 2026** hackathon.
 
